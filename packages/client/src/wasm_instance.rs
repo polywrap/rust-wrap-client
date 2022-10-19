@@ -79,8 +79,8 @@ impl WasmInstance {
 
         Ok(Self {
             module,
-            shared_state: shared_state,
-            instance: instance,
+            shared_state,
+            instance,
             rt: Arc::clone(&rt),
             store,
         })
@@ -106,11 +106,11 @@ impl WasmInstance {
                     let memory = arc_memory.lock().unwrap();
 
                     if state_guard.method.is_empty() {
-                        abort_clone(format!("{}", "__wrap_invoke_args: method is not set"));
+                        abort_clone("__wrap_invoke_args: method is not set".to_string());
                     }
 
                     if state_guard.args.is_empty() {
-                        abort_clone(format!("{}", "__wrap_invoke_args: args is not set"));
+                        abort_clone("__wrap_invoke_args: args is not set".to_string());
                     }
 
                     let mem_data = memory.data_mut(caller.as_context_mut());
@@ -251,12 +251,10 @@ impl WasmInstance {
         let sig_idx = index_of_array(module_bytes, &ENV_MEMORY_IMPORTS_SIGNATURE);
 
         if sig_idx.is_none() {
-            return Err(WrapperError::ModuleReadError(format!(
-                r#"Unable to find Wasm memory import section.
+            return Err(WrapperError::ModuleReadError(r#"Unable to find Wasm memory import section.
             Modules must import memory from the "env" module's
             "memory" field like so:
-            (import "env" "memory" (memory (;0;) #))"#
-            )));
+            (import "env" "memory" (memory (;0;) #))"#.to_string()));
         }
 
         let memory_initial_limits =

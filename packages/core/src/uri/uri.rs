@@ -23,7 +23,7 @@ impl Uri {
     pub fn from_string(uri: &str) -> Result<Uri, CoreError> {
         let mut processed = uri.clone().to_string();
 
-        while processed.chars().nth(0).unwrap() == '/' {
+        while processed.starts_with('/') {
             processed = processed[1..].to_string();
         }
 
@@ -34,9 +34,7 @@ impl Uri {
         }
 
         if wrap_scheme_idx.is_some() && wrap_scheme_idx.unwrap() != 0 {
-            return Err(CoreError::UriParseError(format!(
-                "The wrap:// scheme must be at the beginning of the URI string"
-            )));
+            return Err(CoreError::UriParseError("The wrap:// scheme must be at the beginning of the URI string".to_string()));
         }
 
         let reg = Regex::new(

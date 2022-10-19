@@ -87,7 +87,7 @@ impl<FReader: FileReader + Sized> WasmWrapper<FReader> {
 
             match file_content {
                 Ok(content) => {
-                    self.wasm_module = Some(WasmModule::Bytes(content.clone()));
+                    self.wasm_module = Some(WasmModule::Bytes(content));
                 }
                 Err(err) => {
                     return Err(WrapperError::FileReadError(err));
