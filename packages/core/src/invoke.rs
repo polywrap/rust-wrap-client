@@ -17,13 +17,13 @@ pub struct InvokeOptions {
 }
 
 pub struct InvokerOptions {
-  invoke_options: InvokeOptions,
-  encode_result: bool,
+  pub invoke_options: InvokeOptions,
+  pub encode_result: bool,
 }
 
 pub struct InvocableResult<TData> {
-  result: Result<TData, CoreError>,
-  encoded: Option<bool>
+  pub result: Result<TData, CoreError>,
+  pub encoded: Option<bool>
 }
 
 pub trait Invoker {

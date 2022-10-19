@@ -2,9 +2,9 @@ use crate::error::CoreError;
 use regex::Regex;
 
 pub struct Uri {
-    authority: String,
-    path: String,
-    uri: String,
+    pub authority: String,
+    pub path: String,
+    pub uri: String,
 }
 
 impl Uri {

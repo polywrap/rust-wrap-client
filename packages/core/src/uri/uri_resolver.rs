@@ -7,8 +7,8 @@ use super::uri::{ Uri };
 use super::uri_resolution_context::{ UriResolutionContext, UriPackageOrWrapper };
 
 pub struct TryResolveUriOptions {
-  uri: Uri,
-  resolution_context: Option<UriResolutionContext>,
+  pub uri: Uri,
+  pub resolution_context: Option<UriResolutionContext>,
 }
 
 pub trait UriResolverHandler {

@@ -1,7 +1,7 @@
 use super::uri::{ Uri };
 use crate::wrapper::Wrapper;
 
-struct UriWrapper<W: Wrapper> {
-  uri: Uri,
-  wrapper: W,
+pub struct UriWrapper<W: Wrapper> {
+  pub uri: Uri,
+  pub wrapper: W,
 }

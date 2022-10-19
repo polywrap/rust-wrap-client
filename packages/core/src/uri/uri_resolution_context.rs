@@ -1,8 +1,6 @@
 use std::collections::HashMap;
-use crate::client::Client;
 
 use crate::{uri::uri::Uri, error::CoreError};
-use crate::wrapper::{Wrapper};
 
 pub struct UriWrapper {
   // uri: Uri,
@@ -15,10 +13,10 @@ pub enum UriPackageOrWrapper {
 }
 
 pub struct UriResolutionStep {
-  source_uri: Uri,
-  result: Result<UriPackageOrWrapper, CoreError>,
-  description: Option<String>,
-  sub_history: Option<Vec<UriResolutionStep>>,
+  pub source_uri: Uri,
+  pub result: Result<UriPackageOrWrapper, CoreError>,
+  pub description: Option<String>,
+  pub sub_history: Option<Vec<UriResolutionStep>>,
 }
 
 pub struct UriResolutionContext {
