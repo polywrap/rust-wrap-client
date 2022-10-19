@@ -1,6 +1,5 @@
 use std::iter::Map;
-use std::future::Future;
-
+use async_trait::async_trait;
 use crate::{uri::{uri::Uri, uri_resolution_context::UriResolutionContext}, error::CoreError, wrapper::Wrapper};
 
 pub enum Args {
@@ -26,11 +25,13 @@ pub struct InvocableResult<TData> {
   pub encoded: Option<bool>
 }
 
+#[async_trait]
 pub trait Invoker {
-  fn invoke_wrapper(&self, options: &InvokerOptions, wrapper: Box<dyn Wrapper>) -> dyn Future<Output = Result<String, CoreError>>;
-  fn invoke(&self, options: InvokerOptions) -> dyn Future<Output = Result<String, CoreError>>;
+  fn invoke_wrapper(&self, options: &InvokerOptions, wrapper: Box<dyn Wrapper>) -> Result<String, CoreError>;
+  fn invoke(&self, options: InvokerOptions) -> Result<String, CoreError>;
 }
 
+#[async_trait]
 pub trait Invocable<I: Invoker> {
-    fn invoke<TData>(&self, options: &InvokeOptions, invoker: I) -> dyn Future<Output = Result<InvocableResult<TData>, CoreError>>;
+    fn invoke<TData>(&self, options: &InvokeOptions, invoker: I) -> Result<InvocableResult<TData>, CoreError>;
 }

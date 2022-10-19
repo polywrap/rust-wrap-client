@@ -1,4 +1,4 @@
-use std::{future::Future, pin::Pin};
+use async_trait::async_trait;
 
 use polywrap_core::{
     client::{Client, ClientConfig, UriRedirect},
@@ -67,6 +67,7 @@ impl PolywrapClient {
     }
 }
 
+#[async_trait(?Send)]
 impl Client for PolywrapClient {
     fn get_config(&self) -> &ClientConfig {
         &self.config
@@ -80,29 +81,30 @@ impl Client for PolywrapClient {
         &self.config.resolver
     }
 
-    fn get_file(
-        &self,
-        uri: &Uri,
-        options: &GetFileOptions,
-    ) -> Pin<Box<dyn Future<Output = Result<String, CoreError>>>> {
-        unimplemented!()
+    async fn get_file(&mut self, uri: Uri, options: GetFileOptions) -> Result<String, CoreError> {
+        let load = self.load_wrapper(&uri, Option::None).await;
+
+        match load {
+            Ok(wrapper) => {
+                let result = wrapper.get_file(&options).await;
+                return result;
+            }
+            Err(err) => {
+                return Err(CoreError::GetFileError(format!(
+                    "Failed to load wrapper: {}",
+                    err
+                )));
+            }
+        }
     }
 }
 
+#[async_trait(?Send)]
 impl UriResolverHandler for PolywrapClient {
-    fn try_resolve_uri(
+    async fn try_resolve_uri(
         &mut self,
         options: &polywrap_core::uri::uri_resolver::TryResolveUriOptions,
-    ) -> Pin<
-        Box<
-            dyn Future<
-                Output = Result<
-                    polywrap_core::uri::uri_resolution_context::UriPackageOrWrapper,
-                    CoreError,
-                >,
-            >,
-        >,
-    > {
+    ) -> Result<polywrap_core::uri::uri_resolution_context::UriPackageOrWrapper, CoreError> {
         let uri = options.uri.clone();
 
         let uri_resolver = self.get_uri_resolver();
@@ -113,6 +115,6 @@ impl UriResolverHandler for PolywrapClient {
             None => &uri_resolver_context,
         };
 
-        uri_resolver.try_resolve_uri(&uri, Box::new(self), resolution_context)
+        uri_resolver.try_resolve_uri(&uri, Box::new(self), resolution_context).await
     }
 }

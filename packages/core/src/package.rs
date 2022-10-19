@@ -1,7 +1,7 @@
-use std::{future::Future, pin::Pin};
-
 use crate::{wrapper::Wrapper, error::CoreError};
+use async_trait::async_trait;
 
+#[async_trait]
 pub trait WrapPackage {
-  fn create_wrapper(&self) -> Pin<Box<dyn Future< Output = Result<Box<dyn Wrapper>, CoreError>>>>;
+  async fn create_wrapper(&self) -> Result<Box<dyn Wrapper>, CoreError>;
 }

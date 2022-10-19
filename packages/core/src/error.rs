@@ -6,6 +6,8 @@ use thiserror::Error;
 pub enum CoreError {
   #[error("Error parsing URI: `{0}`")]
   UriParseError(String),
+  #[error("Error getting file: `{0}`")]
+  GetFileError(String),
   #[error("`{0}`\nResolution Stack: `{1:#?}`")]
   RedirectsError(String, HashMap<String, String>)
 }
