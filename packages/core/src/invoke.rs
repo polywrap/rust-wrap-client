@@ -1,36 +1,36 @@
-use uri::{ Uri };
-use uri_resolution::{ UriResolutionContext };
+use std::iter::Map;
+use std::future::Future;
 
-struct InvokeOptions {
-  uri: Uri;
-  method: String;
-  // TODO
-  args: Option<Record<String, Variant>>;
-  env: Option<Record<String, Variant>>;
-  resolution_context: Option<UriResolutionContext>;
+use crate::{uri::{uri::Uri, uri_resolution_context::UriResolutionContext}, error::CoreError, wrapper::Wrapper};
+
+pub enum Args {
+  Map(Map<String, String>),
+  UInt8Array(Box<[u8]>)
 }
 
-// TODO
-pub type InvokeResult = Result<Variant, Error>;
-
-struct InvokerOptions {
-  invoke_options: InvokeOptions;
-  encode_result: Option<bool>;
+pub struct InvokeOptions {
+  pub uri: Uri,
+  pub method: String,
+  pub args: Option<Args>,
+  pub env: Option<Map<String, String>>,
+  pub resolution_context: Option<UriResolutionContext>,
 }
 
-// TODO
+pub struct InvokerOptions {
+  invoke_options: InvokeOptions,
+  encode_result: bool,
+}
+
+pub struct InvocableResult<TData> {
+  result: Result<TData, CoreError>,
+  encoded: Option<bool>
+}
+
 pub trait Invoker {
-  fn invoke_wrapper(self) -> ...;
-  fn invoke(self) -> ...;
+  fn invoke_wrapper<TData, W: Wrapper>(&self, options: &InvokerOptions, wrapper: W) -> dyn Future<Output = Result<TData, CoreError>>;
+  fn invoke<TData>(&self, options: InvokerOptions) -> dyn Future<Output = Result<TData, CoreError>>;
 }
 
-/*
-TODO:
-interface InvocableResult extends InvokeResult {
-  encoded?: boolean
+pub trait Invocable<I: Invoker> {
+    fn invoke<TData>(&self, options: &InvokeOptions, invoker: I) -> dyn Future<Output = Result<InvocableResult<TData>, CoreError>>;
 }
-
-interface Invocable {
-  invoke
-}
-*/

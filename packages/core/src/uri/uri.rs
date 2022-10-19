@@ -1,4 +1,4 @@
-use super::error::CoreError;
+use crate::error::CoreError;
 use regex::Regex;
 
 pub struct Uri {
