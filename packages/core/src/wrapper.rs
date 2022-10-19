@@ -8,6 +8,6 @@ pub struct GetFileOptions {
 }
 
 pub trait Wrapper {
-  fn invoke<I: Invoker>(&self, options: &InvokeOptions, invoker: I) -> dyn Future<Output = Result<String, String>>;
+  fn invoke(&self, options: &InvokeOptions, invoker: Box<dyn Invoker>) -> dyn Future<Output = Result<String, String>>;
   fn get_file(&self, options: &GetFileOptions) -> dyn Future<Output = Result<String, String>>;
 }

@@ -5,6 +5,8 @@ pub enum WrapperError {
   #[error("`{0}`")]
   ModuleReadError(String),
   #[error("`{0}`")]
+  LoadWrapperError(String),
+  #[error("`{0}`")]
   FileReadError(#[from] std::io::Error),
   #[error("Invocation error: `{0}`")]
   InvokeError(String),

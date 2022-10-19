@@ -1,6 +1,7 @@
 use crate::error::CoreError;
 use regex::Regex;
 
+#[derive(Clone)]
 pub struct Uri {
     pub authority: String,
     pub path: String,

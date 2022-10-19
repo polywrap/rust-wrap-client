@@ -27,8 +27,8 @@ pub struct InvocableResult<TData> {
 }
 
 pub trait Invoker {
-  fn invoke_wrapper<TData, W: Wrapper>(&self, options: &InvokerOptions, wrapper: W) -> dyn Future<Output = Result<TData, CoreError>>;
-  fn invoke<TData>(&self, options: InvokerOptions) -> dyn Future<Output = Result<TData, CoreError>>;
+  fn invoke_wrapper(&self, options: &InvokerOptions, wrapper: Box<dyn Wrapper>) -> dyn Future<Output = Result<String, CoreError>>;
+  fn invoke(&self, options: InvokerOptions) -> dyn Future<Output = Result<String, CoreError>>;
 }
 
 pub trait Invocable<I: Invoker> {
