@@ -1,19 +1,7 @@
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum WrapperError {
-  #[error("`{0}`")]
-  ModuleReadError(String),
+pub enum ClientError {
   #[error("`{0}`")]
   LoadWrapperError(String),
-  #[error("`{0}`")]
-  FileReadError(#[from] std::io::Error),
-  #[error("Invocation error: `{0}`")]
-  InvokeError(String),
-  #[error("`{0}`")]
-  DecodeError(#[from] rmp_serde::decode::Error),
-  #[error("`{0}`")]
-  WasmRuntimeError(String),
-  #[error("`{0}`")]
-  ExportError(String)
 }

@@ -11,7 +11,7 @@ use polywrap_core::{
     wrapper::{GetFileOptions, Wrapper},
 };
 
-use crate::error::WrapperError;
+use crate::error::ClientError;
 
 pub struct PolywrapClient {
     config: ClientConfig,
@@ -26,7 +26,7 @@ impl PolywrapClient {
         &mut self,
         uri: &Uri,
         resolution_context: Option<UriResolutionContext>,
-    ) -> Result<Box<dyn Wrapper>, WrapperError> {
+    ) -> Result<Box<dyn Wrapper>, ClientError> {
         let resolution_ctx = match resolution_context {
             Some(ctx) => ctx,
             None => UriResolutionContext::new(),
@@ -41,7 +41,7 @@ impl PolywrapClient {
 
         // TODO: Handle errors
         if result.is_err() {
-            return Err(WrapperError::LoadWrapperError(format!(
+            return Err(ClientError::LoadWrapperError(format!(
                 "Failed to resolve wrapper: {}",
                 result.err().unwrap()
             )));
@@ -51,7 +51,7 @@ impl PolywrapClient {
 
         match uri_package_or_wrapper {
             UriPackageOrWrapper::Uri(uri) => {
-                return Err(WrapperError::LoadWrapperError(format!(
+                return Err(ClientError::LoadWrapperError(format!(
                     "Failed to resolve wrapper: {}",
                     uri
                 )));
