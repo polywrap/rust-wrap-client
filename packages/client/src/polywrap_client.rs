@@ -1,12 +1,10 @@
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
-
-use futures::executor::block_on;
 use polywrap_core::{
     client::{Client, ClientConfig, UriRedirect},
     error::CoreError,
-    invoke::{InvokeOptions, InvokerOptions, Invoker},
+    invoke::{InvokeOptions, Invoker, InvokerOptions},
     uri::{
         uri::Uri,
         uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
@@ -18,27 +16,92 @@ use polywrap_core::{
 use crate::error::ClientError;
 
 pub struct PolywrapClient {
-    config: Arc<ClientConfig>,
-    callback:
-        Option<Arc<Mutex<dyn FnMut(InvokerOptions) -> Result<Vec<u8>, CoreError> + Send + Sync>>>,
+    config: ClientConfig,
+    invoker: Arc<Mutex<Subinvoker>>,
+}
+
+#[derive(Clone)]
+pub struct Subinvoker {
+    loaded_wrapper: Option<Arc<dyn Wrapper>>,
+}
+
+impl Subinvoker {
+    pub fn new() -> Self {
+        Self {
+            loaded_wrapper: None,
+        }
+    }
+
+    pub fn load_wrapper(&mut self, wrapper: Arc<dyn Wrapper>) {
+        self.loaded_wrapper = Some(wrapper);
+    }
+}
+
+#[async_trait(?Send)]
+impl Invoker for Subinvoker {
+    async fn invoke_wrapper(
+        &self,
+        options: &InvokerOptions,
+        wrapper: Arc<dyn Wrapper>,
+    ) -> Result<Vec<u8>, CoreError> {
+        let result = wrapper.invoke(&options.invoke_options, Arc::new(Mutex::new(self.clone())));
+
+        if result.is_err() {
+            return Err(CoreError::InvokeError(format!(
+                "Failed to invoke wrapper: {}",
+                result.err().unwrap()
+            )));
+        };
+
+        let result = result.unwrap();
+
+        Ok(result)
+    }
+
+    async fn invoke(&self, options: &InvokerOptions) -> Result<Vec<u8>, CoreError> {
+        let uri = options.invoke_options.uri;
+        let invoke_opts = InvokeOptions {
+            uri,
+            args: options.invoke_options.args,
+            method: options.invoke_options.method,
+            resolution_context: options.invoke_options.resolution_context,
+            env: None,
+        };
+
+        let opts = InvokerOptions {
+            invoke_options: invoke_opts,
+            encode_result: options.encode_result,
+        };
+
+        let wrapper = match self.loaded_wrapper {
+            Some(ref w) => w.clone(),
+            None => {
+                return Err(CoreError::InvokeError(format!(
+                    "No wrapper loaded for uri: {}",
+                    uri
+                )))
+            }
+        };
+
+        let invoke_result = self.invoke_wrapper(&opts, Arc::from(wrapper)).await;
+
+        if invoke_result.is_err() {
+            return Err(CoreError::InvokeError(format!(
+                "Failed to invoke wrapper: {}",
+                invoke_result.err().unwrap()
+            )));
+        };
+
+        Ok(invoke_result.unwrap())
+    }
 }
 
 impl PolywrapClient {
-    pub fn new(config: Arc<ClientConfig>) -> Self {
-      let config_clone = config.clone();
-      let mock_client = Self {
-          config: config_clone,
-          callback: None,
-      };
-
-      let invoke = Arc::new(Mutex::new(move |options: InvokerOptions| {
-          block_on(mock_client.invoke(&options))
-      }));
-
-      Self {
-          config,
-          callback: Some(invoke),
-      }
+    pub fn new(config: ClientConfig) -> Self {
+        Self {
+            config,
+            invoker: Arc::new(Mutex::new(Subinvoker::new())),
+        }
     }
 
     pub async fn load_wrapper(
@@ -65,15 +128,11 @@ impl PolywrapClient {
         let uri_package_or_wrapper = result.unwrap();
 
         match uri_package_or_wrapper {
-            UriPackageOrWrapper::Uri(uri) => {
-                Err(ClientError::LoadWrapperError(format!(
-                    "Failed to resolve wrapper: {}",
-                    uri
-                )))
-            }
-            UriPackageOrWrapper::Wrapper(_, wrapper) => {
-                Ok(wrapper.wrapper)
-            }
+            UriPackageOrWrapper::Uri(uri) => Err(ClientError::LoadWrapperError(format!(
+                "Failed to resolve wrapper: {}",
+                uri
+            ))),
+            UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper.wrapper),
             UriPackageOrWrapper::Package(_, package) => {
                 let wrapper = package.package.create_wrapper().await.unwrap();
                 Ok(wrapper)
@@ -116,7 +175,7 @@ impl Invoker for PolywrapClient {
             encode_result: options.encode_result,
         };
 
-        let invoke_result = self.invoke_wrapper(&opts, wrapper).await;
+        let invoke_result = self.invoke_wrapper(&opts, Arc::from(wrapper)).await;
 
         if invoke_result.is_err() {
             return Err(CoreError::InvokeError(format!(
@@ -131,10 +190,12 @@ impl Invoker for PolywrapClient {
     async fn invoke_wrapper(
         &self,
         options: &InvokerOptions,
-        mut wrapper: Box<dyn Wrapper>,
+        wrapper: Arc<dyn Wrapper>,
     ) -> Result<Vec<u8>, CoreError> {
-        let sd = self.callback.as_ref().unwrap();
-        let result = wrapper.invoke(&options.invoke_options, sd.clone());
+        let wrapper_clone = wrapper.clone();
+        self.invoker.lock().unwrap().load_wrapper(wrapper_clone);
+
+        let result = wrapper.invoke(&options.invoke_options, self.invoker.clone());
 
         if result.is_err() {
             return Err(CoreError::InvokeError(format!(
@@ -195,8 +256,6 @@ impl UriResolverHandler for PolywrapClient {
             Some(ctx) => ctx,
             None => &uri_resolver_context,
         };
-
-        
 
         uri_resolver
             .try_resolve_uri(uri, self, resolution_context)

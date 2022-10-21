@@ -3,7 +3,7 @@ use crate::file_reader::FileReader;
 use crate::wasm_instance::State;
 use polywrap_core::error::CoreError;
 use polywrap_core::invoke::InvokeOptions;
-use polywrap_core::invoke::InvokerOptions;
+use polywrap_core::invoke::Invoker;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
@@ -31,13 +31,13 @@ impl WasmWrapper {
         }
     }
 
-    fn get_wasm_module(&mut self) -> Result<&WasmModule, WrapperError> {
+    fn get_wasm_module(&self) -> Result<&WasmModule, WrapperError> {
         if self.wasm_module.is_none() {
             let file_content = self.file_reader.read_file("test/wrap.wasm");
 
             match file_content {
                 Ok(content) => {
-                    self.wasm_module = Some(WasmModule::Bytes(content));
+                    Some(WasmModule::Bytes(content));
                 }
                 Err(err) => {
                     return Err(WrapperError::FileReadError(err));
@@ -51,9 +51,9 @@ impl WasmWrapper {
 
 impl Wrapper for WasmWrapper {
     fn invoke(
-        &mut self,
+        &self,
         options: &InvokeOptions,
-        invoke: Arc<Mutex<dyn FnMut(InvokerOptions) -> Result<Vec<u8>, CoreError> + Send + Sync>>,
+        invoker: Arc<Mutex<dyn Invoker>>,
     ) -> Result<Vec<u8>, CoreError> {
         let mut initial_state = State::default();
         initial_state.method = options.method.to_string().as_bytes().to_vec();
@@ -76,7 +76,7 @@ impl Wrapper for WasmWrapper {
             .map_err(|e| CoreError::WrapperError(e.to_string()))?;
 
         let mut wasm_instance =
-            WasmInstance::new(wasm_module, Arc::clone(&state), abort.clone(), invoke.clone()).unwrap();
+            WasmInstance::new(wasm_module, Arc::clone(&state), abort.clone(), invoker).unwrap();
 
         let mut result: [Val; 1] = [Val::I32(0)];
         wasm_instance

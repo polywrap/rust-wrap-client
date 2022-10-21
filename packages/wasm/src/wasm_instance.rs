@@ -3,8 +3,7 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use futures::executor::block_on;
-use polywrap_core::error::CoreError;
-use polywrap_core::invoke::{InvokeOptions, InvokerOptions};
+use polywrap_core::invoke::{InvokeOptions, Invoker, InvokerOptions};
 use polywrap_core::uri::uri::Uri;
 use wasmtime::*;
 
@@ -43,7 +42,7 @@ impl WasmInstance {
         wasm_module: &WasmModule,
         shared_state: Arc<Mutex<State>>,
         abort: Arc<dyn Fn(String) + Send + Sync>,
-        invoke: Arc<Mutex<dyn FnMut(InvokerOptions) -> Result<Vec<u8>, CoreError> + Send + Sync>>,
+        invoker: Arc<Mutex<dyn Invoker>>,
     ) -> Result<Self, WrapperError> {
         let mut config = Config::new();
         config.async_support(true);
@@ -78,7 +77,7 @@ impl WasmInstance {
             Arc::clone(&shared_state),
             abort,
             memory,
-            invoke.clone(),
+            invoker,
         )?;
 
         let instance = rt
@@ -98,7 +97,7 @@ impl WasmInstance {
         shared_state: Arc<Mutex<State>>,
         abort: Arc<dyn Fn(String) + Send + Sync>,
         memory: Rc<RefCell<Memory>>,
-        invoke: Arc<Mutex<dyn FnMut(InvokerOptions) -> Result<Vec<u8>, CoreError> + Send + Sync>>,
+        invoker: Arc<Mutex<dyn Invoker>>,
     ) -> Result<(), WrapperError> {
         let arc_shared_state = Arc::clone(&shared_state);
         let arc_memory = Arc::new(Mutex::new(memory.borrow_mut().to_owned()));
@@ -235,7 +234,7 @@ impl WasmInstance {
                         [args_ptr as usize..args_ptr as usize + args_len as usize]
                         .to_vec();
 
-                    let result = invoke.lock().unwrap()(InvokerOptions {
+                    let invoker_opts = InvokerOptions {
                         invoke_options: InvokeOptions {
                             uri: &uri,
                             method: &method,
@@ -244,7 +243,9 @@ impl WasmInstance {
                             resolution_context: None,
                         },
                         encode_result: true,
-                    });
+                    };
+
+                    let result = block_on(invoker.lock().unwrap().invoke(&invoker_opts));
 
                     match result {
                         Ok(res) => {

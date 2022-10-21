@@ -1,4 +1,4 @@
-use std::iter::Map;
+use std::{iter::Map, sync::Arc};
 use async_trait::async_trait;
 use crate::{uri::{uri::Uri, uri_resolution_context::UriResolutionContext}, error::CoreError, client::Client, wrapper::Wrapper};
 
@@ -21,8 +21,8 @@ pub struct InvocableResult<TData> {
 }
 
 #[async_trait(?Send)]
-pub trait Invoker {
-  async fn invoke_wrapper(&self, options: &InvokerOptions, wrapper: Box<dyn Wrapper>) -> Result<Vec<u8>, CoreError>;
+pub trait Invoker: Send + Sync {
+  async fn invoke_wrapper(&self, options: &InvokerOptions, wrapper: Arc<dyn Wrapper>) -> Result<Vec<u8>, CoreError>;
   async fn invoke(&self, options: &InvokerOptions) -> Result<Vec<u8>, CoreError>;
 }
 

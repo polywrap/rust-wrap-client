@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::{invoke::{InvokeOptions, InvokerOptions}, error::CoreError};
+use crate::{invoke::{InvokeOptions, Invoker}, error::CoreError};
 pub enum Encoding {
   Base64,
   UTF8
@@ -11,7 +11,7 @@ pub struct GetFileOptions {
   pub encoding: Option<Encoding>,
 }
 
-pub trait Wrapper {
-  fn invoke(&mut self, options: &InvokeOptions, invoke: Arc<Mutex<dyn FnMut(InvokerOptions) -> Result<Vec<u8>, CoreError> + Send + Sync>>) -> Result<Vec<u8>, CoreError>;
+pub trait Wrapper: Send + Sync {
+  fn invoke(&self, options: &InvokeOptions, invoker: Arc<Mutex<dyn Invoker>>) -> Result<Vec<u8>, CoreError>;
   fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, CoreError>;
 }
