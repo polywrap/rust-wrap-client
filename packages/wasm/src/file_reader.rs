@@ -1,4 +1,4 @@
-pub trait FileReader {
+pub trait FileReader: Send + Sync {
   fn read_file(&self, file_path: &str) -> Result<Vec<u8>, std::io::Error>;
 }
 
