@@ -83,7 +83,7 @@ impl Invoker for Subinvoker {
             }
         };
 
-        let invoke_result = self.invoke_wrapper(&opts, Arc::from(wrapper)).await;
+        let invoke_result = self.invoke_wrapper(&opts, wrapper).await;
 
         if invoke_result.is_err() {
             return Err(CoreError::InvokeError(format!(

@@ -37,7 +37,7 @@ impl WasmWrapper {
 
             match file_content {
                 Ok(content) => {
-                    Some(WasmModule::Bytes(content));
+                    content;
                 }
                 Err(err) => {
                     return Err(WrapperError::FileReadError(err));
