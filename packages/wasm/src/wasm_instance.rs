@@ -238,7 +238,7 @@ impl WasmInstance {
                     let result = invoke.lock().unwrap()(InvokerOptions {
                         invoke_options: InvokeOptions {
                             uri: &uri,
-                            method: &&method,
+                            method: &method,
                             args: Some(&args_bytes),
                             env: None,
                             resolution_context: None,
@@ -249,11 +249,11 @@ impl WasmInstance {
                     match result {
                         Ok(res) => {
                             state_ref.subinvoke.result = Some(res);
-                            return 1;
+                            1
                         }
                         Err(err) => {
                             state_ref.subinvoke.error = Some(err.to_string());
-                            return 0;
+                            0
                         }
                     }
                 },

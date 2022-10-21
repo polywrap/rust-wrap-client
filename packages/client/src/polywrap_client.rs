@@ -66,17 +66,17 @@ impl PolywrapClient {
 
         match uri_package_or_wrapper {
             UriPackageOrWrapper::Uri(uri) => {
-                return Err(ClientError::LoadWrapperError(format!(
+                Err(ClientError::LoadWrapperError(format!(
                     "Failed to resolve wrapper: {}",
                     uri
-                )));
+                )))
             }
             UriPackageOrWrapper::Wrapper(_, wrapper) => {
-                return Ok(wrapper.wrapper);
+                Ok(wrapper.wrapper)
             }
             UriPackageOrWrapper::Package(_, package) => {
                 let wrapper = package.package.create_wrapper().await.unwrap();
-                return Ok(wrapper);
+                Ok(wrapper)
             }
         }
     }
@@ -93,7 +93,7 @@ impl Invoker for PolywrapClient {
 
         let uri = options.invoke_options.uri;
 
-        let load_wrapper_result = self.load_wrapper(&uri, Some(resolution_context)).await;
+        let load_wrapper_result = self.load_wrapper(uri, Some(resolution_context)).await;
 
         if load_wrapper_result.is_err() {
             return Err(CoreError::InvokeError(format!(
@@ -104,7 +104,7 @@ impl Invoker for PolywrapClient {
 
         let wrapper = load_wrapper_result.unwrap();
         let invoke_opts = InvokeOptions {
-            uri: &uri,
+            uri,
             args: options.invoke_options.args,
             method: options.invoke_options.method,
             resolution_context: options.invoke_options.resolution_context,
@@ -164,11 +164,11 @@ impl Client for PolywrapClient {
     }
 
     async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, CoreError> {
-        let load = self.load_wrapper(&uri, Option::None).await;
+        let load = self.load_wrapper(uri, Option::None).await;
 
         match load {
             Ok(wrapper) => {
-                let result = wrapper.get_file(&options);
+                let result = wrapper.get_file(options);
                 return result;
             }
             Err(err) => {
@@ -196,10 +196,10 @@ impl UriResolverHandler for PolywrapClient {
             None => &uri_resolver_context,
         };
 
-        let res = uri_resolver
-            .try_resolve_uri(uri, self, resolution_context)
-            .await;
+        
 
-        res
+        uri_resolver
+            .try_resolve_uri(uri, self, resolution_context)
+            .await
     }
 }

@@ -58,7 +58,7 @@ impl Wrapper for WasmWrapper {
         let mut initial_state = State::default();
         initial_state.method = options.method.to_string().as_bytes().to_vec();
         initial_state.args = match options.args {
-            Some(ref args) => args.to_vec(),
+            Some(args) => args.to_vec(),
             None => vec![],
         };
 
