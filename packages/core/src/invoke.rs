@@ -4,7 +4,7 @@ use crate::{uri::{uri::Uri, uri_resolution_context::UriResolutionContext}, error
 
 pub struct InvokeOptions<'a> {
   pub uri: &'a Uri,
-  pub method: &'a String,
+  pub method: &'a str,
   pub args: Option<&'a Vec<u8>>,
   pub env: Option<&'a Map<String, String>>,
   pub resolution_context: Option<&'a UriResolutionContext>,

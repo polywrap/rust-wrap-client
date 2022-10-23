@@ -37,7 +37,7 @@ impl WasmWrapper {
 
             match file_content {
                 Ok(content) => {
-                    content;
+                    drop(content);
                 }
                 Err(err) => {
                     return Err(WrapperError::FileReadError(err));
@@ -69,7 +69,20 @@ impl Wrapper for WasmWrapper {
         ];
 
         let state = Arc::new(Mutex::new(initial_state));
-        let abort = Arc::new(|msg| panic!("WasmWrapper: Wasm module aborted execution: {}", msg));
+        let abort_uri = options.uri.clone();
+        let abort_method = options.method.to_string();
+        let abort_args = options.args.unwrap().clone();
+
+        let abort = Arc::new(move |msg| {
+          panic!(
+            r#"WasmWrapper: Wasm module aborted execution.
+              URI: {uri}
+              Method: {method}
+              Args: {args:?}
+              Message: {message}.
+            "#
+          , uri = abort_uri, method = abort_method, args = abort_args, message = msg);
+        });
 
         let wasm_module = self
             .get_wasm_module()
