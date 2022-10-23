@@ -2,6 +2,7 @@ use crate::error::WrapperError;
 use crate::file_reader::FileReader;
 use crate::wasm_instance::State;
 use polywrap_core::error::CoreError;
+use polywrap_core::invoke::InvokeArgs;
 use polywrap_core::invoke::InvokeOptions;
 use polywrap_core::invoke::Invoker;
 use polywrap_core::wrapper::Encoding;
@@ -66,12 +67,17 @@ impl Wrapper for WasmWrapper {
         options: &InvokeOptions,
         invoker: Arc<Mutex<dyn Invoker>>,
     ) -> Result<Vec<u8>, CoreError> {
+        let args = match options.args {
+          Some(args) => match args {
+            InvokeArgs::Values(values) => rmp_serde::encode::to_vec(&values).unwrap(),
+            InvokeArgs::UIntArray(arr) => arr.clone(),
+          },
+          None => vec![],
+        };
+
         let state = State::new(
             options.method,
-            match options.args {
-                Some(args) => args.to_vec(),
-                None => vec![],
-            },
+            args.clone(),
         );
 
         let params = &[
@@ -83,7 +89,7 @@ impl Wrapper for WasmWrapper {
         let state = Arc::new(Mutex::new(state));
         let abort_uri = options.uri.clone();
         let abort_method = options.method.to_string();
-        let abort_args = options.args.unwrap().clone();
+        let abort_args = args.clone();
 
         let abort = Arc::new(move |msg| {
             panic!(

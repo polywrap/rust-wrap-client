@@ -8,3 +8,5 @@ thiserror = "1.0.37"
 async-trait = "0.1.57"
 futures = "0.3.24"
 polywrap_core = {path = "../core"}
+serde = "1.0.145"
+rmp-serde = "1.1.1"

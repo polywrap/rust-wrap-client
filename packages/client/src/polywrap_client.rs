@@ -10,6 +10,7 @@ use polywrap_core::{
     uri_resolver::{UriResolver, UriResolverHandler},
     wrapper::{GetFileOptions, Wrapper},
 };
+use serde::de::DeserializeOwned;
 
 use crate::error::ClientError;
 
@@ -137,6 +138,25 @@ impl PolywrapClient {
                 Ok(wrapper)
             }
         }
+    }
+
+    pub async fn invoke_wrapper_and_decode<T: DeserializeOwned>(
+        &self,
+        options: &InvokeOptions<'_>,
+        wrapper: Arc<dyn Wrapper>,
+    ) -> Result<T, CoreError> {
+        let result = self.invoke_wrapper(options, wrapper).await?;
+        rmp_serde::from_slice(result.as_slice())
+            .map_err(|e| CoreError::InvokeError(format!("Failed to decode result: {}", e)))
+    }
+
+    pub async fn invoke_and_decode<T: DeserializeOwned>(
+        &self,
+        options: &InvokeOptions<'_>,
+    ) -> Result<T, CoreError> {
+        let result = self.invoke(options).await?;
+        rmp_serde::from_slice(result.as_slice())
+            .map_err(|e| CoreError::InvokeError(format!("Failed to decode result: {}", e)))
     }
 }
 
