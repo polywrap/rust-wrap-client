@@ -7,6 +7,7 @@ use polywrap_core::invoke::Invoker;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
+use serde::de::DeserializeOwned;
 use std::sync::Arc;
 use std::sync::Mutex;
 
@@ -47,6 +48,16 @@ impl WasmWrapper {
 
         Ok(self.wasm_module.as_ref().unwrap())
     }
+
+    pub fn invoke_and_decode<T: DeserializeOwned>(
+        &self,
+        options: &InvokeOptions,
+        invoker: Arc<Mutex<dyn Invoker>>,
+    ) -> Result<T, CoreError> {
+        let result = self.invoke(options, invoker)?;
+
+        rmp_serde::from_slice(result.as_slice()).map_err(|e| CoreError::WrapperError(e.to_string()))
+    }
 }
 
 impl Wrapper for WasmWrapper {
@@ -55,10 +66,13 @@ impl Wrapper for WasmWrapper {
         options: &InvokeOptions,
         invoker: Arc<Mutex<dyn Invoker>>,
     ) -> Result<Vec<u8>, CoreError> {
-        let state = State::new(options.method, match options.args {
-          Some(args) => args.to_vec(),
-          None => vec![],
-        });
+        let state = State::new(
+            options.method,
+            match options.args {
+                Some(args) => args.to_vec(),
+                None => vec![],
+            },
+        );
 
         let params = &[
             Val::I32(state.method.len().try_into().unwrap()),
@@ -72,14 +86,18 @@ impl Wrapper for WasmWrapper {
         let abort_args = options.args.unwrap().clone();
 
         let abort = Arc::new(move |msg| {
-          panic!(
-            r#"WasmWrapper: Wasm module aborted execution.
+            panic!(
+                r#"WasmWrapper: Wasm module aborted execution.
               URI: {uri}
               Method: {method}
               Args: {args:?}
               Message: {message}.
-            "#
-          , uri = abort_uri, method = abort_method, args = abort_args, message = msg);
+            "#,
+                uri = abort_uri,
+                method = abort_method,
+                args = abort_args,
+                message = msg
+            );
         });
 
         let wasm_module = self

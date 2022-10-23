@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use polywrap_core::{
     client::{Client, ClientConfig, UriRedirect},
     error::CoreError,
-    invoke::{InvokeOptions, Invoker, InvokerOptions},
+    invoke::{InvokeOptions, Invoker},
     uri::Uri,
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     uri_resolver::{UriResolver, UriResolverHandler},
@@ -45,10 +45,10 @@ impl Default for Subinvoker {
 impl Invoker for Subinvoker {
     async fn invoke_wrapper(
         &self,
-        options: &InvokerOptions,
+        options: &InvokeOptions,
         wrapper: Arc<dyn Wrapper>,
     ) -> Result<Vec<u8>, CoreError> {
-        let result = wrapper.invoke(&options.invoke_options, Arc::new(Mutex::new(self.clone())));
+        let result = wrapper.invoke(&options, Arc::new(Mutex::new(self.clone())));
 
         if result.is_err() {
             return Err(CoreError::InvokeError(format!(
@@ -62,19 +62,14 @@ impl Invoker for Subinvoker {
         Ok(result)
     }
 
-    async fn invoke(&self, options: &InvokerOptions) -> Result<Vec<u8>, CoreError> {
-        let uri = options.invoke_options.uri;
+    async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, CoreError> {
+        let uri = options.uri;
         let invoke_opts = InvokeOptions {
             uri,
-            args: options.invoke_options.args,
-            method: options.invoke_options.method,
-            resolution_context: options.invoke_options.resolution_context,
+            args: options.args,
+            method: options.method,
+            resolution_context: options.resolution_context,
             env: None,
-        };
-
-        let opts = InvokerOptions {
-            invoke_options: invoke_opts,
-            encode_result: options.encode_result,
         };
 
         let wrapper = match self.loaded_wrapper {
@@ -87,7 +82,7 @@ impl Invoker for Subinvoker {
             }
         };
 
-        let invoke_result = self.invoke_wrapper(&opts, wrapper).await;
+        let invoke_result = self.invoke_wrapper(&invoke_opts, wrapper).await;
 
         if invoke_result.is_err() {
             return Err(CoreError::InvokeError(format!(
@@ -147,14 +142,14 @@ impl PolywrapClient {
 
 #[async_trait(?Send)]
 impl Invoker for PolywrapClient {
-    async fn invoke(&self, options: &InvokerOptions) -> Result<Vec<u8>, CoreError> {
+    async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, CoreError> {
         let empty_res_context = UriResolutionContext::new();
-        let resolution_context = match &options.invoke_options.resolution_context {
+        let resolution_context = match &options.resolution_context {
             None => &empty_res_context,
             Some(ctx) => ctx,
         };
 
-        let uri = options.invoke_options.uri;
+        let uri = options.uri;
 
         let load_wrapper_result = self.load_wrapper(uri, Some(resolution_context)).await;
 
@@ -168,18 +163,13 @@ impl Invoker for PolywrapClient {
         let wrapper = load_wrapper_result.unwrap();
         let invoke_opts = InvokeOptions {
             uri,
-            args: options.invoke_options.args,
-            method: options.invoke_options.method,
-            resolution_context: options.invoke_options.resolution_context,
+            args: options.args,
+            method: options.method,
+            resolution_context: options.resolution_context,
             env: None,
         };
 
-        let opts = InvokerOptions {
-            invoke_options: invoke_opts,
-            encode_result: options.encode_result,
-        };
-
-        let invoke_result = self.invoke_wrapper(&opts, Arc::from(wrapper)).await;
+        let invoke_result = self.invoke_wrapper(&invoke_opts, Arc::from(wrapper)).await;
 
         if invoke_result.is_err() {
             return Err(CoreError::InvokeError(format!(
@@ -193,13 +183,13 @@ impl Invoker for PolywrapClient {
 
     async fn invoke_wrapper(
         &self,
-        options: &InvokerOptions,
+        options: &InvokeOptions,
         wrapper: Arc<dyn Wrapper>,
     ) -> Result<Vec<u8>, CoreError> {
         let wrapper_clone = wrapper.clone();
         self.invoker.lock().unwrap().load_wrapper(wrapper_clone);
 
-        let result = wrapper.invoke(&options.invoke_options, self.invoker.clone());
+        let result = wrapper.invoke(&options, self.invoker.clone());
 
         if result.is_err() {
             return Err(CoreError::InvokeError(format!(

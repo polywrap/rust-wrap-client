@@ -3,7 +3,7 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use futures::executor::block_on;
-use polywrap_core::invoke::{InvokeOptions, Invoker, InvokerOptions};
+use polywrap_core::invoke::{InvokeOptions, Invoker};
 use polywrap_core::uri::Uri;
 use wasmtime::*;
 
@@ -245,15 +245,12 @@ impl WasmInstance {
                         [args_ptr as usize..args_ptr as usize + args_len as usize]
                         .to_vec();
 
-                    let invoker_opts = InvokerOptions {
-                        invoke_options: InvokeOptions {
-                            uri: &uri,
-                            method: &method,
-                            args: Some(&args_bytes),
-                            env: None,
-                            resolution_context: None,
-                        },
-                        encode_result: true,
+                    let invoker_opts = InvokeOptions {
+                        uri: &uri,
+                        method: &method,
+                        args: Some(&args_bytes),
+                        env: None,
+                        resolution_context: None,
                     };
 
                     let result = block_on(invoker.lock().unwrap().invoke(&invoker_opts));
