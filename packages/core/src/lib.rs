@@ -1,4 +1,6 @@
+pub mod uri_resolution_context;
 pub mod uri;
+pub mod uri_resolver;
 pub mod error;
 pub mod client;
 pub mod wrapper;

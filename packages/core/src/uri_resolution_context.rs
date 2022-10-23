@@ -1,7 +1,7 @@
-use crate::{wrapper::Wrapper, package::WrapPackage};
+use crate::{package::WrapPackage, wrapper::Wrapper};
 use std::collections::HashMap;
 
-use crate::{error::CoreError, uri::uri::Uri};
+use crate::{error::CoreError, uri::Uri};
 
 pub struct UriWrapper {
     pub uri: Uri,
@@ -16,7 +16,7 @@ pub struct UriPackage {
 pub enum UriPackageOrWrapper {
     Uri(Uri),
     Wrapper(Uri, UriWrapper),
-    Package(Uri, UriPackage)
+    Package(Uri, UriPackage),
 }
 
 pub struct UriResolutionStep {
@@ -32,29 +32,32 @@ pub struct UriResolutionContext {
     history: Vec<UriResolutionStep>,
 }
 
-impl UriResolutionContext {
-    pub fn new() -> Self {
+impl Default for UriResolutionContext {
+    fn default() -> Self {
         UriResolutionContext {
             resolving_uri_map: HashMap::new(),
             resolution_path: Vec::new(),
             history: Vec::new(),
         }
     }
+}
 
-    pub fn resolution_path<'a>(&'a mut self, resolution_path: Vec<String>) -> &'a Self {
+impl UriResolutionContext {
+    pub fn new() -> Self {
+        UriResolutionContext::default()
+    }
+
+    pub fn resolution_path(&mut self, resolution_path: Vec<String>) -> &Self {
         self.resolution_path = resolution_path;
         self
     }
 
-    pub fn history<'a>(&'a mut self, history: Vec<UriResolutionStep>) -> &'a Self {
+    pub fn history(&mut self, history: Vec<UriResolutionStep>) -> &Self {
         self.history = history;
         self
     }
 
-    pub fn resolving_uri_map<'a>(
-        &'a mut self,
-        resolving_uri_map: HashMap<String, bool>,
-    ) -> &'a Self {
+    pub fn resolving_uri_map(&mut self, resolving_uri_map: HashMap<String, bool>) -> &Self {
         self.resolving_uri_map = resolving_uri_map;
         self
     }

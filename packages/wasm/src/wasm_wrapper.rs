@@ -55,20 +55,18 @@ impl Wrapper for WasmWrapper {
         options: &InvokeOptions,
         invoker: Arc<Mutex<dyn Invoker>>,
     ) -> Result<Vec<u8>, CoreError> {
-        let mut initial_state = State::default();
-        initial_state.method = options.method.to_string().as_bytes().to_vec();
-        initial_state.args = match options.args {
-            Some(args) => args.to_vec(),
-            None => vec![],
-        };
+        let state = State::new(options.method, match options.args {
+          Some(args) => args.to_vec(),
+          None => vec![],
+        });
 
         let params = &[
-            Val::I32(initial_state.method.len().try_into().unwrap()),
-            Val::I32(initial_state.args.len().try_into().unwrap()),
+            Val::I32(state.method.len().try_into().unwrap()),
+            Val::I32(state.args.len().try_into().unwrap()),
             Val::I32(1),
         ];
 
-        let state = Arc::new(Mutex::new(initial_state));
+        let state = Arc::new(Mutex::new(state));
         let abort_uri = options.uri.clone();
         let abort_method = options.method.to_string();
         let abort_args = options.args.unwrap().clone();

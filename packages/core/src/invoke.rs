@@ -1,6 +1,6 @@
 use std::{iter::Map, sync::Arc};
 use async_trait::async_trait;
-use crate::{uri::{uri::Uri, uri_resolution_context::UriResolutionContext}, error::CoreError, client::Client, wrapper::Wrapper};
+use crate::{uri::Uri, uri_resolution_context::UriResolutionContext, error::CoreError, client::Client, wrapper::Wrapper};
 
 pub struct InvokeOptions<'a> {
   pub uri: &'a Uri,

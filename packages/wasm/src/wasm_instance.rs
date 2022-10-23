@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 
 use futures::executor::block_on;
 use polywrap_core::invoke::{InvokeOptions, Invoker, InvokerOptions};
-use polywrap_core::uri::uri::Uri;
+use polywrap_core::uri::Uri;
 use wasmtime::*;
 
 use crate::error::WrapperError;
@@ -35,6 +35,17 @@ pub struct State {
     pub args: Vec<u8>,
     pub invoke: InvokeState,
     pub subinvoke: InvokeState,
+}
+
+impl State {
+    pub fn new(method: &str, args: Vec<u8>) -> Self {
+        Self {
+            method: method.as_bytes().to_vec(),
+            args,
+            invoke: InvokeState::default(),
+            subinvoke: InvokeState::default(),
+        }
+    }
 }
 
 impl WasmInstance {

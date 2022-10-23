@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use crate::{client::UriRedirect, error::CoreError, uri::uri::Uri};
+use crate::{client::UriRedirect, error::CoreError, uri::Uri};
 
 pub fn apply_redirects(uri: &Uri, redirects: &Vec<UriRedirect>) -> Result<Uri, CoreError> {
     let mut redirect_from_to_map = HashMap::new();

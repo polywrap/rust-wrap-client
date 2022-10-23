@@ -12,17 +12,17 @@ impl Uri {
     pub fn new(uri: &str) -> Self {
         let parsed_uri = Uri::from_string(uri);
 
-        if parsed_uri.is_err() {
-            panic!("Error parsing URI: `{}`", uri);
+        if let Ok(result_uri) = parsed_uri {
+          return result_uri
         } else {
-            parsed_uri.unwrap()
+            panic!("Error parsing URI: `{}`", uri);
         }
     }
 
     // TODO: compare uri === uri
 
     pub fn from_string(uri: &str) -> Result<Uri, CoreError> {
-        let mut processed = uri.clone().to_string();
+        let mut processed = uri.to_string();
 
         while processed.starts_with('/') {
             processed = processed[1..].to_string();

@@ -5,11 +5,9 @@ use polywrap_core::{
     client::{Client, ClientConfig, UriRedirect},
     error::CoreError,
     invoke::{InvokeOptions, Invoker, InvokerOptions},
-    uri::{
-        uri::Uri,
-        uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-        uri_resolver::{UriResolver, UriResolverHandler},
-    },
+    uri::Uri,
+    uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+    uri_resolver::{UriResolver, UriResolverHandler},
     wrapper::{GetFileOptions, Wrapper},
 };
 
@@ -34,6 +32,12 @@ impl Subinvoker {
 
     pub fn load_wrapper(&mut self, wrapper: Arc<dyn Wrapper>) {
         self.loaded_wrapper = Some(wrapper);
+    }
+}
+
+impl Default for Subinvoker {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -220,8 +224,8 @@ impl Client for PolywrapClient {
         &self.config.redirects
     }
 
-    fn get_uri_resolver(&self) -> &Box<dyn UriResolver> {
-        &self.config.resolver
+    fn get_uri_resolver(&self) -> &dyn UriResolver {
+        self.config.resolver.as_ref()
     }
 
     async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, CoreError> {
@@ -248,7 +252,7 @@ impl UriResolverHandler for PolywrapClient {
         &self,
         uri: &Uri,
         resolution_context: Option<&UriResolutionContext>,
-    ) -> Result<polywrap_core::uri::uri_resolution_context::UriPackageOrWrapper, CoreError> {
+    ) -> Result<polywrap_core::uri_resolution_context::UriPackageOrWrapper, CoreError> {
         let uri_resolver = self.get_uri_resolver();
         let uri_resolver_context = UriResolutionContext::new();
 
