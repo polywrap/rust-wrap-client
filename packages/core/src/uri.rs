@@ -19,8 +19,6 @@ impl Uri {
         }
     }
 
-    // TODO: compare uri === uri
-
     pub fn from_string(uri: &str) -> Result<Uri, CoreError> {
         let mut processed = uri.to_string();
 
@@ -68,21 +66,25 @@ impl Uri {
             uri: processed.to_string(),
         })
     }
-
-    pub fn to_string(&self) -> String {
-        self.uri.to_string()
-    }
 }
 
-impl From<String> for Uri {
-    fn from(uri: String) -> Self {
-        Uri::new(&uri)
+impl PartialEq for Uri {
+    fn eq(&self, other: &Self) -> bool {
+        self.uri == other.uri
     }
 }
 
 impl Into<String> for Uri {
-    fn into(self) -> String {
-        self.to_string()
+  fn into(self) -> String {
+    self.uri.to_string()
+  }
+}
+
+impl TryFrom<String> for Uri {
+    type Error = CoreError;
+
+    fn try_from(uri: String) -> Result<Self, Self::Error> {
+        Uri::from_string(&uri)
     }
 }
 

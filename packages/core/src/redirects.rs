@@ -42,5 +42,5 @@ pub fn apply_redirects(uri: &Uri, redirects: &Vec<UriRedirect>) -> Result<Uri, C
         }
     }
 
-    Ok(Uri::from(final_uri))
+    Ok(Uri::try_from(final_uri)?)
 }
