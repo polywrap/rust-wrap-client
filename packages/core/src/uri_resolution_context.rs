@@ -26,21 +26,14 @@ pub struct UriResolutionStep {
     pub sub_history: Option<Vec<UriResolutionStep>>,
 }
 
+#[derive(Default)]
 pub struct UriResolutionContext {
     resolving_uri_map: HashMap<String, bool>,
     resolution_path: Vec<String>,
     history: Vec<UriResolutionStep>,
 }
 
-impl Default for UriResolutionContext {
-    fn default() -> Self {
-        UriResolutionContext {
-            resolving_uri_map: HashMap::new(),
-            resolution_path: Vec::new(),
-            history: Vec::new(),
-        }
-    }
-}
+
 
 impl UriResolutionContext {
     pub fn new() -> Self {

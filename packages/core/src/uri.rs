@@ -13,7 +13,7 @@ impl Uri {
         let parsed_uri = Uri::from_string(uri);
 
         if let Ok(result_uri) = parsed_uri {
-          return result_uri
+          result_uri
         } else {
             panic!("Error parsing URI: `{}`", uri);
         }
