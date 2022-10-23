@@ -1,22 +1,17 @@
-use std::iter::Map;
+use std::{iter::Map, sync::Arc};
 use async_trait::async_trait;
-use crate::{uri::{uri::Uri, uri_resolution_context::UriResolutionContext}, error::CoreError, wrapper::Wrapper};
+use crate::{uri::{uri::Uri, uri_resolution_context::UriResolutionContext}, error::CoreError, client::Client, wrapper::Wrapper};
 
-pub enum Args {
-  Map(Map<String, String>),
-  UInt8Array(Box<[u8]>)
+pub struct InvokeOptions<'a> {
+  pub uri: &'a Uri,
+  pub method: &'a str,
+  pub args: Option<&'a Vec<u8>>,
+  pub env: Option<&'a Map<String, String>>,
+  pub resolution_context: Option<&'a UriResolutionContext>,
 }
 
-pub struct InvokeOptions {
-  pub uri: Uri,
-  pub method: String,
-  pub args: Option<Args>,
-  pub env: Option<Map<String, String>>,
-  pub resolution_context: Option<UriResolutionContext>,
-}
-
-pub struct InvokerOptions {
-  pub invoke_options: InvokeOptions,
+pub struct InvokerOptions<'a> {
+  pub invoke_options: InvokeOptions<'a>,
   pub encode_result: bool,
 }
 
@@ -25,13 +20,13 @@ pub struct InvocableResult<TData> {
   pub encoded: Option<bool>
 }
 
-#[async_trait]
-pub trait Invoker {
-  fn invoke_wrapper(&self, options: &InvokerOptions, wrapper: Box<dyn Wrapper>) -> Result<String, CoreError>;
-  fn invoke(&self, options: InvokerOptions) -> Result<String, CoreError>;
+#[async_trait(?Send)]
+pub trait Invoker: Send + Sync {
+  async fn invoke_wrapper(&self, options: &InvokerOptions, wrapper: Arc<dyn Wrapper>) -> Result<Vec<u8>, CoreError>;
+  async fn invoke(&self, options: &InvokerOptions) -> Result<Vec<u8>, CoreError>;
 }
 
 #[async_trait]
-pub trait Invocable<I: Invoker> {
-    fn invoke<TData>(&self, options: &InvokeOptions, invoker: I) -> Result<InvocableResult<TData>, CoreError>;
+pub trait Invocable<C: Client> {
+    fn invoke<TData>(&self, options: InvokeOptions, invoker: C) -> Result<InvocableResult<TData>, CoreError>;
 }

@@ -1,4 +1,5 @@
-use crate::error::CoreError;
+use crate::invoke::Invoker;
+use crate::{error::CoreError};
 use crate::uri::uri::Uri;
 use crate::uri::uri_resolver::UriResolver;
 use async_trait::async_trait;
@@ -15,9 +16,9 @@ pub struct ClientConfig {
 }
 
 #[async_trait(?Send)]
-pub trait Client {
+pub trait Client: Send + Sync + Invoker {
   fn get_config(&self) -> &ClientConfig;
   fn get_redirects(&self) -> &Vec<UriRedirect>;
   fn get_uri_resolver(&self) -> &Box<dyn UriResolver>;
-  async fn get_file(&mut self, uri: Uri, options: GetFileOptions) -> Result<String, CoreError>;
+  async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, CoreError>;
 }
