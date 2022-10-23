@@ -76,7 +76,7 @@ impl PartialEq for Uri {
 
 impl Into<String> for Uri {
   fn into(self) -> String {
-    self.uri.to_string()
+    self.uri
   }
 }
 

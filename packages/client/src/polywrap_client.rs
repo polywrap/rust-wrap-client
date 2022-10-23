@@ -49,7 +49,7 @@ impl Invoker for Subinvoker {
         options: &InvokeOptions,
         wrapper: Arc<dyn Wrapper>,
     ) -> Result<Vec<u8>, CoreError> {
-        let result = wrapper.invoke(&options, Arc::new(Mutex::new(self.clone())));
+        let result = wrapper.invoke(options, Arc::new(Mutex::new(self.clone())));
 
         if result.is_err() {
             return Err(CoreError::InvokeError(format!(
@@ -209,7 +209,7 @@ impl Invoker for PolywrapClient {
         let wrapper_clone = wrapper.clone();
         self.invoker.lock().unwrap().load_wrapper(wrapper_clone);
 
-        let result = wrapper.invoke(&options, self.invoker.clone());
+        let result = wrapper.invoke(options, self.invoker.clone());
 
         if result.is_err() {
             return Err(CoreError::InvokeError(format!(

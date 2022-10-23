@@ -89,7 +89,7 @@ impl Wrapper for WasmWrapper {
         let state = Arc::new(Mutex::new(state));
         let abort_uri = options.uri.clone();
         let abort_method = options.method.to_string();
-        let abort_args = args.clone();
+        let abort_args = args;
 
         let abort = Arc::new(move |msg| {
             panic!(

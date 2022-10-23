@@ -10,7 +10,7 @@ pub fn apply_redirects(uri: &Uri, redirects: &Vec<UriRedirect>) -> Result<Uri, C
             return Err(CoreError::RedirectsError(
                 format!(
                     "Redirect missing the from property.\nEncountered while resolving {}",
-                    uri.to_string()
+                    uri
                 ),
                 redirect_from_to_map,
             ));
@@ -35,12 +35,12 @@ pub fn apply_redirects(uri: &Uri, redirects: &Vec<UriRedirect>) -> Result<Uri, C
             return Err(CoreError::RedirectsError(
                 format!(
                     "Redirect loop detected while resolving {}",
-                    uri.to_string()
+                    uri
                 ),
                 redirect_from_to_map,
             ));
         }
     }
 
-    Ok(Uri::try_from(final_uri)?)
+    Uri::try_from(final_uri)
 }
