@@ -53,7 +53,7 @@ impl WasmWrapper {
     pub fn invoke_and_decode<T: DeserializeOwned>(
         &self,
         options: &InvokeOptions,
-        invoker: Arc<Mutex<dyn Invoker>>,
+        invoker: Arc<dyn Invoker>,
     ) -> Result<T, CoreError> {
         let result = self.invoke(options, invoker)?;
 
@@ -65,7 +65,7 @@ impl Wrapper for WasmWrapper {
     fn invoke(
         &self,
         options: &InvokeOptions,
-        invoker: Arc<Mutex<dyn Invoker>>,
+        invoker: Arc<dyn Invoker>,
     ) -> Result<Vec<u8>, CoreError> {
         let args = match options.args {
           Some(args) => match args {

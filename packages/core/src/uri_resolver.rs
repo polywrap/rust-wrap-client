@@ -1,5 +1,5 @@
-use crate::client::Client;
 use crate::error::CoreError;
+use crate::loader::Loader;
 use async_trait::async_trait;
 
 use super::uri::{ Uri };
@@ -12,5 +12,5 @@ pub trait UriResolverHandler {
 
 #[async_trait]
 pub trait UriResolver: Send + Sync {
-  async fn try_resolve_uri(&self, uri: &Uri, client: &dyn Client, resolution_context: &UriResolutionContext) -> Result<UriPackageOrWrapper, CoreError>;
+  async fn try_resolve_uri(&self, uri: &Uri, client: &dyn Loader, resolution_context: &UriResolutionContext) -> Result<UriPackageOrWrapper, CoreError>;
 }

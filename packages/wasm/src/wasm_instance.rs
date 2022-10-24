@@ -3,7 +3,7 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use futures::executor::block_on;
-use polywrap_core::invoke::{InvokeOptions, Invoker, InvokeArgs};
+use polywrap_core::invoke::{InvokeArgs, InvokeOptions, Invoker};
 use polywrap_core::uri::Uri;
 use wasmtime::*;
 
@@ -53,7 +53,7 @@ impl WasmInstance {
         wasm_module: &WasmModule,
         shared_state: Arc<Mutex<State>>,
         abort: Arc<dyn Fn(String) + Send + Sync>,
-        invoker: Arc<Mutex<dyn Invoker>>,
+        invoker: Arc<dyn Invoker>,
     ) -> Result<Self, WrapperError> {
         let mut config = Config::new();
         config.async_support(true);
@@ -108,7 +108,7 @@ impl WasmInstance {
         shared_state: Arc<Mutex<State>>,
         abort: Arc<dyn Fn(String) + Send + Sync>,
         memory: Rc<RefCell<Memory>>,
-        invoker: Arc<Mutex<dyn Invoker>>,
+        invoker: Arc<dyn Invoker>,
     ) -> Result<(), WrapperError> {
         let arc_shared_state = Arc::clone(&shared_state);
         let arc_memory = Arc::new(Mutex::new(memory.borrow_mut().to_owned()));
@@ -219,7 +219,7 @@ impl WasmInstance {
         linker
             .func_wrap(
                 "wrap",
-                "__wrap_async",
+                "__wrap_subinvoke",
                 move |caller: Caller<'_, u32>,
                       uri_ptr: u32,
                       uri_len: u32,
@@ -255,7 +255,7 @@ impl WasmInstance {
                         resolution_context: None,
                     };
 
-                    let result = block_on(invoker.lock().unwrap().invoke(&invoker_opts));
+                    let result = block_on(invoker.invoke(&invoker_opts));
 
                     match result {
                         Ok(res) => {
