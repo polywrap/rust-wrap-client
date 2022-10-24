@@ -1,6 +1,6 @@
 use crate::error::WrapperError;
 use crate::file_reader::FileReader;
-use crate::wasm_instance::State;
+use crate::wasm_runtime::instance::State;
 use polywrap_core::error::CoreError;
 use polywrap_core::invoke::InvokeArgs;
 use polywrap_core::invoke::InvokeOptions;
@@ -12,8 +12,8 @@ use serde::de::DeserializeOwned;
 use std::sync::Arc;
 use std::sync::Mutex;
 
-use crate::wasm_instance::WasmInstance;
-use crate::wasm_instance::WasmModule;
+use crate::wasm_runtime::instance::WasmInstance;
+use crate::wasm_runtime::instance::WasmModule;
 use wasmtime::Val;
 
 pub struct WasmWrapper {
