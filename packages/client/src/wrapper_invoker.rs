@@ -74,7 +74,7 @@ impl Invoker for WrapperInvoker {
             env: None,
         };
 
-        let invoke_result = self.invoke_wrapper(&invoke_opts, Arc::from(wrapper)).await;
+        let invoke_result = self.invoke_wrapper(&invoke_opts, wrapper).await;
 
         if invoke_result.is_err() {
             return Err(CoreError::InvokeError(format!(

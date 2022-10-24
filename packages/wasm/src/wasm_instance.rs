@@ -8,6 +8,7 @@ use polywrap_core::uri::Uri;
 use wasmtime::*;
 
 use crate::error::WrapperError;
+use crate::memory::{read_from_memory, write_to_memory};
 use crate::utils::index_of_array;
 
 pub struct WasmInstance {
@@ -121,7 +122,6 @@ impl WasmInstance {
                 "__wrap_invoke_args",
                 move |mut caller: Caller<'_, u32>, method_ptr: u32, args_ptr: u32| {
                     let state_guard = arc_shared_state.lock().unwrap();
-                    let memory = arc_memory.lock().unwrap();
 
                     if state_guard.method.is_empty() {
                         abort_clone("__wrap_invoke_args: method is not set".to_string());
@@ -131,12 +131,21 @@ impl WasmInstance {
                         abort_clone("__wrap_invoke_args: args is not set".to_string());
                     }
 
-                    let mem_data = memory.data_mut(caller.as_context_mut());
-                    mem_data[method_ptr as usize..method_ptr as usize + state_guard.method.len()]
-                        .copy_from_slice(&state_guard.method);
+                    write_to_memory(
+                        arc_memory.clone(),
+                        caller.as_context_mut(),
+                        method_ptr.try_into().unwrap(),
+                        state_guard.method.as_ref(),
+                    );
 
-                    mem_data[args_ptr as usize..args_ptr as usize + state_guard.args.len()]
-                        .copy_from_slice(&state_guard.args);
+                    write_to_memory(
+                        arc_memory.clone(),
+                        caller.as_context_mut(),
+                        args_ptr.try_into().unwrap(),
+                        state_guard.args.as_ref(),
+                    );
+
+                    Ok(())
                 },
             )
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
@@ -148,13 +157,15 @@ impl WasmInstance {
             .func_wrap(
                 "wrap",
                 "__wrap_invoke_result",
-                move |mut caller: Caller<'_, u32>, ptr: u32, len: u32| {
+                move |caller: Caller<'_, u32>, ptr: u32, len: u32| {
                     let mut state_ref = arc_shared_state.lock().unwrap();
-                    let memory_guard = arc_memory.lock().unwrap();
-
-                    let mem_data = memory_guard.data_mut(caller.as_context_mut());
-                    let res = mem_data[ptr as usize..ptr as usize + len as usize].to_vec();
-                    state_ref.invoke.result = Some(res);
+                    let memory_data = read_from_memory(
+                        arc_memory.clone(),
+                        caller.as_context(),
+                        ptr.try_into().unwrap(),
+                        len.try_into().unwrap(),
+                    );
+                    state_ref.invoke.result = Some(memory_data);
                 },
             )
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
@@ -166,14 +177,16 @@ impl WasmInstance {
             .func_wrap(
                 "wrap",
                 "__wrap_invoke_error",
-                move |mut caller: Caller<'_, u32>, ptr: u32, len: u32| {
+                move |caller: Caller<'_, u32>, ptr: u32, len: u32| {
                     dbg!("__wrap_invoke_error");
                     let mut state_ref = arc_shared_state.lock().unwrap();
-                    let memory_guard = arc_memory.lock().unwrap();
-
-                    let mem_data = memory_guard.data_mut(caller.as_context_mut());
-                    let res = mem_data[ptr as usize..ptr as usize + len as usize].to_vec();
-                    state_ref.invoke.error = Some(String::from_utf8(res).unwrap());
+                    let memory_data = read_from_memory(
+                        arc_memory.clone(),
+                        caller.as_context(),
+                        ptr.try_into().unwrap(),
+                        len.try_into().unwrap(),
+                    );
+                    state_ref.invoke.error = Some(String::from_utf8(memory_data).unwrap());
                 },
             )
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
@@ -185,27 +198,33 @@ impl WasmInstance {
             .func_wrap(
                 "wrap",
                 "__wrap_abort",
-                move |mut caller: Caller<'_, u32>,
+                move |caller: Caller<'_, u32>,
                       msg_ptr: u32,
                       msg_len: u32,
                       file_ptr: u32,
                       file_len: u32,
                       line: u32,
                       column: u32| {
-                    let memory = arc_memory.lock().unwrap();
+                    let msg = read_from_memory(
+                        arc_memory.clone(),
+                        caller.as_context(),
+                        msg_ptr.try_into().unwrap(),
+                        msg_len.try_into().unwrap(),
+                    );
+                    let file = read_from_memory(
+                        arc_memory.clone(),
+                        caller.as_context(),
+                        file_ptr.try_into().unwrap(),
+                        file_len.try_into().unwrap(),
+                    );
 
-                    let mem_data = memory.data_mut(caller.as_context_mut());
-                    let msg =
-                        mem_data[msg_ptr as usize..msg_ptr as usize + msg_len as usize].to_vec();
-                    let file =
-                        mem_data[file_ptr as usize..file_ptr as usize + file_len as usize].to_vec();
-                    let msg = String::from_utf8(msg).unwrap();
-                    let file = String::from_utf8(file).unwrap();
+                    let msg_str = String::from_utf8(msg).unwrap();
+                    let file_str = String::from_utf8(file).unwrap();
 
                     abort_clone(format!(
                         "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]",
-                        msg = msg,
-                        file = file,
+                        msg = msg_str,
+                        file = file_str,
                         line = line,
                         column = column
                     ));
@@ -227,24 +246,29 @@ impl WasmInstance {
                       method_len: u32,
                       args_ptr: u32,
                       args_len: u32| {
-                    let memory = arc_memory.lock().unwrap();
                     let mut state_ref = arc_shared_state.lock().unwrap();
 
-                    let memory_data = memory.data(caller.as_context());
+                    let uri_bytes = read_from_memory(
+                        arc_memory.clone(),
+                        caller.as_context(),
+                        uri_ptr.try_into().unwrap(),
+                        uri_len.try_into().unwrap(),
+                    );
+                    let method_bytes = read_from_memory(
+                        arc_memory.clone(),
+                        caller.as_context(),
+                        method_ptr.try_into().unwrap(),
+                        method_len.try_into().unwrap(),
+                    );
+                    let args_bytes = read_from_memory(
+                        arc_memory.clone(),
+                        caller.as_context(),
+                        args_ptr.try_into().unwrap(),
+                        args_len.try_into().unwrap(),
+                    );
 
-                    let uri_bytes =
-                        memory_data[uri_ptr as usize..uri_ptr as usize + uri_len as usize].to_vec();
                     let uri = Uri::from_string(&String::from_utf8(uri_bytes).unwrap()).unwrap();
-
-                    let method_bytes = memory_data
-                        [method_ptr as usize..method_ptr as usize + method_len as usize]
-                        .to_vec();
                     let method = String::from_utf8(method_bytes).unwrap();
-
-                    let args_bytes = memory_data
-                        [args_ptr as usize..args_ptr as usize + args_len as usize]
-                        .to_vec();
-
                     let invoke_args = InvokeArgs::UIntArray(args_bytes);
 
                     let invoker_opts = InvokeOptions {
@@ -265,6 +289,100 @@ impl WasmInstance {
                         Err(err) => {
                             state_ref.subinvoke.error = Some(err.to_string());
                             0
+                        }
+                    }
+                },
+            )
+            .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
+        let arc_shared_state = Arc::clone(&shared_state);
+        let abort_clone = Arc::clone(&abort);
+
+        linker
+            .func_wrap("wrap", "__wrap_subinvoke_result_len", move || {
+                let state_ref = arc_shared_state.lock().unwrap();
+
+                match &state_ref.subinvoke.result {
+                    Some(res) => res.len() as u32,
+                    None => {
+                        abort_clone(
+                            "__wrap_subinvoke_result_len: subinvoke.result is not set".to_string(),
+                        );
+                        0
+                    }
+                }
+            })
+            .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
+        let arc_shared_state = Arc::clone(&shared_state);
+        let abort_clone = Arc::clone(&abort);
+        let arc_memory = Arc::clone(&mem);
+
+        linker
+            .func_wrap(
+                "wrap",
+                "__wrap_subinvoke_result",
+                move |mut caller: Caller<'_, u32>, ptr: u32| {
+                    let state_ref = arc_shared_state.lock().unwrap();
+
+                    match &state_ref.subinvoke.result {
+                        Some(res) => write_to_memory(
+                            arc_memory.clone(),
+                            caller.as_context_mut(),
+                            ptr.try_into().unwrap(),
+                            res,
+                        ),
+                        None => {
+                            abort_clone(
+                                "__wrap_subinvoke_result: subinvoke.result is not set".to_string(),
+                            );
+                        }
+                    }
+                },
+            )
+            .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
+        let arc_shared_state = Arc::clone(&shared_state);
+        let abort_clone = Arc::clone(&abort);
+
+        linker
+            .func_wrap("wrap", "__wrap_subinvoke_error_len", move || {
+                let state_ref = arc_shared_state.lock().unwrap();
+
+                match &state_ref.subinvoke.error {
+                    Some(res) => res.len() as u32,
+                    None => {
+                        abort_clone(
+                            "__wrap_subinvoke_error_len: subinvoke.error is not set".to_string(),
+                        );
+                        0
+                    }
+                }
+            })
+            .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
+        let arc_shared_state = Arc::clone(&shared_state);
+        let abort_clone = Arc::clone(&abort);
+        let arc_memory = Arc::clone(&mem);
+
+        linker
+            .func_wrap(
+                "wrap",
+                "__wrap_subinvoke_error",
+                move |mut caller: Caller<'_, u32>, ptr: u32| {
+                    let state_ref = arc_shared_state.lock().unwrap();
+
+                    match &state_ref.subinvoke.error {
+                        Some(res) => write_to_memory(
+                            arc_memory.clone(),
+                            caller.as_context_mut(),
+                            ptr.try_into().unwrap(),
+                            res.as_bytes(),
+                        ),
+                        None => {
+                            abort_clone(
+                                "__wrap_subinvoke_error: subinvoke.error is not set".to_string(),
+                            );
                         }
                     }
                 },
