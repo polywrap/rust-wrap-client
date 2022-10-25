@@ -1,7 +1,7 @@
 use crate::error::WrapperError;
 use crate::file_reader::FileReader;
 use crate::wasm_runtime::instance::State;
-use polywrap_core::error::CoreError;
+use polywrap_core::error::Error;
 use polywrap_core::invoke::InvokeArgs;
 use polywrap_core::invoke::InvokeOptions;
 use polywrap_core::invoke::Invoker;
@@ -54,10 +54,10 @@ impl WasmWrapper {
         &self,
         options: &InvokeOptions,
         invoker: Arc<dyn Invoker>,
-    ) -> Result<T, CoreError> {
+    ) -> Result<T, Error> {
         let result = self.invoke(options, invoker)?;
 
-        rmp_serde::from_slice(result.as_slice()).map_err(|e| CoreError::WrapperError(e.to_string()))
+        rmp_serde::from_slice(result.as_slice()).map_err(|e| Error::WrapperError(e.to_string()))
     }
 }
 
@@ -66,19 +66,16 @@ impl Wrapper for WasmWrapper {
         &self,
         options: &InvokeOptions,
         invoker: Arc<dyn Invoker>,
-    ) -> Result<Vec<u8>, CoreError> {
+    ) -> Result<Vec<u8>, Error> {
         let args = match options.args {
-          Some(args) => match args {
-            InvokeArgs::Values(values) => rmp_serde::encode::to_vec(&values).unwrap(),
-            InvokeArgs::UIntArray(arr) => arr.clone(),
-          },
-          None => vec![],
+            Some(args) => match args {
+                InvokeArgs::Values(values) => rmp_serde::encode::to_vec(&values).unwrap(),
+                InvokeArgs::UIntArray(arr) => arr.clone(),
+            },
+            None => vec![],
         };
 
-        let state = State::new(
-            options.method,
-            args.clone(),
-        );
+        let state = State::new(options.method, args.clone());
 
         let params = &[
             Val::I32(state.method.len().try_into().unwrap()),
@@ -108,7 +105,7 @@ impl Wrapper for WasmWrapper {
 
         let wasm_module = self
             .get_wasm_module()
-            .map_err(|e| CoreError::WrapperError(e.to_string()))?;
+            .map_err(|e| Error::WrapperError(e.to_string()))?;
 
         let mut wasm_instance =
             WasmInstance::new(wasm_module, Arc::clone(&state), abort.clone(), invoker).unwrap();
@@ -116,7 +113,7 @@ impl Wrapper for WasmWrapper {
         let mut result: [Val; 1] = [Val::I32(0)];
         wasm_instance
             .call_export("_wrap_invoke", params, &mut result)
-            .map_err(|e| CoreError::WrapperError(e.to_string()))?;
+            .map_err(|e| Error::WrapperError(e.to_string()))?;
 
         let state_guard = state.lock().unwrap();
 
@@ -131,17 +128,17 @@ impl Wrapper for WasmWrapper {
                 abort("Invoke error is missing".to_string());
             }
 
-            Err(CoreError::WrapperError(
+            Err(Error::WrapperError(
                 state_guard.invoke.error.as_ref().unwrap().to_string(),
             ))
         }
     }
 
-    fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, CoreError> {
+    fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
         let data_result = self.file_reader.read_file(&options.path);
 
         if data_result.is_err() {
-            return Err(CoreError::WrapperError(format!(
+            return Err(Error::WrapperError(format!(
                 "WasmWrapper: File was not found.\nSubpath: {}",
                 options.path
             )));

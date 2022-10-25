@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use polywrap_core::{
-    error::CoreError,
+    error::Error,
     invoke::{InvokeOptions, Invoker},
     loader::Loader,
     uri_resolution_context::UriResolutionContext,
@@ -27,12 +27,12 @@ impl Invoker for WrapperInvoker {
     async fn invoke_wrapper(
         &self,
         options: &InvokeOptions,
-        wrapper: Arc<dyn Wrapper>,
-    ) -> Result<Vec<u8>, CoreError> {
+        wrapper: Box<dyn Wrapper>,
+    ) -> Result<Vec<u8>, Error> {
         let result = wrapper.invoke(options, Arc::new(self.clone()));
 
         if result.is_err() {
-            return Err(CoreError::InvokeError(format!(
+            return Err(Error::InvokeError(format!(
                 "Failed to invoke wrapper: {}",
                 result.err().unwrap()
             )));
@@ -43,7 +43,7 @@ impl Invoker for WrapperInvoker {
         Ok(result)
     }
 
-    async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, CoreError> {
+    async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, Error> {
         let empty_res_context = UriResolutionContext::new();
         let resolution_context = match &options.resolution_context {
             None => &empty_res_context,
@@ -58,7 +58,7 @@ impl Invoker for WrapperInvoker {
             .await;
 
         if load_wrapper_result.is_err() {
-            return Err(CoreError::InvokeError(format!(
+            return Err(Error::InvokeError(format!(
                 "Failed to load wrapper: {}",
                 load_wrapper_result.err().unwrap()
             )));
@@ -77,7 +77,7 @@ impl Invoker for WrapperInvoker {
         let invoke_result = self.invoke_wrapper(&invoke_opts, wrapper).await;
 
         if invoke_result.is_err() {
-            return Err(CoreError::InvokeError(format!(
+            return Err(Error::InvokeError(format!(
                 "Failed to invoke wrapper: {}",
                 invoke_result.err().unwrap()
             )));

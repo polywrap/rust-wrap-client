@@ -1,7 +1,7 @@
-use std::{iter::Map, sync::{Arc}};
+use std::{iter::Map};
 use erased_serde::{Serialize};
 use async_trait::async_trait;
-use crate::{uri::Uri, uri_resolution_context::UriResolutionContext, error::CoreError, wrapper::Wrapper};
+use crate::{uri::Uri, uri_resolution_context::UriResolutionContext, error::Error, wrapper::Wrapper};
 
 pub enum InvokeArgs {
   Values(Box<dyn Serialize>),
@@ -18,6 +18,6 @@ pub struct InvokeOptions<'a> {
 
 #[async_trait(?Send)]
 pub trait Invoker: Send + Sync {
-  async fn invoke_wrapper(&self, options: &InvokeOptions, wrapper: Arc<dyn Wrapper>) -> Result<Vec<u8>, CoreError>;
-  async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, CoreError>;
+  async fn invoke_wrapper(&self, options: &InvokeOptions, wrapper: Box<dyn Wrapper>) -> Result<Vec<u8>, Error>;
+  async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, Error>;
 }

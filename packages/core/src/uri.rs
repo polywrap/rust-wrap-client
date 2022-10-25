@@ -1,4 +1,4 @@
-use crate::error::CoreError;
+use crate::error::Error;
 use regex::Regex;
 
 #[derive(Clone)]
@@ -19,7 +19,7 @@ impl Uri {
         }
     }
 
-    pub fn from_string(uri: &str) -> Result<Uri, CoreError> {
+    pub fn from_string(uri: &str) -> Result<Uri, Error> {
         let mut processed = uri.to_string();
 
         while processed.starts_with('/') {
@@ -33,7 +33,7 @@ impl Uri {
         }
 
         if wrap_scheme_idx.is_some() && wrap_scheme_idx.unwrap() != 0 {
-            return Err(CoreError::UriParseError("The wrap:// scheme must be at the beginning of the URI string".to_string()));
+            return Err(Error::UriParseError("The wrap:// scheme must be at the beginning of the URI string".to_string()));
         }
 
         let reg = Regex::new(
@@ -48,7 +48,7 @@ impl Uri {
         let captures = reg.captures(&processed);
 
         if captures.as_ref().is_none() || captures.as_ref().unwrap().len() != 3 {
-            return Err(CoreError::UriParseError(format!(
+            return Err(Error::UriParseError(format!(
                 r#"URI is malformed, here are some examples of valid URIs:
             wrap://ipfs/QmHASH
             wrap://ens/domain.eth
@@ -81,7 +81,7 @@ impl Into<String> for Uri {
 }
 
 impl TryFrom<String> for Uri {
-    type Error = CoreError;
+    type Error = Error;
 
     fn try_from(uri: String) -> Result<Self, Self::Error> {
         Uri::from_string(&uri)

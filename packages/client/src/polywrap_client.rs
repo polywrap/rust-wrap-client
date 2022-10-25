@@ -3,7 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use polywrap_core::{
     client::{Client, ClientConfig, UriRedirect},
-    error::CoreError,
+    error::Error,
     invoke::{InvokeOptions, Invoker},
     loader::Loader,
     uri::Uri,
@@ -35,34 +35,34 @@ impl PolywrapClient {
     pub async fn invoke_wrapper_and_decode<T: DeserializeOwned>(
         &self,
         options: &InvokeOptions<'_>,
-        wrapper: Arc<dyn Wrapper>,
-    ) -> Result<T, CoreError> {
+        wrapper: Box<dyn Wrapper>,
+    ) -> Result<T, Error> {
         let result = self.invoke_wrapper(options, wrapper).await?;
         rmp_serde::from_slice(result.as_slice())
-            .map_err(|e| CoreError::InvokeError(format!("Failed to decode result: {}", e)))
+            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
     }
 
     pub async fn invoke_and_decode<T: DeserializeOwned>(
         &self,
         options: &InvokeOptions<'_>,
-    ) -> Result<T, CoreError> {
+    ) -> Result<T, Error> {
         let result = self.invoke(options).await?;
         rmp_serde::from_slice(result.as_slice())
-            .map_err(|e| CoreError::InvokeError(format!("Failed to decode result: {}", e)))
+            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
     }
 }
 
 #[async_trait(?Send)]
 impl Invoker for PolywrapClient {
-    async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, CoreError> {
+    async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, Error> {
         self.invoker.as_ref().unwrap().invoke(options).await
     }
 
     async fn invoke_wrapper(
         &self,
         options: &InvokeOptions,
-        wrapper: Arc<dyn Wrapper>,
-    ) -> Result<Vec<u8>, CoreError> {
+        wrapper: Box<dyn Wrapper>,
+    ) -> Result<Vec<u8>, Error> {
         self.invoker
             .as_ref()
             .unwrap()
@@ -85,7 +85,7 @@ impl Client for PolywrapClient {
         self.config.resolver.as_ref()
     }
 
-    async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, CoreError> {
+    async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
         let load = self.load_wrapper(uri, Option::None).await;
 
         match load {
@@ -94,7 +94,7 @@ impl Client for PolywrapClient {
                 return result;
             }
             Err(err) => {
-                return Err(CoreError::GetFileError(format!(
+                return Err(Error::GetFileError(format!(
                     "Failed to load wrapper: {}",
                     err
                 )));
@@ -109,7 +109,7 @@ impl UriResolverHandler for PolywrapClient {
         &self,
         uri: &Uri,
         resolution_context: Option<&UriResolutionContext>,
-    ) -> Result<polywrap_core::uri_resolution_context::UriPackageOrWrapper, CoreError> {
+    ) -> Result<polywrap_core::uri_resolution_context::UriPackageOrWrapper, Error> {
         self.loader.try_resolve_uri(uri, resolution_context).await
     }
 }
@@ -120,7 +120,7 @@ impl Loader for PolywrapClient {
         &self,
         uri: &Uri,
         resolution_context: Option<&UriResolutionContext>,
-    ) -> Result<Arc<dyn Wrapper>, CoreError> {
+    ) -> Result<Box<dyn Wrapper>, Error> {
         self.loader.load_wrapper(uri, resolution_context).await
     }
 }

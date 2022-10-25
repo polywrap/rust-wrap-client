@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use polywrap_core::{
-    error::CoreError,
+    error::Error,
     loader::Loader,
     uri::Uri,
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
@@ -27,7 +27,7 @@ impl UriResolverHandler for WrapperLoader {
         &self,
         uri: &Uri,
         resolution_context: Option<&UriResolutionContext>,
-    ) -> Result<UriPackageOrWrapper, CoreError> {
+    ) -> Result<UriPackageOrWrapper, Error> {
         let uri_resolver = self.uri_resolver.clone();
         let uri_resolver_context = UriResolutionContext::new();
 
@@ -48,7 +48,7 @@ impl Loader for WrapperLoader {
         &self,
         uri: &Uri,
         resolution_context: Option<&UriResolutionContext>,
-    ) -> Result<Arc<dyn Wrapper>, CoreError> {
+    ) -> Result<Box<dyn Wrapper>, Error> {
         let empty_res_context = UriResolutionContext::new();
         let resolution_ctx = match resolution_context {
             Some(ctx) => ctx,
@@ -59,7 +59,7 @@ impl Loader for WrapperLoader {
 
         // TODO: Handle errors
         if result.is_err() {
-            return Err(CoreError::InvokeError(format!(
+            return Err(Error::InvokeError(format!(
                 "Failed to resolve wrapper: {}",
                 result.err().unwrap()
             )));
@@ -68,14 +68,14 @@ impl Loader for WrapperLoader {
         let uri_package_or_wrapper = result.unwrap();
 
         match uri_package_or_wrapper {
-            UriPackageOrWrapper::Uri(uri) => Err(CoreError::InvokeError(format!(
+            UriPackageOrWrapper::Uri(uri) => Err(Error::InvokeError(format!(
                 "Failed to resolve wrapper: {}",
                 uri
             ))),
-            UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(Arc::from(wrapper.wrapper)),
+            UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper.wrapper),
             UriPackageOrWrapper::Package(_, package) => {
                 let wrapper = package.package.create_wrapper().await.unwrap();
-                Ok(Arc::from(wrapper))
+                Ok(wrapper)
             }
         }
     }

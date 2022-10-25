@@ -1,13 +1,13 @@
 use std::{collections::HashMap};
 
-use crate::{client::UriRedirect, error::CoreError, uri::Uri};
+use crate::{client::UriRedirect, error::Error, uri::Uri};
 
-pub fn apply_redirects(uri: &Uri, redirects: &Vec<UriRedirect>) -> Result<Uri, CoreError> {
+pub fn apply_redirects(uri: &Uri, redirects: &Vec<UriRedirect>) -> Result<Uri, Error> {
     let mut redirect_from_to_map = HashMap::new();
 
     for redirect in redirects {
         if redirect.from.to_string() == uri.to_string() {
-            return Err(CoreError::RedirectsError(
+            return Err(Error::RedirectsError(
                 format!(
                     "Redirect missing the from property.\nEncountered while resolving {}",
                     uri
@@ -32,7 +32,7 @@ pub fn apply_redirects(uri: &Uri, redirects: &Vec<UriRedirect>) -> Result<Uri, C
         final_uri = redirect_from_to_map.get(&final_uri).unwrap().to_string();
 
         if visited_uris.contains_key(&final_uri) {
-            return Err(CoreError::RedirectsError(
+            return Err(Error::RedirectsError(
                 format!(
                     "Redirect loop detected while resolving {}",
                     uri
