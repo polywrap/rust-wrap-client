@@ -2,8 +2,8 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
-use futures::executor::block_on;
 use polywrap_core::invoke::Invoker;
+use tokio::runtime::Handle;
 use wasmtime::{
     AsContextMut, Config, Engine, Extern, Instance, Memory, MemoryType, Module, Store, Val,
 };
@@ -51,7 +51,7 @@ impl State {
 }
 
 impl WasmInstance {
-    pub fn new(
+    pub async fn new(
         wasm_module: &WasmModule,
         shared_state: Arc<Mutex<State>>,
         abort: Arc<dyn Fn(String) + Send + Sync>,
@@ -60,9 +60,9 @@ impl WasmInstance {
         let mut config = Config::new();
         config.async_support(true);
 
-        let rt = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()?;
+        let runtime = Handle::current();
+
+        let rt = Arc::new(runtime);
 
         let engine =
             Engine::new(&config).map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
@@ -93,8 +93,7 @@ impl WasmInstance {
             invoker,
         )?;
 
-        let instance = rt
-            .block_on(linker.instantiate_async(store.as_context_mut(), &module))
+        let instance = linker.instantiate_async(store.as_context_mut(), &module).await
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
         Ok(Self {
@@ -105,7 +104,7 @@ impl WasmInstance {
         })
     }
 
-    pub fn call_export(
+    pub async fn call_export(
         &mut self,
         name: &str,
         params: &[Val],
@@ -122,7 +121,7 @@ impl WasmInstance {
 
         match export.unwrap() {
             Extern::Func(func) => {
-                block_on(func.call_async(self.store.as_context_mut(), params, results))
+              func.call_async(self.store.as_context_mut(), params, results).await
                     .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
                 Ok(())

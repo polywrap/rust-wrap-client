@@ -8,5 +8,8 @@ thiserror = "1.0.37"
 async-trait = "0.1.57"
 futures = "0.3.24"
 polywrap_core = {path = "../core"}
+polywrap_resolvers = {path = "../resolvers"}
 serde = "1.0.145"
+serde_json = "1.0.87"
 rmp-serde = "1.1.1"
+tokio = { version = "1", features = ["full"] }

@@ -29,7 +29,7 @@ impl Invoker for WrapperInvoker {
         options: &InvokeOptions,
         wrapper: Box<dyn Wrapper>,
     ) -> Result<Vec<u8>, Error> {
-        let result = wrapper.invoke(options, Arc::new(self.clone()));
+        let result = wrapper.invoke(options, Arc::new(self.clone())).await;
 
         if result.is_err() {
             return Err(Error::InvokeError(format!(

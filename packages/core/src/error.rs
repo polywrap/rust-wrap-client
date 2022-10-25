@@ -16,4 +16,6 @@ pub enum Error {
   ClientError(String),
   #[error("WasmWrapper error: `{0}`")]
   WasmWrapperError(String),
+  #[error("`{0}`")]
+  ResolutionError(String),
 }

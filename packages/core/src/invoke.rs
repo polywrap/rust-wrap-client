@@ -1,10 +1,9 @@
 use std::{iter::Map};
-use erased_serde::{Serialize};
 use async_trait::async_trait;
 use crate::{uri::Uri, uri_resolution_context::UriResolutionContext, error::Error, wrapper::Wrapper};
 
 pub enum InvokeArgs {
-  Values(Box<dyn Serialize>),
+  JSON(serde_json::Value),
   UIntArray(Vec<u8>)
 }
 

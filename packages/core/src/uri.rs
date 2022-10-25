@@ -37,11 +37,7 @@ impl Uri {
         }
 
         let reg = Regex::new(
-            r"(?x)
-            ^(?P<login>[^@\s]+)@
-            ([[:word:]]+\.)*
-            [[:word:]]+$
-            ",
+            "wrap://([a-z][a-z0-9-_]+)/(.*)",
         )
         .unwrap();
 
