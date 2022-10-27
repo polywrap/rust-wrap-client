@@ -8,6 +8,14 @@ use wasmtime::{AsContextMut, Caller, Linker, Memory};
 
 use crate::{error::WrapperError, wasm_runtime::instance::State};
 
+fn read_from_memory(buffer: &mut [u8], ptr: usize, len: usize) -> Vec<u8> {
+    buffer[ptr..len].to_vec()
+}
+
+fn write_to_memory(buffer: &mut [u8], ptr: usize, data: &[u8]) {
+    buffer[ptr..ptr + data.len()].copy_from_slice(data);
+}
+
 pub fn create_imports(
     linker: &mut Linker<State>,
     arc_memory: Arc<Mutex<Memory>>,
@@ -29,10 +37,8 @@ pub fn create_imports(
                     (state.abort)("__wrap_invoke_args: args is not set".to_string());
                 }
 
-                memory_buffer[method_ptr as usize..method_ptr as usize + state.method.len()]
-                    .copy_from_slice(&state.method);
-                memory_buffer[args_ptr as usize..args_ptr as usize + state.args.len()]
-                    .copy_from_slice(&state.args);
+                write_to_memory(memory_buffer, method_ptr as usize, &state.method);
+                write_to_memory(memory_buffer, args_ptr as usize, &state.args);
 
                 Ok(())
             },
@@ -48,7 +54,7 @@ pub fn create_imports(
             move |mut caller: Caller<'_, State>, ptr: u32, len: u32| {
                 let memory = memory.lock().unwrap();
                 let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
-                let memory_data = memory_buffer[ptr as usize..ptr as usize + len as usize].to_vec();
+                let memory_data = read_from_memory(memory_buffer, ptr as usize, len as usize);
                 state.invoke.result = Some(memory_data);
             },
         )
@@ -63,7 +69,7 @@ pub fn create_imports(
                 dbg!("__wrap_invoke_error");
                 let memory = memory.lock().unwrap();
                 let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
-                let memory_data = memory_buffer[ptr as usize..ptr as usize + len as usize].to_vec();
+                let memory_data = read_from_memory(memory_buffer, ptr as usize, len as usize);
 
                 state.invoke.error = Some(String::from_utf8(memory_data).unwrap());
             },
@@ -84,10 +90,8 @@ pub fn create_imports(
                   column: u32| {
                 let memory = memory.lock().unwrap();
                 let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
-                let msg =
-                    memory_buffer[msg_ptr as usize..msg_ptr as usize + msg_len as usize].to_vec();
-                let file = memory_buffer[file_ptr as usize..file_ptr as usize + file_len as usize]
-                    .to_vec();
+                let msg = read_from_memory(memory_buffer, msg_ptr as usize, msg_len as usize);
+                let file = read_from_memory(memory_buffer, file_ptr as usize, file_len as usize);
 
                 let msg_str = String::from_utf8(msg).unwrap();
                 let file_str = String::from_utf8(file).unwrap();
@@ -121,15 +125,11 @@ pub fn create_imports(
                 Box::new(async move {
                     let memory = async_memory.lock().await;
                     let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
-                    let uri_bytes = memory_buffer
-                        [uri_ptr as usize..uri_ptr as usize + uri_len as usize]
-                        .to_vec();
-                    let method_bytes = memory_buffer
-                        [method_ptr as usize..method_ptr as usize + method_len as usize]
-                        .to_vec();
-                    let args_bytes = memory_buffer
-                        [args_ptr as usize..args_ptr as usize + args_len as usize]
-                        .to_vec();
+                    let uri_bytes =
+                        read_from_memory(memory_buffer, uri_ptr as usize, uri_len as usize);
+                    let method_bytes =
+                        read_from_memory(memory_buffer, method_ptr as usize, method_len as usize);
+                    let args_bytes = read_from_memory(memory_buffer, args_ptr as usize, args_len as usize);
 
                     let uri = Uri::from_string(&String::from_utf8(uri_bytes).unwrap()).unwrap();
                     let method = String::from_utf8(method_bytes).unwrap();
@@ -190,7 +190,7 @@ pub fn create_imports(
 
                 match &state.subinvoke.result {
                     Some(res) => {
-                        memory_buffer[ptr as usize..ptr as usize + res.len()].copy_from_slice(&res)
+                        write_to_memory(memory_buffer, ptr as usize, res);
                     }
                     None => {
                         (state.abort)(
@@ -232,8 +232,7 @@ pub fn create_imports(
                 let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
 
                 match &state.subinvoke.error {
-                    Some(res) => memory_buffer[ptr as usize..ptr as usize + res.len()]
-                        .copy_from_slice(res.as_bytes()),
+                    Some(res) => write_to_memory(memory_buffer, ptr as usize, res.as_bytes()),
                     None => {
                         (state.abort)(
                             "__wrap_subinvoke_error: subinvoke.error is not set".to_string(),
