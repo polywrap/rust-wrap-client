@@ -51,7 +51,7 @@ impl PolywrapClient {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl Invoker for PolywrapClient {
     async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, Error> {
         self.invoker.invoke(options).await
@@ -98,7 +98,7 @@ impl Client for PolywrapClient {
     // }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl UriResolverHandler for PolywrapClient {
     async fn try_resolve_uri(
         &self,
@@ -109,7 +109,7 @@ impl UriResolverHandler for PolywrapClient {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl Loader for PolywrapClient {
     async fn load_wrapper(
         &self,
@@ -117,49 +117,5 @@ impl Loader for PolywrapClient {
         resolution_context: Option<&UriResolutionContext>,
     ) -> Result<Box<dyn Wrapper>, Error> {
         self.loader.load_wrapper(uri, resolution_context).await
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use polywrap_core::invoke::InvokeArgs;
-    use polywrap_resolvers::filesystem::FilesystemResolver;
-    use std::sync::Arc;
-
-    #[tokio::test]
-    async fn invoke_test() {
-        let client =
-            crate::polywrap_client::PolywrapClient::new(crate::polywrap_client::ClientConfig {
-                redirects: vec![],
-                resolver: Arc::new(FilesystemResolver {}),
-            });
-
-        let json_args: serde_json::Value = serde_json::from_str(
-            r#"
-      {
-          "arg1": "1234.56789123456789",
-          "obj": {
-            "prop1": "98.7654321987654321"
-          }
-      }"#,
-        )
-        .unwrap();
-
-        let invoke_args = InvokeArgs::JSON(json_args);
-
-        let invoke_opts = polywrap_core::invoke::InvokeOptions {
-            args: Some(&invoke_args),
-            env: None,
-            resolution_context: None,
-            uri: &polywrap_core::uri::Uri::new("wrap://fs/src/test"),
-            method: "method",
-        };
-
-        let invoke_result = client.invoke_and_decode::<String>(&invoke_opts).await;
-
-        assert_eq!(
-            invoke_result.unwrap(),
-            "121932.631356500531347203169112635269"
-        );
     }
 }

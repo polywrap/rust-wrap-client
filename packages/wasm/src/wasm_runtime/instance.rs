@@ -1,21 +1,17 @@
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
-use polywrap_core::invoke::Invoker;
-use tokio::runtime::Handle;
+use polywrap_core::invoke::{Invoker};
 use wasmtime::{
     AsContextMut, Config, Engine, Extern, Instance, Memory, MemoryType, Module, Store, Val,
 };
 
-use crate::error::WrapperError;
 use super::imports::create_imports;
+use crate::error::WrapperError;
 use crate::utils::index_of_array;
 
 pub struct WasmInstance {
     instance: Instance,
-    pub shared_state: Arc<Mutex<State>>,
-    store: Store<u32>,
+    pub store: Store<State>,
     pub module: Module,
 }
 
@@ -31,44 +27,43 @@ pub struct InvokeState {
     pub error: Option<String>,
 }
 
-#[derive(Default)]
 pub struct State {
     pub method: Vec<u8>,
     pub args: Vec<u8>,
     pub invoke: InvokeState,
     pub subinvoke: InvokeState,
+    pub abort: Box<dyn Fn(String) + Send + Sync>,
+    pub invoker: Arc<dyn Invoker>,
 }
 
 impl State {
-    pub fn new(method: &str, args: Vec<u8>) -> Self {
+    pub fn new(
+        invoker: Arc<dyn Invoker>,
+        abort: Box<dyn Fn(String) + Send + Sync>,
+        method: &str,
+        args: Vec<u8>,
+    ) -> Self {
         Self {
             method: method.as_bytes().to_vec(),
             args,
             invoke: InvokeState::default(),
             subinvoke: InvokeState::default(),
+            abort,
+            invoker,
         }
     }
 }
 
 impl WasmInstance {
-    pub async fn new(
-        wasm_module: &WasmModule,
-        shared_state: Arc<Mutex<State>>,
-        abort: Arc<dyn Fn(String) + Send + Sync>,
-        invoker: Arc<dyn Invoker>,
-    ) -> Result<Self, WrapperError> {
+    pub async fn new(wasm_module: &WasmModule, shared_state: State) -> Result<Self, WrapperError> {
         let mut config = Config::new();
         config.async_support(true);
-
-        let runtime = Handle::current();
-
-        let rt = Arc::new(runtime);
 
         let engine =
             Engine::new(&config).map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
         let mut linker = wasmtime::Linker::new(&engine);
 
-        let mut store = Store::new(&engine, 4);
+        let mut store = Store::new(&engine, shared_state);
         let module_result = match wasm_module {
             WasmModule::Bytes(ref bytes) => Module::new(&engine, bytes),
             WasmModule::Wat(ref wat) => Module::new(&engine, wat),
@@ -80,25 +75,17 @@ impl WasmInstance {
             .serialize()
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
-        let memory = Rc::new(RefCell::new(WasmInstance::create_memory(
-            module_bytes.as_ref(),
-            &mut store,
-        )?));
+        let memory = WasmInstance::create_memory(module_bytes.as_ref(), &mut store)?;
 
-        create_imports(
-            &mut linker,
-            Arc::clone(&shared_state),
-            abort,
-            memory,
-            invoker,
-        )?;
+        create_imports(&mut linker, Arc::new(Mutex::new(memory)))?;
 
-        let instance = linker.instantiate_async(store.as_context_mut(), &module).await
+        let instance = linker
+            .instantiate_async(store.as_context_mut(), &module)
+            .await
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
         Ok(Self {
             module,
-            shared_state,
             instance,
             store,
         })
@@ -121,7 +108,8 @@ impl WasmInstance {
 
         match export.unwrap() {
             Extern::Func(func) => {
-              func.call_async(self.store.as_context_mut(), params, results).await
+                func.call_async(self.store.as_context_mut(), params, results)
+                    .await
                     .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
                 Ok(())
@@ -130,7 +118,7 @@ impl WasmInstance {
         }
     }
 
-    fn create_memory(module_bytes: &[u8], store: &mut Store<u32>) -> Result<Memory, WrapperError> {
+    fn create_memory<T>(module_bytes: &[u8], store: &mut Store<T>) -> Result<Memory, WrapperError> {
         const ENV_MEMORY_IMPORTS_SIGNATURE: [u8; 11] = [
             0x65, 0x6e, 0x76, 0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02,
         ];

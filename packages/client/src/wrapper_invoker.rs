@@ -22,7 +22,7 @@ impl WrapperInvoker {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl Invoker for WrapperInvoker {
     async fn invoke_wrapper(
         &self,

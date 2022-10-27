@@ -10,6 +10,12 @@ pub struct UriRedirect {
   pub to: Uri,
 }
 
+impl UriRedirect {
+  pub fn new(from: Uri, to: Uri) -> Self {
+    Self { from, to }
+  }
+}
+
 pub struct ClientConfig {
   pub redirects: Vec<UriRedirect>,
   pub resolver: Arc<dyn UriResolver>

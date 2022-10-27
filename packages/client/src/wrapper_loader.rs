@@ -21,7 +21,7 @@ impl WrapperLoader {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl UriResolverHandler for WrapperLoader {
     async fn try_resolve_uri(
         &self,
@@ -42,7 +42,7 @@ impl UriResolverHandler for WrapperLoader {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl Loader for WrapperLoader {
     async fn load_wrapper(
         &self,

@@ -11,7 +11,6 @@ use polywrap_core::invoke::Invoker;
 use polywrap_core::wrapper::Wrapper;
 use serde::de::DeserializeOwned;
 use std::sync::Arc;
-use std::sync::Mutex;
 
 use crate::wasm_runtime::instance::WasmInstance;
 use crate::wasm_runtime::instance::WasmModule;
@@ -63,7 +62,7 @@ impl WasmWrapper {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl Wrapper for WasmWrapper {
     async fn invoke(
         &self,
@@ -78,20 +77,17 @@ impl Wrapper for WasmWrapper {
             None => vec![],
         };
 
-        let state = State::new(options.method, args.clone());
-
         let params = &[
-            Val::I32(state.method.len().try_into().unwrap()),
-            Val::I32(state.args.len().try_into().unwrap()),
+            Val::I32(options.method.to_string().len().try_into().unwrap()),
+            Val::I32(args.len().try_into().unwrap()),
             Val::I32(1),
         ];
 
-        let state = Arc::new(Mutex::new(state));
         let abort_uri = options.uri.clone();
         let abort_method = options.method.to_string();
-        let abort_args = args;
+        let abort_args = args.clone();
 
-        let abort = Arc::new(move |msg| {
+        let abort = Box::new(move |msg| {
             panic!(
                 r#"WasmWrapper: Wasm module aborted execution.
               URI: {uri}
@@ -106,29 +102,31 @@ impl Wrapper for WasmWrapper {
             );
         });
 
-        let mut wasm_instance =
-            WasmInstance::new(&self.wasm_module, Arc::clone(&state), abort.clone(), invoker).await.unwrap();
+        let state = State::new(invoker, abort.clone(), options.method, args);
+
+        let mut wasm_instance = WasmInstance::new(&self.wasm_module, state).await.unwrap();
 
         let mut result: [Val; 1] = [Val::I32(0)];
         wasm_instance
-            .call_export("_wrap_invoke", params, &mut result).await
+            .call_export("_wrap_invoke", params, &mut result)
+            .await
             .map_err(|e| Error::WrapperError(e.to_string()))?;
 
-        let state_guard = state.lock().unwrap();
+        let state = wasm_instance.store.data_mut();
 
         if result[0].unwrap_i32() == 1 {
-            if state_guard.invoke.result.is_none() {
+            if state.invoke.result.is_none() {
                 abort("Invoke result is missing".to_string());
             }
 
-            Ok(state_guard.invoke.result.as_ref().unwrap().to_vec())
+            Ok(state.invoke.result.as_ref().unwrap().to_vec())
         } else {
-            if state_guard.invoke.error.as_ref().is_none() {
+            if state.invoke.error.as_ref().is_none() {
                 abort("Invoke error is missing".to_string());
             }
 
             Err(Error::WrapperError(
-                state_guard.invoke.error.as_ref().unwrap().to_string(),
+                state.invoke.error.as_ref().unwrap().to_string(),
             ))
         }
     }

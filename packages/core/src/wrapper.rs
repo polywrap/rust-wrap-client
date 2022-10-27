@@ -13,7 +13,7 @@ pub struct GetFileOptions {
   pub encoding: Option<Encoding>,
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 pub trait Wrapper: Send + Sync {
   async fn invoke(&self, options: &InvokeOptions, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, Error>;
   // fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error>;

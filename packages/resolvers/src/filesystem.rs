@@ -12,13 +12,19 @@ use polywrap_wasm::wasm_wrapper::{WasmWrapper, WasmWrapperConfig};
 
 pub struct FilesystemResolver {}
 
+impl FilesystemResolver {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 #[async_trait]
 impl UriResolver for FilesystemResolver {
     async fn try_resolve_uri(
         &self,
         uri: &Uri,
-        loader: &dyn Loader,
-        resolution_context: &UriResolutionContext,
+        _: &dyn Loader,
+        _: &UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority != "fs" && uri.authority != "file" {
             return Err(Error::ResolutionError("Invalid authority".to_string()));

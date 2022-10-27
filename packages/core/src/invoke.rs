@@ -15,7 +15,7 @@ pub struct InvokeOptions<'a> {
   pub resolution_context: Option<&'a UriResolutionContext>,
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 pub trait Invoker: Send + Sync {
   async fn invoke_wrapper(&self, options: &InvokeOptions, wrapper: Box<dyn Wrapper>) -> Result<Vec<u8>, Error>;
   async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, Error>;

@@ -84,6 +84,14 @@ impl TryFrom<String> for Uri {
     }
 }
 
+impl TryFrom<&str> for Uri {
+  type Error = Error;
+
+  fn try_from(uri: &str) -> Result<Self, Self::Error> {
+      Uri::from_string(uri)
+  }
+}
+
 impl std::fmt::Display for Uri {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "{}", self.uri)
