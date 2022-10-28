@@ -2,6 +2,14 @@
 macro_rules! msgpack {
     // Hide distracting implementation details from the generated rustdoc.
     ($($msgpack:tt)+) => {
+        msgpack_internal!($($msgpack)+)
+    };
+}
+
+#[macro_export(local_inner_macros)]
+macro_rules! msgpack_to_vec {
+    // Hide distracting implementation details from the generated rustdoc.
+    ($($msgpack:tt)+) => {
       {
         let mut buf = Vec::new();
         let value = msgpack_internal!($($msgpack)+);
@@ -251,9 +259,40 @@ macro_rules! msgpack_expect_expr_comma {
 
 #[cfg(test)]
 mod tests {
+    use rmpv::Value;
+
     #[test]
-    fn it_works() {
+    fn msgpack() {
         let value = msgpack!({
+            "code": 200,
+            "success": true,
+            "payload": {
+                "features": [
+                    "serde",
+                    "msgpack"
+                ]
+            }
+        });
+
+        let mut expected_map_tuples: Vec<(Value, Value)> = Vec::new();
+        expected_map_tuples.push((Value::from("code"), Value::from(200)));
+        expected_map_tuples.push((Value::from("success"), Value::from(true)));
+        expected_map_tuples.push((
+            Value::from("payload"),
+            Value::Map(vec![(
+                Value::from("features"),
+                Value::Array(vec![Value::from("serde"), Value::from("msgpack")]),
+            )]),
+        ));
+
+        let expected = Value::Map(expected_map_tuples);
+
+        assert_eq!(value, expected)
+    }
+
+    #[test]
+    fn msgpack_to_vec() {
+        let value = msgpack_to_vec!({
             "code": 200,
             "success": true,
             "payload": {
