@@ -9,7 +9,7 @@ use polywrap_core::{
     uri_resolver::{UriResolver, UriResolverHandler},
     wrapper::Wrapper,
 };
-use serde::de::DeserializeOwned;
+use polywrap_msgpack::{decode, DeserializeOwned};
 
 use crate::{wrapper_invoker::WrapperInvoker, wrapper_loader::WrapperLoader};
 
@@ -37,7 +37,7 @@ impl PolywrapClient {
         wrapper: Box<dyn Wrapper>,
     ) -> Result<T, Error> {
         let result = self.invoke_wrapper(options, wrapper).await?;
-        rmp_serde::from_slice(result.as_slice())
+        decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
     }
 
@@ -46,7 +46,7 @@ impl PolywrapClient {
         options: &InvokeOptions<'_>,
     ) -> Result<T, Error> {
         let result = self.invoke(options).await?;
-        rmp_serde::from_slice(result.as_slice())
+        decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
     }
 }

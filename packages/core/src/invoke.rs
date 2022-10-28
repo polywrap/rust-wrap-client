@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use crate::{uri::Uri, uri_resolution_context::UriResolutionContext, error::Error, wrapper::Wrapper};
 
 pub enum InvokeArgs {
-  JSON(serde_json::Value),
+  Msgpack(polywrap_msgpack::Value),
   UIntArray(Vec<u8>)
 }
 

@@ -9,11 +9,11 @@ use wasmtime::{AsContextMut, Caller, Linker, Memory};
 use crate::{error::WrapperError, wasm_runtime::instance::State};
 
 fn read_from_memory(buffer: &mut [u8], ptr: usize, len: usize) -> Vec<u8> {
-    buffer[ptr..len].to_vec()
+    buffer[ptr..(ptr + len)].to_vec()
 }
 
 fn write_to_memory(buffer: &mut [u8], ptr: usize, data: &[u8]) {
-    buffer[ptr..ptr + data.len()].copy_from_slice(data);
+    buffer[ptr..(ptr + data.len())].copy_from_slice(data);
 }
 
 pub fn create_imports(

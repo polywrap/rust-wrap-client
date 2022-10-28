@@ -18,4 +18,6 @@ pub enum Error {
   WasmWrapperError(String),
   #[error("`{0}`")]
   ResolutionError(String),
+  #[error("`{0}`")]
+  MsgpackError(String),
 }

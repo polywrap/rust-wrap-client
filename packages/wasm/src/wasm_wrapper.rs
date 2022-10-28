@@ -71,7 +71,8 @@ impl Wrapper for WasmWrapper {
     ) -> Result<Vec<u8>, Error> {
         let args = match options.args {
             Some(args) => match args {
-                InvokeArgs::JSON(json) => rmp_serde::encode::to_vec(&json).unwrap(),
+                InvokeArgs::Msgpack(value) => polywrap_msgpack::encode(value)
+                    .map_err(|e| Error::MsgpackError(e.to_string()))?,
                 InvokeArgs::UIntArray(arr) => arr.clone(),
             },
             None => vec![],

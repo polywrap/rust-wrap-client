@@ -3,6 +3,7 @@ use polywrap_core::{
     client::{ClientConfig, UriRedirect},
     invoke::InvokeArgs, uri::Uri,
 };
+use polywrap_msgpack::msgpack;
 use polywrap_resolvers::{
     base::BaseResolver, filesystem::FilesystemResolver, redirects::RedirectsResolver,
 };
@@ -22,14 +23,7 @@ async fn subinvoke_test() {
         )),
     });
 
-    let json_args: serde_json::Value = serde_json::from_str(
-        r#"
-        {"a": 1, "b": 2}
-        "#,
-    )
-    .unwrap();
-
-    let invoke_args = InvokeArgs::JSON(json_args);
+    let invoke_args = InvokeArgs::Msgpack(msgpack!({"a": 1, "b": 2}));
 
     let invoke_opts = polywrap_core::invoke::InvokeOptions {
         args: Some(&invoke_args),
