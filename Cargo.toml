@@ -4,5 +4,6 @@ members = [
     "packages/client",
     "packages/core",
     "packages/wasm",
-    "packages/resolvers"
+    "packages/resolvers",
+    "packages/msgpack"
 ]
