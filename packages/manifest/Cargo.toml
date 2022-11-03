@@ -1,0 +1,22 @@
+[package]
+name = "polywrap_manifest"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+thiserror = "1.0.37"
+polywrap_core = {path = "../core"}
+polywrap_msgpack = {path = "../msgpack"}
+serde = {version = "1.0.145", features = ["derive"]}
+serde_json = "1.0.87"
+serde_yaml = "0.9.14"
+semver = "1.0.14"
+jsonschema = "0.16.1"
+schemafy = "0.6.0"
+
+[build-dependencies]
+schemafy = "0.6.0"
+serde_json = "1.0"
+jsonschema_code_generator = "2.0.0"
+serde = {version = "1.0.145", features = ["derive"]}
+serde_repr = "0.1.7"
