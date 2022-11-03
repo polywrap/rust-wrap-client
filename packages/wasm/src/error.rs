@@ -11,7 +11,7 @@ pub enum WrapperError {
   #[error("Invocation error: `{0}`")]
   InvokeError(String),
   #[error("`{0}`")]
-  DecodeError(#[from] rmp_serde::decode::Error),
+  DecodeError(String),
   #[error("`{0}`")]
   WasmRuntimeError(String),
   #[error("`{0}`")]

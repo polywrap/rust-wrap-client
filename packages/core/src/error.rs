@@ -20,4 +20,6 @@ pub enum Error {
   ResolutionError(String),
   #[error("`{0}`")]
   MsgpackError(String),
+  #[error("`{0}`")]
+  ManifestError(String),
 }

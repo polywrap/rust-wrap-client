@@ -9,6 +9,7 @@ use polywrap_core::invoke::Invoker;
 // use polywrap_core::wrapper::Encoding;
 // use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
+use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
 use std::sync::Arc;
 
@@ -58,7 +59,7 @@ impl WasmWrapper {
     ) -> Result<T, Error> {
         let result = self.invoke(options, invoker).await?;
 
-        rmp_serde::from_slice(result.as_slice()).map_err(|e| Error::WrapperError(e.to_string()))
+        decode(result.as_slice()).map_err(|e| Error::WrapperError(e.to_string()))
     }
 }
 

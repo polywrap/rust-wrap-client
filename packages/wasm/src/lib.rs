@@ -3,3 +3,4 @@ pub mod utils;
 pub mod wasm_runtime;
 pub mod file_reader;
 pub mod wasm_wrapper;
+pub mod wasm_package;
