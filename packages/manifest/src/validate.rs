@@ -1,26 +1,12 @@
-use std::collections::HashMap;
-
 use jsonschema::{JSONSchema, ValidationError};
-use serde_json::Value;
 
-use crate::formats::AnyManifest;
+use crate::{formats::AnyManifest, get_schemas::get_schemas};
 
 pub fn validate_polywrap_manifest(
     manifest: AnyManifest,
     ext_schema: Option<JSONSchema>,
 ) -> Result<(), polywrap_core::error::Error> {
-    let schemas = HashMap::from([
-        (
-            "0.1.0",
-            serde_json::from_str::<Value>(include_str!("../schemas/0.1.0.json"))
-                .map_err(|e| polywrap_core::error::Error::ManifestError(e.to_string()))?,
-        ),
-        (
-            "0.2.0",
-            serde_json::from_str::<Value>(include_str!("../schemas/0.2.0.json"))
-                .map_err(|e| polywrap_core::error::Error::ManifestError(e.to_string()))?,
-        ),
-    ]);
+    let schemas = get_schemas().unwrap();
 
     let panic_if_errors = |result: Result<
         (),
