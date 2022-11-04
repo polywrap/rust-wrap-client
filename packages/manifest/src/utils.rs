@@ -1,4 +1,4 @@
-use crate::migrators::Migrator;
+use crate::migrator::Migrator;
 
 pub fn find_shortest_migration_path(
     migrators: Vec<Migrator>,

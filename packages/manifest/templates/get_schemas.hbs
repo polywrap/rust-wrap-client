@@ -1,0 +1,14 @@
+use std::collections::HashMap;
+use serde_json::Value;
+
+pub fn get_schemas() -> Result<HashMap<String, Value>, polywrap_core::error::Error> {
+  Ok(HashMap::from([
+    {{#each formats}}
+    (
+        "{{format}}".to_string(),
+        serde_json::from_str::<Value>(include_str!("../schemas/{{format}}.json"))
+            .map_err(|e| polywrap_core::error::Error::ManifestError(e.to_string()))?,
+    ),
+    {{/each}}
+]))
+}

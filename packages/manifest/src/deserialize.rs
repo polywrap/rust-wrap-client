@@ -2,8 +2,9 @@ use polywrap_core::package::DeserializeManifestOptions;
 use serde_json::Value;
 
 use crate::{
-    migrate::migrate_polywrap_manifest, validate::validate_polywrap_manifest, AnyManifest,
-    PolywrapManifest, LATEST_MANIFEST_FORMAT,
+    formats::{AnyManifest, PolywrapManifest, LATEST_MANIFEST_FORMAT},
+    migrate::migrate_polywrap_manifest,
+    validate::validate_polywrap_manifest,
 };
 
 pub fn deserialize_polywrap_manifest(
@@ -27,21 +28,24 @@ pub fn deserialize_polywrap_manifest(
         None => validate_polywrap_manifest(any_polywrap_manifest.clone(), None)?,
     };
 
-    let version_comparator = semver::Comparator::parse(&any_polywrap_manifest.format())
+    let any_manifest_ver = semver::Version::parse(&any_polywrap_manifest.format())
         .map_err(|e| polywrap_core::error::Error::ManifestError(e.to_string()))?;
 
-    let version_compare =
-        version_comparator.matches(&semver::Version::parse(LATEST_MANIFEST_FORMAT).unwrap());
+    let latest_manifest_ver = semver::Version::parse(LATEST_MANIFEST_FORMAT).unwrap();
 
-    if version_compare == false {
+    let version_compare = any_manifest_ver.cmp(&latest_manifest_ver);
+
+    if version_compare.is_lt() {
         return Ok(migrate_polywrap_manifest(
             any_polywrap_manifest,
             LATEST_MANIFEST_FORMAT.to_string(),
         ));
+    } else if version_compare.is_gt() {
+        panic!(
+            "Cannot downgrade Polywrap version {}, please upgrade your PolywrapClient package",
+            any_polywrap_manifest.format()
+        );
     } else {
-        match any_polywrap_manifest {
-            AnyManifest::PolywrapManifest020(m) => Ok(m),
-            _ => panic!("Invalid manifest format"),
-        }
+        return Ok(any_polywrap_manifest.get_latest()?);
     }
 }

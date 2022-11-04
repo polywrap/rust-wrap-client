@@ -1,0 +1,27 @@
+use crate::formats::AnyManifest;
+
+use super::{migrator::Migrator};
+{{#each migrators}}
+use super::migrators::{{name}};
+{{/each}}
+
+pub fn get_migrators() -> Vec<Migrator> {
+    return vec![
+        {{#each migrators}}
+        Migrator {
+            from: "{{from}}".to_string(),
+            to: "{{to}}".to_string(),
+            migrate: |manifest: AnyManifest| {
+                let manifest_arg = match manifest {
+                    AnyManifest::PolywrapManifest{{fsuffix from}}(manifest) => manifest,
+                    _ => panic!("Invalid manifest format"),
+                };
+
+                let migrated = {{name}}::migrate(manifest_arg);
+
+                return AnyManifest::PolywrapManifest{{fsuffix to}}(migrated);
+            },
+        },
+        {{/each}}
+    ];
+}

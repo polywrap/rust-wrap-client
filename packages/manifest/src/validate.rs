@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use jsonschema::{JSONSchema, ValidationError};
 use serde_json::Value;
 
-use crate::AnyManifest;
+use crate::formats::AnyManifest;
 
 pub fn validate_polywrap_manifest(
     manifest: AnyManifest,

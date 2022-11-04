@@ -15,8 +15,7 @@ jsonschema = "0.16.1"
 schemafy = "0.6.0"
 
 [build-dependencies]
-schemafy = "0.6.0"
+handlebars = "4.3.5"
+semver = "1.0.14"
 serde_json = "1.0"
-jsonschema_code_generator = "2.0.0"
 serde = {version = "1.0.145", features = ["derive"]}
-serde_repr = "0.1.7"

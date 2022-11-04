@@ -1,4 +1,4 @@
-use crate::{ImportAbis, PolywrapManifest010, PolywrapManifest020};
+use crate::formats::{ImportAbis, PolywrapManifest010, PolywrapManifest020};
 
 pub fn migrate(manifest: PolywrapManifest010) -> PolywrapManifest020 {
     let should_have_extensions =
@@ -6,11 +6,11 @@ pub fn migrate(manifest: PolywrapManifest010) -> PolywrapManifest020 {
 
     return PolywrapManifest020 {
         format: "0.2.0".to_string(),
-        project: crate::PolywrapManifest020Project {
+        project: crate::formats::PolywrapManifest020Project {
             name: manifest.name,
             type_: manifest.language,
         },
-        source: crate::PolywrapManifest020Source {
+        source: crate::formats::PolywrapManifest020Source {
             import_abis: match manifest.import_redirects {
                 Some(redirects) => Some(
                     redirects
@@ -27,7 +27,7 @@ pub fn migrate(manifest: PolywrapManifest010) -> PolywrapManifest020 {
             schema: manifest.schema,
         },
         extensions: if should_have_extensions {
-            Some(crate::PolywrapManifest020Extensions {
+            Some(crate::formats::PolywrapManifest020Extensions {
                 build: manifest.build,
                 deploy: manifest.deploy,
                 meta: manifest.meta,

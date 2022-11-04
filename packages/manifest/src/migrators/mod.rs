@@ -1,10 +1,1 @@
-use crate::AnyManifest;
-
-pub mod from_010_to_020;
-
-#[derive(Clone)]
-pub struct Migrator {
-    pub from: String,
-    pub to: String,
-    pub migrate: fn(AnyManifest) -> AnyManifest,
-}
+pub mod from_0_1_0_to_0_2_0;
