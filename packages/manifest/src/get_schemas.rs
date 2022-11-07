@@ -6,11 +6,12 @@
 
 use std::collections::HashMap;
 use serde_json::Value;
+use crate::utils::sanitize_semver_version;
 
 pub fn get_schemas() -> Result<HashMap<String, Value>, super::error::Error> {
   Ok(HashMap::from([
     (
-        "0.1".to_string(),
+        sanitize_semver_version("0.1"),
         serde_json::from_str::<Value>(include_str!("../schemas/0.1.json"))
             .map_err(|e| super::error::Error::JSONError(e.to_string()))?,
     ),

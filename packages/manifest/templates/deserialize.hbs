@@ -6,8 +6,8 @@
 
 use jsonschema::JSONSchema;
 use crate::{
-    formats::{AnyManifest, WrapManifest, LATEST_MANIFEST_FORMAT},
-    validate::validate_polywrap_manifest,
+    versions::{AnyManifest, WrapManifest},
+    validate::validate_polywrap_manifest
 };
 
 pub struct DeserializeManifestOptions {
@@ -33,16 +33,16 @@ pub fn deserialize_polywrap_manifest(
         None => validate_polywrap_manifest(&any_polywrap_manifest, None)?,
     };
 
-    let any_manifest_ver = semver::Version::parse(&any_polywrap_manifest.format())
+    let any_manifest_ver = semver::Version::parse(&any_polywrap_manifest.version())
         .map_err(|e| super::error::Error::DeserializeError(e.to_string()))?;
 
-    let latest_manifest_ver = semver::Version::parse(LATEST_MANIFEST_FORMAT).unwrap();
+    let latest_manifest_ver = semver::Version::parse(&AnyManifest::get_latest_version()).unwrap();
 
     let version_compare = any_manifest_ver.cmp(&latest_manifest_ver);
 
     if version_compare.is_eq() {
         match any_polywrap_manifest {
-            AnyManifest::WrapManifest{{fsuffix latest_format}}(manifest) => Ok(manifest),
+            AnyManifest::WrapManifest{{vsuffix latest_version}}(manifest) => Ok(manifest),
         }
     } else {
         Err(super::error::Error::DeserializeError(format!(
