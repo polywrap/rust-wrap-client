@@ -8,12 +8,12 @@ use serde_json::json;
 
 #[derive(Serialize)]
 struct Schema {
-    format: String,
+    version: String,
 }
 
 #[derive(Serialize)]
-struct FormatsData {
-    formats: Vec<Schema>,
+struct VersionsData {
+    versions: Vec<Schema>,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -34,7 +34,7 @@ impl From<io::Error> for Error {
     }
 }
 
-handlebars_helper! {fsuffix: |v: str| {
+handlebars_helper! {vsuffix: |v: str| {
   if v.contains(".") {
     v.to_string().split(".").map(|v| v.to_string()).collect::<Vec<String>>().join("")
   } else if v.contains("_") {
@@ -45,7 +45,7 @@ handlebars_helper! {fsuffix: |v: str| {
 }}
 
 fn register_helpers(reg: &mut Handlebars) {
-    reg.register_helper("fsuffix", Box::new(fsuffix));
+    reg.register_helper("vsuffix", Box::new(vsuffix));
 }
 
 fn generate_schemas() -> Result<(), Error> {
@@ -114,35 +114,35 @@ fn main() {
     let mut schemas = schema_paths
         .iter()
         .map(|schema_path| {
-            let format = schema_path.file_stem().unwrap().to_str().unwrap();
+            let version = schema_path.file_stem().unwrap().to_str().unwrap();
 
             Schema {
-                format: format.to_string(),
+                version: version.to_string(),
             }
         })
         .collect::<Vec<Schema>>();
 
     schemas.sort_by(|a, b| {
-        Version::parse(&b.format)
+        Version::parse(&b.version)
             .unwrap()
-            .cmp(&Version::parse(&a.format).unwrap())
+            .cmp(&Version::parse(&a.version).unwrap())
     });
 
     generate_file(
         &mut reg,
-        "templates/formats.hbs",
+        "templates/versions.hbs",
         &json!({
-          "formats": schemas,
-          "latest_format": schemas.last().unwrap().format,
+          "versions": schemas,
+          "latest_version": schemas.last().unwrap().version,
         }),
-        "./src/formats.rs",
+        "./src/versions.rs",
     );
 
     generate_file(
         &mut reg,
         "templates/get_schemas.hbs",
         &json!({
-          "formats": schemas,
+          "versions": schemas,
         }),
         "./src/get_schemas.rs",
     );
@@ -151,8 +151,8 @@ fn main() {
         &mut reg,
         "templates/deserialize.hbs",
         &json!({
-          "formats": schemas,
-          "latest_format": schemas.last().unwrap().format,
+          "versions": schemas,
+          "latest_version": schemas.last().unwrap().version,
         }),
         "./src/deserialize.rs",
     );

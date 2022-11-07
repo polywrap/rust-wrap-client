@@ -20,7 +20,7 @@ async fn subinvoke_test() {
     let client = PolywrapClient::new(ClientConfig {
         redirects: vec![],
         resolver: Arc::new(BaseResolver::new(
-            Box::new(FilesystemResolver::new(Box::new(file_reader))),
+            Box::new(FilesystemResolver::new(Arc::new(file_reader))),
             Box::new(RedirectsResolver::new(redirects)),
         )),
     });

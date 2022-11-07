@@ -8,7 +8,7 @@ use polywrap_core::{
 };
 use polywrap_manifest::{
     deserialize::{deserialize_polywrap_manifest, DeserializeManifestOptions},
-    formats::WrapManifest,
+    versions::WrapManifest,
 };
 
 use crate::wasm_wrapper::WasmWrapper;

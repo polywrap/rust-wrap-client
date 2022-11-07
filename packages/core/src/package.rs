@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use polywrap_manifest::{formats::WrapManifest};
+use polywrap_manifest::{versions::WrapManifest};
 
 use crate::{error::Error, wrapper::Wrapper};
 

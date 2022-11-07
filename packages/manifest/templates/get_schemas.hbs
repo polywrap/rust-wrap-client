@@ -6,13 +6,14 @@
 
 use std::collections::HashMap;
 use serde_json::Value;
+use crate::utils::sanitize_semver_version;
 
 pub fn get_schemas() -> Result<HashMap<String, Value>, super::error::Error> {
   Ok(HashMap::from([
-    {{#each formats}}
+    {{#each versions}}
     (
-        "{{format}}".to_string(),
-        serde_json::from_str::<Value>(include_str!("../schemas/{{format}}.json"))
+        sanitize_semver_version("{{version}}"),
+        serde_json::from_str::<Value>(include_str!("../schemas/{{version}}.json"))
             .map_err(|e| super::error::Error::JSONError(e.to_string()))?,
     ),
     {{/each}}

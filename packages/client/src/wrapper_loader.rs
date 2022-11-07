@@ -74,7 +74,7 @@ impl Loader for WrapperLoader {
             ))),
             UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper.wrapper),
             UriPackageOrWrapper::Package(_, package) => {
-                let wrapper = package.package.create_wrapper(None).await.unwrap();
+                let wrapper = package.package.create_wrapper().await.unwrap();
                 Ok(wrapper)
             }
         }
