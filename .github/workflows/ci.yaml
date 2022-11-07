@@ -26,10 +26,6 @@ jobs:
     defaults:
       run:
         working-directory: ./packages/${{ matrix.package }}
-    env:
-      RUSTDOCFLAGS: -Cpanic=abort
-      RUSTFLAGS: -Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort
-      CARGO_INCREMENTAL: 0
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -52,10 +48,10 @@ jobs:
 
       - uses: actions-rs/grcov@v0.1
         with:
-          config: ./grcov.yml
+          config: ./config/grcov.yml
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
         with:
-          directory: ../../target/debug/
+          directory: ./target/debug/
           files: coverage.info
