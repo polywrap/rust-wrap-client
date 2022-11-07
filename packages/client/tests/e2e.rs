@@ -7,6 +7,7 @@ use polywrap_msgpack::msgpack;
 use polywrap_resolvers::{
     base::BaseResolver, filesystem::FilesystemResolver, redirects::RedirectsResolver,
 };
+use polywrap_core::file_reader::SimpleFileReader;
 use std::{sync::Arc};
 
 #[tokio::test]
@@ -15,10 +16,11 @@ async fn subinvoke_test() {
         "ens/add.eth".try_into().unwrap(),
         "fs/tests/cases/simple-subinvoke/subinvoke".try_into().unwrap(),
     )];
+    let file_reader = SimpleFileReader::new();
     let client = PolywrapClient::new(ClientConfig {
         redirects: vec![],
         resolver: Arc::new(BaseResolver::new(
-            Box::new(FilesystemResolver::new()),
+            Box::new(FilesystemResolver::new(Box::new(file_reader))),
             Box::new(RedirectsResolver::new(redirects)),
         )),
     });
