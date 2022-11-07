@@ -14,7 +14,7 @@ pub fn validate_polywrap_manifest(
     >| match result {
         Ok(_) => (),
         Err(e) => panic!(
-            "Validation errors encountered while sanitizing PolywrapManifest format {}{}",
+            "Validation errors encountered while sanitizing WrapManifest format {}{}",
             manifest.format(),
             e.into_iter()
                 .map(|e| e.to_string())

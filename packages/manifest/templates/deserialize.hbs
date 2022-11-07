@@ -42,7 +42,12 @@ pub fn deserialize_polywrap_manifest(
 
     if version_compare.is_eq() {
         match any_polywrap_manifest {
-            AnyManifest::WrapManifest01(manifest) => Ok(manifest),
+            AnyManifest::WrapManifest{{fsuffix latest_format}}(manifest) => Ok(manifest),
+            {{#if formats.[1]}}
+            _ => Err(polywrap_core::error::Error::ManifestError(
+                "Invalid manifest format".to_string(),
+            )),
+            {{/if}}
         }
     } else {
         Err(polywrap_core::error::Error::ManifestError(format!(
