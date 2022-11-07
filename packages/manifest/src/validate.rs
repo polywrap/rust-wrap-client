@@ -3,9 +3,9 @@ use jsonschema::{JSONSchema, ValidationError};
 use crate::{formats::AnyManifest, get_schemas::get_schemas};
 
 pub fn validate_polywrap_manifest(
-    manifest: AnyManifest,
+    manifest: &AnyManifest,
     ext_schema: Option<JSONSchema>,
-) -> Result<(), polywrap_core::error::Error> {
+) -> Result<(), super::error::Error> {
     let schemas = get_schemas().unwrap();
 
     let panic_if_errors = |result: Result<
@@ -14,7 +14,7 @@ pub fn validate_polywrap_manifest(
     >| match result {
         Ok(_) => (),
         Err(e) => panic!(
-            "Validation errors encountered while sanitizing PolywrapManifest format {}{}",
+            "Validation errors encountered while sanitizing WrapManifest format {}{}",
             manifest.format(),
             e.into_iter()
                 .map(|e| e.to_string())
@@ -26,7 +26,7 @@ pub fn validate_polywrap_manifest(
     let manifest_schema = JSONSchema::options()
         .with_draft(jsonschema::Draft::Draft7)
         .compile(&schemas[manifest.format().as_str()])
-        .map_err(|e| polywrap_core::error::Error::ManifestError(e.to_string()))?;
+        .map_err(|e| super::error::Error::ValidationError(e.to_string()))?;
     let manifest_json = manifest.to_json_value();
     panic_if_errors(manifest_schema.validate(&manifest_json));
 

@@ -42,7 +42,7 @@ pub fn deserialize_polywrap_manifest(
 
     if version_compare.is_eq() {
         match any_polywrap_manifest {
-            AnyManifest::WrapManifest01(manifest) => Ok(manifest),
+            AnyManifest::WrapManifest{{fsuffix latest_format}}(manifest) => Ok(manifest),
         }
     } else {
         Err(super::error::Error::DeserializeError(format!(

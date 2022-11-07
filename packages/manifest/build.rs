@@ -1,6 +1,7 @@
-use std::{fs, path::PathBuf};
+use std::{fs, io, path::PathBuf};
 
 use handlebars::{handlebars_helper, Handlebars};
+use polywrap_jsonref::JsonRef;
 use semver::Version;
 use serde::Serialize;
 use serde_json::json;
@@ -15,11 +16,22 @@ struct FormatsData {
     formats: Vec<Schema>,
 }
 
-#[derive(Serialize, Debug)]
-struct Migrator {
-    from: String,
-    to: String,
-    name: String,
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("Error fetching Wrap jsonschemas through HTTP: `{0}`")]
+    SchemaFetch(String),
+}
+
+impl From<ureq::Error> for Error {
+    fn from(e: ureq::Error) -> Self {
+        Error::SchemaFetch(e.to_string())
+    }
+}
+
+impl From<io::Error> for Error {
+    fn from(e: io::Error) -> Self {
+        Error::SchemaFetch(e.to_string())
+    }
 }
 
 handlebars_helper! {fsuffix: |v: str| {
@@ -36,31 +48,63 @@ fn register_helpers(reg: &mut Handlebars) {
     reg.register_helper("fsuffix", Box::new(fsuffix));
 }
 
-fn register_templates(reg: &mut Handlebars) {
-    reg.register_template_file("formats", "templates/formats.hbs")
-        .unwrap();
-    reg.register_template_file("get_schemas", "templates/get_schemas.hbs")
-        .unwrap();
-    reg.register_template_file("get_migrators", "templates/get_migrators.hbs")
+fn generate_schemas() -> Result<(), Error> {
+    let versions = ureq::get(
+        "https://raw.githubusercontent.com/polywrap/wrap/master/manifest/wrap.info/versions.json",
+    )
+    .call()?
+    .into_json::<Vec<String>>()?;
+
+    for version in versions {
+        let mut schema = ureq::get(&format!(
+            "https://raw.githubusercontent.com/polywrap/wrap/master/manifest/wrap.info/{}.json",
+            version
+        ))
+        .call()
+        .unwrap()
+        .into_json::<serde_json::Value>()
         .unwrap();
 
-    reg.register_template_file("migrators_mod", "templates/migrators_mod.hbs")
+        let mut jsonref = JsonRef::new();
+        jsonref
+            .deref_value(&mut schema)
+            .map_err(|e| {
+                Error::SchemaFetch(format!("Error dereferencing Schema. {}", e.to_string()))
+            })
+            .unwrap();
+
+        let schema = serde_json::to_string_pretty(&schema).unwrap();
+        fs::write(
+            PathBuf::from("schemas").join(format!("{}.json", version)),
+            schema,
+        )
         .unwrap();
+    }
+
+    Ok(())
 }
 
-fn extract_formats_from_migrator_name(name: &str) -> (String, String) {
-    let formats = name.replace("from_", "").replace("_to_", " ");
+fn generate_file(
+    registry: &mut Handlebars,
+    template_path: &str,
+    data: &serde_json::Value,
+    file_path: &str,
+) {
+    let binding = PathBuf::from(template_path);
+    let name = binding.file_name().unwrap().to_str().unwrap();
+    registry
+        .register_template_file(name, template_path)
+        .unwrap();
 
-    let mut parts = formats.split(" ");
-    let from = parts.next().unwrap().to_string();
-    let to = parts.next().unwrap().to_string();
-    (from, to)
+    let rendered_content = registry.render(name, data).unwrap();
+    fs::write(file_path, rendered_content).unwrap();
 }
 
 fn main() {
+    generate_schemas().unwrap();
+
     let mut reg = Handlebars::new();
     register_helpers(&mut reg);
-    register_templates(&mut reg);
 
     let schema_paths = fs::read_dir(PathBuf::from("schemas"))
         .unwrap()
@@ -84,75 +128,32 @@ fn main() {
             .cmp(&Version::parse(&a.format).unwrap())
     });
 
-    let migrator_names = fs::read_dir(PathBuf::from("src/migrators"))
-        .unwrap()
-        .map(|entry| {
-            let path = entry.unwrap().path();
-            let name = path.file_stem().unwrap().to_str().unwrap();
-            name.to_string()
-        })
-        .filter(|path| path.starts_with("from"))
-        .collect::<Vec<_>>();
+    generate_file(
+        &mut reg,
+        "templates/formats.hbs",
+        &json!({
+          "formats": schemas,
+          "latest_format": schemas.last().unwrap().format,
+        }),
+        "./src/formats.rs",
+    );
 
-    let migrators = migrator_names
-        .iter()
-        .map(|name| {
-            let (from, to) = extract_formats_from_migrator_name(name);
-            Migrator {
-                from,
-                to,
-                name: name.to_string(),
-            }
-        })
-        .collect::<Vec<Migrator>>();
+    generate_file(
+        &mut reg,
+        "templates/get_schemas.hbs",
+        &json!({
+          "formats": schemas,
+        }),
+        "./src/get_schemas.rs",
+    );
 
-    let formats_content = reg
-        .render(
-            "formats",
-            &json!({
-              "formats": schemas,
-              "latest_format": schemas.last().unwrap().format,
-            }),
-        )
-        .unwrap();
-
-    let get_schemas_content = reg
-        .render(
-            "get_schemas",
-            &json!({
-              "formats": schemas,
-            }),
-        )
-        .unwrap();
-
-    let get_migrators_content = reg
-        .render(
-            "get_migrators",
-            &json!({
-              "migrators": migrators,
-            }),
-        )
-        .unwrap();
-
-    let migrators_mod_content = reg
-        .render(
-            "migrators_mod",
-            &json!({
-              "migrators": migrators,
-            }),
-        )
-        .unwrap();
-
-    fs::write(PathBuf::from("./src/formats.rs"), formats_content).unwrap();
-    fs::write(PathBuf::from("./src/get_schemas.rs"), get_schemas_content).unwrap();
-    fs::write(
-        PathBuf::from("./src/get_migrators.rs"),
-        get_migrators_content,
-    )
-    .unwrap();
-    fs::write(
-        PathBuf::from("./src/migrators/mod.rs"),
-        migrators_mod_content,
-    )
-    .unwrap();
+    generate_file(
+        &mut reg,
+        "templates/deserialize.hbs",
+        &json!({
+          "formats": schemas,
+          "latest_format": schemas.last().unwrap().format,
+        }),
+        "./src/deserialize.rs",
+    );
 }
