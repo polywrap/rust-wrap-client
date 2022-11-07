@@ -17,6 +17,7 @@ use crate::wasm_runtime::instance::WasmInstance;
 use crate::wasm_runtime::instance::WasmModule;
 use wasmtime::Val;
 
+#[derive(Clone)]
 pub struct WasmWrapper {
     wasm_module: WasmModule,
     // file_reader: Box<dyn FileReader>,
