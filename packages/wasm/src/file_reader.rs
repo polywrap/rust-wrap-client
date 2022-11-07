@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use polywrap_core::file_reader::FileReader;
 
 pub struct BaseFileReader {}
@@ -13,12 +15,12 @@ impl FileReader for BaseFileReader {
 pub struct InMemoryFileReader {
     wasm_manifest: Option<Vec<u8>>,
     wasm_module: Option<Vec<u8>>,
-    base_file_reader: Box<dyn FileReader>,
+    base_file_reader: Arc<dyn FileReader>,
 }
 
 impl InMemoryFileReader {
     pub fn new(
-        base_file_reader: Box<dyn FileReader>,
+        base_file_reader: Arc<dyn FileReader>,
         wasm_manifest: Option<Vec<u8>>,
         wasm_module: Option<Vec<u8>>,
     ) -> Self {
