@@ -1,5 +1,7 @@
 ![Public Release Announcement](https://user-images.githubusercontent.com/5522128/177473887-2689cf25-7937-4620-8ca5-17620729a65d.png)
 
+[![codecov](https://codecov.io/gh/polywrap/rust-client/branch/main/graph/badge.svg?token=Z0VNH4R5UR)](https://codecov.io/gh/polywrap/rust-client)
+
 # Polywrap Rust client
 
 ## [Polywrap](https://polywrap.io) is a developer tool that enables easy integration of Web3 protocols into any application. It makes it possible for applications on any platform, written in any language, to read and write data to Web3 protocols.

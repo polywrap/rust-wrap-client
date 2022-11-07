@@ -47,7 +47,7 @@ impl UriResolver for FilesystemResolver {
                 wasm_module: polywrap_wasm::wasm_runtime::instance::WasmModule::Bytes(wrapper_file),
             };
             let wasm_wrapper = WasmWrapper::new(wrapper_config);
-            let uri_package_or_wrapper = UriPackageOrWrapper::Package(
+            let uri_package_or_wrapper = UriPackageOrWrapper::Wrapper(
                 uri.clone(),
                 UriWrapper {
                     uri: uri.clone(),
