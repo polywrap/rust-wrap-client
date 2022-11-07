@@ -16,7 +16,7 @@ impl WasmPackage {
         wasm_module: Option<Vec<u8>>,
     ) -> Self {
         Self {
-            file_reader: match wasm_module {
+            file_reader: match wasm_module.clone() {
                 Some(module) => Box::new(InMemoryFileReader::new(file_reader, None, Some(module))),
                 None => file_reader,
             },
@@ -37,18 +37,18 @@ impl WasmPackage {
 }
 
 
-#[async_trait]
-impl WrapPackage for WasmPackage {
-  async fn get_manifest(&self, options: Option<GetManifestOptions>) -> Result<Manifest, polywrap_core::error::Error> {
-    if self.manifest.is_some() {
-      return Ok(self.manifest.clone().unwrap());
-    }
+// #[async_trait]
+// impl WrapPackage for WasmPackage {
+//   async fn get_manifest(&self, options: Option<GetManifestOptions>) -> Result<Manifest, polywrap_core::error::Error> {
+//     if self.manifest.is_some() {
+//       return Ok(self.manifest.clone().unwrap());
+//     }
 
-    let file_content = self.file_reader.read_file("wrap.info")?;
+//     let file_content = self.file_reader.read_file("wrap.info")?;
 
-    let manifest: Manifest = rmp_serde::from_slice(file_content.as_slice())
-      .map_err(|e| polywrap_core::error::Error::WasmWrapperError(e.to_string()))?;
+//     let manifest: Manifest = rmp_serde::from_slice(file_content.as_slice())
+//       .map_err(|e| polywrap_core::error::Error::WasmWrapperError(e.to_string()))?;
 
-    Ok(manifest)
-  }
-}
+//     Ok(manifest)
+//   }
+// }
