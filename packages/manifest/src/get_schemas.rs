@@ -12,8 +12,7 @@ pub fn get_schemas() -> Result<HashMap<String, Value>, super::error::Error> {
   Ok(HashMap::from([
     (
         sanitize_semver_version("0.1"),
-        serde_json::from_str::<Value>(include_str!("../schemas/0.1.json"))
-            .map_err(|e| super::error::Error::JSONError(e.to_string()))?,
+        serde_json::from_str::<Value>(include_str!("../schemas/0.1.json"))?,
     ),
 ]))
 }

@@ -35,11 +35,11 @@ impl InMemoryFileReader {
 impl FileReader for InMemoryFileReader {
     fn read_file(&self, file_path: &str) -> Result<Vec<u8>, polywrap_core::error::Error> {
         if file_path == "wrap.wasm" && self.wasm_module.is_some() {
-            return Ok(self.wasm_module.clone().unwrap());
+            Ok(self.wasm_module.clone().unwrap())
         } else if file_path == "wrap.info" && self.wasm_manifest.is_some() {
-            return Ok(self.wasm_manifest.clone().unwrap());
+            Ok(self.wasm_manifest.clone().unwrap())
         } else {
-            return self.base_file_reader.read_file(file_path);
+            self.base_file_reader.read_file(file_path)
         }
     }
 }

@@ -8,6 +8,7 @@ use serde_json::Value;
 use serde::{Serialize, Deserialize};
 use polywrap_schemafy::schemafy;
 use crate::utils::sanitize_semver_version;
+use crate::error::Error;
 
 schemafy!(
   root: WrapManifest01
@@ -27,16 +28,16 @@ impl AnyManifest {
     }
   }
 
-    pub fn from_json_value(value: Value) -> Self {
+    pub fn from_json_value(value: Value) -> Result<Self, Error> {
         match value["version"].as_str().unwrap() {
-            "0.1" => AnyManifest::WrapManifest01(serde_json::from_value(value).unwrap()),
-            _ => panic!("Invalid manifest version"),
+            "0.1" => Ok(AnyManifest::WrapManifest01(serde_json::from_value(value)?)),
+            v => Err(Error::FromJSONError(format!("Invalid manifest version: {}", v).to_string())),
         }
     }
 
-    pub fn to_json_value(&self) -> Value {
+    pub fn to_json_value(&self) -> Result<Value, Error> {
         match self {
-            AnyManifest::WrapManifest01(manifest) => serde_json::to_value(manifest).unwrap(),
+            AnyManifest::WrapManifest01(manifest) => Ok(serde_json::to_value(manifest)?),
         }
     }
 

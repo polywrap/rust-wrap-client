@@ -14,14 +14,6 @@ impl SimpleFileReader {
 
 impl FileReader for SimpleFileReader {
     fn read_file(&self, path: &str) -> Result<Vec<u8>, Error> {
-        let result = std::fs::read(path);
-        if result.is_err() {
-            return Err(Error::GetFileError(format!(
-                "Failed to read file: {}",
-                result.err().unwrap()
-            )));
-        } else {
-            return Ok(result.unwrap());
-        }
+      std::fs::read(path).map_err(|e| Error::FileReadError(e.to_string()))
     }
 }
