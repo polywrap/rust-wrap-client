@@ -55,17 +55,10 @@ impl Loader for WrapperLoader {
             None => &empty_res_context,
         };
 
-        let result = self.try_resolve_uri(uri, Some(resolution_ctx)).await;
-
-        // TODO: Handle errors
-        if result.is_err() {
-            return Err(Error::InvokeError(format!(
-                "Failed to resolve wrapper: {}",
-                result.err().unwrap()
-            )));
-        };
-
-        let uri_package_or_wrapper = result.unwrap();
+        let uri_package_or_wrapper = self
+            .try_resolve_uri(uri, Some(resolution_ctx))
+            .await
+            .map_err(|e| Error::ResolutionError(e.to_string()))?;
 
         match uri_package_or_wrapper {
             UriPackageOrWrapper::Uri(uri) => Err(Error::InvokeError(format!(
@@ -74,7 +67,11 @@ impl Loader for WrapperLoader {
             ))),
             UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper.wrapper),
             UriPackageOrWrapper::Package(_, package) => {
-                let wrapper = package.package.create_wrapper().await.unwrap();
+                let wrapper = package
+                    .package
+                    .create_wrapper()
+                    .await
+                    .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
                 Ok(wrapper)
             }
         }

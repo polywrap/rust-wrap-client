@@ -17,3 +17,9 @@ pub enum WrapperError {
   #[error("`{0}`")]
   ExportError(String)
 }
+
+impl From<WrapperError> for polywrap_core::error::Error {
+  fn from(error: WrapperError) -> Self {
+    polywrap_core::error::Error::WrapperError(error.to_string())
+  }
+}
