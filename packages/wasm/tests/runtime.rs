@@ -1,13 +1,19 @@
-use polywrap_wasm::{wasm_wrapper::{WasmWrapper, WasmWrapperConfig}, wasm_runtime::instance::WasmModule};
+use std::path::Path;
+use polywrap_wasm::{wasm_wrapper::{WasmWrapper}, wasm_runtime::instance::WasmModule};
 use polywrap_core::{
     wrapper::Wrapper,
     invoke::{Invoker,InvokeOptions,InvokeArgs},
     uri::Uri,
-    error::Error
+    error::Error,
+    file_reader::{SimpleFileReader}
+};
+use polywrap_manifest::{
+    deserialize::deserialize_wrap_manifest
 };
 use async_trait::async_trait;
 use polywrap_msgpack::msgpack;
 use std::sync::Arc;
+use std::fs;
 
 #[derive(Clone)]
 struct MockInvoker {
@@ -65,13 +71,15 @@ impl Invoker for MockInvoker {
 #[tokio::test]
 async fn invoke_test() {
     let module = WasmModule::Path("./tests/cases/simple-invoke/wrap.wasm".to_string());
-    let config = WasmWrapperConfig {
-        wasm_module: module
-    };
-    let wrapper = WasmWrapper::new(config);
-    let mock_invoker = MockInvoker::new(wrapper);
-    let args = InvokeArgs::Msgpack(msgpack!({ "a": 1, "b": 1}));
+    let manifest_path = Path::new("./tests/cases/simple-invoke/wrap.info");
 
+    let manifest_bytes = fs::read(manifest_path).unwrap();
+    let manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
+
+    let file_reader = SimpleFileReader::new();
+    let wrapper = WasmWrapper::new(module, Arc::new(file_reader), manifest);
+    let args = InvokeArgs::Msgpack(msgpack!({ "a": 1, "b": 1}));
+    
     let invoke_opts = InvokeOptions {
         args: Some(&args),
         env: None,
@@ -79,7 +87,8 @@ async fn invoke_test() {
         method: "add",
         uri: &Uri::from_string("fs/tests/cases/simple-invoke").unwrap()
     };
-
+    
+    let mock_invoker = MockInvoker::new(wrapper);
     let result = mock_invoker.invoke(&invoke_opts).await.unwrap();
     assert_eq!(result, [2])
 }

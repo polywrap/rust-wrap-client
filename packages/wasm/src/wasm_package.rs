@@ -7,7 +7,7 @@ use polywrap_core::{
     wrapper::Wrapper,
 };
 use polywrap_manifest::{
-    deserialize::{deserialize_polywrap_manifest, DeserializeManifestOptions},
+    deserialize::{deserialize_wrap_manifest, DeserializeManifestOptions},
     versions::WrapManifest,
 };
 
@@ -63,7 +63,7 @@ impl WrapPackage for WasmPackage {
                 no_validate: options.no_validate,
                 ext_schema: None,
             });
-        let deserialized_manifest = deserialize_polywrap_manifest(&encoded_manifest, opts)
+        let deserialized_manifest = deserialize_wrap_manifest(&encoded_manifest, opts)
             .map_err(|e| polywrap_core::error::Error::ManifestError(e.to_string()))?;
 
         return Ok(deserialized_manifest);

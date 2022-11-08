@@ -25,12 +25,6 @@ pub struct WasmWrapper {
     manifest: WrapManifest,
 }
 
-pub struct WasmWrapperConfig {
-    pub wasm_module: WasmModule,
-    pub file_reader: Arc<dyn FileReader>,
-    pub manifest: WrapManifest,
-}
-
 impl WasmWrapper {
     pub fn new(
         wasm_module: WasmModule,
