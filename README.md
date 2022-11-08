@@ -69,7 +69,9 @@ cargo build
 
 # Test the client
 
-Run this command from the root folder to execute all written tests
+Before running tests, cases need to be generated, go to `packages/tests` and run `cargo run --bin generate`
+
+Now, by running this command in the root path, all written tests will be executed
 ```
 cargo bench
 ```
