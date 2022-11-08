@@ -16,7 +16,7 @@ pub struct DeserializeManifestOptions {
 }
 
 pub fn deserialize_polywrap_manifest(
-    manifest: &Vec<u8>,
+    manifest: &[u8],
     options: Option<DeserializeManifestOptions>,
 ) -> Result<WrapManifest, super::error::Error> {
     let any_polywrap_manifest_json: serde_json::Value = rmp_serde::from_slice(manifest)?;

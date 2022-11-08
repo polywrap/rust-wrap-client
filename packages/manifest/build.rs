@@ -35,10 +35,10 @@ impl From<io::Error> for Error {
 }
 
 handlebars_helper! {vsuffix: |v: str| {
-  if v.contains(".") {
-    v.to_string().split(".").map(|v| v.to_string()).collect::<Vec<String>>().join("")
-  } else if v.contains("_") {
-    v.to_string().split("_").map(|v| v.to_string()).collect::<Vec<String>>().join("")
+  if v.contains('.') {
+    v.to_string().split('.').map(|v| v.to_string()).collect::<Vec<String>>().join("")
+  } else if v.contains('_') {
+    v.to_string().split('_').map(|v| v.to_string()).collect::<Vec<String>>().join("")
   } else {
     v.to_string()
   }
@@ -69,7 +69,7 @@ fn generate_schemas() -> Result<(), Error> {
         jsonref
             .deref_value(&mut schema)
             .map_err(|e| {
-                Error::SchemaFetch(format!("Error dereferencing Schema. {}", e.to_string()))
+                Error::SchemaFetch(format!("Error dereferencing Schema. {}", e))
             })
             .unwrap();
 

@@ -148,10 +148,10 @@ impl Wrapper for WasmWrapper {
 
             Ok(result)
         } else {
-            return Err(Error::WrapperError(format!(
+            Err(Error::WrapperError(format!(
                 "WasmWrapper: File was not found.\nSubpath: {}",
                 options.path
-            )));
+            )))
         }
     }
 }

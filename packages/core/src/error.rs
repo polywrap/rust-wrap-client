@@ -24,4 +24,6 @@ pub enum Error {
   MsgpackError(String),
   #[error("`{0}`")]
   ManifestError(String),
+  #[error("Error reading file: `{0}`")]
+  FileReadError(String),
 }
