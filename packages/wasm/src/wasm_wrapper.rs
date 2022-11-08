@@ -9,7 +9,7 @@ use polywrap_core::invoke::Invoker;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::Wrapper;
-use polywrap_manifest::formats::WrapManifest;
+use polywrap_manifest::versions::WrapManifest;
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
 use std::sync::Arc;
@@ -148,10 +148,10 @@ impl Wrapper for WasmWrapper {
 
             Ok(result)
         } else {
-            return Err(Error::WrapperError(format!(
+            Err(Error::WrapperError(format!(
                 "WasmWrapper: File was not found.\nSubpath: {}",
                 options.path
-            )));
+            )))
         }
     }
 }

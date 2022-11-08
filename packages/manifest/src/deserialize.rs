@@ -6,8 +6,8 @@
 
 use jsonschema::JSONSchema;
 use crate::{
-    formats::{AnyManifest, WrapManifest, LATEST_MANIFEST_FORMAT},
-    validate::validate_polywrap_manifest,
+    versions::{AnyManifest, WrapManifest},
+    validate::validate_polywrap_manifest
 };
 
 pub struct DeserializeManifestOptions {
@@ -16,13 +16,12 @@ pub struct DeserializeManifestOptions {
 }
 
 pub fn deserialize_polywrap_manifest(
-    manifest: &Vec<u8>,
+    manifest: &[u8],
     options: Option<DeserializeManifestOptions>,
 ) -> Result<WrapManifest, super::error::Error> {
-    let any_polywrap_manifest_json: serde_json::Value = rmp_serde::from_slice(manifest)
-        .map_err(|e| super::error::Error::DeserializeError(e.to_string()))?;
+    let any_polywrap_manifest_json: serde_json::Value = rmp_serde::from_slice(manifest)?;
 
-    let any_polywrap_manifest = AnyManifest::from_json_value(any_polywrap_manifest_json);
+    let any_polywrap_manifest = AnyManifest::from_json_value(any_polywrap_manifest_json)?;
 
     match options {
         Some(opts) => {
@@ -33,10 +32,9 @@ pub fn deserialize_polywrap_manifest(
         None => validate_polywrap_manifest(&any_polywrap_manifest, None)?,
     };
 
-    let any_manifest_ver = semver::Version::parse(&any_polywrap_manifest.format())
-        .map_err(|e| super::error::Error::DeserializeError(e.to_string()))?;
+    let any_manifest_ver = semver::Version::parse(&any_polywrap_manifest.version())?;
 
-    let latest_manifest_ver = semver::Version::parse(LATEST_MANIFEST_FORMAT).unwrap();
+    let latest_manifest_ver = semver::Version::parse(&AnyManifest::get_latest_version())?;
 
     let version_compare = any_manifest_ver.cmp(&latest_manifest_ver);
 

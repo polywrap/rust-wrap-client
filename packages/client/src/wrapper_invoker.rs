@@ -29,16 +29,10 @@ impl Invoker for WrapperInvoker {
         options: &InvokeOptions,
         wrapper: Box<dyn Wrapper>,
     ) -> Result<Vec<u8>, Error> {
-        let result = wrapper.invoke(options, Arc::new(self.clone())).await;
-
-        if result.is_err() {
-            return Err(Error::InvokeError(format!(
-                "Failed to invoke wrapper: {}",
-                result.err().unwrap()
-            )));
-        };
-
-        let result = result.unwrap();
+        let result = wrapper
+            .invoke(options, Arc::new(self.clone()))
+            .await
+            .map_err(|e| Error::InvokeError(e.to_string()))?;
 
         Ok(result)
     }
@@ -52,19 +46,11 @@ impl Invoker for WrapperInvoker {
 
         let uri = options.uri;
 
-        let load_wrapper_result = self
+        let wrapper = self
             .loader
             .load_wrapper(uri, Some(resolution_context))
-            .await;
-
-        if load_wrapper_result.is_err() {
-            return Err(Error::InvokeError(format!(
-                "Failed to load wrapper: {}",
-                load_wrapper_result.err().unwrap()
-            )));
-        };
-
-        let wrapper = load_wrapper_result.unwrap();
+            .await
+            .map_err(|e| Error::LoadWrapperError(e.to_string()))?;
 
         let invoke_opts = InvokeOptions {
             uri,
@@ -74,15 +60,11 @@ impl Invoker for WrapperInvoker {
             env: None,
         };
 
-        let invoke_result = self.invoke_wrapper(&invoke_opts, wrapper).await;
+        let invoke_result = self
+            .invoke_wrapper(&invoke_opts, wrapper)
+            .await
+            .map_err(|e| Error::InvokeError(e.to_string()))?;
 
-        if invoke_result.is_err() {
-            return Err(Error::InvokeError(format!(
-                "Failed to invoke wrapper: {}",
-                invoke_result.err().unwrap()
-            )));
-        };
-
-        Ok(invoke_result.unwrap())
+        Ok(invoke_result)
     }
 }

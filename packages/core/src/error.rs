@@ -10,18 +10,22 @@ pub enum Error {
   RedirectsError(String, HashMap<String, String>),
   #[error("`{0}`")]
   WrapperError(String),
-  #[error("`{0}`")]
+  #[error("Failed to create wrapper: `{0}`")]
+  WrapperCreateError(String),
+  #[error("Failed to invoke wrapper: `{0}`")]
   InvokeError(String),
-  #[error("Client error: `{0}`")]
-  ClientError(String),
+  #[error("Error loading wrapper: `{0}`")]
+  LoadWrapperError(String),
   #[error("WasmWrapper error: `{0}`")]
   WasmWrapperError(String),
-  #[error("`{0}`")]
+  #[error("Failed to resolve wrapper: `{0}`")]
   ResolutionError(String),
   #[error("`{0}`")]
   MsgpackError(String),
   #[error("`{0}`")]
   ManifestError(String),
   #[error("`{0}`")]
-  ResolutionResultError(String)
+  ResolutionResultError(String),
+  #[error("Error reading file: `{0}`")]
+  FileReadError(String),
 }
