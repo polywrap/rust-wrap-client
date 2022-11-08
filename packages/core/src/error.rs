@@ -22,4 +22,6 @@ pub enum Error {
   MsgpackError(String),
   #[error("`{0}`")]
   ManifestError(String),
+  #[error("`{0}`")]
+  ResolutionResultError(String)
 }

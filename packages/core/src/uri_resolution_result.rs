@@ -7,7 +7,7 @@ struct UriResolutionResult {
     result: Result<UriPackageOrWrapper, Error>
 }
 
-enum PackageOrWrapper {
+pub enum PackageOrWrapper {
     Package(WrapPackage),
     Wrapper(Wrapper)
 }
@@ -35,5 +35,9 @@ impl UriResolutionResult {
         }
 
         return Ok(uri)
+    }
+
+    pub fn err(error: Error) -> Result<(), Error> {
+        return Err(Error::ResolutionResultError("TODO: Error"))
     }
 }

@@ -5,8 +5,8 @@ use polywrap_core::{
 };
 
 pub enum UriResolverLike {
-    Wrapper(Wrapper),
-    Package(WrapPackage),
+    Wrapper(UriWrapper),
+    Package(UriPackage),
     UriResolver(UriResolver),
     UriResolverLike(Vec<Self>)
 }
