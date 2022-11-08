@@ -25,13 +25,12 @@ pub fn validate_polywrap_manifest(
 
     let manifest_schema = JSONSchema::options()
         .with_draft(jsonschema::Draft::Draft7)
-        .compile(&schemas[manifest.version().as_str()])
-        .map_err(|e| super::error::Error::ValidationError(e.to_string()))?;
-    let manifest_json = manifest.to_json_value();
+        .compile(&schemas[manifest.version().as_str()])?;
+    let manifest_json = manifest.to_json_value()?;
     panic_if_errors(manifest_schema.validate(&manifest_json));
 
     if ext_schema.is_some() {
-        panic_if_errors(ext_schema.unwrap().validate(&manifest.to_json_value()));
+        panic_if_errors(ext_schema.unwrap().validate(&manifest.to_json_value()?));
     }
 
     Ok(())
