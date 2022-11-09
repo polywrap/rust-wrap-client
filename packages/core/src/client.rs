@@ -1,5 +1,6 @@
 use crate::invoke::Invoker;
 use crate::loader::Loader;
+use crate::plugins::PluginRegistration;
 use crate::uri::Uri;
 use crate::uri_resolver::{UriResolver, UriResolverHandler};
 use async_trait::async_trait;
@@ -18,7 +19,8 @@ impl UriRedirect {
 
 pub struct ClientConfig {
   pub redirects: Vec<UriRedirect>,
-  pub resolver: Arc<dyn UriResolver>
+  pub resolver: Arc<dyn UriResolver>,
+  pub plugins: Vec<PluginRegistration>,
 }
 
 #[async_trait(?Send)]
@@ -26,4 +28,6 @@ pub trait Client: Send + Sync + Invoker + UriResolverHandler + Loader {
   fn get_config(&self) -> &ClientConfig;
   fn get_redirects(&self) -> &Vec<UriRedirect>;
   fn get_uri_resolver(&self) -> &dyn UriResolver;
+  fn get_plugins(&self) -> &Vec<PluginRegistration>;
+  fn get_plugin_by_uri(&self, uri: &Uri) -> Option<&PluginRegistration>;
 }
