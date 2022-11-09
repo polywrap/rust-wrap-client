@@ -15,6 +15,7 @@ use crate::wasm_wrapper::WasmWrapper;
 
 use super::file_reader::InMemoryFileReader;
 
+#[derive(Debug)]
 pub struct WasmPackage {
     file_reader: Arc<dyn FileReader>,
     manifest: Option<Vec<u8>>,

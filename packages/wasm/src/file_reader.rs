@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use polywrap_core::file_reader::FileReader;
 
+#[derive(Debug)]
 pub struct BaseFileReader {}
 
 impl FileReader for BaseFileReader {
@@ -12,6 +13,7 @@ impl FileReader for BaseFileReader {
     }
 }
 
+#[derive(Debug)]
 pub struct InMemoryFileReader {
     wasm_manifest: Option<Vec<u8>>,
     wasm_module: Option<Vec<u8>>,

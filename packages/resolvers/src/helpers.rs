@@ -1,12 +1,11 @@
 use polywrap_core::{
-    uri_resolver::UriResolver,
+    uri::Uri,
     uri_resolution_context::{UriWrapper,UriPackage},
-    package::WrapPackage
 };
 
 pub enum UriResolverLike {
     Wrapper(UriWrapper),
     Package(UriPackage),
-    UriResolver(Box<dyn UriResolver>),
+    UriResolver(Uri),
     UriResolverLike(Vec<Self>)
 }

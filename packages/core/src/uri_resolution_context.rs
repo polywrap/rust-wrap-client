@@ -1,5 +1,5 @@
 use crate::{package::WrapPackage, wrapper::Wrapper};
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{error::Error, uri::Uri};
 
@@ -8,6 +8,7 @@ pub struct UriWrapper {
     pub wrapper: Box<dyn Wrapper>,
 }
 
+#[derive(Debug)]
 pub struct UriPackage {
     pub uri: Uri,
     pub package: Box<dyn WrapPackage>,
@@ -21,7 +22,7 @@ pub enum UriPackageOrWrapper {
 
 pub struct UriResolutionStep {
     pub source_uri: Uri,
-    pub result: Result<UriPackageOrWrapper, Error>,
+    pub result: Result<Arc<UriPackageOrWrapper>, Error>,
     pub description: Option<String>,
     pub sub_history: Option<Vec<UriResolutionStep>>,
 }
@@ -32,8 +33,6 @@ pub struct UriResolutionContext {
     resolution_path: Vec<String>,
     history: Vec<UriResolutionStep>,
 }
-
-
 
 impl UriResolutionContext {
     pub fn new() -> Self {

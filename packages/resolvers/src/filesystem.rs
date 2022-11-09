@@ -29,8 +29,8 @@ impl UriResolver for FilesystemResolver {
         &self,
         uri: &Uri,
         _: &dyn Loader,
-        _: &UriResolutionContext,
-    ) -> Result<UriPackageOrWrapper, Error> {
+        _: &mut UriResolutionContext,
+    ) -> Result<Arc<UriPackageOrWrapper>, Error> {
         if uri.authority != "fs" && uri.authority != "file" {
             return Err(Error::ResolutionError("Invalid authority".to_string()));
         };
@@ -55,7 +55,7 @@ impl UriResolver for FilesystemResolver {
                     package: Box::new(wasm_wrapper),
                 },
             );
-            return Ok(uri_package_or_wrapper);
+            return Ok(Arc::new(uri_package_or_wrapper));
         } else {
             return Err(Error::ResolutionError(format!(
                 "Failed to find manifest file: {}",

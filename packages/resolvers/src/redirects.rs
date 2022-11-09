@@ -1,3 +1,4 @@
+use std::{sync::Arc};
 use async_trait::async_trait;
 use polywrap_core::{
     error::Error,
@@ -25,16 +26,16 @@ impl UriResolver for RedirectsResolver {
         &self,
         uri: &Uri,
         _: &dyn Loader,
-        _: &UriResolutionContext,
-    ) -> Result<UriPackageOrWrapper, Error> {
+        _: &mut UriResolutionContext,
+    ) -> Result<Arc<UriPackageOrWrapper>, Error> {
         let redirect = self.redirects.iter().find(|redirect| redirect.from == *uri);
 
         match redirect {
             Some(redirect) => {
-              Ok(polywrap_core::uri_resolution_context::UriPackageOrWrapper::Uri(redirect.to.clone()))
+              Ok(Arc::new(polywrap_core::uri_resolution_context::UriPackageOrWrapper::Uri(redirect.to.clone())))
             },
             None => {
-                Ok(polywrap_core::uri_resolution_context::UriPackageOrWrapper::Uri(uri.clone()))
+                Ok(Arc::new(polywrap_core::uri_resolution_context::UriPackageOrWrapper::Uri(uri.clone())))
             }
         }
     }

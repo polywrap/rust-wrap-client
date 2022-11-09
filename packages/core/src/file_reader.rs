@@ -1,9 +1,11 @@
+use std::fmt::Debug;
 use crate::error::Error;
 
-pub trait FileReader: Send + Sync {
+pub trait FileReader: Debug + Send + Sync {
     fn read_file(&self, path: &str) -> Result<Vec<u8>, Error>;
 }
 
+#[derive(Debug)]
 pub struct SimpleFileReader {}
 
 impl SimpleFileReader {

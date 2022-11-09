@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use async_trait::async_trait;
 use polywrap_manifest::{versions::WrapManifest};
 
@@ -12,7 +14,7 @@ pub struct SerializeManifestOptions {
 }
 
 #[async_trait]
-pub trait WrapPackage: Send + Sync {
+pub trait WrapPackage: Debug + Send + Sync {
     async fn create_wrapper(
         &self,
     ) -> Result<Box<dyn Wrapper>, Error>;

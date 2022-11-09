@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use async_trait::async_trait;
 use polywrap_core::{
     error::Error,
@@ -27,11 +28,11 @@ impl UriResolver for BaseResolver {
         &self,
         uri: &Uri,
         loader: &dyn Loader,
-        resolution_context: &UriResolutionContext,
-    ) -> Result<UriPackageOrWrapper, Error> {
+        resolution_context: &mut UriResolutionContext,
+    ) -> Result<Arc<UriPackageOrWrapper>, Error> {
         let redirected_uri = self.redirects_resolver.try_resolve_uri(uri, loader, resolution_context).await?;
 
-        if let UriPackageOrWrapper::Uri(redirected_uri) = redirected_uri {
+        if let UriPackageOrWrapper::Uri(redirected_uri) = redirected_uri.as_ref() {
           self.fs_resolver.try_resolve_uri(&redirected_uri, loader, resolution_context).await
         } else {
           Ok(redirected_uri)
