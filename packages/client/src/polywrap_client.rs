@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use polywrap_core::{
     client::{Client, ClientConfig, UriRedirect},
@@ -5,7 +7,7 @@ use polywrap_core::{
     invoke::{InvokeOptions, Invoker},
     loader::Loader,
     uri::Uri,
-    uri_resolution_context::UriResolutionContext,
+    uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper},
     uri_resolver::{UriResolver, UriResolverHandler},
     wrapper::Wrapper,
 };
@@ -103,8 +105,8 @@ impl UriResolverHandler for PolywrapClient {
     async fn try_resolve_uri(
         &self,
         uri: &Uri,
-        resolution_context: Option<&UriResolutionContext>,
-    ) -> Result<polywrap_core::uri_resolution_context::UriPackageOrWrapper, Error> {
+        resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<Arc<UriPackageOrWrapper>, Error> {
         self.loader.try_resolve_uri(uri, resolution_context).await
     }
 }

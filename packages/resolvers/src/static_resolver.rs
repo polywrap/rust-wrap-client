@@ -80,7 +80,7 @@ impl UriResolver for StaticResolver {
                     description = format!("StaticResolver - Package {}", uri.uri);
                 },
                 UriPackageOrWrapper::Uri(_uri) => {
-                    description = format!("StaticResolver - Redirect {} - {}", _uri.uri, uri.uri);
+                    description = format!("StaticResolver - Redirect {} - {}", uri.uri, _uri.uri);
                 }
             };
             resolution_context.track_step(UriResolutionStep {

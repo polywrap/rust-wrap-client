@@ -26,14 +26,14 @@ impl UriResolverHandler for WrapperLoader {
     async fn try_resolve_uri(
         &self,
         uri: &Uri,
-        resolution_context: Option<&UriResolutionContext>,
-    ) -> Result<UriPackageOrWrapper, Error> {
+        resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<Arc<UriPackageOrWrapper>, Error> {
         let uri_resolver = self.uri_resolver.clone();
-        let uri_resolver_context = UriResolutionContext::new();
+        let mut uri_resolver_context = UriResolutionContext::new();
 
         let resolution_context = match resolution_context {
             Some(ctx) => ctx,
-            None => &uri_resolver_context,
+            None => &mut uri_resolver_context,
         };
 
         uri_resolver
@@ -65,8 +65,8 @@ impl Loader for WrapperLoader {
                 "Failed to resolve wrapper: {}",
                 uri
             ))),
-            UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper.wrapper),
-            UriPackageOrWrapper::Package(_, package) => {
+            UriPackageOrWrapper::Wrapper(wrapper) => Ok(wrapper.wrapper),
+            UriPackageOrWrapper::Package(package) => {
                 let wrapper = package
                     .package
                     .create_wrapper()
