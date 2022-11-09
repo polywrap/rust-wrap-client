@@ -14,6 +14,7 @@ use async_trait::async_trait;
 use polywrap_msgpack::msgpack;
 use std::sync::Arc;
 use std::fs;
+use polywrap_tests::helpers::get_tests_path;
 
 #[derive(Clone)]
 struct MockInvoker {
@@ -70,10 +71,14 @@ impl Invoker for MockInvoker {
 
 #[tokio::test]
 async fn invoke_test() {
-    let module = WasmModule::Path("./tests/cases/simple-invoke/wrap.wasm".to_string());
-    let manifest_path = Path::new("./tests/cases/simple-invoke/wrap.info");
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
 
-    let manifest_bytes = fs::read(manifest_path).unwrap();
+    let module_path = format!("{}/subinvoke/00-subinvoke/implementations/as/wrap.wasm", path);
+    let module = WasmModule::Path(module_path);
+
+    let manifest_path = format!("{}/subinvoke/00-subinvoke/implementations/as/wrap.info", path);
+    let manifest_bytes = fs::read(Path::new(&manifest_path)).unwrap();
     let manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
 
     let file_reader = SimpleFileReader::new();
