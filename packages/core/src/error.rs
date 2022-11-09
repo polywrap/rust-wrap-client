@@ -26,4 +26,6 @@ pub enum Error {
   ManifestError(String),
   #[error("Error reading file: `{0}`")]
   FileReadError(String),
+  #[error("Plugin missing method : `{0}`")]
+  MissingPluginMethodError(String),
 }
