@@ -18,16 +18,11 @@ use crate::wasm_runtime::instance::WasmInstance;
 use crate::wasm_runtime::instance::WasmModule;
 use wasmtime::Val;
 
+#[derive(Clone)]
 pub struct WasmWrapper {
     wasm_module: WasmModule,
     file_reader: Arc<dyn FileReader>,
     manifest: WrapManifest,
-}
-
-pub struct WasmWrapperConfig {
-    pub wasm_module: WasmModule,
-    pub file_reader: Arc<dyn FileReader>,
-    pub manifest: WrapManifest,
 }
 
 impl WasmWrapper {

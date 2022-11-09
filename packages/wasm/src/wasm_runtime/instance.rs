@@ -1,5 +1,4 @@
 use std::sync::{Arc, Mutex};
-
 use polywrap_core::invoke::{Invoker};
 use wasmtime::{
     AsContextMut, Config, Engine, Extern, Instance, Memory, MemoryType, Module, Store, Val,
@@ -15,6 +14,7 @@ pub struct WasmInstance {
     pub module: Module,
 }
 
+#[derive(Clone)]
 pub enum WasmModule {
     Bytes(Vec<u8>),
     Wat(String),
