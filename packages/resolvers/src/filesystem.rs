@@ -50,7 +50,6 @@ impl UriResolver for FilesystemResolver {
                 Some(wrapper_file),
             );
             let uri_package_or_wrapper = UriPackageOrWrapper::Package(
-                uri.clone(),
                 UriPackage {
                     uri: uri.clone(),
                     package: Box::new(wasm_wrapper),
