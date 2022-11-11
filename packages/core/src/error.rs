@@ -26,4 +26,13 @@ pub enum Error {
   ManifestError(String),
   #[error("Error reading file: `{0}`")]
   FileReadError(String),
+  #[error("Plugin missing method : `{0}`")]
+  MissingPluginMethodError(String),
+  #[error("PluginWrapper: invocation exception encountered.\nuri: {uri:?}\nmethod: {method:?}\nargs: {args:?}\nexception: {exception:?}")]
+  PluginError {
+    uri: String,
+    method: String,
+    args: String,
+    exception: String
+  },
 }

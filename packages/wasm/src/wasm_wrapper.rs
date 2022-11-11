@@ -47,7 +47,7 @@ impl WasmWrapper {
     }
 
     pub async fn invoke_and_decode<T: DeserializeOwned>(
-        &self,
+        &mut self,
         options: &InvokeOptions<'_>,
         invoker: Arc<dyn Invoker>,
     ) -> Result<T, Error> {
@@ -60,7 +60,7 @@ impl WasmWrapper {
 #[async_trait]
 impl Wrapper for WasmWrapper {
     async fn invoke(
-        &self,
+        &mut self,
         options: &InvokeOptions,
         invoker: Arc<dyn Invoker>,
     ) -> Result<Vec<u8>, Error> {

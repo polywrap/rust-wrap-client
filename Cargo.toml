@@ -7,7 +7,6 @@ members = [
     "packages/resolvers",
     "packages/msgpack",
     "packages/manifest",
-
-    # Internal
-    "packages/tests"
+    "packages/plugin",
+    "packages/plugins/http"
 ]
