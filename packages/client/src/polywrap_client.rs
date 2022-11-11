@@ -7,7 +7,7 @@ use polywrap_core::{
     uri::Uri,
     uri_resolution_context::UriResolutionContext,
     uri_resolver::{UriResolver, UriResolverHandler},
-    wrapper::Wrapper, plugins::PluginRegistration,
+    wrapper::Wrapper,
 };
 use polywrap_msgpack::{decode, DeserializeOwned};
 
@@ -78,14 +78,6 @@ impl Client for PolywrapClient {
 
     fn get_uri_resolver(&self) -> &dyn UriResolver {
         self.config.resolver.as_ref()
-    }
-
-    fn get_plugins(&self) -> &Vec<PluginRegistration> {
-        &self.config.plugins
-    }
-
-    fn get_plugin_by_uri(&self, uri: &Uri) -> Option<&PluginRegistration> {
-        self.config.plugins.iter().find(|p| p.uri == *uri)
     }
 
     // async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, Error> {

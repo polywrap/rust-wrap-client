@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
-use crate::{
-    error::Error,
-    invoke::{InvokeArgs, InvokeOptions, Invoker},
-    plugins::PluginModule,
+use async_trait::async_trait;
+use polywrap_core::{
+    invoke::{InvokeOptions, Invoker},
     wrapper::{GetFileOptions, Wrapper},
 };
-use async_trait::async_trait;
+
+use crate::module::PluginModule;
 
 pub struct PluginWrapper {
     instance: Arc<dyn PluginModule>,
@@ -24,18 +24,20 @@ impl Wrapper for PluginWrapper {
         &self,
         options: &InvokeOptions,
         invoker: Arc<dyn Invoker>,
-    ) -> Result<Vec<u8>, Error> {
+    ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         let args = match options.args {
             Some(args) => match args {
-                InvokeArgs::Msgpack(value) => polywrap_msgpack::encode(value)
-                    .map_err(|e| Error::MsgpackError(e.to_string()))?,
-                InvokeArgs::UIntArray(arr) => arr.clone(),
+                polywrap_core::invoke::InvokeArgs::Msgpack(value) => {
+                    polywrap_msgpack::encode(value)
+                        .map_err(|e| polywrap_core::error::Error::MsgpackError(e.to_string()))?
+                }
+                polywrap_core::invoke::InvokeArgs::UIntArray(arr) => arr.clone(),
             },
             None => vec![],
         };
 
         let json_args: serde_json::Value = polywrap_msgpack::decode(args.as_slice())
-            .map_err(|e| Error::MsgpackError(e.to_string()))?;
+            .map_err(|e| polywrap_core::error::Error::MsgpackError(e.to_string()))?;
 
         let result = self
             .instance
@@ -44,8 +46,8 @@ impl Wrapper for PluginWrapper {
 
         match result {
             Ok(result) => Ok(rmp_serde::encode::to_vec(&result)
-                .map_err(|e| Error::MsgpackError(e.to_string()))?),
-            Err(e) => Err(Error::PluginError {
+                .map_err(|e| polywrap_core::error::Error::MsgpackError(e.to_string()))?),
+            Err(e) => Err(polywrap_core::error::Error::PluginError {
                 uri: options.uri.to_string(),
                 method: options.method.to_string(),
                 args: json_args.to_string(),
@@ -53,7 +55,7 @@ impl Wrapper for PluginWrapper {
             }),
         }
     }
-    fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
+    fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
         unimplemented!("client.get_file(...) is not implemented for Plugins.")
     }
 }

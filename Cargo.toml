@@ -6,5 +6,6 @@ members = [
     "packages/wasm",
     "packages/resolvers",
     "packages/msgpack",
-    "packages/manifest"
+    "packages/manifest",
+    "packages/plugin",
 ]
