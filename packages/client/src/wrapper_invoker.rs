@@ -27,9 +27,9 @@ impl Invoker for WrapperInvoker {
     async fn invoke_wrapper(
         &self,
         options: &InvokeOptions,
-        wrapper: Box<dyn Wrapper>,
+        mut wrapper: Box<dyn Wrapper>,
     ) -> Result<Vec<u8>, Error> {
-        let result = wrapper
+        let result = wrapper.as_mut()
             .invoke(options, Arc::new(self.clone()))
             .await
             .map_err(|e| Error::InvokeError(e.to_string()))?;

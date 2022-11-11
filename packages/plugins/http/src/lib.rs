@@ -1,11 +1,10 @@
 use std::{sync::Arc};
 
-use polywrap_core::{invoke::Invoker, plugins::plugin_module::PluginModule};
+use polywrap_core::{invoke::Invoker};
 use polywrap_manifest::versions::WrapManifest;
+use polywrap_plugin::module::PluginModule;
 
-pub struct HttpPlugin {
-    manifest: WrapManifest,
-}
+pub struct HttpPlugin {}
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 pub struct SomeFoo {
@@ -14,10 +13,8 @@ pub struct SomeFoo {
 }
 
 impl HttpPlugin {
-    pub fn new(manifest: WrapManifest) -> Self {
-        let instance = Self { manifest };
-
-        instance
+    pub fn new() -> Self {
+      Self {}
     }
 
     pub fn get(
@@ -30,14 +27,8 @@ impl HttpPlugin {
 }
 
 impl PluginModule for HttpPlugin {
-    fn get_manifest(
-        &self,
-    ) -> Result<polywrap_manifest::versions::WrapManifest, polywrap_core::error::Error> {
-        Ok(self.manifest.clone())
-    }
-
     fn _wrap_invoke(
-        &self,
+        &mut self,
         method_name: &str,
         params: &serde_json::Value,
         invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,

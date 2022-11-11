@@ -1,21 +1,22 @@
-use std::{sync::Arc};
+use std::{sync::{Arc}};
 
 use async_trait::async_trait;
 use polywrap_manifest::{
     versions::WrapManifest,
 };
 use polywrap_core::{error::Error, package::{GetManifestOptions, WrapPackage}, wrapper::Wrapper};
+use tokio::sync::Mutex;
 
 use crate::{module::PluginModule, wrapper::PluginWrapper};
 
 pub struct PluginPackage {
     manifest: WrapManifest,
-    plugin_module: Arc<dyn PluginModule>,
+    plugin_module: Arc<Mutex<dyn PluginModule>>,
 }
 
 impl PluginPackage {
     pub fn new(
-        plugin_module: Arc<dyn PluginModule>,
+        plugin_module: Arc<Mutex<dyn PluginModule>>,
         manifest: WrapManifest
     ) -> Self {
         Self {

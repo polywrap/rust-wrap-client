@@ -1,19 +1,20 @@
-use std::sync::Arc;
+use std::sync::{Arc};
 
 use async_trait::async_trait;
 use polywrap_core::{
     invoke::{InvokeOptions, Invoker},
     wrapper::{GetFileOptions, Wrapper},
 };
+use tokio::sync::Mutex;
 
 use crate::module::PluginModule;
 
 pub struct PluginWrapper {
-    instance: Arc<dyn PluginModule>,
+    instance: Arc<Mutex<dyn (PluginModule)>>,
 }
 
 impl PluginWrapper {
-    pub fn new(instance: Arc<dyn (PluginModule)>) -> Self {
+    pub fn new(instance: Arc<Mutex<dyn (PluginModule)>>) -> Self {
         Self { instance }
     }
 }
@@ -21,7 +22,7 @@ impl PluginWrapper {
 #[async_trait]
 impl Wrapper for PluginWrapper {
     async fn invoke(
-        &self,
+        &mut self,
         options: &InvokeOptions,
         invoker: Arc<dyn Invoker>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
@@ -42,6 +43,8 @@ impl Wrapper for PluginWrapper {
         let result = self
             .instance
             .clone()
+            .lock()
+            .await
             ._wrap_invoke(options.method, &json_args, invoker);
 
         match result {

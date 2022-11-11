@@ -22,7 +22,7 @@ impl PluginModuleWithMethods {
 
 impl PluginModule for PluginModuleWithMethods {
     fn _wrap_invoke(
-        &self,
+        &mut self,
         method_name: &str,
         params: &serde_json::Value,
         invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,

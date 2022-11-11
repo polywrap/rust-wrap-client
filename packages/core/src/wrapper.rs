@@ -15,6 +15,6 @@ pub struct GetFileOptions {
 
 #[async_trait]
 pub trait Wrapper: Send + Sync {
-  async fn invoke(&self, options: &InvokeOptions, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, Error>;
+  async fn invoke(&mut self, options: &InvokeOptions, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, Error>;
   fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error>;
 }

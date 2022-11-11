@@ -11,3 +11,4 @@ polywrap_manifest = {path = "../manifest"}
 polywrap_msgpack = { path = "../msgpack" }
 serde_json = "1.0.87"
 rmp-serde = "1.1.1"
+tokio = { version = "1", features = ["full"] }

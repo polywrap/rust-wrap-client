@@ -5,7 +5,7 @@ use polywrap_core::error::Error;
 
 pub trait PluginModule: Send + Sync {
     fn _wrap_invoke(
-        &self,
+        &mut self,
         method_name: &str,
         params: &Value,
         invoker: Arc<dyn polywrap_core::invoke::Invoker>,
