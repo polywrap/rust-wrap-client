@@ -22,10 +22,10 @@ impl RedirectsResolver {
 #[async_trait]
 impl UriResolver for RedirectsResolver {
     async fn try_resolve_uri(
-        &self,
+        &mut self,
         uri: &Uri,
         _: &dyn Loader,
-        _: &UriResolutionContext,
+        _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let redirect = self.redirects.iter().find(|redirect| redirect.from == *uri);
 

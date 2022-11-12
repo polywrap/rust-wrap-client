@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use polywrap_core::{
-    invoke::{InvokeOptions, Invoker},
-    wrapper::{GetFileOptions, Wrapper},
+    invoke::{Invoker, InvokeArgs},
+    wrapper::{GetFileOptions, Wrapper}, uri::Uri, uri_resolution_context::UriResolutionContext,
 };
 use tokio::sync::Mutex;
 
@@ -23,10 +23,13 @@ impl PluginWrapper {
 impl Wrapper for PluginWrapper {
     async fn invoke(
         &mut self,
-        options: &InvokeOptions,
         invoker: Arc<dyn Invoker>,
+        uri: &Uri,
+        method: &str,
+        args: Option<&InvokeArgs>,
+        _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
-        let args = match options.args {
+        let args = match args {
             Some(args) => match args {
                 polywrap_core::invoke::InvokeArgs::Msgpack(value) => {
                     polywrap_msgpack::encode(value)
@@ -45,14 +48,14 @@ impl Wrapper for PluginWrapper {
                 .clone()
                 .lock()
                 .await
-                ._wrap_invoke(options.method, &json_args, invoker);
+                ._wrap_invoke(method, &json_args, invoker);
 
         match result {
             Ok(result) => Ok(rmp_serde::encode::to_vec(&result)
                 .map_err(|e| polywrap_core::error::Error::MsgpackError(e.to_string()))?),
             Err(e) => Err(polywrap_core::error::Error::PluginError {
-                uri: options.uri.to_string(),
-                method: options.method.to_string(),
+                uri: uri.to_string(),
+                method: method.to_string(),
                 args: json_args.to_string(),
                 exception: e.to_string(),
             }),
@@ -67,7 +70,6 @@ impl Wrapper for PluginWrapper {
 mod tests {
     use std::{collections::HashMap, sync::Arc};
 
-    use polywrap_client::polywrap_client::PolywrapClient;
     use polywrap_core::invoke::Invoker;
     use polywrap_manifest::versions::WrapManifest;
     use serde_json::json;

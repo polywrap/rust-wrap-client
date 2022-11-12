@@ -26,10 +26,10 @@ impl FilesystemResolver {
 #[async_trait]
 impl UriResolver for FilesystemResolver {
     async fn try_resolve_uri(
-        &self,
+        &mut self,
         uri: &Uri,
         _: &dyn Loader,
-        _: &UriResolutionContext,
+        _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority != "fs" && uri.authority != "file" {
             return Err(Error::ResolutionError("Invalid authority".to_string()));

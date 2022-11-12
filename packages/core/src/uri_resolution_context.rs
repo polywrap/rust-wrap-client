@@ -1,7 +1,7 @@
 use crate::{package::WrapPackage, wrapper::Wrapper};
 use std::collections::HashMap;
 
-use crate::{error::Error, uri::Uri};
+use crate::{uri::Uri};
 
 pub struct UriWrapper {
     pub uri: Uri,
@@ -21,7 +21,7 @@ pub enum UriPackageOrWrapper {
 
 pub struct UriResolutionStep {
     pub source_uri: Uri,
-    pub result: Result<UriPackageOrWrapper, Error>,
+    pub result: Uri,
     pub description: Option<String>,
     pub sub_history: Option<Vec<UriResolutionStep>>,
 }

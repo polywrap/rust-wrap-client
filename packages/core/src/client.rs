@@ -4,6 +4,7 @@ use crate::uri::Uri;
 use crate::uri_resolver::{UriResolver, UriResolverHandler};
 use async_trait::async_trait;
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
 pub struct UriRedirect {
   pub from: Uri,
@@ -18,12 +19,11 @@ impl UriRedirect {
 
 pub struct ClientConfig {
   pub redirects: Vec<UriRedirect>,
-  pub resolver: Arc<dyn UriResolver>,
+  pub resolver: Arc<Mutex<dyn UriResolver>>,
 }
 
 #[async_trait(?Send)]
 pub trait Client: Send + Sync + Invoker + UriResolverHandler + Loader {
   fn get_config(&self) -> &ClientConfig;
   fn get_redirects(&self) -> &Vec<UriRedirect>;
-  fn get_uri_resolver(&self) -> &dyn UriResolver;
 }
