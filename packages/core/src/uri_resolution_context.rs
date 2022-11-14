@@ -14,9 +14,9 @@ pub struct UriPackage {
 }
 
 pub enum UriPackageOrWrapper {
-    Uri(Uri),
-    Wrapper(Uri, UriWrapper),
-    Package(Uri, UriPackage),
+  Uri(Uri),
+  Wrapper(Uri, Box<dyn Wrapper>),
+  Package(Uri, Box<dyn WrapPackage>),
 }
 
 pub struct UriResolutionStep {

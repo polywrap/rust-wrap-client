@@ -66,10 +66,9 @@ impl Loader for WrapperLoader {
                 "Failed to resolve wrapper: {}",
                 uri
             ))),
-            UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper.wrapper),
+            UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
             UriPackageOrWrapper::Package(_, package) => {
                 let wrapper = package
-                    .package
                     .create_wrapper()
                     .await
                     .map_err(|e| Error::WrapperCreateError(e.to_string()))?;

@@ -54,13 +54,13 @@ impl StaticResolver {
                 StaticResolverLike::Package(package) => {
                     uri_map.insert(
                         package.uri.to_string(),
-                        UriPackageOrWrapper::Package(package.uri.clone(), package),
+                        UriPackageOrWrapper::Package(package.uri.clone(), package.package),
                     );
                 }
                 StaticResolverLike::Wrapper(wrapper) => {
                     uri_map.insert(
                         wrapper.uri.to_string(),
-                        UriPackageOrWrapper::Wrapper(wrapper.uri.clone(), wrapper),
+                        UriPackageOrWrapper::Wrapper(wrapper.uri.clone(), wrapper.wrapper),
                     );
                 }
             }

@@ -6,7 +6,7 @@ use polywrap_core::{
     file_reader::FileReader,
     loader::Loader,
     uri::Uri,
-    uri_resolution_context::{UriPackage, UriPackageOrWrapper, UriResolutionContext},
+    uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     uri_resolver::UriResolver,
 };
 use polywrap_wasm::{
@@ -51,10 +51,7 @@ impl UriResolver for FilesystemResolver {
             );
             let uri_package_or_wrapper = UriPackageOrWrapper::Package(
                 uri.clone(),
-                UriPackage {
-                    uri: uri.clone(),
-                    package: Box::new(wasm_wrapper),
-                },
+                Box::new(wasm_wrapper),
             );
             return Ok(uri_package_or_wrapper);
         } else {
