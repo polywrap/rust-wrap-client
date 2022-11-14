@@ -15,12 +15,10 @@ use std::sync::Arc;
 
 #[tokio::test]
 async fn subinvoke_test() {
-    let test_path = get_tests_path().unwrap();
-    let path = test_path.into_os_string().into_string().unwrap();
-    let subinvoke_uri: Uri = format!("fs/{}/subinvoke/00-subinvoke/implementations/as", path)
+    let subinvoke_uri: Uri = Uri::try_from("fs/tests/cases/simple-subinvoke/subinvoke").unwrap()
         .try_into()
         .unwrap();
-    let invoke_uri: Uri = format!("fs/{}/subinvoke/01-invoke/implementations/as", path)
+    let invoke_uri: Uri = Uri::try_from("fs/tests/cases/simple-subinvoke/invoke").unwrap()
         .try_into()
         .unwrap();
 
@@ -42,9 +40,9 @@ async fn subinvoke_test() {
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"a": 1, "b": 1}));
 
     let invoke_result = client
-        .invoke_and_decode::<i32>(&invoke_uri, "addAndIncrement", Some(&invoke_args), None)
+        .invoke_and_decode::<String>(&invoke_uri, "add", Some(&invoke_args), None)
         .await
         .unwrap();
 
-    assert_eq!(invoke_result, 3);
+    assert_eq!(invoke_result, "1 + 1 = 2");
 }
