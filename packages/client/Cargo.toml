@@ -12,3 +12,4 @@ polywrap_resolvers = {path = "../resolvers"}
 polywrap_msgpack = {path = "../msgpack"}
 polywrap_tests = { path = "../tests" }
 tokio = { version = "1", features = ["full"] }
+serde = {version = "1.0.145", features = ["derive"]}

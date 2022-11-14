@@ -1,7 +1,5 @@
-use uri::{ Uri };
+use std::collections::HashMap;
+use polywrap_msgpack::Value;
 
-struct Env {
-  uri: Uri,
-  // TODO
-  env: Record<String, Variant>,
-}
+pub type Env = Value;
+pub type Envs = HashMap<String, Env>;

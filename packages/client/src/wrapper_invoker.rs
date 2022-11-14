@@ -57,7 +57,7 @@ impl Invoker for WrapperInvoker {
             args: options.args,
             method: options.method,
             resolution_context: options.resolution_context,
-            env: None,
+            env: options.env
         };
 
         let invoke_result = self

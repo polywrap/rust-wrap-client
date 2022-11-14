@@ -245,6 +245,21 @@ pub fn create_imports(
 
     let memory = Arc::clone(&arc_memory);
     linker
+        .func_wrap(
+            "wrap",
+            "__wrap_load_env",
+            move |mut caller: Caller<'_, State>, ptr: u32| {
+                let memory = memory.lock().unwrap();
+                let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
+
+                write_to_memory(memory_buffer, ptr as usize, &state.env);
+                Ok(())
+            },
+        )
+        .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
+    let memory = Arc::clone(&arc_memory);
+    linker
         .define("env", "memory", *memory.lock().unwrap())
         .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 

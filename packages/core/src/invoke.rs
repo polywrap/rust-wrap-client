@@ -1,6 +1,5 @@
-use std::{iter::Map};
 use async_trait::async_trait;
-use crate::{uri::Uri, uri_resolution_context::UriResolutionContext, error::Error, wrapper::Wrapper};
+use crate::{uri::Uri, uri_resolution_context::UriResolutionContext, error::Error, wrapper::Wrapper, env::Env};
 
 pub enum InvokeArgs {
   Msgpack(polywrap_msgpack::Value),
@@ -11,7 +10,7 @@ pub struct InvokeOptions<'a> {
   pub uri: &'a Uri,
   pub method: &'a str,
   pub args: Option<&'a InvokeArgs>,
-  pub env: Option<&'a Map<String, String>>,
+  pub env: Option<&'a Env>,
   pub resolution_context: Option<&'a UriResolutionContext>,
 }
 

@@ -73,15 +73,21 @@ impl Wrapper for WasmWrapper {
             None => vec![],
         };
 
+        let env = match options.env {
+            Some(value) => polywrap_msgpack::encode(value).map_err(|e| Error::MsgpackError(e.to_string()))?,
+            None => vec![],
+        };
+
         let params = &[
             Val::I32(options.method.to_string().len().try_into().unwrap()),
             Val::I32(args.len().try_into().unwrap()),
-            Val::I32(1),
+            Val::I32(env.len().try_into().unwrap()),
         ];
 
         let abort_uri = options.uri.clone();
         let abort_method = options.method.to_string();
         let abort_args = args.clone();
+        let abort_env = env.clone();
 
         let abort = Box::new(move |msg| {
             panic!(
@@ -89,16 +95,18 @@ impl Wrapper for WasmWrapper {
               URI: {uri}
               Method: {method}
               Args: {args:?}
+              Env: {env:?}
               Message: {message}.
             "#,
                 uri = abort_uri,
                 method = abort_method,
                 args = abort_args,
+                env = abort_env,
                 message = msg
             );
         });
 
-        let state = State::new(invoker, abort.clone(), options.method, args);
+        let state = State::new(invoker, abort.clone(), options.method, args, env);
 
         let mut wasm_instance = WasmInstance::new(&self.wasm_module, state).await.unwrap();
 

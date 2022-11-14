@@ -7,7 +7,7 @@ use polywrap_core::{
     uri::Uri,
     uri_resolution_context::UriResolutionContext,
     uri_resolver::{UriResolver, UriResolverHandler},
-    wrapper::Wrapper,
+    wrapper::Wrapper, env::{Env},
 };
 use polywrap_msgpack::{decode, DeserializeOwned};
 
@@ -54,7 +54,17 @@ impl PolywrapClient {
 #[async_trait]
 impl Invoker for PolywrapClient {
     async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, Error> {
-        self.invoker.invoke(options).await
+        let opts = InvokeOptions {
+            uri: options.uri,
+            method: options.method,
+            resolution_context: options.resolution_context,
+            args: options.args,
+            env: match options.env {
+                Some(env) => Some(env),
+                None => self.get_env_by_uri(options.uri)
+            }
+        };
+        self.invoker.invoke(&opts).await
     }
 
     async fn invoke_wrapper(
@@ -80,6 +90,13 @@ impl Client for PolywrapClient {
         self.config.resolver.as_ref()
     }
 
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
+        if let Some(envs) = &self.config.envs {
+            return envs.get(&uri.uri);
+        }
+
+        None
+    }
     // async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
     //     let load = self.load_wrapper(uri, Option::None).await;
 

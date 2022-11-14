@@ -29,6 +29,7 @@ async fn subinvoke_test() {
             Box::new(FilesystemResolver::new(Arc::new(file_reader))),
             Box::new(RedirectsResolver::new(redirects)),
         )),
+        envs: None
     });
 
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"a": 1, "b": 1}));

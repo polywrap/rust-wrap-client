@@ -30,6 +30,7 @@ pub struct InvokeState {
 pub struct State {
     pub method: Vec<u8>,
     pub args: Vec<u8>,
+    pub env: Vec<u8>,
     pub invoke: InvokeState,
     pub subinvoke: InvokeState,
     pub abort: Box<dyn Fn(String) + Send + Sync>,
@@ -42,10 +43,12 @@ impl State {
         abort: Box<dyn Fn(String) + Send + Sync>,
         method: &str,
         args: Vec<u8>,
+        env: Vec<u8>
     ) -> Self {
         Self {
             method: method.as_bytes().to_vec(),
             args,
+            env,
             invoke: InvokeState::default(),
             subinvoke: InvokeState::default(),
             abort,
