@@ -36,14 +36,14 @@ impl PolywrapClient {
 
     pub async fn invoke_wrapper_and_decode<T: DeserializeOwned>(
         &self,
-        wrapper: Box<dyn Wrapper>,
+        wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
         let result = self
-            .invoke_wrapper(Arc::new(Mutex::new(wrapper)), uri, method, args, resolution_context)
+            .invoke_wrapper(wrapper, uri, method, args, resolution_context)
             .await?;
         decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
@@ -76,7 +76,7 @@ impl Invoker for PolywrapClient {
 
     async fn invoke_wrapper(
         &self,
-        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
+        wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
@@ -131,7 +131,7 @@ impl Loader for PolywrapClient {
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<Box<dyn Wrapper>, Error> {
+    ) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
         self.loader.load_wrapper(uri, resolution_context).await
     }
 }

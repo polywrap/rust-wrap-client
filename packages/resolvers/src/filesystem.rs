@@ -12,6 +12,7 @@ use polywrap_core::{
 use polywrap_wasm::{
     wasm_package::WasmPackage,
 };
+use tokio::sync::Mutex;
 
 pub struct FilesystemResolver {
     file_reader: Arc<dyn FileReader>,
@@ -26,7 +27,7 @@ impl FilesystemResolver {
 #[async_trait]
 impl UriResolver for FilesystemResolver {
     async fn try_resolve_uri(
-        &mut self,
+        &self,
         uri: &Uri,
         _: &dyn Loader,
         _: &mut UriResolutionContext,
@@ -51,7 +52,7 @@ impl UriResolver for FilesystemResolver {
             );
             let uri_package_or_wrapper = UriPackageOrWrapper::Package(
                 uri.clone(),
-                Box::new(wasm_wrapper),
+                Arc::new(Mutex::new(wasm_wrapper)),
             );
             return Ok(uri_package_or_wrapper);
         } else {

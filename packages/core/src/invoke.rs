@@ -14,7 +14,7 @@ pub enum InvokeArgs {
 pub trait Invoker: Send + Sync {
     async fn invoke_wrapper(
         &self,
-        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
+        wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,

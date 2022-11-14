@@ -24,7 +24,7 @@ impl BaseResolver {
 #[async_trait]
 impl UriResolver for BaseResolver {
     async fn try_resolve_uri(
-        &mut self,
+        &self,
         uri: &Uri,
         loader: &dyn Loader,
         resolution_context: &mut UriResolutionContext,

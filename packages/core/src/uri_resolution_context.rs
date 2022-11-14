@@ -1,22 +1,24 @@
+use tokio::sync::Mutex;
+
 use crate::{package::WrapPackage, wrapper::Wrapper};
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{uri::Uri};
 
 pub struct UriWrapper {
     pub uri: Uri,
-    pub wrapper: Box<dyn Wrapper>,
+    pub wrapper: Arc<Mutex<dyn Wrapper>>,
 }
 
 pub struct UriPackage {
     pub uri: Uri,
-    pub package: Box<dyn WrapPackage>,
+    pub package: Arc<Mutex<dyn WrapPackage>>,
 }
 
 pub enum UriPackageOrWrapper {
   Uri(Uri),
-  Wrapper(Uri, Box<dyn Wrapper>),
-  Package(Uri, Box<dyn WrapPackage>),
+  Wrapper(Uri, Arc<Mutex<dyn Wrapper>>),
+  Package(Uri, Arc<Mutex<dyn WrapPackage>>),
 }
 
 pub struct UriResolutionStep {

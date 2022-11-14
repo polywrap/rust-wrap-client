@@ -12,5 +12,5 @@ pub trait UriResolverHandler {
 
 #[async_trait]
 pub trait UriResolver: Send + Sync {
-  async fn try_resolve_uri(&mut self, uri: &Uri, client: &dyn Loader, resolution_context: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error>;
+  async fn try_resolve_uri(&self, uri: &Uri, client: &dyn Loader, resolution_context: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error>;
 }

@@ -11,6 +11,8 @@ use polywrap_manifest::{
     versions::WrapManifest,
 };
 
+use tokio::sync::Mutex;
+
 use crate::wasm_wrapper::WasmWrapper;
 
 use super::file_reader::InMemoryFileReader;
@@ -71,14 +73,14 @@ impl WrapPackage for WasmPackage {
 
     async fn create_wrapper(
         &self
-    ) -> Result<Box<dyn Wrapper>, polywrap_core::error::Error> {
+    ) -> Result<Arc<Mutex<dyn Wrapper>>, polywrap_core::error::Error> {
         let wasm_module = self.get_wasm_module().await?;
         let manifest = self.get_manifest(None).await?;
 
-        Ok(Box::new(WasmWrapper::new(
+        Ok(Arc::new(Mutex::new(WasmWrapper::new(
             crate::wasm_runtime::instance::WasmModule::Bytes(wasm_module),
             self.file_reader.clone(),
             manifest,
-        )))
+        ))))
     }
 }
