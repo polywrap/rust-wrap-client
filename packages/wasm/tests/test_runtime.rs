@@ -32,7 +32,7 @@ impl Invoker for MockInvoker {
     async fn invoke_wrapper(
         &self,
         options: &InvokeOptions,
-        wrapper: Box<dyn Wrapper>
+        mut wrapper: Box<dyn Wrapper>
     ) -> Result<Vec<u8>, Error> {
         let result = wrapper.invoke(options, Arc::new(self.clone())).await;
 
