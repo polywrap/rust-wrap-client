@@ -7,7 +7,7 @@ use polywrap_core::{
     uri::Uri,
     uri_resolution_context::UriResolutionContext,
     uri_resolver::{UriResolver, UriResolverHandler},
-    wrapper::Wrapper, env::{Env},
+    wrapper::Wrapper, env::{Env}, interface_implementation::InterfaceImplementations,
 };
 use polywrap_msgpack::{decode, DeserializeOwned};
 
@@ -97,6 +97,11 @@ impl Client for PolywrapClient {
 
         None
     }
+
+    fn get_interfaces(&self) -> Option<InterfaceImplementations> {
+        self.config.interfaces
+    }
+
     // async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
     //     let load = self.load_wrapper(uri, Option::None).await;
 

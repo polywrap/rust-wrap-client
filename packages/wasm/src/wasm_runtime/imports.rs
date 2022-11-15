@@ -247,6 +247,33 @@ pub fn create_imports(
     linker
         .func_wrap(
             "wrap",
+            "__wrap_getImplementations",
+            move |mut caller: Caller<'_, State>, ptr: u32, len: u32| {
+                let memory = memory.lock().unwrap();
+                let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
+
+                let uri = read_from_memory(memory_buffer, ptr, len);
+                let result = state.invoker.get_implementations(&uri);
+
+                if result.is_err() {
+                    (state.abort)(
+                        "__wrap_getImplementations: subinvoke.error is not set".to_string(),
+                    );
+                }
+
+                match result {
+                    Ok(res) => write_to_memory(memory_buffer, ptr as usize, res.as_bytes()),
+                    None => {
+                    }
+                }
+            },
+        )
+        .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+    
+    let memory = Arc::clone(&arc_memory);
+    linker
+        .func_wrap(
+            "wrap",
             "__wrap_load_env",
             move |mut caller: Caller<'_, State>, ptr: u32| {
                 let memory = memory.lock().unwrap();

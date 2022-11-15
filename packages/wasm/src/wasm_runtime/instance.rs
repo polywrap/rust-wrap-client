@@ -35,6 +35,7 @@ pub struct State {
     pub subinvoke: InvokeState,
     pub abort: Box<dyn Fn(String) + Send + Sync>,
     pub invoker: Arc<dyn Invoker>,
+    pub get_implementations_result: Option<Vec<u8>>
 }
 
 impl State {
@@ -53,6 +54,7 @@ impl State {
             subinvoke: InvokeState::default(),
             abort,
             invoker,
+            get_implementations_result: None
         }
     }
 }
