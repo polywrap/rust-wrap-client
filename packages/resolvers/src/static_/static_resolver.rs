@@ -80,36 +80,32 @@ impl UriResolver for StaticResolver {
     ) -> Result<UriPackageOrWrapper, Error> {
         let uri_package_or_wrapper = self.uri_map.get(&uri.to_string());
 
-        let (description, result, result_uri) = if let Some(found) = uri_package_or_wrapper {
+        let (description, result) = if let Some(found) = uri_package_or_wrapper {
             match found {
                 UriPackageOrWrapper::Package(uri, package) => (
                     format!("StaticResolver - Package ({})", uri.to_string()),
-                    UriPackageOrWrapper::Package(uri.clone(), package.clone()),
-                    uri,
+                    UriPackageOrWrapper::Package(uri.clone(), package.clone())
                 ),
                 UriPackageOrWrapper::Wrapper(uri, wrapper) => (
                     format!("StaticResolver - Wrapper ({})", uri.to_string()),
-                    UriPackageOrWrapper::Wrapper(uri.clone(), wrapper.clone()),
-                    uri,
+                    UriPackageOrWrapper::Wrapper(uri.clone(), wrapper.clone())
                 ),
                 UriPackageOrWrapper::Uri(uri) => (
                     format!("StaticResolver - Redirect ({})", uri.to_string()),
-                    UriPackageOrWrapper::Uri(uri.clone()),
-                    uri,
+                    UriPackageOrWrapper::Uri(uri.clone())
                 ),
             }
         } else {
             (
                 "StaticResolver - Miss".to_string(),
                 UriPackageOrWrapper::Uri(uri.clone()),
-                uri,
             )
         };
 
         resolution_context.track_step(UriResolutionStep {
             description: Some(description),
             source_uri: uri.clone(),
-            result: result_uri.clone(),
+            result: Ok(result.clone()),
             sub_history: None,
         });
 

@@ -12,3 +12,4 @@ polywrap_plugin = { path = "../../plugin" }
 serde = {version = "1.0.145", features = ["derive"]}
 polywrap_manifest = { path = "../../manifest" }
 serde_json = "1.0.87"
+ureq = "2.3.0"
