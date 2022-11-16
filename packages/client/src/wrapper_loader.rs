@@ -13,12 +13,11 @@ use polywrap_core::{
 #[derive(Clone)]
 pub struct WrapperLoader {
     uri_resolver: Arc<dyn UriResolver>,
-    pub interfaces: Option<InterfaceImplementations>
 }
 
 impl WrapperLoader {
-    pub fn new(uri_resolver: Arc<dyn UriResolver>, interfaces: Option<InterfaceImplementations>) -> Self {
-        Self { uri_resolver, interfaces }
+    pub fn new(uri_resolver: Arc<dyn UriResolver>) -> Self {
+        Self { uri_resolver }
     }
 }
 

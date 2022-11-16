@@ -23,8 +23,8 @@ pub struct PolywrapClient {
 
 impl PolywrapClient {
     pub fn new(config: ClientConfig) -> Self {
-        let loader = WrapperLoader::new(config.resolver.clone(), config.interfaces.clone());
-        let invoker = WrapperInvoker::new(loader.clone());
+        let loader = WrapperLoader::new(config.resolver.clone());
+        let invoker = WrapperInvoker::new(loader.clone(), config.interfaces.clone());
 
         Self {
             config,

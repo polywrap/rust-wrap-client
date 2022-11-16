@@ -150,7 +150,7 @@ impl WasmInstance {
 
         let memory_initial_limits =
             module_bytes[sig_idx.unwrap() + ENV_MEMORY_IMPORTS_SIGNATURE.len() + 1];
-        let memory_type = MemoryType::new(memory_initial_limits.into(), Option::None);
+        let memory_type = MemoryType::new(1, Option::None);
 
         Memory::new(store.as_context_mut(), memory_type)
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))

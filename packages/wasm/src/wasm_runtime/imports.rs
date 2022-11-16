@@ -300,12 +300,6 @@ pub fn create_imports(
         )
         .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
-
-
-
-
-
-
     linker
         .func_wrap(
             "wrap",
@@ -432,14 +426,18 @@ pub fn create_imports(
                 if result.is_err() {
                     let result = result.as_ref().err().unwrap();
                     (state.abort)(result.to_string());
-                    return false;
+                    return 0;
                 }
 
                 let implementations = &result.unwrap();
                 let encoded_implementations = rmp_serde::encode::to_vec(implementations);                
                 state.get_implementations_result = Some(encoded_implementations.unwrap());
 
-                return &state.get_implementations_result.unwrap().len() > &0
+                if state.get_implementations_result.as_ref().unwrap().len() > 0 {
+                    return 1;
+                }
+
+                return 0;
             },
         )
         .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
@@ -480,7 +478,7 @@ pub fn create_imports(
                     None => {
                         (state.abort)("__wrap_getImplementations_result: result is not set".to_string());
                     }
-                }
+                };
             },
         )
         .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;

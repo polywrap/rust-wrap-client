@@ -6,7 +6,7 @@ use polywrap_core::{
     invoke::{InvokeOptions, Invoker},
     loader::Loader,
     uri_resolution_context::UriResolutionContext,
-    wrapper::Wrapper, uri::Uri,
+    wrapper::Wrapper, uri::Uri, interface_implementation::InterfaceImplementations,
 };
 
 use crate::wrapper_loader::WrapperLoader;
@@ -14,11 +14,12 @@ use crate::wrapper_loader::WrapperLoader;
 #[derive(Clone)]
 pub struct WrapperInvoker {
     loader: WrapperLoader,
+    interfaces: Option<InterfaceImplementations>
 }
 
 impl WrapperInvoker {
-    pub fn new(loader: WrapperLoader) -> Self {
-        Self { loader }
+    pub fn new(loader: WrapperLoader, interfaces: Option<InterfaceImplementations>) -> Self {
+        Self { loader, interfaces }
     }
 }
 
@@ -69,7 +70,7 @@ impl Invoker for WrapperInvoker {
     }
 
     fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
-        if let Some(interfaces) = &self.loader.interfaces {
+        if let Some(interfaces) = &self.interfaces {
             let implementations_value = interfaces.get(&uri.uri);
             if let Some(implementations) = implementations_value {
                 return Ok(implementations.clone());

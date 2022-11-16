@@ -19,7 +19,7 @@ async fn test_env() {
     let path = test_path.into_os_string().into_string().unwrap();
     let implementation_uri: Uri = format!("fs/{}/interface-invoke/01-implementation/implementations/as", path).try_into().unwrap();
     let wrapper_uri: Uri = format!("fs/{}/interface-invoke/02-wrapper/implementations/as", path).try_into().unwrap();
-     
+
     let mut interfaces: InterfaceImplementations = HashMap::new();
     interfaces.insert("wrap://ens/interface.eth".to_string(), vec![implementation_uri]);
 
