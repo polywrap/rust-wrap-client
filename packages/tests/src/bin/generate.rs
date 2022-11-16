@@ -3,7 +3,7 @@ use std::fs;
 
 fn main() {
     let mut clone = Command::new("git");
-        
+
     clone.arg("clone").arg("git@github.com:polywrap/wasm-test-harness.git");
     clone.output().expect("Clone failed");
 

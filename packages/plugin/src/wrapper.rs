@@ -122,34 +122,22 @@ mod tests {
 
     impl PluginModule for MockMapPlugin {
         fn _wrap_invoke(
-        &mut self,
-        method_name: &str,
-        params: &serde_json::Value,
-        invoker: Arc<dyn polywrap_core::invoke::Invoker>,
-    ) -> Result<serde_json::Value, polywrap_core::error::Error> {
-        match method_name {
-            "get_map" => {
-              let result = self.get_map(serde_json::from_value::<GetMapArgs>(params.clone()).unwrap(), invoker.clone());
-              Ok(serde_json::to_value(result).unwrap())
-            },
-            "update_map" => {
-              let result = self.update_map(serde_json::from_value::<UpdateMapArgs>(params.clone()).unwrap(), invoker.clone());
-              Ok(serde_json::to_value(result).unwrap())
-            },
-            e => panic!("No method named '{}' found in MockMapPlugin", e)
+            &mut self,
+            method_name: &str,
+            params: &serde_json::Value,
+            invoker: Arc<dyn polywrap_core::invoke::Invoker>,
+        ) -> Result<serde_json::Value, polywrap_core::error::Error> {
+            match method_name {
+                "get_map" => {
+                let result = self.get_map(serde_json::from_value::<GetMapArgs>(params.clone()).unwrap(), invoker.clone());
+                Ok(serde_json::to_value(result).unwrap())
+                },
+                "update_map" => {
+                let result = self.update_map(serde_json::from_value::<UpdateMapArgs>(params.clone()).unwrap(), invoker.clone());
+                Ok(serde_json::to_value(result).unwrap())
+                },
+                e => panic!("No method named '{}' found in MockMapPlugin", e)
+            }
         }
-    }
-    }
-
-    fn create_mock_map_plugin() -> PluginPackage {
-        PluginPackage::new(
-            Arc::new(Mutex::new(MockMapPlugin::new())),
-            serde_json::from_value::<WrapManifest>(json!({})).unwrap(),
-        )
-    }
-
-    #[test]
-    fn plugin_wrapper() {
-      todo!()
     }
 }
