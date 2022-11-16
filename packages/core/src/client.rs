@@ -31,5 +31,5 @@ pub trait Client: Send + Sync + Invoker + UriResolverHandler + Loader {
   fn get_redirects(&self) -> &Vec<UriRedirect>;
   fn get_uri_resolver(&self) -> &dyn UriResolver;
   fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env>;
-  fn get_interfaces(&self) -> &Vec<InterfaceImplementations>;
+  fn get_interfaces(&self) -> Option<&InterfaceImplementations>;
 }

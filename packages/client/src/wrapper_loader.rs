@@ -7,17 +7,18 @@ use polywrap_core::{
     uri::Uri,
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     uri_resolver::{UriResolver, UriResolverHandler},
-    wrapper::Wrapper,
+    wrapper::Wrapper, interface_implementation::{InterfaceImplementations},
 };
 
 #[derive(Clone)]
 pub struct WrapperLoader {
     uri_resolver: Arc<dyn UriResolver>,
+    pub interfaces: Option<InterfaceImplementations>
 }
 
 impl WrapperLoader {
-    pub fn new(uri_resolver: Arc<dyn UriResolver>) -> Self {
-        Self { uri_resolver }
+    pub fn new(uri_resolver: Arc<dyn UriResolver>, interfaces: Option<InterfaceImplementations>) -> Self {
+        Self { uri_resolver, interfaces }
     }
 }
 

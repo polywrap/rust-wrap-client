@@ -1,3 +1,5 @@
+use std::vec;
+
 use async_trait::async_trait;
 use polywrap_core::{
     client::{Client, ClientConfig, UriRedirect},
@@ -21,7 +23,7 @@ pub struct PolywrapClient {
 
 impl PolywrapClient {
     pub fn new(config: ClientConfig) -> Self {
-        let loader = WrapperLoader::new(config.resolver.clone());
+        let loader = WrapperLoader::new(config.resolver.clone(), config.interfaces.clone());
         let invoker = WrapperInvoker::new(loader.clone());
 
         Self {
@@ -74,6 +76,10 @@ impl Invoker for PolywrapClient {
     ) -> Result<Vec<u8>, Error> {
         self.invoker.invoke_wrapper(options, wrapper).await
     }
+
+    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+        self.invoker.get_implementations(uri)
+    }
 }
 
 #[async_trait(?Send)]
@@ -98,8 +104,12 @@ impl Client for PolywrapClient {
         None
     }
 
-    fn get_interfaces(&self) -> Option<InterfaceImplementations> {
-        self.config.interfaces
+    fn get_interfaces(&self) -> Option<&InterfaceImplementations> {
+        if let Some(interfaces) = &self.config.interfaces {
+            return Some(interfaces);
+        }
+
+        None
     }
 
     // async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, Error> {

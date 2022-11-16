@@ -6,7 +6,7 @@ use polywrap_core::{
     invoke::{InvokeOptions, Invoker},
     loader::Loader,
     uri_resolution_context::UriResolutionContext,
-    wrapper::Wrapper,
+    wrapper::Wrapper, uri::Uri,
 };
 
 use crate::wrapper_loader::WrapperLoader;
@@ -66,5 +66,15 @@ impl Invoker for WrapperInvoker {
             .map_err(|e| Error::InvokeError(e.to_string()))?;
 
         Ok(invoke_result)
+    }
+
+    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+        if let Some(interfaces) = &self.loader.interfaces {
+            let implementations_value = interfaces.get(&uri.uri);
+            if let Some(implementations) = implementations_value {
+                return Ok(implementations.clone());
+            }
+        }
+        Ok(vec![])
     }
 }

@@ -27,6 +27,12 @@ pub struct InvokeState {
     pub error: Option<String>,
 }
 
+pub struct SubinvokeImplementationState {
+    pub result: Option<Vec<u8>>,
+    pub error: Option<String>,
+    pub args: Vec<u8>
+}
+
 pub struct State {
     pub method: Vec<u8>,
     pub args: Vec<u8>,
@@ -35,7 +41,8 @@ pub struct State {
     pub subinvoke: InvokeState,
     pub abort: Box<dyn Fn(String) + Send + Sync>,
     pub invoker: Arc<dyn Invoker>,
-    pub get_implementations_result: Option<Vec<u8>>
+    pub get_implementations_result: Option<Vec<u8>>,
+    pub subinvoke_implementation: Option<SubinvokeImplementationState>
 }
 
 impl State {
@@ -54,7 +61,8 @@ impl State {
             subinvoke: InvokeState::default(),
             abort,
             invoker,
-            get_implementations_result: None
+            get_implementations_result: None,
+            subinvoke_implementation: None
         }
     }
 }

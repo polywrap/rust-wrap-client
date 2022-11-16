@@ -67,6 +67,10 @@ impl Invoker for MockInvoker {
 
         Ok(invoke_result.unwrap())
     }
+
+    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+        Ok(vec![])
+    }
 }
 
 #[tokio::test]

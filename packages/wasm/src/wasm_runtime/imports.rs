@@ -4,9 +4,7 @@ use polywrap_core::{
     invoke::{InvokeArgs, InvokeOptions},
     uri::Uri,
 };
-use polywrap_msgpack::msgpack;
 use wasmtime::{AsContextMut, Caller, Linker, Memory};
-
 use crate::{error::WrapperError, wasm_runtime::instance::State};
 
 fn read_from_memory(buffer: &mut [u8], ptr: usize, len: usize) -> Vec<u8> {
@@ -67,7 +65,6 @@ pub fn create_imports(
             "wrap",
             "__wrap_invoke_error",
             move |mut caller: Caller<'_, State>, ptr: u32, len: u32| {
-                dbg!("__wrap_invoke_error");
                 let memory = memory.lock().unwrap();
                 let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
                 let memory_data = read_from_memory(memory_buffer, ptr as usize, len as usize);
@@ -244,6 +241,64 @@ pub fn create_imports(
         )
         .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
+    linker
+        .func_wrap(
+            "wrap",
+            "__wrap_subinvokeImplementation_result_len",
+            move |caller: Caller<'_, State>| {
+                let state = caller.data();
+                match &state.subinvoke_implementation {
+                    Some(subinvoke_impl_state) => {
+                        if let Some(result) = &subinvoke_impl_state.result {
+                            return result.len() as u32;
+                        }
+                        (state.abort)(
+                            "__wrap_subinvokeImplementation_result_len: subinvoke_implementation.result is not set".to_string(),
+                        );
+                        0
+                    }
+                    None => {
+                        (state.abort)(
+                            "__wrap_subinvokeImplementation_result_len: subinvoke_implementation is not set".to_string(),
+                        );
+                        0
+                    }
+                }
+            },
+        )
+        .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
+    let memory = Arc::clone(&arc_memory);
+    linker
+        .func_wrap(
+            "wrap",
+            "__wrap_subinvokeImplementation_result",
+            move |mut caller: Caller<'_, State>, ptr: u32| {
+                let memory = memory.lock().unwrap();
+                let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
+
+                match &state.subinvoke_implementation {
+                    Some(subinvoke_impl_state) => {
+                        if let Some(result) = &subinvoke_impl_state.result {
+                            write_to_memory(memory_buffer, ptr as usize, &result);
+                            return 1;
+                        }
+                        (state.abort)(
+                            "__wrap_subinvokeImplementation_result: subinvoke_implementation.result is not set".to_string(),
+                        );
+                        return 0;
+                    },
+                    None => {
+                        (state.abort)(
+                            "__wrap_subinvokeImplementation_result: subinvoke_implementation.result is not set".to_string(),
+                        );
+                        return 0;
+                    }
+                }
+            }
+        )
+        .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
     let memory = Arc::clone(&arc_memory);
     linker
         .func_wrap(
@@ -258,15 +313,13 @@ pub fn create_imports(
                 let result = state.invoker.get_implementations(Uri::new(uri.as_str()));
 
                 if result.is_err() {
-                    (state.abort)(result.err().unwrap().to_string());
+                    let result = result.as_ref().err().unwrap();
+                    (state.abort)(result.to_string());
                 }
 
-                let implementations = result.unwrap();
-                state.get_implementations_result = Some(
-                    polywrap_msgpack::encode(
-                        &msgpack!(&implementations)
-                    ).unwrap()
-                );
+                let implementations = &result.unwrap();
+                let encoded_implementations = rmp_serde::encode::to_vec(implementations);                
+                state.get_implementations_result = Some(encoded_implementations.unwrap());
 
                 1
             },
@@ -280,9 +333,9 @@ pub fn create_imports(
             "__wrap_getImplementations_result_len", 
             move |mut caller: Caller<'_, State>| {
                 let memory = memory.lock().unwrap();
-                let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
+                let (_, state) = memory.data_and_store_mut(caller.as_context_mut());
 
-                match state.get_implementations_result {
+                match &state.get_implementations_result {
                     Some(result) => result.len() as u32,
                     None => {
                         (state.abort)("__wrap_getImplementations_result_len: result is not set".to_string());
@@ -302,9 +355,9 @@ pub fn create_imports(
                 let memory = memory.lock().unwrap();
                 let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
 
-                match state.get_implementations_result {
+                match &state.get_implementations_result {
                     Some(result) => {
-                        write_to_memory(state.get_implementations_result, ptr, &state.get_implementations_result);
+                        write_to_memory(memory_buffer, ptr as usize, result);
                         1
                     },
                     None => {
