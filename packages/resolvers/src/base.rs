@@ -27,7 +27,7 @@ impl UriResolver for BaseResolver {
         &self,
         uri: &Uri,
         loader: &dyn Loader,
-        resolution_context: &UriResolutionContext,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let redirected_uri = self.redirects_resolver.try_resolve_uri(uri, loader, resolution_context).await?;
 
