@@ -18,5 +18,5 @@ pub struct InvokeOptions<'a> {
 pub trait Invoker: Send + Sync {
   async fn invoke_wrapper(&self, options: &InvokeOptions, wrapper: Box<dyn Wrapper>) -> Result<Vec<u8>, Error>;
   async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, Error>;
-  fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>>;
+  fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error>;
 }

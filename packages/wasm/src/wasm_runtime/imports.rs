@@ -4,6 +4,7 @@ use polywrap_core::{
     invoke::{InvokeArgs, InvokeOptions},
     uri::Uri,
 };
+use polywrap_msgpack::msgpack;
 use wasmtime::{AsContextMut, Caller, Linker, Memory};
 
 use crate::{error::WrapperError, wasm_runtime::instance::State};
@@ -252,24 +253,69 @@ pub fn create_imports(
                 let memory = memory.lock().unwrap();
                 let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
 
-                let uri = read_from_memory(memory_buffer, ptr, len);
-                let result = state.invoker.get_implementations(&uri);
+                let uri_bytes = read_from_memory(memory_buffer, ptr as usize, len as usize);
+                let uri = String::from_utf8(uri_bytes).unwrap();
+                let result = state.invoker.get_implementations(Uri::new(uri.as_str()));
 
                 if result.is_err() {
-                    (state.abort)(
-                        "__wrap_getImplementations: subinvoke.error is not set".to_string(),
-                    );
+                    (state.abort)(result.err().unwrap().to_string());
                 }
 
-                match result {
-                    Ok(res) => write_to_memory(memory_buffer, ptr as usize, res.as_bytes()),
+                let implementations = result.unwrap();
+                state.get_implementations_result = Some(
+                    polywrap_msgpack::encode(
+                        &msgpack!(&implementations)
+                    ).unwrap()
+                );
+
+                1
+            },
+        )
+        .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
+    let memory = Arc::clone(&arc_memory);
+    linker
+        .func_wrap(
+            "wrap", 
+            "__wrap_getImplementations_result_len", 
+            move |mut caller: Caller<'_, State>| {
+                let memory = memory.lock().unwrap();
+                let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
+
+                match state.get_implementations_result {
+                    Some(result) => result.len() as u32,
                     None => {
+                        (state.abort)("__wrap_getImplementations_result_len: result is not set".to_string());
+                        0
                     }
                 }
             },
         )
         .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
-    
+
+    let memory = Arc::clone(&arc_memory);
+    linker
+        .func_wrap(
+            "wrap", 
+            "__wrap_getImplementations_result", 
+            move |mut caller: Caller<'_, State>, ptr: u32| {
+                let memory = memory.lock().unwrap();
+                let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
+
+                match state.get_implementations_result {
+                    Some(result) => {
+                        write_to_memory(state.get_implementations_result, ptr, &state.get_implementations_result);
+                        1
+                    },
+                    None => {
+                        (state.abort)("__wrap_getImplementations_result: result is not set".to_string());
+                        0
+                    }
+                }
+            },
+        )
+        .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
     let memory = Arc::clone(&arc_memory);
     linker
         .func_wrap(
