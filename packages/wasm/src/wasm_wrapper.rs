@@ -1,11 +1,13 @@
 use crate::error::WrapperError;
 use crate::wasm_runtime::instance::State;
 use async_trait::async_trait;
+use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
 use polywrap_core::invoke::InvokeArgs;
-use polywrap_core::invoke::InvokeOptions;
 use polywrap_core::invoke::Invoker;
+use polywrap_core::uri::Uri;
+use polywrap_core::uri_resolution_context::UriResolutionContext;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::Wrapper;
@@ -48,10 +50,14 @@ impl WasmWrapper {
 
     pub async fn invoke_and_decode<T: DeserializeOwned>(
         &mut self,
-        options: &InvokeOptions<'_>,
         invoker: Arc<dyn Invoker>,
+        uri: &Uri,
+        method: &str,
+        args: Option<&InvokeArgs>,
+        resolution_context: Option<&mut UriResolutionContext>,
+        env: Option<Env>
     ) -> Result<T, Error> {
-        let result = self.invoke(options, invoker).await?;
+        let result = self.invoke(invoker, uri, method, args, env, resolution_context).await?;
 
         decode(result.as_slice()).map_err(|e| Error::WrapperError(e.to_string()))
     }
@@ -61,10 +67,14 @@ impl WasmWrapper {
 impl Wrapper for WasmWrapper {
     async fn invoke(
         &mut self,
-        options: &InvokeOptions,
         invoker: Arc<dyn Invoker>,
+        uri: &Uri,
+        method: &str,
+        args: Option<&InvokeArgs>,
+        env: Option<Env>,
+        _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        let args = match options.args {
+        let args = match args {
             Some(args) => match args {
                 InvokeArgs::Msgpack(value) => polywrap_msgpack::encode(value)
                     .map_err(|e| Error::MsgpackError(e.to_string()))?,
@@ -73,19 +83,19 @@ impl Wrapper for WasmWrapper {
             None => vec![],
         };
 
-        let env = match options.env {
-            Some(value) => polywrap_msgpack::encode(value).map_err(|e| Error::MsgpackError(e.to_string()))?,
+        let env = match env {
+            Some(value) => polywrap_msgpack::encode(&value).map_err(|e| Error::MsgpackError(e.to_string()))?,
             None => vec![],
         };
 
         let params = &[
-            Val::I32(options.method.to_string().len().try_into().unwrap()),
+            Val::I32(method.to_string().len().try_into().unwrap()),
             Val::I32(args.len().try_into().unwrap()),
             Val::I32(env.len().try_into().unwrap()),
         ];
 
-        let abort_uri = options.uri.clone();
-        let abort_method = options.method.to_string();
+        let abort_uri = uri.clone();
+        let abort_method = method.to_string();
         let abort_args = args.clone();
         let abort_env = env.clone();
 
@@ -106,8 +116,7 @@ impl Wrapper for WasmWrapper {
             );
         });
 
-        let state = State::new(invoker, abort.clone(), options.method, args, env);
-
+        let state = State::new(invoker, abort.clone(), method, args, env);
         let mut wasm_instance = WasmInstance::new(&self.wasm_module, state).await.unwrap();
 
         let mut result: [Val; 1] = [Val::I32(0)];

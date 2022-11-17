@@ -1,16 +1,17 @@
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{
-    client::{ClientConfig, UriRedirect},
-    invoke::{InvokeArgs, Invoker}, uri::Uri, env::{Envs, Env}, interface_implementation::InterfaceImplementations,
+    client::{ClientConfig},
+    invoke::{InvokeArgs, Invoker}, uri::Uri, interface_implementation::InterfaceImplementations,
 };
-use polywrap_msgpack::{msgpack,Deserialize,Value,decode};
+use polywrap_msgpack::{msgpack};
 
 use polywrap_resolvers::{
-    base::BaseResolver, filesystem::FilesystemResolver, redirects::RedirectsResolver,
+    base::BaseResolver, filesystem::FilesystemResolver, static_::static_resolver::StaticResolver
 };
 use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_tests::helpers::get_tests_path;
+use polywrap_tests_utils::helpers::get_tests_path;
 use std::{sync::Arc, collections::HashMap};
+use tokio::sync::Mutex;
 
 
 #[tokio::test]
@@ -23,14 +24,15 @@ async fn test_env() {
     let mut interfaces: InterfaceImplementations = HashMap::new();
     interfaces.insert("wrap://ens/interface.eth".to_string(), vec![implementation_uri]);
 
+    let static_resolver = StaticResolver::from(vec![]);
 
     let file_reader = SimpleFileReader::new();
     let client = PolywrapClient::new(ClientConfig {
         redirects: vec![],
-        resolver: Arc::new(BaseResolver::new(
+        resolver: Arc::new(Mutex::new(BaseResolver::new(
             Box::new(FilesystemResolver::new(Arc::new(file_reader))),
-            Box::new(RedirectsResolver::new(vec![])),
-        )),
+            Box::new(static_resolver)
+        ))),
         envs: None,
         interfaces: Some(interfaces)
     });
@@ -44,14 +46,12 @@ async fn test_env() {
         }
     ));
 
-    let invoke_opts = polywrap_core::invoke::InvokeOptions {
-        args: Some(&invoke_args),
-        env: None,
-        resolution_context: None,
-        uri: &wrapper_uri,
-        method: "moduleMethod",
-    };
-
-    let invoke_result: Vec<u8> = client.invoke(&invoke_opts).await.unwrap();
+    let invoke_result: Vec<u8> = client.invoke(
+        &wrapper_uri,
+        "moduleMethod",
+        Some(&invoke_args),
+        None,
+        None
+    ).await.unwrap();
     dbg!(invoke_result);
 }

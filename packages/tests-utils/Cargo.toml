@@ -1,0 +1,7 @@
+[package]
+name = "polywrap_tests_utils"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+polywrap_core = { path = "../core" }

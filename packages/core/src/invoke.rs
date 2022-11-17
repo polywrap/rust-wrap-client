@@ -1,22 +1,33 @@
+use crate::{
+    error::Error, uri::Uri, uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env,
+};
 use async_trait::async_trait;
-use crate::{uri::Uri, uri_resolution_context::UriResolutionContext, error::Error, wrapper::Wrapper, env::Env};
+use std::{sync::Arc};
+use tokio::sync::Mutex;
 
 pub enum InvokeArgs {
-  Msgpack(polywrap_msgpack::Value),
-  UIntArray(Vec<u8>)
-}
-
-pub struct InvokeOptions<'a> {
-  pub uri: &'a Uri,
-  pub method: &'a str,
-  pub args: Option<&'a InvokeArgs>,
-  pub env: Option<&'a Env>,
-  pub resolution_context: Option<&'a UriResolutionContext>,
+    Msgpack(polywrap_msgpack::Value),
+    UIntArray(Vec<u8>),
 }
 
 #[async_trait]
 pub trait Invoker: Send + Sync {
-  async fn invoke_wrapper(&self, options: &InvokeOptions, wrapper: Box<dyn Wrapper>) -> Result<Vec<u8>, Error>;
-  async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, Error>;
-  fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error>;
+    async fn invoke_wrapper(
+        &self,
+        wrapper: Arc<Mutex<dyn Wrapper>>,
+        uri: &Uri,
+        method: &str,
+        args: Option<&InvokeArgs>,
+        env: Option<Env>,
+        resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<Vec<u8>, Error>;
+    async fn invoke(
+        &self,
+        uri: &Uri,
+        method: &str,
+        args: Option<&InvokeArgs>,
+        env: Option<Env>,
+        resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<Vec<u8>, Error>;
+    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error>;
 }

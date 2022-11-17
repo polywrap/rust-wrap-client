@@ -35,7 +35,7 @@ impl WrapPackage for PluginPackage {
         return Ok(self.manifest.clone());
     }
 
-    async fn create_wrapper(&self) -> Result<Box<dyn Wrapper>, Error> {
-        Ok(Box::new(PluginWrapper::new(self.plugin_module.clone())))
+    async fn create_wrapper(&self) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
+        Ok(Arc::new(Mutex::new(PluginWrapper::new(self.plugin_module.clone()))))
     }
 }
