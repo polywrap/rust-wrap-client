@@ -37,6 +37,7 @@ async fn subinvoke_test() {
     let client = PolywrapClient::new(ClientConfig {
         redirects: vec![],
         envs: None,
+        interfaces: None,
         resolver: Arc::new(Mutex::new(BaseResolver::new(
             Box::new(fs_resolver),
             Box::new(static_resolver)

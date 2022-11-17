@@ -10,6 +10,7 @@ use polywrap_core::{
     uri_resolution_context::UriResolutionContext,
     uri_resolver::{UriResolverHandler},
     wrapper::Wrapper, env::Env,
+    interface_implementation::InterfaceImplementations
 };
 use polywrap_msgpack::{decode, DeserializeOwned};
 use tokio::sync::Mutex;
@@ -25,7 +26,7 @@ pub struct PolywrapClient {
 impl PolywrapClient {
     pub fn new(config: ClientConfig) -> Self {
         let loader = WrapperLoader::new(config.resolver.clone());
-        let invoker = WrapperInvoker::new(loader.clone());
+        let invoker = WrapperInvoker::new(loader.clone(), config.interfaces.clone());
 
         Self {
             config,
@@ -98,6 +99,10 @@ impl Invoker for PolywrapClient {
     ) -> Result<Vec<u8>, Error> {
         self.invoker.invoke_wrapper(wrapper, uri, method, args, env, resolution_context).await
     }
+
+    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+        self.invoker.get_implementations(uri)
+    }
 }
 
 #[async_trait(?Send)]
@@ -113,6 +118,14 @@ impl Client for PolywrapClient {
     fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
         if let Some(envs) = &self.config.envs {
             return envs.get(&uri.uri);
+        }
+
+        None
+    }
+
+    fn get_interfaces(&self) -> Option<&InterfaceImplementations> {
+        if let Some(interfaces) = &self.config.interfaces {
+            return Some(interfaces);
         }
 
         None

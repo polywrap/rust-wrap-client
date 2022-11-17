@@ -117,7 +117,6 @@ impl Wrapper for WasmWrapper {
         });
 
         let state = State::new(invoker, abort.clone(), method, args, env);
-
         let mut wasm_instance = WasmInstance::new(&self.wasm_module, state).await.unwrap();
 
         let mut result: [Val; 1] = [Val::I32(0)];

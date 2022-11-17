@@ -76,7 +76,8 @@ async fn test_env() {
             Box::new(FilesystemResolver::new(Arc::new(file_reader))),
             Box::new(static_resolver)
         ))),
-        envs: Some(envs)
+        envs: Some(envs),
+        interfaces: None
     });
 
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"arg": "test"}));

@@ -27,6 +27,12 @@ pub struct InvokeState {
     pub error: Option<String>,
 }
 
+pub struct SubinvokeImplementationState {
+    pub result: Option<Vec<u8>>,
+    pub error: Option<String>,
+    pub args: Vec<u8>
+}
+
 pub struct State {
     pub method: Vec<u8>,
     pub args: Vec<u8>,
@@ -35,6 +41,8 @@ pub struct State {
     pub subinvoke: InvokeState,
     pub abort: Box<dyn Fn(String) + Send + Sync>,
     pub invoker: Arc<dyn Invoker>,
+    pub get_implementations_result: Option<Vec<u8>>,
+    pub subinvoke_implementation: Option<SubinvokeImplementationState>
 }
 
 impl State {
@@ -53,6 +61,8 @@ impl State {
             subinvoke: InvokeState::default(),
             abort,
             invoker,
+            get_implementations_result: None,
+            subinvoke_implementation: None
         }
     }
 }
@@ -140,7 +150,7 @@ impl WasmInstance {
 
         let memory_initial_limits =
             module_bytes[sig_idx.unwrap() + ENV_MEMORY_IMPORTS_SIGNATURE.len() + 1];
-        let memory_type = MemoryType::new(memory_initial_limits.into(), Option::None);
+        let memory_type = MemoryType::new(1, Option::None);
 
         Memory::new(store.as_context_mut(), memory_type)
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))

@@ -1,7 +1,8 @@
 use crate::error::Error;
+use serde::Serialize;
 use regex::Regex;
 
-#[derive(Clone)]
+#[derive(Clone,Serialize)]
 pub struct Uri {
     pub authority: String,
     pub path: String,
