@@ -20,7 +20,6 @@ impl UriRedirect {
 }
 
 pub struct ClientConfig {
-  pub redirects: Vec<UriRedirect>,
   pub resolver: Arc<Mutex<dyn UriResolver>>,
   pub envs: Option<Envs>,
   pub interfaces: Option<InterfaceImplementations>
