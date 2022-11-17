@@ -1,17 +1,19 @@
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{
     client::{ClientConfig, UriRedirect},
-    invoke::{InvokeArgs, Invoker}, uri::Uri, env::{Envs, Env},
+    invoke::{InvokeArgs, Invoker}, uri::Uri, env::{Envs},
 };
-use polywrap_msgpack::{msgpack,Deserialize,Value,decode};
+use polywrap_msgpack::{msgpack,Deserialize,decode};
 
 use polywrap_resolvers::{
-    base::BaseResolver, filesystem::FilesystemResolver, redirects::RedirectsResolver,
+    base::BaseResolver, filesystem::FilesystemResolver, static_::static_resolver::{StaticResolver, StaticResolverLike}
 };
 use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_tests::helpers::get_tests_path;
+use polywrap_tests_utils::helpers::get_tests_path;
 use std::{sync::Arc, collections::HashMap};
+use tokio::sync::Mutex;
 
+#[allow(non_snake_case)]
 #[derive(Deserialize,Debug,PartialEq)]
 struct Response {
     str: String,
@@ -57,32 +59,35 @@ async fn test_env() {
     obj.insert("prop".to_string(), "object string".to_string());
     envs.insert(env_wrapper.clone().uri, response);
 
-    let redirects = vec![UriRedirect::new(
+    let redirect = UriRedirect::new(
         "ens/external-env.polywrap.eth".try_into().unwrap(),
         as_env_external_wrapper_path.clone(),
-    )];
+    );
+
+    let redirects_static_like = StaticResolverLike::Redirect(redirect);
+    let static_resolver = StaticResolver::from(vec![
+        redirects_static_like
+    ]);
 
     let file_reader = SimpleFileReader::new();
     let client = PolywrapClient::new(ClientConfig {
         redirects: vec![],
-        resolver: Arc::new(BaseResolver::new(
+        resolver: Arc::new(Mutex::new(BaseResolver::new(
             Box::new(FilesystemResolver::new(Arc::new(file_reader))),
-            Box::new(RedirectsResolver::new(redirects)),
-        )),
+            Box::new(static_resolver)
+        ))),
         envs: Some(envs)
     });
 
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"arg": "test"}));
 
-    let invoke_opts = polywrap_core::invoke::InvokeOptions {
-        args: Some(&invoke_args),
-        env: None,
-        resolution_context: None,
-        uri: &env_wrapper,
-        method: "methodRequireEnv",
-    };
-
-    let invoke_result: Vec<u8> = client.invoke(&invoke_opts).await.unwrap();
+    let invoke_result: Vec<u8> = client.invoke(
+        &env_wrapper,
+        "methodRequireEnv",
+        Some(&invoke_args),
+        None,
+        None
+    ).await.unwrap();
 
     let decoded_response = Response {
         str: "string".to_string(),

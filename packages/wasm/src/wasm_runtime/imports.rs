@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
-    invoke::{InvokeArgs, InvokeOptions},
+    invoke::{InvokeArgs},
     uri::Uri,
 };
 use wasmtime::{AsContextMut, Caller, Linker, Memory};
@@ -135,15 +135,7 @@ pub fn create_imports(
                     let method = String::from_utf8(method_bytes).unwrap();
                     let invoke_args = InvokeArgs::UIntArray(args_bytes);
 
-                    let invoker_opts = InvokeOptions {
-                        uri: &uri,
-                        method: &method,
-                        args: Some(&invoke_args),
-                        env: None,
-                        resolution_context: None,
-                    };
-
-                    let result = state.invoker.invoke(&invoker_opts).await;
+                    let result = state.invoker.invoke(&uri, &method, Some(&invoke_args), None, None).await;
                     match result {
                         Ok(res) => {
                             state.subinvoke.result = Some(res);
