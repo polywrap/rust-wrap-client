@@ -9,7 +9,7 @@ use polywrap_core::{
 };
 use polywrap_manifest::deserialize::deserialize_wrap_manifest;
 use polywrap_msgpack::msgpack;
-use polywrap_tests::helpers::get_tests_path;
+use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_wasm::{wasm_runtime::instance::WasmModule, wasm_wrapper::WasmWrapper};
 use std::fs;
 use std::path::Path;

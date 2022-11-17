@@ -30,9 +30,9 @@ fn parse_response(response: ureq::Response) -> Result<HttpResponse, polywrap_cor
     })
 }
 
-fn parse_request(request: HttpRequest) -> Result<ureq::Request, polywrap_core::error::Error> {
+// fn parse_request(request: HttpRequest) -> Result<ureq::Request, polywrap_core::error::Error> {
   
-}
+// }
 
 pub struct HttpPlugin {}
 

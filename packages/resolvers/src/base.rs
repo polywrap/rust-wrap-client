@@ -9,14 +9,14 @@ use polywrap_core::{
 
 pub struct BaseResolver {
   fs_resolver: Box<dyn UriResolver>,
-  redirects_resolver: Box<dyn UriResolver>
+  static_resolver: Box<dyn UriResolver>
 }
 
 impl BaseResolver {
-  pub fn new(fs_resolver: Box<dyn UriResolver>, redirects_resolver: Box<dyn UriResolver>) -> Self {
+  pub fn new(fs_resolver: Box<dyn UriResolver>, static_resolver: Box<dyn UriResolver>) -> Self {
     Self {
       fs_resolver,
-      redirects_resolver
+      static_resolver
     }
   }
 }
@@ -29,7 +29,7 @@ impl UriResolver for BaseResolver {
         loader: &dyn Loader,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
-        let redirected_uri = self.redirects_resolver.try_resolve_uri(uri, loader, resolution_context).await?;
+        let redirected_uri = self.static_resolver.try_resolve_uri(uri, loader, resolution_context).await?;
 
         if let UriPackageOrWrapper::Uri(redirected_uri) = redirected_uri {
           self.fs_resolver.try_resolve_uri(&redirected_uri, loader, resolution_context).await

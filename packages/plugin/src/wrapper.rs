@@ -71,11 +71,8 @@ mod tests {
     use std::{collections::HashMap, sync::Arc};
 
     use polywrap_core::invoke::Invoker;
-    use polywrap_manifest::versions::WrapManifest;
-    use serde_json::json;
-    use tokio::sync::Mutex;
 
-    use crate::{package::PluginPackage, module::PluginModule};
+    use crate::{module::PluginModule};
 
     #[derive(serde::Serialize, serde::Deserialize)]
     struct GetMapArgs { }
@@ -89,12 +86,6 @@ mod tests {
     }
 
     impl MockMapPlugin {
-        pub fn new() -> Self {
-          Self {
-            map: HashMap::new()
-          }
-        }
-
         pub fn get_map(&self, _: GetMapArgs,
           _: Arc<dyn Invoker>,) -> &HashMap<String, u32> {
             &self.map
