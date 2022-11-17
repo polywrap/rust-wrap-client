@@ -4,7 +4,7 @@ use polywrap_core::{
     invoke::{Invoker,InvokeArgs},
     uri::Uri,
     error::Error,
-    file_reader::{SimpleFileReader}, uri_resolution_context::UriResolutionContext, wrapper::Wrapper
+    file_reader::{SimpleFileReader}, uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env
 };
 use polywrap_manifest::{
     deserialize::deserialize_wrap_manifest
@@ -35,6 +35,7 @@ impl Invoker for MockInvoker {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>
     ) -> Result<Vec<u8>, Error> {
         let result = wrapper.lock().await.invoke(
@@ -42,6 +43,7 @@ impl Invoker for MockInvoker {
             uri,
             method,
             args,
+            env,
             resolution_context
         ).await;
 
@@ -62,6 +64,7 @@ impl Invoker for MockInvoker {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let invoke_result = self.invoke_wrapper(
@@ -69,6 +72,7 @@ impl Invoker for MockInvoker {
             uri,
             method,
             args,
+            env,
             resolution_context,
         ).await;
 
@@ -104,6 +108,7 @@ async fn invoke_test() {
         &Uri::from_string("fs/tests/cases/simple-invoke").unwrap(),
         "add",
         Some(&args), 
+        None,
         None
     ).await.unwrap();
 

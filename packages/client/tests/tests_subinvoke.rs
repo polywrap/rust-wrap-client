@@ -36,6 +36,7 @@ async fn subinvoke_test() {
 
     let client = PolywrapClient::new(ClientConfig {
         redirects: vec![],
+        envs: None,
         resolver: Arc::new(Mutex::new(BaseResolver::new(
             Box::new(fs_resolver),
             Box::new(static_resolver)
@@ -45,7 +46,7 @@ async fn subinvoke_test() {
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"a": 1, "b": 1}));
 
     let invoke_result = client
-        .invoke_and_decode::<u32>(&invoke_uri, "addAndIncrement", Some(&invoke_args), None)
+        .invoke_and_decode::<u32>(&invoke_uri, "addAndIncrement", Some(&invoke_args), None, None)
         .await
         .unwrap();
 

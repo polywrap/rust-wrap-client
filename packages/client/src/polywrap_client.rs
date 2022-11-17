@@ -9,7 +9,7 @@ use polywrap_core::{
     uri::Uri,
     uri_resolution_context::UriResolutionContext,
     uri_resolver::{UriResolverHandler},
-    wrapper::Wrapper,
+    wrapper::Wrapper, env::Env,
 };
 use polywrap_msgpack::{decode, DeserializeOwned};
 use tokio::sync::Mutex;
@@ -40,10 +40,11 @@ impl PolywrapClient {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
         let result = self
-            .invoke_wrapper(wrapper, uri, method, args, resolution_context)
+            .invoke_wrapper(wrapper, uri, method, args, env, resolution_context)
             .await?;
         decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
@@ -54,9 +55,10 @@ impl PolywrapClient {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
-        let result = self.invoke(uri, method, args, resolution_context).await?;
+        let result = self.invoke(uri, method, args, env, resolution_context).await?;
         decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
     }
@@ -69,9 +71,20 @@ impl Invoker for PolywrapClient {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        self.invoker.invoke(uri, method, args, resolution_context).await
+        let env_uri = match env {
+            Some(env) => Some(env),
+            None => {
+                if let Some(env) = self.get_env_by_uri(uri) {
+                    Some(env.to_owned())
+                } else {
+                    None
+                }
+            }
+        };
+        self.invoker.invoke(uri, method, args, env_uri, resolution_context).await
     }
 
     async fn invoke_wrapper(
@@ -80,9 +93,10 @@ impl Invoker for PolywrapClient {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        self.invoker.invoke_wrapper(wrapper, uri, method, args, resolution_context).await
+        self.invoker.invoke_wrapper(wrapper, uri, method, args, env, resolution_context).await
     }
 }
 
@@ -96,6 +110,13 @@ impl Client for PolywrapClient {
         &self.config.redirects
     }
 
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
+        if let Some(envs) = &self.config.envs {
+            return envs.get(&uri.uri);
+        }
+
+        None
+    }
     // async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
     //     let load = self.load_wrapper(uri, Option::None).await;
 

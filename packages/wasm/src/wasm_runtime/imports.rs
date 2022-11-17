@@ -135,7 +135,7 @@ pub fn create_imports(
                     let method = String::from_utf8(method_bytes).unwrap();
                     let invoke_args = InvokeArgs::UIntArray(args_bytes);
 
-                    let result = state.invoker.invoke(&uri, &method, Some(&invoke_args), None).await;
+                    let result = state.invoker.invoke(&uri, &method, Some(&invoke_args), None, None).await;
                     match result {
                         Ok(res) => {
                             state.subinvoke.result = Some(res);
@@ -231,6 +231,21 @@ pub fn create_imports(
                         );
                     }
                 }
+            },
+        )
+        .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
+    let memory = Arc::clone(&arc_memory);
+    linker
+        .func_wrap(
+            "wrap",
+            "__wrap_load_env",
+            move |mut caller: Caller<'_, State>, ptr: u32| {
+                let memory = memory.lock().unwrap();
+                let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
+
+                write_to_memory(memory_buffer, ptr as usize, &state.env);
+                Ok(())
             },
         )
         .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;

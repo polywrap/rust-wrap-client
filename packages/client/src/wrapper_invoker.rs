@@ -6,7 +6,7 @@ use polywrap_core::{
     invoke::{Invoker, InvokeArgs},
     loader::Loader,
     uri_resolution_context::UriResolutionContext,
-    wrapper::Wrapper, uri::Uri,
+    wrapper::Wrapper, uri::Uri, env::{Env},
 };
 use tokio::sync::Mutex;
 
@@ -31,12 +31,13 @@ impl Invoker for WrapperInvoker {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let result = wrapper
             .lock()
             .await
-            .invoke(Arc::new(self.clone()), uri, method, args, resolution_context)
+            .invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
             .await
             .map_err(|e| Error::InvokeError(e.to_string()))?;
 
@@ -48,6 +49,7 @@ impl Invoker for WrapperInvoker {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let mut empty_res_context = UriResolutionContext::new();
@@ -65,7 +67,7 @@ impl Invoker for WrapperInvoker {
             .map_err(|e| Error::LoadWrapperError(e.to_string()))?;
 
         let invoke_result = self
-            .invoke_wrapper(wrapper, uri, method, args, Some(resolution_context))
+            .invoke_wrapper(wrapper, uri, method, args, env, Some(resolution_context))
             .await
             .map_err(|e| Error::InvokeError(e.to_string()))?;
 

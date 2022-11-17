@@ -3,7 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use polywrap_core::{
     invoke::{Invoker, InvokeArgs},
-    wrapper::{GetFileOptions, Wrapper}, uri::Uri, uri_resolution_context::UriResolutionContext,
+    wrapper::{GetFileOptions, Wrapper}, uri::Uri, uri_resolution_context::UriResolutionContext, env::Env,
 };
 use tokio::sync::Mutex;
 
@@ -27,8 +27,10 @@ impl Wrapper for PluginWrapper {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
+        // self.set_env(env);
         let args = match args {
             Some(args) => match args {
                 polywrap_core::invoke::InvokeArgs::Msgpack(value) => {
