@@ -9,22 +9,31 @@ use polywrap_core::{
 };
 use polywrap_resolvers::static_::static_resolver::UriResolverLike;
 
+use crate::helpers::merge;
+
 pub struct BuilderConfig {
-    client_config: Option<ClientConfig>,
-    wrappers: Vec<UriWrapper>,
-    packages: Vec<UriPackage>,
-    redirects: Vec<UriRedirect>,
-    resolvers: Vec<UriResolverLike>,
+    pub interfaces: Option<Vec<InterfaceImplementations>>,
+    pub envs: Option<Vec<Envs>>,
+    pub wrappers: Option<Vec<UriWrapper>>,
+    pub packages: Option<Vec<UriPackage>>,
+    pub redirects: Option<Vec<UriRedirect>>,
+    pub resolvers: Option<Vec<UriResolverLike>>,
 }
 
 impl BuilderConfig {
-    pub fn new(config: BuilderConfig) -> Self {
+    pub fn new(config: Option<BuilderConfig>) -> Self {
+        if let Some(c) = config {
+            let mut builder = BuilderConfig::new(None);
+            builder.add(c);
+        } 
+
         BuilderConfig { 
-            client_config: None, 
-            wrappers: vec![], 
-            packages: vec![], 
-            redirects: vec![], 
-            resolvers: vec![] 
+            interfaces: None,
+            envs: None,
+            wrappers: None,
+            packages: None,
+            redirects: None,
+            resolvers: None
         }
     }
 
@@ -32,55 +41,27 @@ impl BuilderConfig {
         self
     }
 
-    pub fn add_wrapper(&mut self, wrapper: UriWrapper) -> &mut Self {
-        self.wrappers.push(wrapper);
-        self
-    }
-
-    pub fn remove_wrapper(&mut self, uri: Uri) -> &mut Self {
-        if let Some(index) = self.wrappers.iter().position(|wrapper| wrapper.uri == uri) {
-            self.wrappers.remove(index);
-        }
-        self
-    }
-
-    pub fn add_package(&mut self, package: UriPackage) -> &mut Self {
-        let existing_package = self.packages
-            .iter_mut()
-            .find(|i| i.uri == package.uri);
-
-        if let Some(p) = existing_package {
-            p.package = package.package;
-        } else {
-            self.packages.push(package);
-        }
-        self
-    }
-
-    pub fn add_packages(&mut self, packages: Vec<UriPackage>) -> &mut Self {
-        for package in packages.into_iter() {
-            self.add_package(package);
-        }
-        self
-    }
-
-    pub fn remove_package(&mut self, uri: Uri) -> &mut Self {
-        if let Some(index) = self.packages.iter().position(|package| package.uri == uri) {
-            self.packages.remove(index);
-        }
+    pub fn add_resolver(&mut self, resolver: UriResolverLike) -> &mut Self {
         self
     }
 
     pub fn add_env(&mut self, uri: Uri, env: Env) -> &mut Self {
-        if let Some(c) = self.client_config.as_mut() {
-             if let Some(envs) = c.envs.as_mut() {
-                envs.insert(uri.uri, env);
-            } else {
+        match self.envs.as_mut() {
+            Some(envs) => {
+                for current_env in envs {
+                    if let Some(u) = current_env.get_mut(&uri.clone().uri) {
+                        merge(u, &env.clone());
+                    } else {
+                        current_env.insert(uri.clone().uri, env.clone());
+                    }
+                };
+            },
+            None => {
                 let mut envs: Envs = HashMap::new();
                 envs.insert(uri.uri, env);
-                c.envs = Some(envs);
+                self.envs = Some(vec![envs]);
             }
-        }
+        };
         self
     }
 
@@ -92,15 +73,22 @@ impl BuilderConfig {
     }
 
     pub fn remove_env(&mut self, uri: Uri) -> &mut Self {
-        if let Some(c) = self.client_config.as_mut() {
-            if let Some(envs) = c.envs.as_mut() {
-                envs.retain(|k, _| k != &uri.uri)
-            }
+        if let Some(envs) = self.envs.as_mut() {
+            envs.retain(|env| env.keys().any(|k| k != &uri.clone().uri))
         }
         self
     }
 
-    pub fn set_env(&mut self, env: Env) -> &mut Self {
+    pub fn set_env(&mut self, uri: Uri, env: Env) -> &mut Self {
+        let mut new_env: Envs = HashMap::new();
+        new_env.insert(uri.uri, env);
+
+        match self.envs.as_mut() {
+            Some(e) => e.push(new_env),
+            None => {
+                self.envs = Some(vec![new_env]);
+            }
+        }
         self
     }
 
@@ -127,6 +115,56 @@ impl BuilderConfig {
         self
     }
 
+    pub fn add_wrapper(&mut self, wrapper: UriWrapper) -> &mut Self {
+        if let Some(wrappers) = self.wrappers.as_mut() {
+            wrappers.push(wrapper);
+        } else {
+            self.wrappers = Some(vec![wrapper]);
+        }
+        self
+    }
+
+    pub fn remove_wrapper(&mut self, uri: Uri) -> &mut Self {
+        if let Some(wrappers) = self.wrappers.as_mut() {
+            if let Some(index) = wrappers.iter().position(|wrapper| wrapper.uri == uri) {
+                wrappers.remove(index);
+            }
+        }
+        self
+    }
+
+    pub fn add_package(&mut self, package: UriPackage) -> &mut Self {
+        if let Some(packages) = self.packages.as_mut() {
+            let existing_package = packages
+            .iter_mut()
+            .find(|i| i.uri == package.uri);
+            
+            if let Some(p) = existing_package {
+                p.package = package.package;
+            } else {
+                packages.push(package);
+            } 
+        }
+        self
+    }
+
+    pub fn add_packages(&mut self, packages: Vec<UriPackage>) -> &mut Self {
+        for package in packages.into_iter() {
+            self.add_package(package);
+        }
+        self
+    }
+
+    pub fn remove_package(&mut self, uri: Uri) -> &mut Self {
+        if let Some(packages) = self.packages.as_mut() {
+            if let Some(index) = packages.iter().position(|package| package.uri == uri) {
+                packages.remove(index);
+            }
+        }
+        self
+    }
+
+
     pub fn add_redirect(&mut self, from: Uri, to: Uri) -> &mut Self {
         self
     }
@@ -135,19 +173,15 @@ impl BuilderConfig {
         self
     }
 
-    pub fn add_resolver(&mut self, resolver: UriResolverLike) -> &mut Self {
-        self
-    }
-
     pub fn add_resolvers(&mut self, resolver: Vec<UriResolverLike>) -> &mut Self {
         self
     }
 
-    pub fn build(&self) -> &Self {
-        self
+    pub fn build(&self) -> &ClientConfig {
+        &ClientConfig {
+            resolver: todo!(),
+            envs: todo!(),
+            interfaces: todo!(),
+        }
     }
-
-    // pub fn build_core(&self) -> ClientConfig {
-    //     self.client_config
-    // }
 }

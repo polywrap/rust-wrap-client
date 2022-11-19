@@ -111,10 +111,6 @@ impl Client for PolywrapClient {
         &self.config
     }
 
-    fn get_redirects(&self) -> &Vec<UriRedirect> {
-        &self.config.redirects
-    }
-
     fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
         if let Some(envs) = &self.config.envs {
             return envs.get(&uri.uri);
