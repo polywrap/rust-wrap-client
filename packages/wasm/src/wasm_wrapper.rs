@@ -12,7 +12,8 @@ use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::Wrapper;
 use polywrap_manifest::versions::WrapManifest;
-use polywrap_msgpack::decode;
+use polywrap_msgpack::msgpack_to_vec;
+use polywrap_msgpack::{decode,rmpv,msgpack};
 use serde::de::DeserializeOwned;
 use std::sync::Arc;
 
@@ -83,9 +84,13 @@ impl Wrapper for WasmWrapper {
             None => vec![],
         };
 
-        let env = match env {
-            Some(value) => polywrap_msgpack::encode(&value).map_err(|e| Error::MsgpackError(e.to_string()))?,
-            None => vec![],
+        let env =  match env {
+            Some(e) => {
+                rmp_serde::to_vec(&e).map_err(
+                    |e| Error::MsgpackError(e.to_string())
+                )?
+            },
+            None => polywrap_msgpack::encode(&rmpv::Value::Nil).map_err(|e| Error::MsgpackError(e.to_string()))?
         };
 
         let params = &[

@@ -12,6 +12,7 @@ use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::{sync::Arc, collections::HashMap};
 use tokio::sync::Mutex;
+use serde_json::json;
 
 #[allow(non_snake_case)]
 #[derive(Deserialize,Debug,PartialEq)]
@@ -38,13 +39,13 @@ async fn test_env() {
     let as_env_external_wrapper_path: Uri = format!("fs/{}/env-type/00-external/implementations/as", path).try_into().unwrap();
 
     let mut envs: Envs = HashMap::new();
-    let external_env = msgpack!({
+    let external_env = json!({
         "externalArray": [1, 2, 3],
         "externalString": "iamexternal"
     });
     envs.insert(as_env_external_wrapper_path.clone().uri, external_env);
 
-    let response = msgpack!({
+    let response = json!({
         "object": {
             "prop": "object string",
         },
