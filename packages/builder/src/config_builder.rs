@@ -12,8 +12,8 @@ use polywrap_resolvers::static_::static_resolver::UriResolverLike;
 use crate::helpers::merge;
 
 pub struct BuilderConfig {
-    pub interfaces: Option<Vec<InterfaceImplementations>>,
-    pub envs: Option<Vec<Envs>>,
+    pub interfaces: Option<InterfaceImplementations>,
+    pub envs: Option<Envs>,
     pub wrappers: Option<Vec<UriWrapper>>,
     pub packages: Option<Vec<UriPackage>>,
     pub redirects: Option<Vec<UriRedirect>>,
@@ -48,18 +48,16 @@ impl BuilderConfig {
     pub fn add_env(&mut self, uri: Uri, env: Env) -> &mut Self {
         match self.envs.as_mut() {
             Some(envs) => {
-                for current_env in envs {
-                    if let Some(u) = current_env.get_mut(&uri.clone().uri) {
-                        merge(u, &env.clone());
-                    } else {
-                        current_env.insert(uri.clone().uri, env.clone());
-                    }
-                };
+                if let Some(u) = envs.get_mut(&uri.clone().uri) {
+                    merge(u, &env.clone());
+                } else {
+                    envs.insert(uri.clone().uri, env.clone());
+                }
             },
             None => {
                 let mut envs: Envs = HashMap::new();
                 envs.insert(uri.uri, env);
-                self.envs = Some(vec![envs]);
+                self.envs = Some(envs);
             }
         };
         self
@@ -80,12 +78,20 @@ impl BuilderConfig {
     }
 
     pub fn set_env(&mut self, uri: Uri, env: Env) -> &mut Self {
-        let mut new_env: Envs = HashMap::new();
-        new_env.insert(uri.uri, env);
-
         match self.envs.as_mut() {
-            Some(e) => e.push(new_env),
+            Some(envs) => {
+                let current_env = envs.keys().any(|k| k == &uri.clone().uri);
+                if current_env  {
+                    let mut new_env: Envs = HashMap::new();
+                    new_env.insert(uri.clone().uri, env);
+                    envs = new_env.clone();
+                } else {
+                    envs.insert(uri.clone().uri, env);
+                }
+            },
             None => {
+                let mut new_env: Envs = HashMap::new();
+                new_env.insert(uri.clone().uri, env);
                 self.envs = Some(vec![new_env]);
             }
         }
@@ -97,6 +103,23 @@ impl BuilderConfig {
         interface_uri: Uri,
         implementation_uri: Uri
     ) -> &mut Self {
+        match self.interfaces.as_mut() {
+            Some(interfaces) => {
+                let get_current_interface = |i: &&mut InterfaceImplementations| {
+                    let has_interface_uri = |k| k == &interface_uri.clone().uri;
+                    i.keys().any(has_interface_uri)
+                };
+
+                let current_interface = interfaces.iter_mut().find(get_current_interface);
+                if let Some(c) = current_interface {
+                    
+                }
+            },
+            None => {
+
+            }
+        }
+
         self
     }
 

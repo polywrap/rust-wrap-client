@@ -25,41 +25,26 @@ fn test_env_methods() {
     assert_eq!(env_from_builder.is_some(), true);
     assert_eq!(env_from_builder.unwrap(), simple_env);
 
-    let foo_value = json!({
-        "foo": "bar"
-    });
-    let bar_value = json!({
-        "bar": "foo"
-    });
-
-    let mut builder = BuilderConfig::new(None);
-
-    builder.add_env(uri.clone(), foo_value.clone());
-    builder.add_env(uri.clone(), bar_value.clone());
-
-    
     let mut mixed_env = HashMap::new();
     mixed_env.insert(uri.clone().uri, json!({
         "foo": "bar",
         "bar": "foo"
     }));
+    let mut builder = BuilderConfig::new(None);
+    builder.add_envs(mixed_env.clone());
     let current_env = builder.envs.unwrap();
     let env_from_builder = current_env.into_iter().find(|env| env == &mixed_env);
     assert_eq!(env_from_builder.unwrap(), mixed_env);
 
     let mut builder = BuilderConfig::new(None);
-
-    builder.add_env(uri.clone(), foo_value.clone());
-    builder.add_env(uri.clone(), bar_value.clone());
-
-    
-    let mut mixed_env = HashMap::new();
-    mixed_env.insert(uri.clone().uri, json!({
-        "foo": "bar",
-        "bar": "foo"
-    }));
+    builder.add_env(uri.clone(), json!({ "foo": "bar" }));
     builder.remove_env(uri.clone());
-    let current_env = builder.envs.unwrap();
+    assert_eq!(builder.envs.unwrap().len(), 0);
 
-    assert_eq!(current_env.len(), 0);
+    let mut builder = BuilderConfig::new(None);
+    builder.add_env(uri.clone(), json!({ "foo": "bar" }));
+    builder.set_env(uri.clone(), json!({ "bar": "foo" }));
+    let mut expected_env = HashMap::new();
+    expected_env.insert(uri.clone().uri, json!({ "bar": "foo" }));
+    assert_eq!(builder.envs.unwrap().first().unwrap(), &expected_env);
 }
