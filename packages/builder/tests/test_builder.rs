@@ -1,8 +1,18 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use polywrap_client_builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler};
-use polywrap_core::{uri::Uri, client::UriRedirect};
+use polywrap_core::{
+    uri::Uri,
+    client::UriRedirect,
+    wrapper::{Wrapper, GetFileOptions},
+    invoke::{Invoker, InvokeArgs},
+    env::Env,
+    uri_resolution_context::UriResolutionContext,
+    error::Error, package::WrapPackage
+};
 use serde_json::json;
+use async_trait::async_trait;
+use tokio::sync::Mutex;
 
 #[test]
 fn test_env_methods() {
@@ -118,10 +128,41 @@ fn test_redirects() {
 fn test_resolvers() {
 
 }
+#[actix_rt::test]
+async fn test_wrappers() {
+    struct MockWrapper;
+    #[async_trait]
+    impl Wrapper for MockWrapper {
+        async fn invoke(
+            &mut self,
+            invoker: Arc<dyn Invoker>,
+            uri: &Uri,
+            method: &str,
+            args: Option<&InvokeArgs>,
+            env: Option<Env>,
+            resolution_context: Option<&mut UriResolutionContext>,
+        ) -> Result<Vec<u8>, Error> {
+            Ok(vec![])
+        }
+        fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
+            Ok(vec![])
+        }
+    }
 
-#[test]
-fn test_wrappers() {
+    struct MockPackage;
+    #[async_trait]
+    impl WrapPackage for MockPackage {
+        async fn create_wrapper(
+            &self,
+        ) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
+            // MockWrapper::
+            // Ok(Arc::new(Mutex::new(MockWrapper::new()))
+        }
 
+        // async get_manifest(&self, options: Option<GetManifestOptions>) -> Result<WrapManifest, Error> {
+
+        // }
+    }
 }
 
 #[test]
