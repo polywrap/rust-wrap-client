@@ -72,28 +72,21 @@ impl BuilderConfig {
 
     pub fn remove_env(&mut self, uri: Uri) -> &mut Self {
         if let Some(envs) = self.envs.as_mut() {
-            envs.retain(|env| env.keys().any(|k| k != &uri.clone().uri))
+            envs.retain(|k, _| &uri.clone().uri != k);
+            if envs.keys().len() == 0 {
+                self.envs = None;
+            }
         }
         self
     }
 
     pub fn set_env(&mut self, uri: Uri, env: Env) -> &mut Self {
-        match self.envs.as_mut() {
-            Some(envs) => {
-                let current_env = envs.keys().any(|k| k == &uri.clone().uri);
-                if current_env  {
-                    let mut new_env: Envs = HashMap::new();
-                    new_env.insert(uri.clone().uri, env);
-                    envs = new_env.clone();
-                } else {
-                    envs.insert(uri.clone().uri, env);
-                }
-            },
-            None => {
-                let mut new_env: Envs = HashMap::new();
-                new_env.insert(uri.clone().uri, env);
-                self.envs = Some(vec![new_env]);
-            }
+        if let Some(envs) = self.envs.as_mut() {
+            envs.insert(uri.clone().uri, env);
+        } else {
+            let mut new_env: Envs = HashMap::new();
+            new_env.insert(uri.clone().uri, env);
+            self.envs = Some(new_env);
         }
         self
     }
@@ -105,21 +98,20 @@ impl BuilderConfig {
     ) -> &mut Self {
         match self.interfaces.as_mut() {
             Some(interfaces) => {
-                let get_current_interface = |i: &&mut InterfaceImplementations| {
-                    let has_interface_uri = |k| k == &interface_uri.clone().uri;
-                    i.keys().any(has_interface_uri)
-                };
-
-                let current_interface = interfaces.iter_mut().find(get_current_interface);
-                if let Some(c) = current_interface {
-                    
+                let current_interface = interfaces.get_mut(&interface_uri.clone().uri);
+                match current_interface {
+                    Some(i) => i.push(implementation_uri),
+                    None => {
+                        interfaces.insert(interface_uri.clone().uri, vec![implementation_uri]);
+                    }
                 }
             },
             None => {
-
+                let mut interfaces = HashMap::new();
+                interfaces.insert(interface_uri.clone().uri, vec![implementation_uri]);
+                self.interfaces = Some(interfaces);
             }
         }
-
         self
     }
 
@@ -128,13 +120,47 @@ impl BuilderConfig {
         interface_uri: Uri,
         implementation_uris: Vec<Uri>
     ) -> &mut Self {
+        match self.interfaces.as_mut() {
+            Some(interfaces) => {
+                let current_interface = interfaces.get_mut(&interface_uri.clone().uri);
+                match current_interface {
+                    Some(i) => {
+                        for implementation_uri in implementation_uris {
+                            if !i.contains(&implementation_uri) {
+                                i.push(implementation_uri);
+                            }
+                        };
+                    },
+                    None => {
+                        interfaces.insert(interface_uri.clone().uri, implementation_uris);
+                    }
+                };
+            },
+            None => {
+                let mut interfaces = HashMap::new();
+                interfaces.insert(interface_uri.clone().uri, implementation_uris);
+                self.interfaces = Some(interfaces);
+            }
+        };
+
         self
     }
 
     pub fn remove_interface_implementation(
         &mut self,
-        implementations: InterfaceImplementations
+        interface_uri: Uri,
+        implementation_uri: Uri
     ) -> &mut Self {
+        if let Some(interfaces) = self.interfaces.as_mut() {
+            let implementations = interfaces.get_mut(&interface_uri.clone().uri);
+            if let Some(implementations) = implementations {
+                let index = implementations.iter().position(|i| i == &implementation_uri);
+                if let Some(i) = index {
+                    implementations.remove(i);
+                };
+            };
+        };
+
         self
     }
 

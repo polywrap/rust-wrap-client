@@ -7,44 +7,75 @@ use serde_json::json;
 #[test]
 fn test_env_methods() {
     let mut builder = BuilderConfig::new(None);
-    let foo_value = json!({
-        "foo": "bar"
-    });
-    let uri = Uri::new("wrap://ens/simple-wrapper.eth");
+    let uri = Uri::new("wrap://ens/wrapper.eth");
 
     assert_eq!(builder.envs.is_none(), true);
-    builder.add_env(uri.clone(), foo_value.clone());
-    assert_eq!(builder.envs.is_some(), true);
 
-    let mut simple_env = HashMap::new();
-    simple_env.insert(uri.clone().uri, foo_value);
+    builder.add_env(uri.clone(), json!({ "d": "d" }));
 
-    let current_env = builder.envs.unwrap();
-    let env_from_builder = current_env.into_iter().find(|env| env == &simple_env);
+    let current_env = builder.envs.clone().unwrap();
+    let env_from_builder = current_env.get(&uri.clone().uri);
 
     assert_eq!(env_from_builder.is_some(), true);
-    assert_eq!(env_from_builder.unwrap(), simple_env);
+    assert_eq!(env_from_builder.unwrap(), &json!({ "d": "d" }));
 
-    let mut mixed_env = HashMap::new();
-    mixed_env.insert(uri.clone().uri, json!({
-        "foo": "bar",
-        "bar": "foo"
-    }));
-    let mut builder = BuilderConfig::new(None);
-    builder.add_envs(mixed_env.clone());
-    let current_env = builder.envs.unwrap();
-    let env_from_builder = current_env.into_iter().find(|env| env == &mixed_env);
-    assert_eq!(env_from_builder.unwrap(), mixed_env);
+    let mut envs = HashMap::new();
+    envs.insert(uri.clone().uri, json!({"a": "a", "b": "b"}));
 
-    let mut builder = BuilderConfig::new(None);
-    builder.add_env(uri.clone(), json!({ "foo": "bar" }));
+    builder.add_envs(envs);
+
+    let current_env = builder.envs.clone().unwrap();
+    let env_from_builder = current_env.get(&uri.clone().uri);
+    assert_eq!(env_from_builder.unwrap(), &json!({ "d": "d", "a": "a", "b": "b" }));
+
+    builder.set_env(uri.clone(), json!({"c": "c"}));
+
+    let current_env = builder.envs.clone().unwrap();
+    let env_from_builder = current_env.get(&uri.clone().uri);
+    assert_eq!(env_from_builder.unwrap(), &json!({ "c": "c" }));
+
     builder.remove_env(uri.clone());
-    assert_eq!(builder.envs.unwrap().len(), 0);
 
+    assert_eq!(builder.envs.is_none(), true);
+}
+
+#[test]
+fn test_interface_implementation_methods() {
     let mut builder = BuilderConfig::new(None);
-    builder.add_env(uri.clone(), json!({ "foo": "bar" }));
-    builder.set_env(uri.clone(), json!({ "bar": "foo" }));
-    let mut expected_env = HashMap::new();
-    expected_env.insert(uri.clone().uri, json!({ "bar": "foo" }));
-    assert_eq!(builder.envs.unwrap().first().unwrap(), &expected_env);
+
+    let interface_uri = Uri::new("wrap://ens/interface.eth");
+    let implementation_a_uri = Uri::new("wrap://ens/implementation-a.eth");
+    let implementation_b_uri = Uri::new("wrap://ens/implementation-b.eth");
+
+    assert_eq!(builder.interfaces.is_none(), true);
+
+    builder.add_interface_implementations(
+        interface_uri.clone(), 
+        vec![implementation_a_uri.clone(), implementation_b_uri.clone()]
+    );
+
+    let interfaces = builder.interfaces.clone().unwrap();
+    let implementations = interfaces.get(&interface_uri.clone().uri).unwrap();
+    assert_eq!(builder.interfaces.is_some(), true);
+    assert_eq!(implementations, &vec![implementation_a_uri.clone(), implementation_b_uri.clone()]);
+
+    let implementation_c_uri = Uri::new("wrap://ens/implementation-c.eth");
+    builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
+
+    let interfaces = builder.interfaces.clone().unwrap();
+    let implementations = interfaces.get(&interface_uri.clone().uri).unwrap();
+    assert_eq!(implementations, &vec![
+        implementation_a_uri.clone(), 
+        implementation_b_uri.clone(),
+        implementation_c_uri.clone()
+    ]);
+
+    builder.remove_interface_implementation(interface_uri.clone(), implementation_b_uri.clone());
+    let interfaces = builder.interfaces.clone().unwrap();
+    let implementations = interfaces.get(&interface_uri.clone().uri).unwrap();
+    assert_eq!(implementations, &vec![
+        implementation_a_uri.clone(),
+        implementation_c_uri.clone()
+    ]);
+
 }
