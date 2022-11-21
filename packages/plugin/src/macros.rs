@@ -1,7 +1,7 @@
 #[macro_export]
-macro_rules! impl_plugin_module {
+macro_rules! base_impl_plugin_module {
   ($plugin_type:ty, $(($method_name:ident, $args_type:ty)),* $(,)?) => {
-    impl PluginModule for $plugin_type {
+    impl $crate::module::PluginModule for $plugin_type {
       fn _wrap_invoke(
           &mut self,
           method_name: &str,

@@ -1,6 +1,5 @@
 use jsonschema::{JSONSchema, ValidationError};
-
-use crate::{versions::AnyManifest, get_schemas::get_schemas};
+use crate::{versions::{AnyManifest}, get_schemas::get_schemas};
 
 pub fn validate_wrap_manifest(
     manifest: &AnyManifest,
