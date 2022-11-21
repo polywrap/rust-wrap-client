@@ -1,20 +1,23 @@
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{
-    client::{ClientConfig, UriRedirect},
-    invoke::{InvokeArgs, Invoker}, uri::Uri, env::{Envs},
+    client::UriRedirect,
+    env::Envs,
+    invoke::{InvokeArgs, Invoker},
+    uri::Uri,
 };
-use polywrap_msgpack::{msgpack,Deserialize,decode};
+use polywrap_msgpack::{decode, msgpack, Deserialize};
 
-use polywrap_resolvers::{
-    base::BaseResolver, filesystem::FilesystemResolver, static_::static_resolver::{StaticResolver, StaticResolverLike}
-};
 use polywrap_core::file_reader::SimpleFileReader;
+use polywrap_resolvers::{
+    base::BaseResolver,
+    filesystem::FilesystemResolver,
+    static_::static_resolver::{StaticResolver, StaticResolverLike},
+};
 use polywrap_tests_utils::helpers::get_tests_path;
-use std::{sync::Arc, collections::HashMap};
-use tokio::sync::Mutex;
+use std::{collections::HashMap, sync::Arc};
 
 #[allow(non_snake_case)]
-#[derive(Deserialize,Debug,PartialEq)]
+#[derive(Deserialize, Debug, PartialEq)]
 struct Response {
     str: String,
     optStr: Option<String>,
@@ -26,16 +29,21 @@ struct Response {
     en: i8,
     optEnum: Option<i8>,
     object: HashMap<String, String>,
-    optObject: Option<HashMap<String,String>>,
-    array: Vec<i32>
+    optObject: Option<HashMap<String, String>>,
+    array: Vec<i32>,
 }
 
 #[tokio::test]
 async fn test_env() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let env_wrapper: Uri = format!("fs/{}/env-type/01-main/implementations/as", path).try_into().unwrap();
-    let as_env_external_wrapper_path: Uri = format!("fs/{}/env-type/00-external/implementations/as", path).try_into().unwrap();
+    let env_wrapper: Uri = format!("fs/{}/env-type/01-main/implementations/as", path)
+        .try_into()
+        .unwrap();
+    let as_env_external_wrapper_path: Uri =
+        format!("fs/{}/env-type/00-external/implementations/as", path)
+            .try_into()
+            .unwrap();
 
     let mut envs: Envs = HashMap::new();
     let external_env = msgpack!({
@@ -65,30 +73,30 @@ async fn test_env() {
     );
 
     let redirects_static_like = StaticResolverLike::Redirect(redirect);
-    let static_resolver = StaticResolver::from(vec![
-        redirects_static_like
-    ]);
+    let static_resolver = StaticResolver::from(vec![redirects_static_like]);
 
     let file_reader = SimpleFileReader::new();
-    let client = PolywrapClient::new(ClientConfig {
-        redirects: vec![],
-        resolver: Arc::new(Mutex::new(BaseResolver::new(
+    let client = PolywrapClient::new(
+        Box::new(BaseResolver::new(
             Box::new(FilesystemResolver::new(Arc::new(file_reader))),
-            Box::new(static_resolver)
-        ))),
-        envs: Some(envs),
-        interfaces: None
-    });
+            Box::new(static_resolver),
+        )),
+        None,
+    )
+    .environment(envs);
 
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"arg": "test"}));
 
-    let invoke_result: Vec<u8> = client.invoke(
-        &env_wrapper,
-        "methodRequireEnv",
-        Some(&invoke_args),
-        None,
-        None
-    ).await.unwrap();
+    let invoke_result: Vec<u8> = client
+        .invoke(
+            &env_wrapper,
+            "methodRequireEnv",
+            Some(&invoke_args),
+            None,
+            None,
+        )
+        .await
+        .unwrap();
 
     let decoded_response = Response {
         str: "string".to_string(),
@@ -105,5 +113,8 @@ async fn test_env() {
         array: vec![32, 23],
     };
 
-    assert_eq!(decode::<Response>(&invoke_result as &[u8]).unwrap() as Response, decoded_response);
+    assert_eq!(
+        decode::<Response>(&invoke_result as &[u8]).unwrap() as Response,
+        decoded_response
+    );
 }
