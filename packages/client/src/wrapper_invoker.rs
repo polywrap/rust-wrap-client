@@ -6,7 +6,8 @@ use polywrap_core::{
     invoke::{Invoker, InvokeArgs},
     loader::Loader,
     uri_resolution_context::UriResolutionContext,
-    wrapper::Wrapper, uri::Uri,
+    wrapper::Wrapper, uri::Uri, env::{Env},
+    interface_implementation::InterfaceImplementations
 };
 use tokio::sync::Mutex;
 
@@ -15,11 +16,12 @@ use crate::wrapper_loader::WrapperLoader;
 #[derive(Clone)]
 pub struct WrapperInvoker {
     loader: WrapperLoader,
+    interfaces: Option<InterfaceImplementations>
 }
 
 impl WrapperInvoker {
-    pub fn new(loader: WrapperLoader) -> Self {
-        Self { loader }
+    pub fn new(loader: WrapperLoader, interfaces: Option<InterfaceImplementations>) -> Self {
+        Self { loader, interfaces }
     }
 }
 
@@ -31,12 +33,13 @@ impl Invoker for WrapperInvoker {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let result = wrapper
             .lock()
             .await
-            .invoke(Arc::new(self.clone()), uri, method, args, resolution_context)
+            .invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
             .await
             .map_err(|e| Error::InvokeError(e.to_string()))?;
 
@@ -48,6 +51,7 @@ impl Invoker for WrapperInvoker {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let mut empty_res_context = UriResolutionContext::new();
@@ -65,10 +69,20 @@ impl Invoker for WrapperInvoker {
             .map_err(|e| Error::LoadWrapperError(e.to_string()))?;
 
         let invoke_result = self
-            .invoke_wrapper(wrapper, uri, method, args, Some(resolution_context))
+            .invoke_wrapper(wrapper, uri, method, args, env, Some(resolution_context))
             .await
             .map_err(|e| Error::InvokeError(e.to_string()))?;
 
         Ok(invoke_result)
+    }
+
+    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+        if let Some(interfaces) = &self.interfaces {
+            let implementations_value = interfaces.get(&uri.uri);
+            if let Some(implementations) = implementations_value {
+                return Ok(implementations.clone());
+            }
+        }
+        Ok(vec![])
     }
 }

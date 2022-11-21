@@ -7,7 +7,7 @@ use polywrap_core::{
     uri::Uri,
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     uri_resolver::{UriResolver, UriResolverHandler},
-    wrapper::Wrapper,
+    wrapper::Wrapper, interface_implementation::{InterfaceImplementations},
 };
 use tokio::sync::Mutex;
 

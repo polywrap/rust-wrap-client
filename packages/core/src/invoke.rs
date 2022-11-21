@@ -1,5 +1,5 @@
 use crate::{
-    error::Error, uri::Uri, uri_resolution_context::UriResolutionContext, wrapper::Wrapper,
+    error::Error, uri::Uri, uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env,
 };
 use async_trait::async_trait;
 use std::{sync::Arc};
@@ -18,6 +18,7 @@ pub trait Invoker: Send + Sync {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
     async fn invoke(
@@ -25,6 +26,8 @@ pub trait Invoker: Send + Sync {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
+    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error>;
 }

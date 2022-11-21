@@ -1,6 +1,7 @@
 use crate::error::WrapperError;
 use crate::wasm_runtime::instance::State;
 use async_trait::async_trait;
+use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
 use polywrap_core::invoke::InvokeArgs;
@@ -54,8 +55,9 @@ impl WasmWrapper {
         method: &str,
         args: Option<&InvokeArgs>,
         resolution_context: Option<&mut UriResolutionContext>,
+        env: Option<Env>
     ) -> Result<T, Error> {
-        let result = self.invoke(invoker, uri, method, args, resolution_context).await?;
+        let result = self.invoke(invoker, uri, method, args, env, resolution_context).await?;
 
         decode(result.as_slice()).map_err(|e| Error::WrapperError(e.to_string()))
     }
@@ -69,6 +71,7 @@ impl Wrapper for WasmWrapper {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
@@ -80,15 +83,21 @@ impl Wrapper for WasmWrapper {
             None => vec![],
         };
 
+        let env = match env {
+            Some(value) => polywrap_msgpack::encode(&value).map_err(|e| Error::MsgpackError(e.to_string()))?,
+            None => vec![],
+        };
+
         let params = &[
             Val::I32(method.to_string().len().try_into().unwrap()),
             Val::I32(args.len().try_into().unwrap()),
-            Val::I32(1),
+            Val::I32(env.len().try_into().unwrap()),
         ];
 
         let abort_uri = uri.clone();
         let abort_method = method.to_string();
         let abort_args = args.clone();
+        let abort_env = env.clone();
 
         let abort = Box::new(move |msg| {
             panic!(
@@ -96,17 +105,18 @@ impl Wrapper for WasmWrapper {
               URI: {uri}
               Method: {method}
               Args: {args:?}
+              Env: {env:?}
               Message: {message}.
             "#,
                 uri = abort_uri,
                 method = abort_method,
                 args = abort_args,
+                env = abort_env,
                 message = msg
             );
         });
 
-        let state = State::new(invoker, abort.clone(), method, args);
-
+        let state = State::new(invoker, abort.clone(), method, args, env);
         let mut wasm_instance = WasmInstance::new(&self.wasm_module, state).await.unwrap();
 
         let mut result: [Val; 1] = [Val::I32(0)];

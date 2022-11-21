@@ -3,7 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use polywrap_core::{
     invoke::{Invoker, InvokeArgs},
-    wrapper::{GetFileOptions, Wrapper}, uri::Uri, uri_resolution_context::UriResolutionContext,
+    wrapper::{GetFileOptions, Wrapper}, uri::Uri, uri_resolution_context::UriResolutionContext, env::Env,
 };
 use tokio::sync::Mutex;
 
@@ -27,8 +27,10 @@ impl Wrapper for PluginWrapper {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
+        env: Option<Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
+        // self.set_env(env);
         let args = match args {
             Some(args) => match args {
                 polywrap_core::invoke::InvokeArgs::Msgpack(value) => {
@@ -71,11 +73,8 @@ mod tests {
     use std::{collections::HashMap, sync::Arc};
 
     use polywrap_core::invoke::Invoker;
-    use polywrap_manifest::versions::WrapManifest;
-    use serde_json::json;
-    use tokio::sync::Mutex;
 
-    use crate::{package::PluginPackage, module::PluginModule};
+    use crate::{module::PluginModule};
 
     #[derive(serde::Serialize, serde::Deserialize)]
     struct GetMapArgs { }
@@ -89,12 +88,6 @@ mod tests {
     }
 
     impl MockMapPlugin {
-        pub fn new() -> Self {
-          Self {
-            map: HashMap::new()
-          }
-        }
-
         pub fn get_map(&self, _: GetMapArgs,
           _: Arc<dyn Invoker>,) -> &HashMap<String, u32> {
             &self.map

@@ -1,11 +1,10 @@
-use std::path::Path;
+use std::{path::Path};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}, wasm_runtime::instance::WasmModule};
 use polywrap_core::{
-    wrapper::Wrapper,
-    invoke::{Invoker,InvokeOptions,InvokeArgs},
+    invoke::{Invoker,InvokeArgs},
     uri::Uri,
     error::Error,
-    file_reader::{SimpleFileReader}
+    file_reader::{SimpleFileReader}, uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env
 };
 use polywrap_manifest::{
     deserialize::deserialize_wrap_manifest
@@ -14,7 +13,8 @@ use async_trait::async_trait;
 use polywrap_msgpack::msgpack;
 use std::sync::Arc;
 use std::fs;
-use polywrap_tests::helpers::get_tests_path;
+use polywrap_tests_utils::helpers::get_tests_path;
+use tokio::sync::Mutex;
 
 #[derive(Clone)]
 struct MockInvoker {
@@ -31,10 +31,21 @@ impl MockInvoker {
 impl Invoker for MockInvoker {
     async fn invoke_wrapper(
         &self,
-        options: &InvokeOptions,
-        mut wrapper: Box<dyn Wrapper>
+        wrapper: Arc<Mutex<dyn Wrapper>>,
+        uri: &Uri,
+        method: &str,
+        args: Option<&InvokeArgs>,
+        env: Option<Env>,
+        resolution_context: Option<&mut UriResolutionContext>
     ) -> Result<Vec<u8>, Error> {
-        let result = wrapper.invoke(options, Arc::new(self.clone())).await;
+        let result = wrapper.lock().await.invoke(
+            Arc::new(self.clone()),
+            uri,
+            method,
+            args,
+            env,
+            resolution_context
+        ).await;
 
         if result.is_err() {
             return Err(Error::InvokeError(format!(
@@ -47,17 +58,24 @@ impl Invoker for MockInvoker {
 
         Ok(result)    
     }
- 
-    async fn invoke(&self, options: &InvokeOptions) -> Result<Vec<u8>, Error> {
-        let invoke_opts = InvokeOptions {
-            uri: options.uri,
-            args: options.args,
-            method: options.method,
-            resolution_context: options.resolution_context,
-            env: None,
-        };
 
-        let invoke_result = self.invoke_wrapper(&invoke_opts, Box::new(self.wrapper.clone())).await;
+    async fn invoke(
+        &self,
+        uri: &Uri,
+        method: &str,
+        args: Option<&InvokeArgs>,
+        env: Option<Env>,
+        resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<Vec<u8>, Error> {
+        let invoke_result = self.invoke_wrapper(
+            Arc::new(Mutex::new(self.wrapper.clone())),
+            uri,
+            method,
+            args,
+            env,
+            resolution_context,
+        ).await;
+
         if invoke_result.is_err() {
             return Err(Error::InvokeError(format!(
                 "Failed to invoke wrapper: {}",
@@ -66,6 +84,10 @@ impl Invoker for MockInvoker {
         };
 
         Ok(invoke_result.unwrap())
+    }
+
+    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+        Ok(vec![])
     }
 }
 
@@ -84,17 +106,16 @@ async fn invoke_test() {
     let file_reader = SimpleFileReader::new();
     let wrapper = WasmWrapper::new(module, Arc::new(file_reader), manifest);
     let args = InvokeArgs::Msgpack(msgpack!({ "a": 1, "b": 1}));
-    
-    let invoke_opts = InvokeOptions {
-        args: Some(&args),
-        env: None,
-        resolution_context: None,
-        method: "add",
-        uri: &Uri::from_string("fs/tests/cases/simple-invoke").unwrap()
-    };
-    
+
     let mock_invoker = MockInvoker::new(wrapper);
-    let result = mock_invoker.invoke(&invoke_opts).await.unwrap();
+    let result = mock_invoker.invoke(
+        &Uri::from_string("fs/tests/cases/simple-invoke").unwrap(),
+        "add",
+        Some(&args), 
+        None,
+        None
+    ).await.unwrap();
+
     assert_eq!(result, [2])
 }
 

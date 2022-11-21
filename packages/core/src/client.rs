@@ -1,7 +1,9 @@
 use crate::invoke::Invoker;
 use crate::loader::Loader;
 use crate::uri::Uri;
+use crate::interface_implementation::InterfaceImplementations;
 use crate::uri_resolver::{UriResolver, UriResolverHandler};
+use crate::env::{Envs,Env};
 use async_trait::async_trait;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -20,10 +22,14 @@ impl UriRedirect {
 pub struct ClientConfig {
   pub redirects: Vec<UriRedirect>,
   pub resolver: Arc<Mutex<dyn UriResolver>>,
+  pub envs: Option<Envs>,
+  pub interfaces: Option<InterfaceImplementations>
 }
 
 #[async_trait(?Send)]
 pub trait Client: Send + Sync + Invoker + UriResolverHandler + Loader {
   fn get_config(&self) -> &ClientConfig;
   fn get_redirects(&self) -> &Vec<UriRedirect>;
+  fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env>;
+  fn get_interfaces(&self) -> Option<&InterfaceImplementations>;
 }
