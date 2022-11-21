@@ -18,7 +18,6 @@ pub struct BuilderConfig {
 
 pub trait ClientBuilder {
     fn add(&mut self, config: BuilderConfig) -> &mut Self;
-    fn add_resolver(&mut self, resolver: UriResolverLike) -> &mut Self;
     fn add_env(&mut self, uri: Uri, env: Env) -> &mut Self;
     fn add_envs(&mut self, env: Envs) -> &mut Self;
     fn remove_env(&mut self, uri: Uri) -> &mut Self;
@@ -39,12 +38,15 @@ pub trait ClientBuilder {
         implementation_uri: Uri
     ) -> &mut Self;
     fn add_wrapper(&mut self, wrapper: UriWrapper) -> &mut Self;
+    fn add_wrappers(&mut self, wrappers: Vec<UriWrapper>) -> &mut Self;
     fn remove_wrapper(&mut self, uri: Uri) -> &mut Self;
     fn add_package(&mut self, package: UriPackage) -> &mut Self;
     fn add_packages(&mut self, packages: Vec<UriPackage>) -> &mut Self;
     fn remove_package(&mut self, uri: Uri) -> &mut Self;
     fn add_redirect(&mut self, from: Uri, to: Uri) -> &mut Self;
+    fn add_redirects(&mut self, redirects: Vec<UriRedirect>) -> &mut Self;
     fn remove_redirect(&mut self, from: Uri) -> &mut Self;
+    fn add_resolver(&mut self, resolver: UriResolverLike) -> &mut Self;
     fn add_resolvers(&mut self, resolver: Vec<UriResolverLike>) -> &mut Self;
 }
 

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use polywrap_client_builder::types::{BuilderConfig, ClientBuilder};
-use polywrap_core::uri::Uri;
+use polywrap_client_builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler};
+use polywrap_core::{uri::Uri, client::UriRedirect};
 use serde_json::json;
 
 #[test]
@@ -79,3 +79,53 @@ fn test_interface_implementation_methods() {
     ]);
 
 }
+
+#[test]
+fn test_redirects() {
+    let mut builder = BuilderConfig::new(None);
+    assert_eq!(builder.redirects.is_some(), false);
+
+    let redirects = vec![
+        UriRedirect{
+            from: Uri::from_string("ens/c.eth").unwrap(), 
+            to: Uri::from_string("ens/d.eth").unwrap()
+        },
+        UriRedirect{
+            from: Uri::from_string("ens/f.eth").unwrap(), 
+            to: Uri::from_string("ens/g.eth").unwrap()
+        },
+    ];
+    builder.add_redirects(redirects);
+
+    assert_eq!(builder.redirects.is_some(), true);
+    let builder_redirects = builder.redirects.unwrap();
+    assert_eq!(builder_redirects[0].from, Uri::from_string("ens/c.eth").unwrap());
+    assert_eq!(builder_redirects[0].to, Uri::from_string("ens/d.eth").unwrap());
+    assert_eq!(builder_redirects[1].from, Uri::from_string("ens/f.eth").unwrap());
+    assert_eq!(builder_redirects[1].to, Uri::from_string("ens/g.eth").unwrap());
+
+    let mut builder = BuilderConfig::new(None);
+    assert_eq!(builder.redirects.is_some(), false);
+
+    builder.add_redirect(Uri::from_string("ens/a.eth").unwrap(), Uri::from_string("ens/b.eth").unwrap());
+    assert_eq!(builder.redirects.is_some(), true);
+
+    builder.remove_redirect(Uri::from_string("ens/a.eth").unwrap());
+    assert_eq!(builder.redirects.is_some(), false);
+}
+
+#[test]
+fn test_resolvers() {
+
+}
+
+#[test]
+fn test_wrappers() {
+
+}
+
+#[test]
+fn test_packages() {
+
+}
+

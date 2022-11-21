@@ -29,11 +29,22 @@ impl BuilderConfig {
 
 impl ClientBuilder for BuilderConfig {
     fn add(&mut self, config: BuilderConfig) -> &mut Self {
-        self
-    }
+        if let Some(e) = config.envs {
+            self.add_envs(e);
+        };
 
+        if let Some(i) = config.interfaces {
+            for (interface, implementation_uris) in i.into_iter() {
+                let interface_uri =Uri::from_string(
+                    interface.as_str()
+                ).unwrap(); 
+                self.add_interface_implementations(
+                    interface_uri, 
+                    implementation_uris
+                );
+            }
+        };
 
-    fn add_resolver(&mut self, resolver: UriResolverLike) -> &mut Self {
         self
     }
 
@@ -165,6 +176,13 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
+    fn add_wrappers(&mut self, wrappers: Vec<UriWrapper>) -> &mut Self {
+        for wrapper in wrappers.into_iter() {
+            self.add_wrapper(wrapper);
+        }
+        self
+    }
+
     fn remove_wrapper(&mut self, uri: Uri) -> &mut Self {
         if let Some(wrappers) = self.wrappers.as_mut() {
             if let Some(index) = wrappers.iter().position(|wrapper| wrapper.uri == uri) {
@@ -207,14 +225,58 @@ impl ClientBuilder for BuilderConfig {
 
 
     fn add_redirect(&mut self, from: Uri, to: Uri) -> &mut Self {
+        let redirect = UriRedirect { from: from.clone(), to };
+        match self.redirects.as_mut() {
+            Some(redirects) => {
+                if !redirects.iter().any(|u| u.from == from) {
+                    redirects.push(redirect);
+                }
+            },
+            None => {
+                self.redirects = Some(vec![redirect]);
+            }
+        }
+
+        self
+    }
+
+    fn add_redirects(&mut self, redirects: Vec<UriRedirect>) -> &mut Self {
+        for UriRedirect { from, to } in redirects.into_iter() {
+            self.add_redirect(from, to);
+        }
         self
     }
 
     fn remove_redirect(&mut self, from: Uri) -> &mut Self {
+        if let Some(redirects) = self.redirects.as_mut() {
+            if let Some(i) = redirects.iter().position(|u| u.from == from) {
+                redirects.remove(i);
+                if redirects.len() == 0 {
+                    self.redirects = None;
+                }
+            };
+        };
+
         self
     }
 
-    fn add_resolvers(&mut self, resolver: Vec<UriResolverLike>) -> &mut Self {
+    fn add_resolver(&mut self, resolver: UriResolverLike) -> &mut Self {
+        match self.resolvers.as_mut() {
+            Some(resolvers) => {
+                resolvers.push(resolver);
+            },
+            None => {
+                self.resolvers = Some(vec![resolver]);
+            }
+        };
+
+        self
+    }
+
+    fn add_resolvers(&mut self, resolvers: Vec<UriResolverLike>) -> &mut Self {
+        for resolver in resolvers.into_iter() {
+            self.add_resolver(resolver);
+        }
         self
     }
 }
