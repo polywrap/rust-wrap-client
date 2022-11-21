@@ -11,12 +11,12 @@ use crate::{module::PluginModule, wrapper::PluginWrapper};
 
 pub struct PluginPackage {
     manifest: WrapManifest,
-    plugin_module: Arc<Mutex<dyn PluginModule>>,
+    plugin_module: Arc<Mutex<Box<dyn PluginModule>>>,
 }
 
 impl PluginPackage {
     pub fn new(
-        plugin_module: Arc<Mutex<dyn PluginModule>>,
+        plugin_module: Arc<Mutex<Box<dyn PluginModule>>>,
         manifest: WrapManifest
     ) -> Self {
         Self {

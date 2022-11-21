@@ -2,7 +2,9 @@ use std::sync::Arc;
 
 use mapping::parse_response;
 use polywrap_core::invoke::Invoker;
-use wrap::module::Module;
+use polywrap_plugin::{module::PluginModule, package::PluginPackage, wrapper::PluginWrapper};
+use tokio::sync::Mutex;
+use wrap::{module::Module, wrap_info::get_manifest};
 pub mod mapping;
 pub mod wrap;
 
@@ -38,4 +40,4 @@ impl Module for HttpPlugin {
     }
 }
 
-impl_plugin_module!(HttpPlugin);
+impl_traits!(HttpPlugin);
