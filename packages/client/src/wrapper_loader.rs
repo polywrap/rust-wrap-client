@@ -7,17 +7,17 @@ use polywrap_core::{
     uri::Uri,
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     uri_resolver::{UriResolver, UriResolverHandler},
-    wrapper::Wrapper, interface_implementation::{InterfaceImplementations},
+    wrapper::Wrapper,
 };
 use tokio::sync::Mutex;
 
 #[derive(Clone)]
 pub struct WrapperLoader {
-    uri_resolver: Arc<Mutex<dyn UriResolver>>,
+    uri_resolver: Arc<Mutex<Box<dyn UriResolver>>>,
 }
 
 impl WrapperLoader {
-    pub fn new(uri_resolver: Arc<Mutex<dyn UriResolver>>) -> Self {
+    pub fn new(uri_resolver: Arc<Mutex<Box<dyn UriResolver>>>) -> Self {
         Self { uri_resolver }
     }
 }

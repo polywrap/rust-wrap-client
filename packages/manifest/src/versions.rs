@@ -47,3 +47,4 @@ impl AnyManifest {
 }
 
 pub type WrapManifest = WrapManifest01;
+pub type WrapManifestAbi = WrapManifest01Abi;

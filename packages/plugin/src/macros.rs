@@ -1,7 +1,7 @@
 #[macro_export]
-macro_rules! impl_plugin_module {
+macro_rules! impl_plugin_traits {
   ($plugin_type:ty, $(($method_name:ident, $args_type:ty)),* $(,)?) => {
-    impl PluginModule for $plugin_type {
+    impl $crate::module::PluginModule for $plugin_type {
       fn _wrap_invoke(
           &mut self,
           method_name: &str,
@@ -21,6 +21,21 @@ macro_rules! impl_plugin_module {
               }),*
               _ => panic!("Method not found"),
           }
+      }
+  }
+
+  impl Into<PluginPackage> for $plugin_type {
+    fn into(self) -> PluginPackage {
+        let manifest = get_manifest();
+        let plugin_module = Arc::new(Mutex::new(Box::new(self) as Box<dyn PluginModule>));
+        PluginPackage::new(plugin_module, manifest)
+    }
+  }
+
+  impl Into<PluginWrapper> for $plugin_type {
+      fn into(self) -> PluginWrapper {
+        let plugin_module = Arc::new(Mutex::new(Box::new(self) as Box<dyn PluginModule>));
+        PluginWrapper::new(plugin_module)
       }
   }
   };
