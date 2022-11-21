@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use polywrap_client_builder::config_builder::BuilderConfig;
+use polywrap_client_builder::types::{BuilderConfig, ClientBuilder};
 use polywrap_core::uri::Uri;
 use serde_json::json;
 
