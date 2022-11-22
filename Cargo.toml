@@ -7,10 +7,10 @@ members = [
     "packages/resolvers",
     "packages/msgpack",
     "packages/manifest",
+    "packages/builder",
     "packages/plugin",
     "packages/plugins/http",
     "packages/plugins/http-resolver",
     "packages/plugins/fs",
-    "packages/plugins/fs-resolver",
-    "packages/builder"
+    "packages/plugins/fs-resolver"
 ]
