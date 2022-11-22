@@ -9,9 +9,8 @@ use polywrap_msgpack::{decode, msgpack, Deserialize};
 
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_resolvers::{
-    base::BaseResolver,
-    filesystem::FilesystemResolver,
-    static_::static_resolver::{StaticResolver, StaticResolverLike},
+    legacy::{base::BaseResolver,filesystem::FilesystemResolver},
+    static_resolver::{StaticResolver, StaticResolverLike},
 };
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::{sync::Arc, collections::HashMap};

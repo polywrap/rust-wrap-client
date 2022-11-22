@@ -1,4 +1,5 @@
-pub mod filesystem;
-pub mod redirects;
-pub mod base;
-pub mod static_;
+pub mod resolver_with_history;
+pub mod legacy;
+pub mod static_resolver;
+pub mod uri_resolver_wrapper;
+pub mod helpers;

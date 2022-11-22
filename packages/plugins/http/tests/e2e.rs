@@ -8,7 +8,7 @@ use polywrap_core::{
     uri_resolution_context::{UriPackage}, client::ClientConfig,
 };
 use polywrap_plugin::package::PluginPackage;
-use polywrap_resolvers::static_::static_resolver::{StaticResolver, StaticResolverLike};
+use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use serde_json::json;
 use tokio::sync::Mutex;
 

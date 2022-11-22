@@ -5,7 +5,7 @@ use polywrap_core::{
     uri::Uri, 
     client::{UriRedirect, ClientConfig}
 };
-use polywrap_resolvers::static_::static_resolver::UriResolverLike;
+use polywrap_resolvers::static_resolver::UriResolverLike;
 
 pub struct BuilderConfig {
     pub interfaces: Option<InterfaceImplementations>,

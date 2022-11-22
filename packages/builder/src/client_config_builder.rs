@@ -6,7 +6,7 @@ use polywrap_core::{
     uri_resolution_context::{UriWrapper, UriPackage}, 
     uri::Uri
 };
-use polywrap_resolvers::static_::static_resolver::UriResolverLike;
+use polywrap_resolvers::static_resolver::UriResolverLike;
 
 use crate::{helpers::merge, types::{BuilderConfig, ClientBuilder, ClientConfigHandler}};
 

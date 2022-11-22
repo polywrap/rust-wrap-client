@@ -8,7 +8,8 @@ use polywrap_msgpack::msgpack;
 
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_resolvers::{
-    base::BaseResolver, filesystem::FilesystemResolver, static_::static_resolver::StaticResolver,
+    legacy::{base::BaseResolver,filesystem::FilesystemResolver},
+    static_resolver::{StaticResolver},
 };
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::{collections::HashMap, sync::Arc};
