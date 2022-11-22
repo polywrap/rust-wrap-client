@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use polywrap_core::{
-    client::{Client, UriRedirect},
+    client::{Client, UriRedirect, ClientConfig},
     error::Error,
     invoke::{Invoker, InvokeArgs},
     loader::Loader,
@@ -19,36 +19,27 @@ use crate::{wrapper_invoker::WrapperInvoker, wrapper_loader::WrapperLoader};
 
 #[derive(Clone)]
 pub struct PolywrapClient {
-    redirects: Vec<UriRedirect>,
-    envs: Option<Envs>,
     loader: WrapperLoader,
-    interfaces: Option<InterfaceImplementations>,
     invoker: WrapperInvoker,
+    envs: Option<Envs>,
+    interfaces: Option<InterfaceImplementations>
 }
 
 impl PolywrapClient {
-    pub fn new(resolver: Box<dyn UriResolver>, interfaces: Option<InterfaceImplementations>) -> Self {
-      let resolver = Arc::new(Mutex::new(resolver as Box<dyn UriResolver>));
-      let loader = WrapperLoader::new(resolver.clone());
-      let invoker = WrapperInvoker::new(loader.clone(), interfaces.clone());
+    pub fn new(config: ClientConfig) -> Self {
+      let resolver = config.resolver;
+      let loader = WrapperLoader::new(resolver);
+      let invoker = WrapperInvoker::new(
+        loader.clone(),
+        config.interfaces.clone(),
+    );
 
       Self {
         invoker,
         loader,
-        redirects: vec![],
-        envs: None,
-        interfaces,
+        interfaces: config.interfaces.clone(),
+        envs: config.envs.clone()
       }
-    }
-
-    pub fn environment<'a>(&'a mut self, envs: Envs) -> Self {
-      self.envs = Some(envs);
-      self.clone()
-    }
-
-    pub fn redirects<'a>(&'a mut self, redirects: Vec<UriRedirect>) -> Self {
-      self.redirects = redirects;
-      self.clone()
     }
 
     pub async fn invoke_wrapper_and_decode<T: DeserializeOwned>(
@@ -123,8 +114,8 @@ impl Invoker for PolywrapClient {
 
 #[async_trait(?Send)]
 impl Client for PolywrapClient {
-    fn get_redirects(&self) -> &Vec<UriRedirect> {
-        &self.redirects
+    fn get_config(&self) -> &ClientConfig {
+        todo!()
     }
 
     fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {

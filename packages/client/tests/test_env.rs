@@ -1,6 +1,6 @@
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{
-    client::UriRedirect,
+    client::{UriRedirect, ClientConfig},
     env::Envs,
     invoke::{InvokeArgs, Invoker},
     uri::Uri,
@@ -14,7 +14,9 @@ use polywrap_resolvers::{
     static_::static_resolver::{StaticResolver, StaticResolverLike},
 };
 use polywrap_tests_utils::helpers::get_tests_path;
-use std::{collections::HashMap, sync::Arc};
+use std::{sync::Arc, collections::HashMap};
+use tokio::sync::Mutex;
+use serde_json::json;
 
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug, PartialEq)]
@@ -46,13 +48,13 @@ async fn test_env() {
             .unwrap();
 
     let mut envs: Envs = HashMap::new();
-    let external_env = msgpack!({
+    let external_env = json!({
         "externalArray": [1, 2, 3],
         "externalString": "iamexternal"
     });
     envs.insert(as_env_external_wrapper_path.clone().uri, external_env);
 
-    let response = msgpack!({
+    let response = json!({
         "object": {
             "prop": "object string",
         },
@@ -76,15 +78,14 @@ async fn test_env() {
     let static_resolver = StaticResolver::from(vec![redirects_static_like]);
 
     let file_reader = SimpleFileReader::new();
-    let client = PolywrapClient::new(
-        Box::new(BaseResolver::new(
+    let client = PolywrapClient::new(ClientConfig {
+        resolver: Arc::new(Mutex::new(Box::new(BaseResolver::new(
             Box::new(FilesystemResolver::new(Arc::new(file_reader))),
             Box::new(static_resolver),
-        )),
-        None,
-    )
-    .environment(envs);
-
+        )))),
+        envs: Some(envs),
+        interfaces: None
+    });
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"arg": "test"}));
 
     let invoke_result: Vec<u8> = client

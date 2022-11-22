@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
+pub use rmpv;
 pub use rmpv::{encode::write_value, Value};
 pub use rmp_serde::{Serializer};
 pub use serde::{Serialize, de::DeserializeOwned, Deserialize};
 
-pub fn encode(value: &Value) -> Result<Vec<u8>, rmp_serde::encode::Error> {
+pub fn encode(value: &rmpv::Value) -> Result<Vec<u8>, rmp_serde::encode::Error> {
     let mut buf = Vec::new();
     write_value(&mut buf, value)?;
     Ok(buf)

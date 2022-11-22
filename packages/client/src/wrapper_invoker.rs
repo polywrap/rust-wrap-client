@@ -20,7 +20,10 @@ pub struct WrapperInvoker {
 }
 
 impl WrapperInvoker {
-    pub fn new(loader: WrapperLoader, interfaces: Option<InterfaceImplementations>) -> Self {
+    pub fn new(
+        loader: WrapperLoader, 
+        interfaces: Option<InterfaceImplementations>
+    ) -> Self {
         Self { loader, interfaces }
     }
 }
