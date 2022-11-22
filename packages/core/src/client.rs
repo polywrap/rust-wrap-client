@@ -1,11 +1,12 @@
+use std::sync::Arc;
+
 use crate::invoke::Invoker;
 use crate::loader::Loader;
 use crate::uri::Uri;
 use crate::interface_implementation::InterfaceImplementations;
-use crate::uri_resolver::{UriResolver, UriResolverHandler};
-use crate::env::{Envs,Env};
+use crate::uri_resolver::{UriResolverHandler, UriResolver};
+use crate::env::{Env, Envs};
 use async_trait::async_trait;
-use std::sync::Arc;
 use tokio::sync::Mutex;
 
 #[derive(Clone,Debug)]
@@ -21,7 +22,7 @@ impl UriRedirect {
 }
 
 pub struct ClientConfig {
-  pub resolver: Arc<Mutex<dyn UriResolver>>,
+  pub resolver: Arc<Mutex<Box<dyn UriResolver>>>,
   pub envs: Option<Envs>,
   pub interfaces: Option<InterfaceImplementations>
 }

@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use polywrap_core::{
-    client::{Client, ClientConfig, UriRedirect},
+    client::{Client, UriRedirect, ClientConfig},
     error::Error,
     invoke::{Invoker, InvokeArgs},
     loader::Loader,
     uri::Uri,
     uri_resolution_context::UriResolutionContext,
-    uri_resolver::{UriResolverHandler},
-    wrapper::Wrapper, env::Env,
+    uri_resolver::{UriResolverHandler, UriResolver},
+    wrapper::Wrapper, env::{Env, Envs},
     interface_implementation::InterfaceImplementations
 };
 use polywrap_msgpack::{decode, DeserializeOwned};
@@ -17,22 +17,29 @@ use tokio::sync::Mutex;
 
 use crate::{wrapper_invoker::WrapperInvoker, wrapper_loader::WrapperLoader};
 
+#[derive(Clone)]
 pub struct PolywrapClient {
-    config: ClientConfig,
     loader: WrapperLoader,
     invoker: WrapperInvoker,
+    envs: Option<Envs>,
+    interfaces: Option<InterfaceImplementations>
 }
 
 impl PolywrapClient {
     pub fn new(config: ClientConfig) -> Self {
-        let loader = WrapperLoader::new(config.resolver.clone());
-        let invoker = WrapperInvoker::new(loader.clone(), config.interfaces.clone());
+      let resolver = config.resolver;
+      let loader = WrapperLoader::new(resolver);
+      let invoker = WrapperInvoker::new(
+        loader.clone(),
+        config.interfaces.clone(),
+    );
 
-        Self {
-            config,
-            invoker,
-            loader,
-        }
+      Self {
+        invoker,
+        loader,
+        interfaces: config.interfaces.clone(),
+        envs: config.envs.clone()
+      }
     }
 
     pub async fn invoke_wrapper_and_decode<T: DeserializeOwned>(
@@ -108,11 +115,11 @@ impl Invoker for PolywrapClient {
 #[async_trait(?Send)]
 impl Client for PolywrapClient {
     fn get_config(&self) -> &ClientConfig {
-        &self.config
+        todo!()
     }
 
     fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
-        if let Some(envs) = &self.config.envs {
+        if let Some(envs) = &self.envs {
             return envs.get(&uri.uri);
         }
 
@@ -120,28 +127,12 @@ impl Client for PolywrapClient {
     }
 
     fn get_interfaces(&self) -> Option<&InterfaceImplementations> {
-        if let Some(interfaces) = &self.config.interfaces {
+        if let Some(interfaces) = &self.interfaces {
             return Some(interfaces);
         }
 
         None
     }
-    // async fn get_file(&self, uri: &Uri, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
-    //     let load = self.load_wrapper(uri, Option::None).await;
-
-    //     match load {
-    //         Ok(wrapper) => {
-    //             let result = wrapper.get_file(options);
-    //             return result;
-    //         }
-    //         Err(err) => {
-    //             return Err(Error::GetFileError(format!(
-    //                 "Failed to load wrapper: {}",
-    //                 err
-    //             )));
-    //         }
-    //     }
-    // }
 }
 
 #[async_trait]

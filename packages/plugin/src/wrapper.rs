@@ -10,11 +10,11 @@ use tokio::sync::Mutex;
 use crate::module::PluginModule;
 
 pub struct PluginWrapper {
-    instance: Arc<Mutex<dyn (PluginModule)>>,
+    instance: Arc<Mutex<Box<dyn (PluginModule)>>>,
 }
 
 impl PluginWrapper {
-    pub fn new(instance: Arc<Mutex<dyn (PluginModule)>>) -> Self {
+    pub fn new(instance: Arc<Mutex<Box<dyn (PluginModule)>>>) -> Self {
         Self { instance }
     }
 }
@@ -27,7 +27,7 @@ impl Wrapper for PluginWrapper {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
-        env: Option<Env>,
+        _: Option<Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         // self.set_env(env);
