@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use mapping::parse_response;
 use polywrap_core::invoke::Invoker;
 use polywrap_plugin::{module::PluginModule, package::PluginPackage, wrapper::PluginWrapper};
@@ -10,8 +11,9 @@ pub mod wrap;
 
 pub struct HttpPlugin {}
 
+#[async_trait]
 impl Module for HttpPlugin {
-    fn get(
+    async fn get(
         &mut self,
         args: &wrap::module::ArgsGet,
         _: Arc<dyn Invoker>,
@@ -25,7 +27,7 @@ impl Module for HttpPlugin {
         Ok(Some(parsed_response))
     }
 
-    fn post(
+    async fn post(
         &mut self,
         args: &wrap::module::ArgsPost,
         _: Arc<dyn Invoker>,

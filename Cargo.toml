@@ -8,5 +8,6 @@ members = [
     "packages/msgpack",
     "packages/manifest",
     "packages/plugin",
-    "packages/plugins/http"
+    "packages/plugins/http",
+    "packages/plugins/http-resolver"
 ]

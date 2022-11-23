@@ -6,6 +6,7 @@ use polywrap_core::{error::Error, invoke::Invoker};
 use polywrap_plugin::module::PluginModule;
 use serde::{Serialize, Deserialize};
 use super::types::*;
+use async_trait::async_trait;
 pub use polywrap_plugin::impl_plugin_traits;
 
 #[macro_export]
@@ -31,8 +32,9 @@ pub struct ArgsPost {
     pub request: Option<Request>,
 }
 
+#[async_trait]
 pub trait Module: PluginModule {
-  fn get(&mut self, args: &ArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, Error>;
+  async fn get(&mut self, args: &ArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, Error>;
 
-  fn post(&mut self, args: &ArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, Error>;
+  async fn post(&mut self, args: &ArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, Error>;
 }

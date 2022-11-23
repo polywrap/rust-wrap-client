@@ -1,12 +1,20 @@
-/// NOTE: This is an auto-generated file.
-///       All modifications will be overwritten.
+#![allow(unused_imports)]
+#![allow(non_camel_case_types)]
+
+// NOTE: This is an auto-generated file.
+//       All modifications will be overwritten.
 use serde::{Serialize, Deserialize};
 use num_bigint::BigInt;
 use bigdecimal::BigDecimal as BigNumber;
 use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 
-// OBJECT
+// Env START //
+
+// Env END //
+
+// Objects START //
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Response {
     pub status: i32,
@@ -21,19 +29,30 @@ pub struct Request {
     pub response_type: ResponseType,
     pub body: Option<String>,
 }
+// Objects END //
 
-// ENV
+// Enums START //
 
-// ENUM
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub enum ResponseType {
     TEXT,
     BINARY,
     _MAX_
 }
+// Enums END //
 
-// Imported OBJECT
+// Imported objects START //
 
-// Imported ENV
+// Imported objects END //
 
-// Imported ENUM
+// Imported envs START //
+
+// Imported envs END //
+
+// Imported enums START //
+
+// Imported enums END //
+
+// Imported Modules START //
+
+// Imported Modules END //
