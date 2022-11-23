@@ -36,7 +36,7 @@ impl FileReader for UriResolverExtensionFileReader {
         }));
         let result = self.invoker.lock().await.invoke(
             &self.resolver_extension_uri,
-            "getFile",
+            "get_file",
             Some(&invoker_args),
             None,
             None

@@ -53,15 +53,15 @@ impl UriResolverWrapper {
       };
 
       let invoke_args = InvokeArgs::Msgpack(msgpack!({
-        "authority": uri.clone().authority,
-        "path": uri.clone().path,
+        "authority": uri.clone().authority.as_str(),
+        "path": uri.clone().path.as_str(),
       }));
 
       let invoker = loader.get_invoker()?;
       let result = invoker.lock().await.invoke_wrapper(
           wrapper, 
-          &uri.clone(), 
-          "tryResolveUri", 
+          &implementation_uri.clone(), 
+          "try_resolve_uri", 
           Some(&invoke_args), 
           env, 
           Some(resolution_context)
@@ -73,29 +73,25 @@ impl UriResolverWrapper {
   async fn load_extension(
     &self,
     current_uri: Uri,
-    resolver_extenion_uri: Uri,
+    resolver_extension_uri: Uri,
     loader: &dyn Loader,
     resolution_context: &mut UriResolutionContext
   ) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
 
     let result = loader.try_resolve_uri(
-      &current_uri,
+      &resolver_extension_uri,
       Some(resolution_context)
-    ).await;
+    ).await?;
 
-    if result.is_err() {
-      let error = format!("Failed to resolver wrapper: {}", current_uri.clone().uri);
-      return Err(Error::ResolutionError(error));
-    }
-
-    match result.unwrap() {
-        UriPackageOrWrapper::Uri(uri) => {
+    match result {
+      UriPackageOrWrapper::Uri(uri) => {
           let error = format!(
             "While resolving {} with URI resolver extension {}, the extension could not be fully resolved. Last tried URI is {}", 
             current_uri.clone().uri, 
-            resolver_extenion_uri.clone().uri,
+            resolver_extension_uri.clone().uri,
             uri.clone().uri
           );
+          dbg!(&error);
           return Err(Error::LoadWrapperError(error));
         },
         UriPackageOrWrapper::Package(_, package) => {
@@ -128,7 +124,6 @@ impl ResolverWithHistory for UriResolverWrapper {
         resolution_context
       ).await?;
 
-      
       let invoker = loader.get_invoker()?;
       let file_reader = UriResolverExtensionFileReader::new(
         self.implementation_uri.clone(),

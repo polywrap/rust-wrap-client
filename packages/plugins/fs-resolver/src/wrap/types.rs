@@ -119,7 +119,7 @@ impl FileSystemModule {
         let args = Some(&serialized_args);
         let result = invoker.invoke(
             &Uri::try_from(uri).unwrap(),
-            "readFile",
+            "read_file",
             args,
             None,
             None

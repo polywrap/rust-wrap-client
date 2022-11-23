@@ -11,6 +11,5 @@ pathdiff = "0.2.1"
 polywrap_core = {path = "../core"}
 polywrap_wasm = {path = "../wasm"}
 polywrap_msgpack = {path = "../msgpack"}
-polywrap_tests_utils = {path = "../tests-utils"}
 tokio = { version = "1", features = ["full"] }
 serde = "1.0.145"

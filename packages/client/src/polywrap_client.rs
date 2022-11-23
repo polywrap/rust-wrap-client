@@ -19,7 +19,7 @@ use crate::{wrapper_invoker::WrapperInvoker, wrapper_loader::WrapperLoader};
 
 #[derive(Clone)]
 pub struct PolywrapClient {
-    loader: WrapperLoader,
+    pub loader: WrapperLoader,
     invoker: WrapperInvoker
 }
 

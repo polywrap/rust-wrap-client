@@ -20,7 +20,6 @@ impl Module for FileSystemResolverPlugin {
         if args.authority != "fs" && args.authority != "file" {
             return Ok(None);
         };
-
         let manifest_search_pattern = "wrap.info";
 
         let manifest_path = Path::new(&args.path).join(Path::new(manifest_search_pattern)).canonicalize().unwrap();
@@ -28,7 +27,7 @@ impl Module for FileSystemResolverPlugin {
           &FileSystem_Module_ArgsExists {
             path: manifest_path.to_str().unwrap().to_string()
           }, invoker.clone()).await;
-
+          
         let manifest = if let Ok(_) = manifest_exists_result {
           let manifest_result = FileSystemModule::read_file(
             &FileSystem_Module_ArgsReadFile {
