@@ -1,5 +1,5 @@
 [package]
-name = "http_resolver_plugin"
+name = "filesystem_plugin"
 version = "0.1.0"
 edition = "2021"
 
@@ -16,4 +16,8 @@ ureq = "2.3.0"
 num-bigint = "0.4.3"
 bigdecimal = "0.3.0"
 tokio = "1.22.0"
-base64 = "0.13.0"
+rm_rf = "0.6.2"
+
+[dev-dependencies]
+polywrap_resolvers = {path = "../../resolvers"}
+polywrap_client = {path = "../../client"}
