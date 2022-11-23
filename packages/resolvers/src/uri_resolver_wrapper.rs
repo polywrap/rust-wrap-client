@@ -122,18 +122,20 @@ impl ResolverWithHistory for UriResolverWrapper {
     ) ->  Result<UriPackageOrWrapper, Error> {
       let result = self.try_resolve_uri_with_implementation(
         uri.clone(), 
-        self.implementation_uri, 
+        self.implementation_uri.clone(), 
         loader, 
         resolution_context
       ).await?;
+
+      if let Some(manifest) = result.manifest {
+          
+      }
 
       if let Some(uri) = result.uri {
 
       }
 
-      if let Some(manifest) = result.manifest {
-        
-      }
+      Ok(UriPackageOrWrapper::Uri(uri.clone()))
     }
 
     fn get_step_description(&self, uri: &Uri) -> String {
