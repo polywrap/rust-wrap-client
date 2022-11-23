@@ -9,5 +9,8 @@ members = [
     "packages/manifest",
     "packages/plugin",
     "packages/plugins/http",
+    "packages/plugins/http-resolver",
+    "packages/plugins/fs",
+    "packages/plugins/fs-resolver",
     "packages/builder"
 ]

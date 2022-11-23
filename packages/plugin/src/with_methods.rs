@@ -1,5 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
+use async_trait::async_trait;
+
 use crate::{method::PluginMethod, module::PluginModule};
 
 #[derive(Clone)]
@@ -20,8 +22,9 @@ impl PluginModuleWithMethods {
   }
 }
 
+#[async_trait]
 impl PluginModule for PluginModuleWithMethods {
-    fn _wrap_invoke(
+    async fn _wrap_invoke(
         &mut self,
         method_name: &str,
         params: &serde_json::Value,

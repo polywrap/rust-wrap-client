@@ -15,27 +15,26 @@ macro_rules! impl_traits {
         $crate::wrap::module::impl_plugin_traits!(
             $plugin_type,
             $crate::wrap::wrap_info::get_manifest(),
-            (get, $crate::wrap::module::ArgsGet),
-            (post, $crate::wrap::module::ArgsPost),
+            (try_resolve_uri, $crate::wrap::module::ArgsTryResolveUri),
+            (get_file, $crate::wrap::module::ArgsGetFile),
         );
     };
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ArgsGet {
-    pub url: String,
-    pub request: Option<Request>,
+pub struct ArgsTryResolveUri {
+    pub authority: String,
+    pub path: String,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ArgsPost {
-    pub url: String,
-    pub request: Option<Request>,
+pub struct ArgsGetFile {
+    pub path: String,
 }
 
 #[async_trait]
 pub trait Module: PluginModule {
-  async fn get(&mut self, args: &ArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, Error>;
+  async fn try_resolve_uri(&mut self, args: &ArgsTryResolveUri, invoker: Arc<dyn Invoker>) -> Result<Option<MaybeUriOrManifest>, Error>;
 
-  async fn post(&mut self, args: &ArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, Error>;
+  async fn get_file(&mut self, args: &ArgsGetFile, invoker: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, Error>;
 }

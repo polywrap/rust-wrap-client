@@ -11,6 +11,12 @@ pub fn encode(value: &rmpv::Value) -> Result<Vec<u8>, rmp_serde::encode::Error> 
     Ok(buf)
 }
 
+pub fn serialize<T: Serialize>(val: T) -> Result<Vec<u8>, rmp_serde::encode::Error> {
+  let mut buf = Vec::new();
+  val.serialize(&mut Serializer::new(&mut buf))?;
+  Ok(buf)
+}
+
 pub fn decode<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, rmp_serde::decode::Error> {
     rmp_serde::from_slice(bytes)
 }

@@ -15,28 +15,21 @@ use std::collections::BTreeMap as Map;
 
 // Objects START //
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Response {
-    pub status: i32,
-    pub status_text: String,
-    pub headers: Option<Map<String, String>>,
-    pub body: Option<String>,
-}
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Request {
-    pub headers: Option<Map<String, String>>,
-    pub url_params: Option<Map<String, String>>,
-    pub response_type: ResponseType,
-    pub body: Option<String>,
-}
 // Objects END //
 
 // Enums START //
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
-pub enum ResponseType {
-    TEXT,
+pub enum Encoding {
+    ASCII,
+    UTF8,
+    UTF16LE,
+    UCS2,
+    BASE64,
+    BASE64URL,
+    LATIN1,
     BINARY,
+    HEX,
     _MAX_
 }
 // Enums END //
