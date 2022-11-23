@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use polywrap_core::{
-    client::{Client, UriRedirect, ClientConfig},
+    client::{Client, ClientConfig},
     error::Error,
     invoke::{Invoker, InvokeArgs},
     loader::Loader,
     uri::Uri,
     uri_resolution_context::UriResolutionContext,
-    uri_resolver::{UriResolverHandler, UriResolver},
-    wrapper::Wrapper, env::{Env, Envs},
+    uri_resolver::{UriResolverHandler},
+    wrapper::Wrapper, env::{Env},
     interface_implementation::InterfaceImplementations
 };
 use polywrap_msgpack::{decode, DeserializeOwned};
@@ -20,26 +20,25 @@ use crate::{wrapper_invoker::WrapperInvoker, wrapper_loader::WrapperLoader};
 #[derive(Clone)]
 pub struct PolywrapClient {
     loader: WrapperLoader,
-    invoker: WrapperInvoker,
-    envs: Option<Envs>,
-    interfaces: Option<InterfaceImplementations>
+    invoker: WrapperInvoker
 }
 
 impl PolywrapClient {
     pub fn new(config: ClientConfig) -> Self {
-      let resolver = config.resolver;
-      let loader = WrapperLoader::new(resolver);
-      let invoker = WrapperInvoker::new(
-        loader.clone(),
-        config.interfaces.clone(),
-    );
+        let resolver = config.resolver;
+        let loader = WrapperLoader::new(
+            resolver, 
+            config.envs.clone()
+        );
+        let invoker = WrapperInvoker::new(
+            loader.clone(),
+            config.interfaces.clone()
+        );
 
-      Self {
-        invoker,
-        loader,
-        interfaces: config.interfaces.clone(),
-        envs: config.envs.clone()
-      }
+        Self {
+            invoker,
+            loader
+        }
     }
 
     pub async fn invoke_wrapper_and_decode<T: DeserializeOwned>(
@@ -85,7 +84,7 @@ impl Invoker for PolywrapClient {
         let env_uri = match env {
             Some(env) => Some(env),
             None => {
-                if let Some(env) = self.get_env_by_uri(uri) {
+                if let Some(env) = self.loader.get_env_by_uri(uri) {
                     Some(env.to_owned())
                 } else {
                     None
@@ -118,16 +117,8 @@ impl Client for PolywrapClient {
         todo!()
     }
 
-    fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
-        if let Some(envs) = &self.envs {
-            return envs.get(&uri.uri);
-        }
-
-        None
-    }
-
     fn get_interfaces(&self) -> Option<&InterfaceImplementations> {
-        if let Some(interfaces) = &self.interfaces {
+        if let Some(interfaces) = &self.invoker.interfaces {
             return Some(interfaces);
         }
 
@@ -154,5 +145,13 @@ impl Loader for PolywrapClient {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
         self.loader.load_wrapper(uri, resolution_context).await
+    }
+
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
+        self.loader.get_env_by_uri(uri)
+    }
+    
+    fn get_invoker(&self) -> Result<Arc<Mutex<dyn Invoker>>, Error>  {
+        self.loader.get_invoker()
     }
 }

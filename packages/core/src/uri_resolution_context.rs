@@ -1,7 +1,7 @@
 use tokio::sync::Mutex;
 
 use crate::{package::WrapPackage, wrapper::Wrapper, error::Error};
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, vec};
 
 use crate::{uri::Uri};
 
@@ -22,6 +22,7 @@ pub enum UriPackageOrWrapper {
   Package(Uri, Arc<Mutex<dyn WrapPackage>>),
 }
 
+#[derive(Clone)]
 pub struct UriResolutionStep {
     pub source_uri: Uri,
     pub result: Result<UriPackageOrWrapper, Error>,
@@ -84,5 +85,21 @@ impl UriResolutionContext {
             .iter()
             .map(|uri| Uri::new(uri))
             .collect()
+    }
+
+    pub fn create_sub_history_context(&self) -> UriResolutionContext {
+        UriResolutionContext {
+            resolving_uri_map: self.resolving_uri_map.clone(),
+            resolution_path: self.resolution_path.clone(),
+            history: vec![]
+        }
+    }
+
+    pub fn create_sub_context(&self) -> UriResolutionContext {
+        UriResolutionContext {
+            resolving_uri_map: self.resolving_uri_map.clone(),
+            resolution_path: vec![],
+            history: self.history.clone()
+        }
     }
 }

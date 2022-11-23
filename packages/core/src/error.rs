@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(thiserror::Error, Debug)]
+#[derive(thiserror::Error, Debug, Clone)]
 pub enum Error {
   #[error("Error parsing URI: `{0}`")]
   UriParseError(String),

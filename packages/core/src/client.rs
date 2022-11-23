@@ -5,7 +5,7 @@ use crate::loader::Loader;
 use crate::uri::Uri;
 use crate::interface_implementation::InterfaceImplementations;
 use crate::uri_resolver::{UriResolverHandler, UriResolver};
-use crate::env::{Env, Envs};
+use crate::env::{Envs};
 use async_trait::async_trait;
 use tokio::sync::Mutex;
 
@@ -30,6 +30,5 @@ pub struct ClientConfig {
 #[async_trait(?Send)]
 pub trait Client: Send + Sync + Invoker + UriResolverHandler + Loader {
   fn get_config(&self) -> &ClientConfig;
-  fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env>;
   fn get_interfaces(&self) -> Option<&InterfaceImplementations>;
 }

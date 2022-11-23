@@ -10,4 +10,5 @@ async-trait = "0.1.57"
 pathdiff = "0.2.1"
 polywrap_core = {path = "../core"}
 polywrap_wasm = {path = "../wasm"}
+polywrap_msgpack = {path = "../msgpack"}
 tokio = { version = "1", features = ["full"] }

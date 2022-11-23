@@ -15,8 +15,8 @@ use crate::wrapper_loader::WrapperLoader;
 
 #[derive(Clone)]
 pub struct WrapperInvoker {
-    loader: WrapperLoader,
-    interfaces: Option<InterfaceImplementations>
+    pub loader: WrapperLoader,
+    pub interfaces: Option<InterfaceImplementations>
 }
 
 impl WrapperInvoker {
@@ -62,7 +62,6 @@ impl Invoker for WrapperInvoker {
             None => &mut empty_res_context,
             Some(ctx) => ctx,
         };
-
         let uri = uri;
 
         let wrapper = self
@@ -70,6 +69,14 @@ impl Invoker for WrapperInvoker {
             .load_wrapper(uri, Some(&mut resolution_context))
             .await
             .map_err(|e| Error::LoadWrapperError(e.to_string()))?;
+
+        let mut env = env;
+        if env.is_none() {
+            if let Some(e) = self.loader.get_env_by_uri(&uri.clone()) {
+                let e = e.to_owned();
+                env = Some(e);
+            };
+        }
 
         let invoke_result = self
             .invoke_wrapper(wrapper, uri, method, args, env, Some(resolution_context))

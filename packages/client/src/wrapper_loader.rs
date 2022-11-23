@@ -7,18 +7,21 @@ use polywrap_core::{
     uri::Uri,
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     uri_resolver::{UriResolver, UriResolverHandler},
-    wrapper::Wrapper,
+    wrapper::Wrapper, env::{Envs, Env}, invoke::Invoker,
 };
 use tokio::sync::Mutex;
 
+use crate::wrapper_invoker::WrapperInvoker;
+
 #[derive(Clone)]
 pub struct WrapperLoader {
-    uri_resolver: Arc<Mutex<Box<dyn UriResolver>>>,
+    resolver: Arc<Mutex<Box<dyn UriResolver>>>,
+    pub envs: Option<Envs>
 }
 
 impl WrapperLoader {
-    pub fn new(uri_resolver: Arc<Mutex<Box<dyn UriResolver>>>) -> Self {
-        Self { uri_resolver }
+    pub fn new(resolver: Arc<Mutex<Box<dyn UriResolver>>>, envs: Option<Envs>) -> Self {
+        Self { resolver, envs }
     }
 }
 
@@ -29,7 +32,7 @@ impl UriResolverHandler for WrapperLoader {
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<UriPackageOrWrapper, Error> {
-        let uri_resolver = self.uri_resolver.clone();
+        let uri_resolver = self.resolver.clone();
         let mut uri_resolver_context = UriResolutionContext::new();
 
         let mut resolution_context = match resolution_context {
@@ -75,5 +78,20 @@ impl Loader for WrapperLoader {
                 Ok(wrapper)
             }
         }
+    }
+
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
+        if let Some(envs) = &self.envs {
+            return envs.get(&uri.uri);
+        }
+
+        None
+    }
+
+    fn get_invoker(&self) -> Result<Arc<Mutex<dyn Invoker>>, Error> {
+        Ok(Arc::new(Mutex::new(WrapperInvoker { 
+            loader: self.to_owned(),
+            interfaces: None
+        })))
     }
 }
