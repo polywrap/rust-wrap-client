@@ -1,8 +1,9 @@
 #[macro_export]
 macro_rules! impl_plugin_traits {
   ($plugin_type:ty, $(($method_name:ident, $args_type:ty)),* $(,)?) => {
+    #[$crate::async_trait]
     impl $crate::module::PluginModule for $plugin_type {
-      fn _wrap_invoke(
+      async fn _wrap_invoke(
           &mut self,
           method_name: &str,
           params: &serde_json::Value,
@@ -14,7 +15,7 @@ macro_rules! impl_plugin_traits {
                   &serde_json::from_value::<$args_type>(params.clone())
                       .map_err(|e| polywrap_core::error::Error::InvokeError(e.to_string()))?,
                   invoker,
-              )?;
+              ).await?;
 
               Ok(serde_json::to_value(result)
                   .map_err(|e| polywrap_core::error::Error::InvokeError(e.to_string()))?)

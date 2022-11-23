@@ -50,7 +50,7 @@ impl Wrapper for PluginWrapper {
                 .clone()
                 .lock()
                 .await
-                ._wrap_invoke(method, &json_args, invoker);
+                ._wrap_invoke(method, &json_args, invoker).await;
 
         match result {
             Ok(result) => Ok(rmp_serde::encode::to_vec(&result)
@@ -72,6 +72,7 @@ impl Wrapper for PluginWrapper {
 mod tests {
     use std::{collections::HashMap, sync::Arc};
 
+    use async_trait::async_trait;
     use polywrap_core::invoke::Invoker;
 
     use crate::{module::PluginModule};
@@ -113,8 +114,9 @@ mod tests {
         }
     }
 
+    #[async_trait]
     impl PluginModule for MockMapPlugin {
-        fn _wrap_invoke(
+        async fn _wrap_invoke(
             &mut self,
             method_name: &str,
             params: &serde_json::Value,
