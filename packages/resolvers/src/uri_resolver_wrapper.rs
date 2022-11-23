@@ -3,31 +3,39 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use polywrap_core::{
   uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-  invoke::{Invoker, InvokeArgs},
+  invoke::{InvokeArgs},
   uri::Uri,
   error::Error, 
   wrapper::Wrapper, loader::Loader, 
 };
-use polywrap_msgpack::msgpack;
+use polywrap_msgpack::{msgpack, decode};
+use serde::{Serialize,Deserialize};
 
 use crate::resolver_with_history::ResolverWithHistory;
 use tokio::sync::Mutex;
 
-pub struct UriResolverWrapper;
+pub struct UriResolverWrapper {
+  pub implementation_uri: Uri
+}
 
-enum UriOrManifest {
-  Uri(String),
-  Manifest(Vec<u8>)
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MaybeUriOrManifest {
+  pub uri: Option<String>,
+  pub manifest: Option<Vec<u8>>,
 }
 
 impl UriResolverWrapper {
+  fn new(implementation_uri: Uri) -> Self {
+    UriResolverWrapper { implementation_uri }
+  }
+
   async fn try_resolve_uri_with_implementation(
     &self,
     uri: Uri,
     implementation_uri: Uri,
     loader: &dyn Loader,
     resolution_context: &mut UriResolutionContext
-  ) -> Result<UriOrManifest, Error> {
+  ) -> Result<MaybeUriOrManifest, Error> {
       let mut sub_context = resolution_context.create_sub_context();
       let wrapper = self.load_extension(
         uri.clone(), 
@@ -56,9 +64,9 @@ impl UriResolverWrapper {
           Some(&invoke_args), 
           env, 
           Some(resolution_context)
-      ).await;
-
-      Ok(UriOrManifest::Uri("".to_string()))
+      ).await?;
+      decode::<MaybeUriOrManifest>(result.as_slice())
+        .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {}", e)))
   }
 
   async fn load_extension(
@@ -109,10 +117,23 @@ impl ResolverWithHistory for UriResolverWrapper {
     async fn _try_resolve_uri(
       &self, 
       uri: &Uri, 
-      client: &dyn Loader, 
+      loader: &dyn Loader, 
       resolution_context: &mut UriResolutionContext
     ) ->  Result<UriPackageOrWrapper, Error> {
-        todo!() 
+      let result = self.try_resolve_uri_with_implementation(
+        uri.clone(), 
+        self.implementation_uri, 
+        loader, 
+        resolution_context
+      ).await?;
+
+      if let Some(uri) = result.uri {
+
+      }
+
+      if let Some(manifest) = result.manifest {
+        
+      }
     }
 
     fn get_step_description(&self, uri: &Uri) -> String {

@@ -12,3 +12,4 @@ polywrap_core = {path = "../core"}
 polywrap_wasm = {path = "../wasm"}
 polywrap_msgpack = {path = "../msgpack"}
 tokio = { version = "1", features = ["full"] }
+serde = "1.0.145"
