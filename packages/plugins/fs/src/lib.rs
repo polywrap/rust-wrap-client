@@ -7,7 +7,6 @@ use wrap::{
         ArgsExists, ArgsMkdir, ArgsReadFile, ArgsReadFileAsString, ArgsRm, ArgsRmdir,
         ArgsWriteFile, Module,
     },
-    wrap_info::get_manifest,
 };
 pub mod wrap;
 
