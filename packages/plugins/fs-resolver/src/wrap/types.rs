@@ -125,8 +125,8 @@ impl FileSystemModule {
             None
         ).await.map_err(|e| e.to_string())?;
 
-        Ok(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap())
+        Ok(Some(decode(result.as_slice())
+            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
     }
 
     pub async fn read_file_as_string(args: &FileSystem_Module_ArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, String> {
@@ -141,8 +141,8 @@ impl FileSystemModule {
             None
         ).await.map_err(|e| e.to_string())?;
 
-        Ok(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap())
+        Ok(Some(decode(result.as_slice())
+            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
     }
 
     pub async fn exists(args: &FileSystem_Module_ArgsExists, invoker: Arc<dyn Invoker>) -> Result<bool, String> {
@@ -157,8 +157,8 @@ impl FileSystemModule {
             None
         ).await.map_err(|e| e.to_string())?;
 
-        Ok(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap())
+        Ok(Some(decode(result.as_slice())
+            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
     }
 
     pub async fn write_file(args: &FileSystem_Module_ArgsWriteFile, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {

@@ -14,6 +14,7 @@ macro_rules! impl_traits {
     ($plugin_type:ty) => {
         $crate::wrap::module::impl_plugin_traits!(
             $plugin_type,
+            $crate::wrap::wrap_info::get_manifest(),
             (read_file, $crate::wrap::module::ArgsReadFile),
             (read_file_as_string, $crate::wrap::module::ArgsReadFileAsString),
             (exists, $crate::wrap::module::ArgsExists),

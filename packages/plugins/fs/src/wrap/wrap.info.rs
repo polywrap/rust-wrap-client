@@ -5,7 +5,7 @@ use serde_json::{json, from_value};
 
 pub fn get_manifest() -> WrapManifest {
   WrapManifest {
-    name: "Http".to_string(),
+    name: "Fs".to_string(),
     type_: "plugin".to_string(),
     version: "0.1".to_string(),
     abi: from_value::<WrapManifestAbi>(json!({

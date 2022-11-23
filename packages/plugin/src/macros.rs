@@ -1,6 +1,6 @@
 #[macro_export]
 macro_rules! impl_plugin_traits {
-  ($plugin_type:ty, $(($method_name:ident, $args_type:ty)),* $(,)?) => {
+  ($plugin_type:ty, $manifest:expr, $(($method_name:ident, $args_type:ty)),* $(,)?) => {
     #[$crate::async_trait]
     impl $crate::module::PluginModule for $plugin_type {
       async fn _wrap_invoke(
@@ -25,18 +25,17 @@ macro_rules! impl_plugin_traits {
       }
   }
 
-  impl Into<PluginPackage> for $plugin_type {
-    fn into(self) -> PluginPackage {
-        let manifest = get_manifest();
-        let plugin_module = Arc::new(Mutex::new(Box::new(self) as Box<dyn PluginModule>));
-        PluginPackage::new(plugin_module, manifest)
+  impl Into<$crate::package::PluginPackage> for $plugin_type {
+    fn into(self) -> $crate::package::PluginPackage {
+        let plugin_module = Arc::new($crate::Mutex::new(Box::new(self) as Box<dyn $crate::module::PluginModule>));
+        $crate::package::PluginPackage::new(plugin_module, $manifest)
     }
   }
 
-  impl Into<PluginWrapper> for $plugin_type {
-      fn into(self) -> PluginWrapper {
-        let plugin_module = Arc::new(Mutex::new(Box::new(self) as Box<dyn PluginModule>));
-        PluginWrapper::new(plugin_module)
+  impl Into<$crate::wrapper::PluginWrapper> for $plugin_type {
+      fn into(self) -> $crate::wrapper::PluginWrapper {
+        let plugin_module = Arc::new($crate::Mutex::new(Box::new(self) as Box<dyn $crate::module::PluginModule>));
+        $crate::wrapper::PluginWrapper::new(plugin_module)
       }
   }
   };

@@ -27,9 +27,9 @@ impl Module for FileSystemResolverPlugin {
         let manifest_exists_result = FileSystemModule::exists(
           &FileSystem_Module_ArgsExists {
             path: manifest_path.to_str().unwrap().to_string()
-          }, invoker).await;
+          }, invoker.clone()).await;
 
-        let manifest = if let Ok(exists_result) = manifest_exists_result {
+        let manifest = if let Ok(_) = manifest_exists_result {
           let manifest_result = FileSystemModule::read_file(
             &FileSystem_Module_ArgsReadFile {
               path: manifest_path.to_str().unwrap().to_string()
@@ -56,7 +56,7 @@ impl Module for FileSystemResolverPlugin {
         invoker: Arc<dyn Invoker>,
     ) -> Result<Option<Vec<u8>>, Error> {
         let resolve_result = FileSystemModule::read_file(
-            &FileSystem_Module_ArgsReadFile { path: args.path },
+            &FileSystem_Module_ArgsReadFile { path: args.path.clone() },
             invoker,
         )
         .await;

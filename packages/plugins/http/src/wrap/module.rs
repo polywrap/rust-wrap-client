@@ -14,6 +14,7 @@ macro_rules! impl_traits {
     ($plugin_type:ty) => {
         $crate::wrap::module::impl_plugin_traits!(
             $plugin_type,
+            $crate::wrap::wrap_info::get_manifest(),
             (get, $crate::wrap::module::ArgsGet),
             (post, $crate::wrap::module::ArgsPost),
         );

@@ -70,7 +70,7 @@ impl Module for HttpResolverPlugin {
     ) -> Result<Option<Vec<u8>>, Error> {
         let resolve_result = HttpModule::get(
             &Http_Module_ArgsGet {
-                url: args.path,
+                url: args.path.clone(),
                 request: Some(HttpRequest {
                     response_type: wrap::types::HttpResponseType::BINARY,
                     headers: None,

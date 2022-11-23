@@ -3,9 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use mapping::parse_response;
 use polywrap_core::invoke::Invoker;
-use polywrap_plugin::{module::PluginModule, package::PluginPackage, wrapper::PluginWrapper};
-use tokio::sync::Mutex;
-use wrap::{module::Module, wrap_info::get_manifest};
+use wrap::{module::Module};
 pub mod mapping;
 pub mod wrap;
 
