@@ -63,7 +63,7 @@ impl Wrapper for PluginWrapper {
             }),
         }
     }
-    fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
+    async fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
         unimplemented!("client.get_file(...) is not implemented for Plugins.")
     }
 }

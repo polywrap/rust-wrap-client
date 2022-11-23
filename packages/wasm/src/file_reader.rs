@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
+use async_trait::async_trait;
 use polywrap_core::file_reader::FileReader;
 
 pub struct BaseFileReader {}
 
+#[async_trait]
 impl FileReader for BaseFileReader {
-    fn read_file(&self, file_path: &str) -> Result<Vec<u8>, polywrap_core::error::Error> {
+    async fn read_file(&self, file_path: &str) -> Result<Vec<u8>, polywrap_core::error::Error> {
         let contents = std::fs::read(file_path)
             .map_err(|e| polywrap_core::error::Error::WasmWrapperError(e.to_string()))?;
         Ok(contents)
@@ -32,14 +34,15 @@ impl InMemoryFileReader {
     }
 }
 
+#[async_trait]
 impl FileReader for InMemoryFileReader {
-    fn read_file(&self, file_path: &str) -> Result<Vec<u8>, polywrap_core::error::Error> {
+    async fn read_file(&self, file_path: &str) -> Result<Vec<u8>, polywrap_core::error::Error> {
         if file_path == "wrap.wasm" && self.wasm_module.is_some() {
             Ok(self.wasm_module.clone().unwrap())
         } else if file_path == "wrap.info" && self.wasm_manifest.is_some() {
             Ok(self.wasm_manifest.clone().unwrap())
         } else {
-            self.base_file_reader.read_file(file_path)
+            self.base_file_reader.read_file(file_path).await
         }
     }
 }

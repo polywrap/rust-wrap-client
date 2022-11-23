@@ -41,7 +41,7 @@ impl UriResolver for FilesystemResolver {
         if manifest_path.exists() {
             let manifest = self
                 .file_reader
-                .read_file(manifest_path.to_str().unwrap())?;
+                .read_file(manifest_path.to_str().unwrap()).await?;
 
             let wrapper_path = Path::new(&uri.path).join("wrap.wasm");
             let wrapper_file = fs::read(wrapper_path).unwrap();

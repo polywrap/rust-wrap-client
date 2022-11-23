@@ -26,7 +26,7 @@ pub struct MaybeUriOrManifest {
 }
 
 impl UriResolverWrapper {
-  fn new(implementation_uri: Uri) -> Self {
+  pub fn new(implementation_uri: Uri) -> Self {
     UriResolverWrapper { implementation_uri }
   }
 
@@ -61,7 +61,7 @@ impl UriResolverWrapper {
       let result = invoker.lock().await.invoke_wrapper(
           wrapper, 
           &uri.clone(), 
-          "tryResolverUri", 
+          "tryResolveUri", 
           Some(&invoke_args), 
           env, 
           Some(resolution_context)

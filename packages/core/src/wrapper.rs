@@ -24,5 +24,5 @@ pub trait Wrapper: Send + Sync {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
-    fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error>;
+    async fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error>;
 }

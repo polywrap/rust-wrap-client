@@ -44,7 +44,7 @@ impl WasmPackage {
             return Ok(self.wasm_module.clone().unwrap());
         }
 
-        let file_content = self.file_reader.read_file("wrap.wasm")?;
+        let file_content = self.file_reader.read_file("wrap.wasm").await?;
 
         Ok(file_content)
     }
@@ -58,7 +58,7 @@ impl WrapPackage for WasmPackage {
     ) -> Result<WrapManifest, polywrap_core::error::Error> {
         let encoded_manifest = match self.manifest.clone() {
             Some(manifest) => manifest,
-            None => self.file_reader.read_file("wrap.info")?,
+            None => self.file_reader.read_file("wrap.info").await?,
         };
 
         let opts = options.map(|options| DeserializeManifestOptions {
