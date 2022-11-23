@@ -1,11 +1,15 @@
 use polywrap_client::polywrap_client::PolywrapClient;
+use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::{client::UriRedirect, invoke::InvokeArgs, uri::Uri};
 use polywrap_msgpack::msgpack;
-use polywrap_resolvers::static_::static_resolver::{StaticResolver, StaticResolverLike};
-use polywrap_resolvers::{base::BaseResolver, filesystem::FilesystemResolver};
+use polywrap_resolvers::{
+    legacy::{base::BaseResolver,filesystem::FilesystemResolver},
+    static_resolver::{StaticResolver, StaticResolverLike},
+};
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
 #[tokio::test]
 async fn subinvoke_test() {
@@ -24,14 +28,19 @@ async fn subinvoke_test() {
     let redirect = UriRedirect::new("ens/add.eth".try_into().unwrap(), subinvoke_uri.clone());
 
     let redirects_static_like = StaticResolverLike::Redirect(redirect);
-    let static_resolver = StaticResolver::from(vec![redirects_static_like]);
+    let static_resolver = StaticResolver::from(vec![
+        redirects_static_like
+    ]);
 
     let client = PolywrapClient::new(
-        Box::new(BaseResolver::new(
-            Box::new(fs_resolver),
-            Box::new(static_resolver),
-        )),
-        None,
+        ClientConfig {
+            envs: None,
+            interfaces: None,
+            resolver: Arc::new(Mutex::new(Box::new(BaseResolver::new(
+                Box::new(fs_resolver),
+                Box::new(static_resolver),
+            )))),
+        }
     );
 
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"a": 1, "b": 1}));

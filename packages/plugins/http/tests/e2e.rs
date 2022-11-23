@@ -5,10 +5,10 @@ use httpmock::{prelude::*, Method};
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{
     uri::Uri,
-    uri_resolution_context::{UriPackage},
+    uri_resolution_context::{UriPackage}, client::ClientConfig,
 };
 use polywrap_plugin::package::PluginPackage;
-use polywrap_resolvers::static_::static_resolver::{StaticResolver, StaticResolverLike};
+use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use serde_json::json;
 use tokio::sync::Mutex;
 
@@ -22,7 +22,13 @@ fn get_client() -> PolywrapClient {
         package,
     })]);
 
-    PolywrapClient::new(Box::new(resolver), None)
+    PolywrapClient::new(
+        ClientConfig {
+            resolver: Arc::new(Mutex::new(Box::new(resolver))),
+            interfaces: None,
+            envs: None
+        }
+    )
 }
 
 #[tokio::test]

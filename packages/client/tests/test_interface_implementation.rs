@@ -2,16 +2,19 @@ use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{
     interface_implementation::InterfaceImplementations,
     invoke::{InvokeArgs, Invoker},
-    uri::Uri,
+    uri::Uri, client::ClientConfig,
 };
 use polywrap_msgpack::msgpack;
 
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_resolvers::{
-    base::BaseResolver, filesystem::FilesystemResolver, static_::static_resolver::StaticResolver,
+    legacy::{base::BaseResolver,filesystem::FilesystemResolver},
+    static_resolver::{StaticResolver},
 };
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::{collections::HashMap, sync::Arc};
+use tokio::sync::Mutex;
+
 
 #[tokio::test]
 async fn test_env() {
@@ -37,11 +40,14 @@ async fn test_env() {
 
     let file_reader = SimpleFileReader::new();
     let client = PolywrapClient::new(
-        Box::new(BaseResolver::new(
-            Box::new(FilesystemResolver::new(Arc::new(file_reader))),
-            Box::new(static_resolver),
-        )),
-        Some(interfaces),
+        ClientConfig {
+            resolver: Arc::new(Mutex::new(Box::new(BaseResolver::new(
+                Box::new(FilesystemResolver::new(Arc::new(file_reader))),
+                Box::new(static_resolver),
+            )))),
+            interfaces: Some(interfaces),
+            envs: None
+        }
     );
 
     let invoke_args = InvokeArgs::Msgpack(msgpack!(
