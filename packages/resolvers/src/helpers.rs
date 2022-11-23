@@ -5,22 +5,20 @@ use polywrap_core::{
     invoke::Invoker, uri::Uri
 };
 
-use crate::resolver_with_history;
-
-struct UriResolverExtensionFileReader {
+pub struct UriResolverExtensionFileReader {
     pub resolver_extension_uri: Uri,
     pub wrapper_uri: Uri,
     pub invoker: Arc<Mutex<dyn Invoker>>
 }
+
 impl UriResolverExtensionFileReader {
-    fn new(
-        &self, 
-        resolver_extension_uri: Uri, 
+    pub fn new(
+        resolver_with_history: Uri, 
         wrapper_uri: Uri, 
         invoker: Arc<Mutex<dyn Invoker>>
     ) -> Self {
         UriResolverExtensionFileReader {
-            resolver_extension_uri: resolver_extension_uri.clone(),
+            resolver_extension_uri: resolver_with_history.clone(),
             wrapper_uri: wrapper_uri.clone(),
             invoker,
         } 

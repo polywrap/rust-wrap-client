@@ -6,12 +6,13 @@ use polywrap_core::{
   invoke::{InvokeArgs},
   uri::Uri,
   error::Error, 
-  wrapper::Wrapper, loader::Loader, 
+  wrapper::Wrapper, loader::Loader, package::WrapPackage, 
 };
 use polywrap_msgpack::{msgpack, decode};
+use polywrap_wasm::wasm_package::{WasmPackage};
 use serde::{Serialize,Deserialize};
 
-use crate::resolver_with_history::ResolverWithHistory;
+use crate::{resolver_with_history::ResolverWithHistory, helpers::UriResolverExtensionFileReader};
 use tokio::sync::Mutex;
 
 pub struct UriResolverWrapper {
@@ -127,12 +128,39 @@ impl ResolverWithHistory for UriResolverWrapper {
         resolution_context
       ).await?;
 
+      
+      let invoker = loader.get_invoker()?;
+      let file_reader = UriResolverExtensionFileReader::new(
+        self.implementation_uri.clone(),
+        uri.clone(),
+        invoker
+      );
+
       if let Some(manifest) = result.manifest {
-          
+          let package = WasmPackage::new(
+            Arc::new(file_reader),
+            Some(manifest),
+            None
+          );
+
+          let wrapper = package.create_wrapper().await?;
+
+        return Ok(UriPackageOrWrapper::Wrapper(self.implementation_uri.clone(), wrapper));
+      }
+
+      let package = WasmPackage::new(
+        Arc::new(file_reader), None, None
+      );
+
+      if package.get_manifest(None).await.is_ok() {
+        return Ok(
+          UriPackageOrWrapper::Package(self.implementation_uri.clone(), 
+          Arc::new(Mutex::new(package)))
+        );
       }
 
       if let Some(uri) = result.uri {
-
+          return Ok(UriPackageOrWrapper::Uri(Uri::from_string(uri.clone().as_str())?));
       }
 
       Ok(UriPackageOrWrapper::Uri(uri.clone()))
