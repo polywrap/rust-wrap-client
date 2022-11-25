@@ -10,3 +10,4 @@ pub mod helpers;
 pub mod get_uri_resolution_path;
 pub mod package_resolver;
 pub mod redirect_resolver;
+pub mod recursive_resolver;
