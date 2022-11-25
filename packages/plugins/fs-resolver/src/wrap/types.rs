@@ -58,40 +58,40 @@ pub enum FileSystemEncoding {
 
 // URI: "ens/fs.polywrap.eth" //
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct FileSystem_Module_ArgsReadFile {
+pub struct FileSystemModuleArgsReadFile {
     pub path: String,
 }
 
 // URI: "ens/fs.polywrap.eth" //
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct FileSystem_Module_ArgsReadFileAsString {
+pub struct FileSystemModuleArgsReadFileAsString {
     pub path: String,
     pub encoding: Option<FileSystemEncoding>,
 }
 
 // URI: "ens/fs.polywrap.eth" //
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct FileSystem_Module_ArgsExists {
+pub struct FileSystemModuleArgsExists {
     pub path: String,
 }
 
 // URI: "ens/fs.polywrap.eth" //
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct FileSystem_Module_ArgsWriteFile {
+pub struct FileSystemModuleArgsWriteFile {
     pub path: String,
     pub data: Vec<u8>,
 }
 
 // URI: "ens/fs.polywrap.eth" //
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct FileSystem_Module_ArgsMkdir {
+pub struct FileSystemModuleArgsMkdir {
     pub path: String,
     pub recursive: Option<bool>,
 }
 
 // URI: "ens/fs.polywrap.eth" //
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct FileSystem_Module_ArgsRm {
+pub struct FileSystemModuleArgsRm {
     pub path: String,
     pub recursive: Option<bool>,
     pub force: Option<bool>,
@@ -99,7 +99,7 @@ pub struct FileSystem_Module_ArgsRm {
 
 // URI: "ens/fs.polywrap.eth" //
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct FileSystem_Module_ArgsRmdir {
+pub struct FileSystemModuleArgsRmdir {
     pub path: String,
 }
 
@@ -113,13 +113,13 @@ impl FileSystemModule {
         FileSystemModule {}
     }
 
-    pub async fn read_file(args: &FileSystem_Module_ArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, String> {
+    pub async fn read_file(args: &FileSystemModuleArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, String> {
         let uri = FileSystemModule::URI;
         let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
         let args = Some(&serialized_args);
         let result = invoker.invoke(
             &Uri::try_from(uri).unwrap(),
-            "read_file",
+            "readFile",
             args,
             None,
             None
@@ -129,7 +129,7 @@ impl FileSystemModule {
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap())
     }
 
-    pub async fn read_file_as_string(args: &FileSystem_Module_ArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, String> {
+    pub async fn read_file_as_string(args: &FileSystemModuleArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, String> {
         let uri = FileSystemModule::URI;
         let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
         let args = Some(&serialized_args);
@@ -145,7 +145,7 @@ impl FileSystemModule {
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap())
     }
 
-    pub async fn exists(args: &FileSystem_Module_ArgsExists, invoker: Arc<dyn Invoker>) -> Result<bool, String> {
+    pub async fn exists(args: &FileSystemModuleArgsExists, invoker: Arc<dyn Invoker>) -> Result<bool, String> {
         let uri = FileSystemModule::URI;
         let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
         let args = Some(&serialized_args);
@@ -161,7 +161,7 @@ impl FileSystemModule {
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap())
     }
 
-    pub async fn write_file(args: &FileSystem_Module_ArgsWriteFile, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
+    pub async fn write_file(args: &FileSystemModuleArgsWriteFile, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
         let uri = FileSystemModule::URI;
         let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
         let args = Some(&serialized_args);
@@ -177,7 +177,7 @@ impl FileSystemModule {
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
     }
 
-    pub async fn mkdir(args: &FileSystem_Module_ArgsMkdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
+    pub async fn mkdir(args: &FileSystemModuleArgsMkdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
         let uri = FileSystemModule::URI;
         let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
         let args = Some(&serialized_args);
@@ -193,7 +193,7 @@ impl FileSystemModule {
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
     }
 
-    pub async fn rm(args: &FileSystem_Module_ArgsRm, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
+    pub async fn rm(args: &FileSystemModuleArgsRm, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
         let uri = FileSystemModule::URI;
         let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
         let args = Some(&serialized_args);
@@ -209,7 +209,7 @@ impl FileSystemModule {
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
     }
 
-    pub async fn rmdir(args: &FileSystem_Module_ArgsRmdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
+    pub async fn rmdir(args: &FileSystemModuleArgsRmdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
         let uri = FileSystemModule::URI;
         let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
         let args = Some(&serialized_args);

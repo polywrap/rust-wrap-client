@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::wrap::types::Http_Module_ArgsGet;
+use crate::wrap::types::HttpModuleArgsGet;
 use async_trait::async_trait;
 use polywrap_core::{error::Error, invoke::Invoker};
 use wrap::{
@@ -25,7 +25,7 @@ impl Module for HttpResolverPlugin {
         let manifest_search_pattern = "wrap.info";
 
         let get_result = HttpModule::get(
-            &Http_Module_ArgsGet {
+            &HttpModuleArgsGet {
                 url: format!("{}/{}", args.path, manifest_search_pattern),
                 request: Some(HttpRequest {
                     response_type: wrap::types::HttpResponseType::BINARY,
@@ -65,7 +65,7 @@ impl Module for HttpResolverPlugin {
         invoker: Arc<dyn Invoker>,
     ) -> Result<Option<Vec<u8>>, Error> {
         let resolve_result = HttpModule::get(
-            &Http_Module_ArgsGet {
+            &HttpModuleArgsGet {
                 url: args.path.clone(),
                 request: Some(HttpRequest {
                     response_type: wrap::types::HttpResponseType::BINARY,
