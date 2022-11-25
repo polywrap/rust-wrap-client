@@ -1,15 +1,15 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap};
 
 use async_trait::async_trait;
-use polywrap_core::{
+use crate::{
     client::UriRedirect,
     error::Error,
     loader::Loader,
     uri::Uri,
-    uri_resolution_context::{
+    resolvers::uri_resolution_context::{
         UriPackage, UriPackageOrWrapper, UriResolutionContext, UriResolutionStep, UriWrapper,
     },
-    uri_resolver::UriResolver,
+    resolvers::uri_resolver::UriResolver,
 };
 
 pub enum StaticResolverLike {
@@ -17,14 +17,6 @@ pub enum StaticResolverLike {
     Wrapper(UriWrapper),
     Package(UriPackage),
     StaticResolverLike(Vec<StaticResolverLike>),
-}
-
-pub enum UriResolverLike {
-    Resolver(Box<dyn UriResolver>),
-    Redirect(UriRedirect),
-    Package(UriPackage),
-    Wrapper(UriWrapper),
-    ResolverLike(Vec<UriResolverLike>),
 }
 
 pub struct StaticResolver {
@@ -54,13 +46,13 @@ impl StaticResolver {
                 StaticResolverLike::Package(package) => {
                     uri_map.insert(
                         package.uri.to_string(),
-                        UriPackageOrWrapper::Package(package.uri.clone(), Arc::from(package.package)),
+                        UriPackageOrWrapper::Package(package.uri.clone(), package.package),
                     );
                 }
                 StaticResolverLike::Wrapper(wrapper) => {
                     uri_map.insert(
                         wrapper.uri.to_string(),
-                        UriPackageOrWrapper::Wrapper(wrapper.uri.clone(), Arc::from(wrapper.wrapper)),
+                        UriPackageOrWrapper::Wrapper(wrapper.uri.clone(), wrapper.wrapper),
                     );
                 }
             }
@@ -83,15 +75,15 @@ impl UriResolver for StaticResolver {
         let (description, result) = if let Some(found) = uri_package_or_wrapper {
             match found {
                 UriPackageOrWrapper::Package(uri, package) => (
-                    format!("StaticResolver - Package ({})", uri.to_string()),
+                    format!("StaticResolver - Package ({})", uri),
                     UriPackageOrWrapper::Package(uri.clone(), package.clone())
                 ),
                 UriPackageOrWrapper::Wrapper(uri, wrapper) => (
-                    format!("StaticResolver - Wrapper ({})", uri.to_string()),
+                    format!("StaticResolver - Wrapper ({})", uri),
                     UriPackageOrWrapper::Wrapper(uri.clone(), wrapper.clone())
                 ),
                 UriPackageOrWrapper::Uri(uri) => (
-                    format!("StaticResolver - Redirect ({})", uri.to_string()),
+                    format!("StaticResolver - Redirect ({})", uri),
                     UriPackageOrWrapper::Uri(uri.clone())
                 ),
             }

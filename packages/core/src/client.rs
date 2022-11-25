@@ -4,7 +4,7 @@ use crate::invoke::Invoker;
 use crate::loader::Loader;
 use crate::uri::Uri;
 use crate::interface_implementation::InterfaceImplementations;
-use crate::uri_resolver::{UriResolverHandler, UriResolver};
+use crate::resolvers::uri_resolver::{UriResolverHandler, UriResolver};
 use crate::env::{Envs};
 use async_trait::async_trait;
 use tokio::sync::Mutex;

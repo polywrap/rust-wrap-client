@@ -1,10 +1,10 @@
 use async_trait::async_trait;
-use polywrap_core::{
+use crate::{
     error::Error,
     loader::Loader,
     uri::Uri,
-    uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep},
-    uri_resolver::UriResolver
+    resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep},
+    resolvers::uri_resolver::UriResolver
 };
 
 #[async_trait]
@@ -14,7 +14,7 @@ pub trait ResolverWithHistory: Send + Sync {
 }
 
 #[async_trait]
-impl UriResolver for dyn ResolverWithHistory {
+impl<T: ResolverWithHistory> UriResolver for T {
   async fn try_resolve_uri(&self, uri: &Uri, loader: &dyn Loader, resolution_ctx: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error> {
     let result = self._try_resolve_uri(uri, loader, resolution_ctx).await;
 

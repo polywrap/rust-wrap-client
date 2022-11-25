@@ -3,10 +3,9 @@ use std::collections::HashMap;
 use polywrap_core::{
     client::{ClientConfig, UriRedirect},
     env::{Env,Envs},
-    uri_resolution_context::{UriWrapper, UriPackage}, 
+    resolvers::{uri_resolution_context::{UriWrapper, UriPackage}, uri_resolver_like::UriResolverLike}, 
     uri::Uri
 };
-use polywrap_resolvers::static_resolver::UriResolverLike;
 
 use crate::{helpers::merge, types::{BuilderConfig, ClientBuilder, ClientConfigHandler}};
 
@@ -51,10 +50,10 @@ impl ClientBuilder for BuilderConfig {
     fn add_env(&mut self, uri: Uri, env: Env) -> &mut Self {
         match self.envs.as_mut() {
             Some(envs) => {
-                if let Some(u) = envs.get_mut(&uri.clone().uri) {
-                    merge(u, &env.clone());
+                if let Some(u) = envs.get_mut(&uri.uri) {
+                    merge(u, &env);
                 } else {
-                    envs.insert(uri.clone().uri, env.clone());
+                    envs.insert(uri.uri, env);
                 }
             },
             None => {
@@ -85,10 +84,10 @@ impl ClientBuilder for BuilderConfig {
 
     fn set_env(&mut self, uri: Uri, env: Env) -> &mut Self {
         if let Some(envs) = self.envs.as_mut() {
-            envs.insert(uri.clone().uri, env);
+            envs.insert(uri.uri, env);
         } else {
             let mut new_env: Envs = HashMap::new();
-            new_env.insert(uri.clone().uri, env);
+            new_env.insert(uri.uri, env);
             self.envs = Some(new_env);
         }
         self
@@ -101,17 +100,17 @@ impl ClientBuilder for BuilderConfig {
     ) -> &mut Self {
         match self.interfaces.as_mut() {
             Some(interfaces) => {
-                let current_interface = interfaces.get_mut(&interface_uri.clone().uri);
+                let current_interface = interfaces.get_mut(&interface_uri.uri);
                 match current_interface {
                     Some(i) => i.push(implementation_uri),
                     None => {
-                        interfaces.insert(interface_uri.clone().uri, vec![implementation_uri]);
+                        interfaces.insert(interface_uri.uri, vec![implementation_uri]);
                     }
                 }
             },
             None => {
                 let mut interfaces = HashMap::new();
-                interfaces.insert(interface_uri.clone().uri, vec![implementation_uri]);
+                interfaces.insert(interface_uri.uri, vec![implementation_uri]);
                 self.interfaces = Some(interfaces);
             }
         }
@@ -125,7 +124,7 @@ impl ClientBuilder for BuilderConfig {
     ) -> &mut Self {
         match self.interfaces.as_mut() {
             Some(interfaces) => {
-                let current_interface = interfaces.get_mut(&interface_uri.clone().uri);
+                let current_interface = interfaces.get_mut(&interface_uri.uri);
                 match current_interface {
                     Some(i) => {
                         for implementation_uri in implementation_uris {
@@ -135,13 +134,13 @@ impl ClientBuilder for BuilderConfig {
                         };
                     },
                     None => {
-                        interfaces.insert(interface_uri.clone().uri, implementation_uris);
+                        interfaces.insert(interface_uri.uri, implementation_uris);
                     }
                 };
             },
             None => {
                 let mut interfaces = HashMap::new();
-                interfaces.insert(interface_uri.clone().uri, implementation_uris);
+                interfaces.insert(interface_uri.uri, implementation_uris);
                 self.interfaces = Some(interfaces);
             }
         };
@@ -155,7 +154,7 @@ impl ClientBuilder for BuilderConfig {
         implementation_uri: Uri
     ) -> &mut Self {
         if let Some(interfaces) = self.interfaces.as_mut() {
-            let implementations = interfaces.get_mut(&interface_uri.clone().uri);
+            let implementations = interfaces.get_mut(&interface_uri.uri);
             if let Some(implementations) = implementations {
                 let index = implementations.iter().position(|i| i == &implementation_uri);
                 if let Some(i) = index {
@@ -251,7 +250,7 @@ impl ClientBuilder for BuilderConfig {
         if let Some(redirects) = self.redirects.as_mut() {
             if let Some(i) = redirects.iter().position(|u| u.from == from) {
                 redirects.remove(i);
-                if redirects.len() == 0 {
+                if redirects.is_empty() {
                     self.redirects = None;
                 }
             };

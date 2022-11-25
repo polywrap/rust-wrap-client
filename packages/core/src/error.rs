@@ -35,4 +35,6 @@ pub enum Error {
     args: String,
     exception: String
   },
+  #[error("`{0}`")]
+  ResolverError(String),
 }

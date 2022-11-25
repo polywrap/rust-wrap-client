@@ -3,7 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use polywrap_core::{
     invoke::{Invoker, InvokeArgs},
-    wrapper::{GetFileOptions, Wrapper}, uri::Uri, uri_resolution_context::UriResolutionContext, env::Env,
+    wrapper::{GetFileOptions, Wrapper}, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::Env,
 };
 use tokio::sync::Mutex;
 

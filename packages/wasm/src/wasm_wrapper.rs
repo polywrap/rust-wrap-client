@@ -7,13 +7,12 @@ use polywrap_core::file_reader::FileReader;
 use polywrap_core::invoke::InvokeArgs;
 use polywrap_core::invoke::Invoker;
 use polywrap_core::uri::Uri;
-use polywrap_core::uri_resolution_context::UriResolutionContext;
+use polywrap_core::resolvers::uri_resolution_context::UriResolutionContext;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::Wrapper;
 use polywrap_manifest::versions::WrapManifest;
-use polywrap_msgpack::msgpack_to_vec;
-use polywrap_msgpack::{decode,rmpv,msgpack};
+use polywrap_msgpack::{decode};
 use serde::de::DeserializeOwned;
 use std::sync::Arc;
 

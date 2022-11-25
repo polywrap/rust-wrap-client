@@ -1,9 +1,10 @@
 use std::sync::Arc;
 use polywrap_client::polywrap_client::PolywrapClient;
+use polywrap_resolvers::uri_resolver_wrapper::UriResolverWrapper;
 use tokio::sync::Mutex;
 
-use polywrap_core::{uri::Uri, uri_resolution_context::{UriPackage, UriResolutionContext, UriPackageOrWrapper}, client::ClientConfig};
-use polywrap_resolvers::{uri_resolver_wrapper::UriResolverWrapper, static_resolver::{StaticResolver, StaticResolverLike}, resolver_with_history::ResolverWithHistory};
+use polywrap_core::{uri::Uri, resolvers::uri_resolution_context::{UriPackage, UriResolutionContext, UriPackageOrWrapper}, client::ClientConfig};
+use polywrap_core::resolvers::{static_resolver::{StaticResolver, StaticResolverLike}, resolver_with_history::ResolverWithHistory};
 use polywrap_plugin::package::PluginPackage;
 use polywrap_tests_utils::helpers::get_tests_path;
 use fs_resolver_plugin::FileSystemResolverPlugin;

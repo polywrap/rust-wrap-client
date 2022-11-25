@@ -148,8 +148,8 @@ impl WasmInstance {
             ));
         }
 
-        let memory_initial_limits =
-            module_bytes[sig_idx.unwrap() + ENV_MEMORY_IMPORTS_SIGNATURE.len() + 1];
+        // let memory_initial_limits =
+        //     module_bytes[sig_idx.unwrap() + ENV_MEMORY_IMPORTS_SIGNATURE.len() + 1];
         let memory_type = MemoryType::new(1, Option::None);
 
         Memory::new(store.as_context_mut(), memory_type)

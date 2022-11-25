@@ -8,10 +8,10 @@ use polywrap_core::{
 use polywrap_msgpack::{decode, msgpack, Deserialize};
 
 use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_resolvers::{
-    legacy::{base::BaseResolver,filesystem::FilesystemResolver},
+use polywrap_core::resolvers::{
     static_resolver::{StaticResolver, StaticResolverLike},
 };
+use polywrap_resolvers::legacy::{filesystem::FilesystemResolver, base::BaseResolver};
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::{sync::Arc, collections::HashMap};
 use tokio::sync::Mutex;

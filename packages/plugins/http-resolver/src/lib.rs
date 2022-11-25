@@ -41,11 +41,7 @@ impl Module for HttpResolverPlugin {
         let manifest = match get_result {
             Ok(opt_response) => {
                 if let Some(response) = opt_response {
-                    if let Some(body) = response.body {
-                        Some(base64::decode(body).unwrap())
-                    } else {
-                        None
-                    }
+                    response.body.map(|body| base64::decode(body).unwrap())
                 } else {
                     None
                 }
@@ -84,11 +80,7 @@ impl Module for HttpResolverPlugin {
 
         let file = if let Ok(opt_result) = resolve_result {
             if let Some(result) = opt_result {
-                if let Some(body) = result.body {
-                    Some(base64::decode(body).unwrap())
-                } else {
-                    None
-                }
+                result.body.map(|body| base64::decode(body).unwrap())
             } else {
                 None
             }

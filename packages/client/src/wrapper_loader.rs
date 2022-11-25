@@ -5,8 +5,8 @@ use polywrap_core::{
     error::Error,
     loader::Loader,
     uri::Uri,
-    uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    uri_resolver::{UriResolver, UriResolverHandler},
+    resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+    resolvers::uri_resolver::{UriResolver, UriResolverHandler},
     wrapper::Wrapper, env::{Envs, Env}, invoke::Invoker,
 };
 use tokio::sync::Mutex;

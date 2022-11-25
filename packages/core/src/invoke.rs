@@ -1,5 +1,5 @@
 use crate::{
-    error::Error, uri::Uri, uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env,
+    error::Error, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env,
 };
 use async_trait::async_trait;
 use std::{sync::Arc};

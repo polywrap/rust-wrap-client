@@ -1,11 +1,10 @@
 use polywrap_core::{
     interface_implementation::InterfaceImplementations,
     env::{Envs,Env}, 
-    uri_resolution_context::{UriWrapper,UriPackage},
+    resolvers::{uri_resolution_context::{UriWrapper,UriPackage}, uri_resolver_like::UriResolverLike},
     uri::Uri, 
     client::{UriRedirect, ClientConfig}
 };
-use polywrap_resolvers::static_resolver::UriResolverLike;
 
 pub struct BuilderConfig {
     pub interfaces: Option<InterfaceImplementations>,
