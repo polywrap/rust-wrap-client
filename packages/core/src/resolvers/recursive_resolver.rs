@@ -31,7 +31,7 @@ impl RecursiveResolver {
             match value {
                 UriPackageOrWrapper::Uri(result_uri) => {
                     if result_uri.clone().to_string() != uri.to_string() {
-                        self.try_resolve_uri(&result_uri, loader, resolution_context)
+                        self.try_resolve_uri(result_uri, loader, resolution_context)
                             .await
                     } else {
                         result
