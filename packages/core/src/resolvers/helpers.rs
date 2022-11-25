@@ -4,9 +4,11 @@ use tokio::sync::Mutex;
 use crate::{
     file_reader::FileReader, 
     invoke::{Invoker, InvokeArgs}, uri::Uri,
-    error::Error
+    error::Error, loader::Loader, interface_implementation::InterfaceImplementations
 };
 use polywrap_msgpack::{msgpack};
+
+use super::uri_resolution_context::UriResolutionContext;
 
 pub struct UriResolverExtensionFileReader {
     pub resolver_extension_uri: Uri,
@@ -43,4 +45,27 @@ impl FileReader for UriResolverExtensionFileReader {
         ).await?; 
         Ok(result)
     }
+}
+
+pub async fn get_implementations(
+    wrapper_uri: Uri,
+    interfaces: Option<InterfaceImplementations>,
+    loader: Option<&dyn Loader>,
+    resolution_context: Option<&mut UriResolutionContext>
+) -> Result<Vec<Uri>, Error> {
+    let mut implementation_uris: Vec<Uri> = vec![];
+
+    // for interface in interfaces.keys() {
+    //     let mut fully_resolved_uri = implementation.clone();
+    //     if let Some(l) = loader {
+    //         let redirect_uri = l.try_resolve_uri(
+    //             &implementation.clone(),
+    //             resolution_context
+    //         ).await;
+    //     };
+
+    //     if implementation_uris.contains(x)
+    // }
+
+    Ok(vec![])
 }

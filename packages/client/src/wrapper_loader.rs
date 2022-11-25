@@ -15,7 +15,7 @@ use crate::wrapper_invoker::WrapperInvoker;
 
 #[derive(Clone)]
 pub struct WrapperLoader {
-    resolver: Arc<Mutex<Box<dyn UriResolver>>>,
+    pub resolver: Arc<Mutex<Box<dyn UriResolver>>>,
     pub envs: Option<Envs>,
     pub interfaces: Option<InterfaceImplementations>
 }

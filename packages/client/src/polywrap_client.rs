@@ -107,20 +107,16 @@ impl Invoker for PolywrapClient {
     fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
         self.invoker.get_implementations(uri)
     }
+
+    fn get_interfaces(&self) -> Option<InterfaceImplementations> {
+        self.invoker.get_interfaces()
+    }
 }
 
 #[async_trait(?Send)]
 impl Client for PolywrapClient {
     fn get_config(&self) -> &ClientConfig {
         todo!()
-    }
-
-    fn get_interfaces(&self) -> Option<&InterfaceImplementations> {
-        if let Some(interfaces) = &self.invoker.loader.interfaces {
-            return Some(interfaces);
-        }
-
-        None
     }
 }
 

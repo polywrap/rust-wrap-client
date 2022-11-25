@@ -1,10 +1,10 @@
-use std::{path::Path};
+use std::{path::Path, collections::HashMap};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}, wasm_runtime::instance::WasmModule};
 use polywrap_core::{
     invoke::{Invoker,InvokeArgs},
     uri::Uri,
     error::Error,
-    file_reader::{SimpleFileReader}, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env
+    file_reader::{SimpleFileReader}, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env, interface_implementation::InterfaceImplementations
 };
 use polywrap_manifest::{
     deserialize::deserialize_wrap_manifest
@@ -88,6 +88,11 @@ impl Invoker for MockInvoker {
 
     fn get_implementations(&self, _uri: Uri) -> Result<Vec<Uri>, Error> {
         Ok(vec![])
+    }
+
+    fn get_interfaces(&self) -> Option<InterfaceImplementations> {
+        let i = HashMap::new();
+        Some(i)
     }
 }
 

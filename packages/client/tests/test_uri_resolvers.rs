@@ -3,7 +3,7 @@ use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_resolvers::uri_resolver_wrapper::UriResolverWrapper;
 use tokio::sync::Mutex;
 
-use polywrap_core::{uri::Uri, resolvers::{uri_resolution_context::{UriPackage, UriResolutionContext, UriPackageOrWrapper}, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike}, client::ClientConfig, interface_implementation::InterfaceImplementations};
+use polywrap_core::{uri::Uri, resolvers::{uri_resolution_context::{UriPackage, UriResolutionContext, UriPackageOrWrapper}, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike, uri_resolver::UriResolver}, client::ClientConfig, interface_implementation::InterfaceImplementations};
 use polywrap_core::resolvers::{static_resolver::{StaticResolver, StaticResolverLike}, resolver_with_history::ResolverWithHistory};
 use polywrap_plugin::package::PluginPackage;
 use polywrap_tests_utils::helpers::get_tests_path;
@@ -80,7 +80,6 @@ async fn test_recursive_uri_resolver() {
     let fs_resolver_plugin_package: PluginPackage = fs_resolver.into();
     let fs_resolver_package = Arc::new(Mutex::new(fs_resolver_plugin_package));
 
-
     let resolver = StaticResolver::from(
         vec![
             StaticResolverLike::Package(UriPackage {
@@ -94,29 +93,30 @@ async fn test_recursive_uri_resolver() {
         ]
     );
 
-    let r = UriResolverLike::Resolver(Box::new(resolver));
-    let recursive_resolve = RecursiveResolver::from(r);
-
+    
     let mut interfaces: InterfaceImplementations = HashMap::new();
     interfaces.insert(
         "wrap://ens/uri-resolver.core.polywrap.eth".to_string(), 
         vec![
+            Uri::try_from("wrap://ens/http-resolver.polywrap.eth").unwrap(),
             Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap(),
-            Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap(),
-        ]
-    );
+            ]
+        );
+        
+    let uri_resolver_uri = UriResolverLike::Resolver(Box::new(resolver));
+    let recursive_resolver = RecursiveResolver::from(uri_resolver_uri);
+
+    let r = Arc::new(Mutex::new(
+        Box::new(recursive_resolver) as Box<dyn UriResolver>
+    ));
 
     let client = PolywrapClient::new(ClientConfig {
         envs: None,
         interfaces: Some(interfaces),
-        resolver: Arc::new(Mutex::new(Box::new(recursive_resolve)))
+        resolver: r.clone()
     });
-
     let mut uri_resolution_context = UriResolutionContext::new();
-    let uri_resolver_wrapper = UriResolverWrapper::new(
-        Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap()
-    );
-    let result = uri_resolver_wrapper._try_resolve_uri(
+    let result = r.lock().await.try_resolve_uri(
         &fs_wrapper_uri.clone(), 
         &client.loader, 
         &mut uri_resolution_context
@@ -124,8 +124,8 @@ async fn test_recursive_uri_resolver() {
 
     if let Ok(r) = result {
         if let UriPackageOrWrapper::Wrapper(_, _w) = r {
-            dbg!("works :)");
+            assert_eq!(true, true);
         }
     }
-    
+    // assert_eq!(true, false);
 }

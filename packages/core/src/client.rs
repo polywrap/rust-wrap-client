@@ -30,5 +30,4 @@ pub struct ClientConfig {
 #[async_trait(?Send)]
 pub trait Client: Send + Sync + Invoker + UriResolverHandler + Loader {
   fn get_config(&self) -> &ClientConfig;
-  fn get_interfaces(&self) -> Option<&InterfaceImplementations>;
 }
