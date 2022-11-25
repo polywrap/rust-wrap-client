@@ -34,7 +34,7 @@ fn get_client() -> PolywrapClient {
 #[tokio::test]
 async fn get_method() {
     let server = MockServer::start();
-    let mock = server.mock(|when, then| {
+    let _mock = server.mock(|when, then| {
         when.method(Method::GET)
             .path("/api")
             .header("access-control-allow-origin", "*")
@@ -43,5 +43,5 @@ async fn get_method() {
         then.status(200).json_body(json!({"data": "test-response"}));
     });
 
-    let response = get_client();
+    let _response = get_client();
 }

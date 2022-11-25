@@ -89,10 +89,10 @@ impl UriResolverWrapper {
             "While resolving {} with URI resolver extension {}, the extension could not be fully resolved. Last tried URI is {}", 
             current_uri.clone().uri, 
             resolver_extension_uri.clone().uri,
-            uri.clone().uri
+            uri.uri
           );
           dbg!(&error);
-          return Err(Error::LoadWrapperError(error));
+          Err(Error::LoadWrapperError(error))
         },
         UriPackageOrWrapper::Package(_, package) => {
           let wrapper = package.lock().await
@@ -100,10 +100,10 @@ impl UriResolverWrapper {
             .await
             .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
 
-            return Ok(wrapper);
+            Ok(wrapper)
           },
         UriPackageOrWrapper::Wrapper(_, wrapper) => {
-          return Ok(wrapper);
+          Ok(wrapper)
         },
     }
   }
@@ -155,7 +155,7 @@ impl ResolverWithHistory for UriResolverWrapper {
       }
 
       if let Some(uri) = result.uri {
-          return Ok(UriPackageOrWrapper::Uri(Uri::from_string(uri.clone().as_str())?));
+          return Ok(UriPackageOrWrapper::Uri(Uri::from_string(uri.as_str())?));
       }
 
       Ok(UriPackageOrWrapper::Uri(uri.clone()))

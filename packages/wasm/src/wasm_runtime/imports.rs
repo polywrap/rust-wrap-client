@@ -274,7 +274,7 @@ pub fn create_imports(
                             1
                         }
                         Err(err) => {
-                            let error = format!("interface implementation subinvoke failed for uri: {} with error: {}", interface, err.to_string());
+                            let error = format!("interface implementation subinvoke failed for uri: {} with error: {}", interface, err);
                             state.subinvoke.error = Some(error);
                             0
                         }
@@ -323,7 +323,7 @@ pub fn create_imports(
                 match &state.subinvoke_implementation {
                     Some(subinvoke_impl_state) => {
                         if let Some(result) = &subinvoke_impl_state.result {
-                            write_to_memory(memory_buffer, ptr as usize, &result);
+                            write_to_memory(memory_buffer, ptr as usize, result);
                         }
                         (state.abort)(
                             "__wrap_subinvokeImplementation_result: subinvoke_implementation.result is not set".to_string(),
@@ -417,11 +417,11 @@ pub fn create_imports(
                 let encoded_implementations = rmp_serde::encode::to_vec(implementations);                
                 state.get_implementations_result = Some(encoded_implementations.unwrap());
 
-                if state.get_implementations_result.as_ref().unwrap().len() > 0 {
+                if !state.get_implementations_result.as_ref().unwrap().is_empty() {
                     return 1;
                 }
 
-                return 0;
+                0
             },
         )
         .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;

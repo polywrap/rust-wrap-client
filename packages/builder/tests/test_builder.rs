@@ -17,7 +17,7 @@ fn test_env_methods() {
     builder.add_env(uri.clone(), json!({ "d": "d" }));
 
     let current_env = builder.envs.clone().unwrap();
-    let env_from_builder = current_env.get(&uri.clone().uri);
+    let env_from_builder = current_env.get(&uri.uri);
 
     assert_eq!(env_from_builder.is_some(), true);
     assert_eq!(env_from_builder.unwrap(), &json!({ "d": "d" }));
@@ -28,16 +28,16 @@ fn test_env_methods() {
     builder.add_envs(envs);
 
     let current_env = builder.envs.clone().unwrap();
-    let env_from_builder = current_env.get(&uri.clone().uri);
+    let env_from_builder = current_env.get(&uri.uri);
     assert_eq!(env_from_builder.unwrap(), &json!({ "d": "d", "a": "a", "b": "b" }));
 
     builder.set_env(uri.clone(), json!({"c": "c"}));
 
     let current_env = builder.envs.clone().unwrap();
-    let env_from_builder = current_env.get(&uri.clone().uri);
+    let env_from_builder = current_env.get(&uri.uri);
     assert_eq!(env_from_builder.unwrap(), &json!({ "c": "c" }));
 
-    builder.remove_env(uri.clone());
+    builder.remove_env(uri);
 
     assert_eq!(builder.envs.is_none(), true);
 }
@@ -58,7 +58,7 @@ fn test_interface_implementation_methods() {
     );
 
     let interfaces = builder.interfaces.clone().unwrap();
-    let implementations = interfaces.get(&interface_uri.clone().uri).unwrap();
+    let implementations = interfaces.get(&interface_uri.uri).unwrap();
     assert_eq!(builder.interfaces.is_some(), true);
     assert_eq!(implementations, &vec![implementation_a_uri.clone(), implementation_b_uri.clone()]);
 
@@ -66,19 +66,19 @@ fn test_interface_implementation_methods() {
     builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
 
     let interfaces = builder.interfaces.clone().unwrap();
-    let implementations = interfaces.get(&interface_uri.clone().uri).unwrap();
+    let implementations = interfaces.get(&interface_uri.uri).unwrap();
     assert_eq!(implementations, &vec![
         implementation_a_uri.clone(), 
         implementation_b_uri.clone(),
         implementation_c_uri.clone()
     ]);
 
-    builder.remove_interface_implementation(interface_uri.clone(), implementation_b_uri.clone());
+    builder.remove_interface_implementation(interface_uri.clone(), implementation_b_uri);
     let interfaces = builder.interfaces.clone().unwrap();
-    let implementations = interfaces.get(&interface_uri.clone().uri).unwrap();
+    let implementations = interfaces.get(&interface_uri.uri).unwrap();
     assert_eq!(implementations, &vec![
-        implementation_a_uri.clone(),
-        implementation_c_uri.clone()
+        implementation_a_uri,
+        implementation_c_uri
     ]);
 
 }

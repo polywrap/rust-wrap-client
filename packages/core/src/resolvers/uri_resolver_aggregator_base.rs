@@ -37,11 +37,7 @@ pub trait UriResolverAggregatorBase: UriResolver {
                 .await;
             let track_and_return = if let Ok(result_value) = &result {
                 if let UriPackageOrWrapper::Uri(result_uri) = result_value {
-                    if uri.to_string() == result_uri.to_string() {
-                        false
-                    } else {
-                        true
-                    }
+                    uri.to_string() != result_uri.to_string()
                 } else {
                     true
                 }

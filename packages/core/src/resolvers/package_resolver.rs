@@ -17,7 +17,7 @@ impl PackageResolver {}
 #[async_trait]
 impl ResolverWithHistory for PackageResolver {
   fn get_step_description(&self, _: &crate::uri::Uri) -> String {
-      format!("Package ({})", self.uri.to_string())
+      format!("Package ({})", self.uri)
   }
 
   async fn _try_resolve_uri(&self, uri: &Uri, _: &dyn Loader, _: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, crate::error::Error> {

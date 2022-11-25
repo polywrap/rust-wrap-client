@@ -21,8 +21,8 @@ impl UriResolverExtensionFileReader {
         invoker: Arc<Mutex<dyn Invoker>>
     ) -> Self {
         UriResolverExtensionFileReader {
-            resolver_extension_uri: resolver_extension_uri.clone(),
-            wrapper_uri: wrapper_uri.clone(),
+            resolver_extension_uri,
+            wrapper_uri,
             invoker,
         } 
     } 

@@ -88,12 +88,10 @@ impl Module for FileSystemPlugin {
         if path.is_dir() {
             if force {
                 rm_rf::ensure_removed(path).unwrap();
+            } else if recursive {
+                fs::remove_dir_all(path).unwrap();
             } else {
-                if recursive {
-                    fs::remove_dir_all(path).unwrap();
-                } else {
-                    fs::remove_dir(path).unwrap();
-                }
+                fs::remove_dir(path).unwrap();
             }
         } else {
             fs::remove_file(path).unwrap();

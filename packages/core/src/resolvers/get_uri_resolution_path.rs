@@ -20,7 +20,7 @@ pub fn get_uri_resolution_path(history: Vec<UriResolutionStep>) -> Vec<UriResolu
     }
   }).map(|mut x| {
     if let Some(subhistory) = &x.sub_history {
-      if subhistory.len() > 0 {
+      if !subhistory.is_empty() {
         x.sub_history = Some(get_uri_resolution_path(subhistory.clone()));
         x
       } else {

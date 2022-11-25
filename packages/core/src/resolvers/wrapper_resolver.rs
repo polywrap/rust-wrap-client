@@ -20,7 +20,7 @@ impl WrapperResolver {}
 #[async_trait]
 impl ResolverWithHistory for WrapperResolver {
     fn get_step_description(&self, _: &crate::uri::Uri) -> String {
-        format!("Wrapper ({})", self.uri.to_string())
+        format!("Wrapper ({})", self.uri)
     }
 
     async fn _try_resolve_uri(

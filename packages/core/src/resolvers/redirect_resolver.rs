@@ -19,8 +19,8 @@ impl ResolverWithHistory for RedirectResolver {
     fn get_step_description(&self, _: &crate::uri::Uri) -> String {
         format!(
             "Redirect ({} - {})",
-            self.from.to_string(),
-            self.to.to_string()
+            self.from,
+            self.to
         )
     }
 

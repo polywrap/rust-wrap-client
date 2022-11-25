@@ -19,8 +19,8 @@ pub fn parse_response(response: ureq::Response) -> Result<Response, polywrap_cor
         })
         .collect::<BTreeMap<String, String>>();
 
-    let status = (&response).status();
-    let status_text = (&response).status_text().to_string();
+    let status = response.status();
+    let status_text = response.status_text().to_string();
 
     let data = response
         .into_string()
@@ -30,7 +30,7 @@ pub fn parse_response(response: ureq::Response) -> Result<Response, polywrap_cor
         status: status.into(),
         status_text,
         headers: Some(headers),
-        body: Some(data.to_string()),
+        body: Some(data),
     })
 }
 

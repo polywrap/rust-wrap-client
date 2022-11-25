@@ -28,7 +28,7 @@ impl Module for FileSystemResolverPlugin {
             path: manifest_path.to_str().unwrap().to_string()
           }, invoker.clone()).await;
           
-        let manifest = if let Ok(_) = manifest_exists_result {
+        let manifest = if manifest_exists_result.is_ok() {
           let manifest_result = FileSystemModule::read_file(
             &FileSystem_Module_ArgsReadFile {
               path: manifest_path.to_str().unwrap().to_string()
