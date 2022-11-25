@@ -65,14 +65,14 @@ pub enum HttpResponseType {
 
 // URI: "ens/http.polywrap.eth" //
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Http_Module_ArgsGet {
+pub struct HttpModuleArgsGet {
     pub url: String,
     pub request: Option<HttpRequest>,
 }
 
 // URI: "ens/http.polywrap.eth" //
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Http_Module_ArgsPost {
+pub struct HttpModuleArgsPost {
     pub url: String,
     pub request: Option<HttpRequest>,
 }
@@ -87,7 +87,7 @@ impl HttpModule {
         HttpModule {}
     }
 
-    pub async fn get(args: &Http_Module_ArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, String> {
+    pub async fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, String> {
         let uri = HttpModule::URI;
         let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
         let args = Some(&serialized_args);
@@ -103,7 +103,7 @@ impl HttpModule {
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
     }
 
-    pub async fn post(args: &Http_Module_ArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, String> {
+    pub async fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, String> {
         let uri = HttpModule::URI;
         let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
         let args = Some(&serialized_args);
