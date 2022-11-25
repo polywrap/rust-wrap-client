@@ -19,5 +19,4 @@ tokio = "1.22.0"
 rm_rf = "0.6.2"
 
 [dev-dependencies]
-polywrap_resolvers = {path = "../../resolvers"}
 polywrap_client = {path = "../../client"}

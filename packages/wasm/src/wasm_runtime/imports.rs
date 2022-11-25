@@ -4,7 +4,7 @@ use polywrap_core::{
     invoke::{InvokeArgs},
     uri::Uri,
 };
-use wasmtime::{AsContextMut, Caller, Linker, Memory, FuncType, ValType};
+use wasmtime::{AsContextMut, Caller, Linker, Memory};
 use crate::{error::WrapperError, wasm_runtime::instance::State};
 
 fn read_from_memory(buffer: &mut [u8], ptr: usize, len: usize) -> Vec<u8> {

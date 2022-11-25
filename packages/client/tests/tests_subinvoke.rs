@@ -3,10 +3,10 @@ use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::{client::UriRedirect, invoke::InvokeArgs, uri::Uri};
 use polywrap_msgpack::msgpack;
-use polywrap_resolvers::{
-    legacy::{base::BaseResolver,filesystem::FilesystemResolver},
+use polywrap_core::resolvers::{
     static_resolver::{StaticResolver, StaticResolverLike},
 };
+use polywrap_resolvers::legacy::{base::BaseResolver, filesystem::FilesystemResolver};
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::sync::Arc;
 use tokio::sync::Mutex;

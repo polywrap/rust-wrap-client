@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use async_trait::async_trait;
 use tokio::sync::Mutex;
-use polywrap_core::{
+use crate::{
     file_reader::FileReader, 
     invoke::{Invoker, InvokeArgs}, uri::Uri,
     error::Error

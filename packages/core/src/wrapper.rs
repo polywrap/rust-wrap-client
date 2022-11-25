@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use crate::{error::Error, invoke::{Invoker, InvokeArgs}, uri::Uri, uri_resolution_context::UriResolutionContext, env::Env};
+use crate::{error::Error, invoke::{Invoker, InvokeArgs}, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
 pub enum Encoding {
     Base64,
     UTF8,

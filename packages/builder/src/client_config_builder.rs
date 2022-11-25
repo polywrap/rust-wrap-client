@@ -3,10 +3,9 @@ use std::collections::HashMap;
 use polywrap_core::{
     client::{ClientConfig, UriRedirect},
     env::{Env,Envs},
-    uri_resolution_context::{UriWrapper, UriPackage}, 
+    resolvers::{uri_resolution_context::{UriWrapper, UriPackage}, uri_resolver_like::UriResolverLike}, 
     uri::Uri
 };
-use polywrap_resolvers::static_resolver::UriResolverLike;
 
 use crate::{helpers::merge, types::{BuilderConfig, ClientBuilder, ClientConfigHandler}};
 

@@ -6,8 +6,8 @@ use polywrap_core::{
     file_reader::FileReader,
     loader::Loader,
     uri::Uri,
-    uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    uri_resolver::UriResolver,
+    resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+    resolvers::uri_resolver::UriResolver,
 };
 use polywrap_wasm::{
     wasm_package::WasmPackage,

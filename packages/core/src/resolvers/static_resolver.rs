@@ -1,15 +1,15 @@
 use std::{collections::HashMap, sync::Arc};
 
 use async_trait::async_trait;
-use polywrap_core::{
+use crate::{
     client::UriRedirect,
     error::Error,
     loader::Loader,
     uri::Uri,
-    uri_resolution_context::{
+    resolvers::uri_resolution_context::{
         UriPackage, UriPackageOrWrapper, UriResolutionContext, UriResolutionStep, UriWrapper,
     },
-    uri_resolver::UriResolver,
+    resolvers::uri_resolver::UriResolver,
 };
 
 pub enum StaticResolverLike {
@@ -17,14 +17,6 @@ pub enum StaticResolverLike {
     Wrapper(UriWrapper),
     Package(UriPackage),
     StaticResolverLike(Vec<StaticResolverLike>),
-}
-
-pub enum UriResolverLike {
-    Resolver(Box<dyn UriResolver>),
-    Redirect(UriRedirect),
-    Package(UriPackage),
-    Wrapper(UriWrapper),
-    ResolverLike(Vec<UriResolverLike>),
 }
 
 pub struct StaticResolver {

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use polywrap_core::{
-  uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+  resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
   invoke::{InvokeArgs},
   uri::Uri,
   error::Error, 
@@ -12,7 +12,7 @@ use polywrap_msgpack::{msgpack, decode};
 use polywrap_wasm::wasm_package::{WasmPackage};
 use serde::{Serialize,Deserialize};
 
-use crate::{resolver_with_history::ResolverWithHistory, helpers::UriResolverExtensionFileReader};
+use polywrap_core::{resolvers::resolver_with_history::ResolverWithHistory, resolvers::helpers::UriResolverExtensionFileReader};
 use tokio::sync::Mutex;
 
 pub struct UriResolverWrapper {

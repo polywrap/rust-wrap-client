@@ -3,8 +3,8 @@ use polywrap_core::{
     error::Error,
     loader::Loader,
     uri::Uri,
-    uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    uri_resolver::UriResolver,
+    resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+    resolvers::uri_resolver::UriResolver,
 };
 
 pub struct BaseResolver {

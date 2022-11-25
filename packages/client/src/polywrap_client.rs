@@ -7,8 +7,8 @@ use polywrap_core::{
     invoke::{Invoker, InvokeArgs},
     loader::Loader,
     uri::Uri,
-    uri_resolution_context::UriResolutionContext,
-    uri_resolver::{UriResolverHandler},
+    resolvers::uri_resolution_context::UriResolutionContext,
+    resolvers::uri_resolver::{UriResolverHandler},
     wrapper::Wrapper, env::{Env},
     interface_implementation::InterfaceImplementations
 };
@@ -132,7 +132,7 @@ impl UriResolverHandler for PolywrapClient {
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<polywrap_core::uri_resolution_context::UriPackageOrWrapper, Error> {
+    ) -> Result<polywrap_core::resolvers::uri_resolution_context::UriPackageOrWrapper, Error> {
         self.loader.try_resolve_uri(uri, resolution_context).await
     }
 }

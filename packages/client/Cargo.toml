@@ -8,7 +8,6 @@ thiserror = "1.0.37"
 async-trait = "0.1.57"
 futures = "0.3.24"
 polywrap_core = {path = "../core"}
-polywrap_resolvers = {path = "../resolvers"}
 polywrap_msgpack = {path = "../msgpack"}
 polywrap_tests_utils = {path = "../tests-utils"}
 polywrap_plugin = {path ="../plugin"}
@@ -17,3 +16,6 @@ filesystem_plugin = {path = "../plugins/fs"}
 tokio = { version = "1", features = ["full"] }
 serde = {version = "1.0.145", features = ["derive"]}
 serde_json = "1.0.87"
+
+[dev-dependencies]
+polywrap_resolvers = {path = "../resolvers"}

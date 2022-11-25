@@ -5,7 +5,7 @@ use polywrap_core::{
     error::Error,
     invoke::{Invoker, InvokeArgs},
     loader::Loader,
-    uri_resolution_context::UriResolutionContext,
+    resolvers::uri_resolution_context::UriResolutionContext,
     wrapper::Wrapper, uri::Uri, env::{Env},
     interface_implementation::InterfaceImplementations
 };
