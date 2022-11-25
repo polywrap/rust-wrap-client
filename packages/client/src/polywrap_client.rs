@@ -28,12 +28,10 @@ impl PolywrapClient {
         let resolver = config.resolver;
         let loader = WrapperLoader::new(
             resolver, 
-            config.envs.clone()
-        );
-        let invoker = WrapperInvoker::new(
-            loader.clone(),
+            config.envs.clone(),
             config.interfaces.clone()
         );
+        let invoker = WrapperInvoker::new(loader.clone());
 
         Self {
             invoker,
@@ -118,7 +116,7 @@ impl Client for PolywrapClient {
     }
 
     fn get_interfaces(&self) -> Option<&InterfaceImplementations> {
-        if let Some(interfaces) = &self.invoker.interfaces {
+        if let Some(interfaces) = &self.invoker.loader.interfaces {
             return Some(interfaces);
         }
 

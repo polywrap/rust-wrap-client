@@ -7,7 +7,6 @@ use polywrap_core::{
     loader::Loader,
     resolvers::uri_resolution_context::UriResolutionContext,
     wrapper::Wrapper, uri::Uri, env::{Env},
-    interface_implementation::InterfaceImplementations
 };
 use tokio::sync::Mutex;
 
@@ -16,15 +15,13 @@ use crate::wrapper_loader::WrapperLoader;
 #[derive(Clone)]
 pub struct WrapperInvoker {
     pub loader: WrapperLoader,
-    pub interfaces: Option<InterfaceImplementations>
 }
 
 impl WrapperInvoker {
     pub fn new(
-        loader: WrapperLoader, 
-        interfaces: Option<InterfaceImplementations>
+        loader: WrapperLoader
     ) -> Self {
-        Self { loader, interfaces }
+        Self { loader }
     }
 }
 
@@ -87,7 +84,7 @@ impl Invoker for WrapperInvoker {
     }
 
     fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
-        if let Some(interfaces) = &self.interfaces {
+        if let Some(interfaces) = &self.loader.interfaces {
             let implementations_value = interfaces.get(&uri.uri);
             if let Some(implementations) = implementations_value {
                 return Ok(implementations.clone());

@@ -33,36 +33,35 @@ pub trait UriResolver: Send + Sync {
 impl From<UriResolverLike> for Arc<dyn UriResolver> {
     fn from(resolver_like: UriResolverLike) -> Self {
         match resolver_like {
-            UriResolverLike::ResolverLike(arr) => {
-              let resolvers = arr.into_iter().map(|r| {
-                let resolver: Arc<dyn UriResolver> = r.into();
-                resolver
-              }).collect();
+          UriResolverLike::ResolverLike(arr) => {
+            let resolvers = arr.into_iter().map(|r| {
+              let resolver: Arc<dyn UriResolver> = r.into();
+              resolver
+            }).collect();
 
-              Arc::new(UriResolverAggregator::new(
-                resolvers
-              ))
-            },
-            UriResolverLike::Resolver(resolver) => Arc::from(resolver),
-            UriResolverLike::Redirect(redirect) => {
-              Arc::new(RedirectResolver {
-                from: redirect.from,
-                to: redirect.to
-              })
-            }
-            
-            UriResolverLike::Package(pkg) => {
-              Arc::new(PackageResolver {
-                uri: pkg.uri.clone(),
-                package: pkg.package.clone(),
+            Arc::new(UriResolverAggregator::new(
+              resolvers
+            ))
+          },
+          UriResolverLike::Resolver(resolver) => Arc::from(resolver),
+          UriResolverLike::Redirect(redirect) => {
+            Arc::new(RedirectResolver {
+              from: redirect.from,
+              to: redirect.to
             })
-            },
-            UriResolverLike::Wrapper(wrapper) => {
-              Arc::new(WrapperResolver {
-                uri: wrapper.uri.clone(),
-                wrapper: wrapper.wrapper.clone(),
+          },
+          UriResolverLike::Package(pkg) => {
+            Arc::new(PackageResolver {
+              uri: pkg.uri.clone(),
+              package: pkg.package.clone(),
             })
-            },
+          },
+          UriResolverLike::Wrapper(wrapper) => {
+            Arc::new(WrapperResolver {
+              uri: wrapper.uri.clone(),
+              wrapper: wrapper.wrapper.clone(),
+            })
+          },
         }
     }
 }

@@ -7,7 +7,7 @@ use polywrap_core::{
     uri::Uri,
     resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     resolvers::uri_resolver::{UriResolver, UriResolverHandler},
-    wrapper::Wrapper, env::{Envs, Env}, invoke::Invoker,
+    wrapper::Wrapper, env::{Envs, Env}, invoke::Invoker, interface_implementation::InterfaceImplementations,
 };
 use tokio::sync::Mutex;
 
@@ -16,12 +16,17 @@ use crate::wrapper_invoker::WrapperInvoker;
 #[derive(Clone)]
 pub struct WrapperLoader {
     resolver: Arc<Mutex<Box<dyn UriResolver>>>,
-    pub envs: Option<Envs>
+    pub envs: Option<Envs>,
+    pub interfaces: Option<InterfaceImplementations>
 }
 
 impl WrapperLoader {
-    pub fn new(resolver: Arc<Mutex<Box<dyn UriResolver>>>, envs: Option<Envs>) -> Self {
-        Self { resolver, envs }
+    pub fn new(
+        resolver: Arc<Mutex<Box<dyn UriResolver>>>, 
+        envs: Option<Envs>,
+        interfaces: Option<InterfaceImplementations>,
+    ) -> Self {
+        Self { resolver, envs, interfaces }
     }
 }
 
@@ -90,8 +95,7 @@ impl Loader for WrapperLoader {
 
     fn get_invoker(&self) -> Result<Arc<Mutex<dyn Invoker>>, Error> {
         Ok(Arc::new(Mutex::new(WrapperInvoker { 
-            loader: self.to_owned(),
-            interfaces: None
+            loader: self.to_owned()
         })))
     }
 }
