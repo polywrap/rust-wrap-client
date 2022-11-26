@@ -1,10 +1,15 @@
 use std::sync::Arc;
+use async_trait::async_trait;
 
 use polywrap_core::{
     resolvers::{
-        uri_resolver::UriResolver, 
-        uri_resolution_context::UriResolutionContext, helpers::get_implementations
-    }, 
+        uri_resolution_context::{
+            UriResolutionContext,
+            UriPackageOrWrapper
+        },
+        uri_resolver_aggregator_base::UriResolverAggregatorBase,
+        uri_resolver::UriResolver
+    },
     uri::Uri, 
     loader::Loader,
     error::Error
@@ -20,34 +25,75 @@ impl ExtendableUriResolver {
     pub fn new(name: Option<String>) -> Self {
         ExtendableUriResolver { name }
     }
+}
 
-    pub fn resolver_name(mut self, name: &str) -> Self {
-        self.name = Some(name.to_string());
-        self
+#[async_trait]
+impl UriResolverAggregatorBase for ExtendableUriResolver {
+    fn get_resolver_name(&self) -> Option<String> {
+        self.name.clone()
     }
 
     async fn get_uri_resolvers(
-        uri: Uri,
+        &self,
+        _: &Uri,
         loader: &dyn Loader,
         resolution_context: &mut UriResolutionContext
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
         let invoker = loader.get_invoker()?;
-        let interfaces = invoker.lock().await.get_interfaces();
-        let implementations = get_implementations(
-           Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?,
-           interfaces,
-           Some(loader),
-           Some(resolution_context)
+        let implementations = invoker.lock().await.get_implementations(
+           Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?
         ).await?;
 
         let resolvers = implementations.into_iter().filter_map(|implementation| {
-            if resolution_context.is_resolving(&implementation) {
-                return Some(UriResolverWrapper::new(implementation));
+            if !resolution_context.is_resolving(&implementation) {
+                dbg!(&implementation);
+                let wrapper = Arc::new(UriResolverWrapper::new(implementation));
+                return Some(wrapper as Arc<dyn UriResolver>);
             }
 
             None
-        }).collect::<Vec<UriResolverWrapper>>();
+        }).collect::<Vec<Arc<dyn UriResolver>>>();
 
         Ok(resolvers)
+    }
+
+    async fn get_step_description(
+        &self,
+        _: &Uri,
+        _: &Result<UriPackageOrWrapper, Error>,
+    ) -> String {
+        if let Some(name) = self.get_resolver_name() {
+            name
+        } else {
+            "ExtendableUriResolver".to_string()
+        }
+    }
+}
+
+#[async_trait]
+impl UriResolver for ExtendableUriResolver {
+    async fn try_resolve_uri(
+        &self, 
+        uri: &Uri, 
+        loader: &dyn Loader, 
+        resolution_context: &mut UriResolutionContext
+    ) -> Result<UriPackageOrWrapper, Error> {
+        let resolvers = self.get_uri_resolvers(
+            &uri.clone(),
+            loader,
+            resolution_context
+        ).await?;
+
+        if resolvers.len() == 0 {
+            let uri = UriPackageOrWrapper::Uri(uri.clone());
+            return Ok(uri);
+        }
+
+        self.try_resolve_uri_with_resolvers(
+            &uri.clone(),
+            loader,
+            resolvers,
+            resolution_context
+        ).await
     }
 }

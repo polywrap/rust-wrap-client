@@ -2,13 +2,14 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use tokio::sync::Mutex;
 use crate::{
-    file_reader::FileReader, 
-    invoke::{Invoker, InvokeArgs}, uri::Uri,
-    error::Error, loader::Loader, interface_implementation::InterfaceImplementations
+    file_reader::FileReader,
+    invoke::{Invoker, InvokeArgs},
+    uri::Uri,
+    error::Error,
+    loader::Loader,
+    interface_implementation::InterfaceImplementations
 };
 use polywrap_msgpack::{msgpack};
-
-use super::uri_resolution_context::UriResolutionContext;
 
 pub struct UriResolverExtensionFileReader {
     pub resolver_extension_uri: Uri,
@@ -50,11 +51,23 @@ impl FileReader for UriResolverExtensionFileReader {
 pub async fn get_implementations(
     wrapper_uri: Uri,
     interfaces: Option<InterfaceImplementations>,
-    loader: Option<&dyn Loader>,
-    resolution_context: Option<&mut UriResolutionContext>
+    loader: Box<dyn Loader>,
 ) -> Result<Vec<Uri>, Error> {
     let mut implementation_uris: Vec<Uri> = vec![];
 
+    if let Some(interfaces) = interfaces {
+        let implementations_value = interfaces.get(&wrapper_uri.uri);
+        if let Some(implementations) = implementations_value {
+            for implementation in implementations.into_iter() {
+                // TODO: Validate if implementation is already added
+                // or if the implementation uri has redirect
+                // by invoking loader.try_resolve_uri
+                implementation_uris.push(implementation.clone());
+            }
+        }
+    }
+
+    Ok(implementation_uris)
     // for interface in interfaces.keys() {
     //     let mut fully_resolved_uri = implementation.clone();
     //     if let Some(l) = loader {
@@ -66,6 +79,4 @@ pub async fn get_implementations(
 
     //     if implementation_uris.contains(x)
     // }
-
-    Ok(vec![])
 }

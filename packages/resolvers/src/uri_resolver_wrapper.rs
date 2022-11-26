@@ -45,6 +45,7 @@ impl UriResolverWrapper {
         &mut sub_context
       ).await?;
 
+      dbg!("sii");
 
       let mut env = None;
       if let Some(e) = loader.get_env_by_uri(&uri.clone()) {
@@ -58,6 +59,7 @@ impl UriResolverWrapper {
       }));
 
       let invoker = loader.get_invoker()?;
+      dbg!(implementation_uri.clone()); 
       let result = invoker.lock().await.invoke_wrapper(
           wrapper, 
           &implementation_uri.clone(), 
@@ -91,7 +93,6 @@ impl UriResolverWrapper {
             resolver_extension_uri.clone().uri,
             uri.uri
           );
-          dbg!(&error);
           Err(Error::LoadWrapperError(error))
         },
         UriPackageOrWrapper::Package(_, package) => {
@@ -100,8 +101,8 @@ impl UriResolverWrapper {
             .await
             .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
 
-            Ok(wrapper)
-          },
+          Ok(wrapper)
+        },
         UriPackageOrWrapper::Wrapper(_, wrapper) => {
           Ok(wrapper)
         },

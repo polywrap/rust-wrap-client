@@ -29,6 +29,6 @@ pub trait Invoker: Send + Sync {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
-    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error>;
+    async fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error>;
     fn get_interfaces(&self) -> Option<InterfaceImplementations>;
 }

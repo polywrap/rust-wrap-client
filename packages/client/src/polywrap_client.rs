@@ -104,8 +104,8 @@ impl Invoker for PolywrapClient {
         self.invoker.invoke_wrapper(wrapper, uri, method, args, env, resolution_context).await
     }
 
-    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
-        self.invoker.get_implementations(uri)
+    async fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+        self.invoker.get_implementations(uri).await
     }
 
     fn get_interfaces(&self) -> Option<InterfaceImplementations> {

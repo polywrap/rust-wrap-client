@@ -46,8 +46,7 @@ impl From<Vec<UriResolverLike>> for UriResolverAggregator {
 }
 
 #[async_trait]
-impl UriResolver for UriResolverAggregator
-{
+impl UriResolver for UriResolverAggregator {
     async fn try_resolve_uri(
         &self,
         uri: &Uri,
@@ -73,7 +72,7 @@ impl UriResolverAggregatorBase for UriResolverAggregator {
         self.name.clone()
     }
 
-    async fn get_step_descrption(
+    async fn get_step_description(
         &self,
         _: &Uri,
         _: &Result<UriPackageOrWrapper, Error>,

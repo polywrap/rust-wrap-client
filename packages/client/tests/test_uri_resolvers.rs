@@ -1,6 +1,6 @@
 use std::{sync::Arc, collections::HashMap};
 use polywrap_client::polywrap_client::PolywrapClient;
-use polywrap_resolvers::uri_resolver_wrapper::UriResolverWrapper;
+use polywrap_resolvers::{uri_resolver_wrapper::UriResolverWrapper, extendable_uri_resolver::ExtendableUriResolver};
 use tokio::sync::Mutex;
 
 use polywrap_core::{uri::Uri, resolvers::{uri_resolution_context::{UriPackage, UriResolutionContext, UriPackageOrWrapper}, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike, uri_resolver::UriResolver}, client::ClientConfig, interface_implementation::InterfaceImplementations};
@@ -63,7 +63,7 @@ async fn test_uri_resolver_wrapper() {
 }
 
 #[tokio::test]
-async fn test_recursive_uri_resolver() {
+async fn recursive_uri_resolver() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let wrapper_local_path = format!("{}/subinvoke/00-subinvoke/implementations/as", path);
@@ -98,13 +98,17 @@ async fn test_recursive_uri_resolver() {
     interfaces.insert(
         "wrap://ens/uri-resolver.core.polywrap.eth".to_string(), 
         vec![
-            Uri::try_from("wrap://ens/http-resolver.polywrap.eth").unwrap(),
             Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap(),
-            ]
-        );
-        
-    let uri_resolver_uri = UriResolverLike::Resolver(Box::new(resolver));
-    let recursive_resolver = RecursiveResolver::from(uri_resolver_uri);
+        ]
+    );
+
+    let extendable_uri_resolver = ExtendableUriResolver::new(None);
+    let extendable_resolver_like = UriResolverLike::Resolver(Box::new(extendable_uri_resolver));
+
+    let static_resolver_like = UriResolverLike::Resolver(Box::new(resolver));
+    let recursive_resolver = RecursiveResolver::from(
+        vec![extendable_resolver_like, static_resolver_like]
+    );
 
     let r = Arc::new(Mutex::new(
         Box::new(recursive_resolver) as Box<dyn UriResolver>
@@ -124,7 +128,7 @@ async fn test_recursive_uri_resolver() {
 
     if let Ok(r) = result {
         if let UriPackageOrWrapper::Wrapper(_, _w) = r {
-            assert_eq!(true, true);
+            dbg!("SIUUUUU");
         }
     }
     // assert_eq!(true, false);

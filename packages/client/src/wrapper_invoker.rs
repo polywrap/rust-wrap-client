@@ -6,7 +6,8 @@ use polywrap_core::{
     invoke::{Invoker, InvokeArgs},
     loader::Loader,
     resolvers::uri_resolution_context::UriResolutionContext,
-    wrapper::Wrapper, uri::Uri, env::{Env}, interface_implementation::InterfaceImplementations,
+    wrapper::Wrapper, uri::Uri, env::{Env}, 
+    interface_implementation::InterfaceImplementations
 };
 use tokio::sync::Mutex;
 
@@ -83,14 +84,12 @@ impl Invoker for WrapperInvoker {
         Ok(invoke_result)
     }
 
-    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
-        if let Some(interfaces) = &self.loader.interfaces {
-            let implementations_value = interfaces.get(&uri.uri);
-            if let Some(implementations) = implementations_value {
-                return Ok(implementations.clone());
-            }
-        }
-        Ok(vec![])
+    async fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+        polywrap_core::resolvers::helpers::get_implementations(
+            uri.clone(),
+            self.get_interfaces(),
+            Box::new(self.loader.clone())
+        ).await
     }
 
     fn get_interfaces(&self) -> Option<InterfaceImplementations> {

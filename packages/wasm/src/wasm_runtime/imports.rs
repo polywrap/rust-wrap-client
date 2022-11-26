@@ -396,32 +396,37 @@ pub fn create_imports(
 
     let memory = Arc::clone(&arc_memory);
     linker
-        .func_wrap(
+        .func_wrap2_async(
             "wrap",
             "__wrap_getImplementations",
             move |mut caller: Caller<'_, State>, ptr: u32, len: u32| {
                 let memory = memory.lock().unwrap();
-                let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
+                let async_memory = Arc::new(tokio::sync::Mutex::new(*memory));
 
-                let uri_bytes = read_from_memory(memory_buffer, ptr as usize, len as usize);
-                let uri = String::from_utf8(uri_bytes).unwrap();
-                let result = state.invoker.get_implementations(Uri::new(uri.as_str()));
+                Box::new(async move {
+                    let memory = async_memory.lock().await;
+                    let (memory_buffer, state) = memory.data_and_store_mut(caller.as_context_mut());
 
-                if result.is_err() {
-                    let result = result.as_ref().err().unwrap();
-                    (state.abort)(result.to_string());
-                    return 0;
-                }
+                    let uri_bytes = read_from_memory(memory_buffer, ptr as usize, len as usize);
+                    let uri = String::from_utf8(uri_bytes).unwrap();
+                    let result = state.invoker.get_implementations(Uri::new(uri.as_str())).await;
 
-                let implementations = &result.unwrap();
-                let encoded_implementations = rmp_serde::encode::to_vec(implementations);                
-                state.get_implementations_result = Some(encoded_implementations.unwrap());
+                    if result.is_err() {
+                        let result = result.as_ref().err().unwrap();
+                        (state.abort)(result.to_string());
+                        return 0;
+                    }
 
-                if !state.get_implementations_result.as_ref().unwrap().is_empty() {
-                    return 1;
-                }
-
-                0
+                    let implementations = &result.unwrap();
+                    let encoded_implementations = rmp_serde::encode::to_vec(implementations);                
+                    state.get_implementations_result = Some(encoded_implementations.unwrap());
+    
+                    if !state.get_implementations_result.as_ref().unwrap().is_empty() {
+                        return 1;
+                    }
+    
+                    0
+                })
             },
         )
         .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;

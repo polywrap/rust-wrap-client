@@ -45,6 +45,8 @@ impl UriResolverHandler for WrapperLoader {
             None => &mut uri_resolver_context,
         };
 
+        dbg!("b4");
+        dbg!(uri.clone());
         let x = uri_resolver.lock().await
             .try_resolve_uri(uri, self, &mut resolution_context)
             .await; x

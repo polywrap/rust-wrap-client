@@ -9,10 +9,31 @@ use crate::{
 };
 use async_trait::async_trait;
 
-use super::uri_resolver_like::UriResolverLike;
+use super::{uri_resolver_like::UriResolverLike, uri_resolver_aggregator::UriResolverAggregator};
 
 pub struct RecursiveResolver {
     resolver: Arc<dyn UriResolver>,
+}
+
+impl From<Vec<UriResolverLike>> for RecursiveResolver {
+    fn from(resolver_likes: Vec<UriResolverLike>) -> Self {
+        let resolvers = resolver_likes
+            .into_iter()
+            .map(|resolver_like| {
+                let resolver: Arc<dyn UriResolver> = resolver_like.into();
+
+                resolver
+            })
+            .collect();
+
+        RecursiveResolver::new(
+            Arc::new(
+                UriResolverAggregator::new(
+                    resolvers
+                )
+            )
+        )
+    }
 }
 
 impl RecursiveResolver {
@@ -65,7 +86,6 @@ impl UriResolver for RecursiveResolver {
             Err(Error::ResolverError("Infinite loop error".to_string()))
         } else {
             resolution_context.start_resolving(uri);
-
             let resolver_result = self
                 .resolver
                 .try_resolve_uri(uri, loader, resolution_context)
