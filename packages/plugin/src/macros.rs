@@ -1,3 +1,5 @@
+pub use polywrap_paste::paste;
+
 #[macro_export]
 macro_rules! impl_plugin_traits {
   ($plugin_type:ty, $manifest:expr, $(($method_name:ident, $args_type:ty)),* $(,)?) => {
@@ -10,7 +12,7 @@ macro_rules! impl_plugin_traits {
           invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,
       ) -> Result<serde_json::Value, polywrap_core::error::Error> {
           match method_name {
-              $(stringify!($method_name) => {
+              $($crate::macros::paste! {stringify!([<$method_name:camel>])} => {
                 let result = self.$method_name(
                   &serde_json::from_value::<$args_type>(params.clone())
                       .map_err(|e| polywrap_core::error::Error::InvokeError(e.to_string()))?,
