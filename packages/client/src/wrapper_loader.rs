@@ -57,7 +57,7 @@ impl Loader for WrapperLoader {
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<Arc<dyn Wrapper>, Error> {
+    ) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
         let mut empty_res_context = UriResolutionContext::new();
         let mut resolution_ctx = match resolution_context {
             Some(ctx) => ctx,
@@ -77,6 +77,7 @@ impl Loader for WrapperLoader {
             UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
             UriPackageOrWrapper::Package(_, package) => {
                 let wrapper = package
+                    .lock().await
                     .create_wrapper()
                     .await
                     .map_err(|e| Error::WrapperCreateError(e.to_string()))?;

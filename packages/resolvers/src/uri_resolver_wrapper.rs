@@ -164,3 +164,9 @@ impl ResolverWithHistory for UriResolverWrapper {
       format!("UriResolverWrapper - Implementation called: {}", uri.clone().uri)
     }
 }
+
+impl fmt::Debug for UriResolverWrapper {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "UriResolverWrapper: {:?}", self.implementation_uri)
+  }
+}

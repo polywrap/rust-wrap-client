@@ -22,7 +22,7 @@ impl UriRedirect {
 }
 
 pub struct ClientConfig {
-  pub resolver: Arc<Mutex<Box<dyn UriResolver>>>,
+  pub resolver: Arc<dyn UriResolver>,
   pub envs: Option<Envs>,
   pub interfaces: Option<InterfaceImplementations>
 }

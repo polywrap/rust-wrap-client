@@ -78,10 +78,10 @@ async fn test_env() {
 
     let file_reader = SimpleFileReader::new();
     let client = PolywrapClient::new(ClientConfig {
-        resolver: Arc::new(Mutex::new(Box::new(BaseResolver::new(
+        resolver: Arc::new(BaseResolver::new(
             Box::new(FilesystemResolver::new(Arc::new(file_reader))),
             Box::new(static_resolver),
-        )))),
+        )),
         envs: Some(envs),
         interfaces: None
     });

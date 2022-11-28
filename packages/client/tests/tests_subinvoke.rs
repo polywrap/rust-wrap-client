@@ -36,10 +36,10 @@ async fn subinvoke_test() {
         ClientConfig {
             envs: None,
             interfaces: None,
-            resolver: Arc::new(Mutex::new(Box::new(BaseResolver::new(
+            resolver: Arc::new(BaseResolver::new(
                 Box::new(fs_resolver),
                 Box::new(static_resolver),
-            )))),
+            )),
         }
     );
 
