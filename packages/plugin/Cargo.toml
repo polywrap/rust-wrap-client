@@ -12,6 +12,7 @@ polywrap_msgpack = { path = "../msgpack" }
 serde_json = "1.0.87"
 rmp-serde = "1.1.1"
 tokio = { version = "1", features = ["full"] }
+polywrap_paste = "1.0.0"
 
 [dev-dependencies]
 serde = {version = "1.0.145", features = ["derive"]}
