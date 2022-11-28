@@ -1,15 +1,15 @@
 use std::sync::Arc;
 
-use crate::{
-    loader::Loader,
-    uri::Uri,
-};
+use crate::{loader::Loader, uri::Uri};
 use async_trait::async_trait;
 
-use super::{uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper, UriResolutionStep}, uri_resolver::UriResolver};
+use super::{
+    uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep},
+    uri_resolver::UriResolver,
+};
 
 #[async_trait]
-pub trait UriResolverAggregatorBase: UriResolver {
+pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
     fn get_resolver_name(&self) -> Option<String>;
     async fn get_uri_resolvers(
         &self,
@@ -32,21 +32,39 @@ pub trait UriResolverAggregatorBase: UriResolver {
         let sub_context = resolution_context.create_sub_history_context();
         for resolver in resolvers.into_iter() {
             let result = resolver
-            .try_resolve_uri(uri, loader, resolution_context)
-            .await?;
+                .try_resolve_uri(uri, loader, resolution_context)
+                .await;
+            let track_and_return = if let Ok(result_value) = &result {
+                if let UriPackageOrWrapper::Uri(result_uri) = result_value {
+                    uri.to_string() != result_uri.to_string()
+                } else {
+                    true
+                }
+            } else {
+                true
+            };
 
-            resolution_context.track_step(UriResolutionStep {
-                source_uri: uri.clone(),
-                result: Ok(result.clone()),
-                sub_history: Some(sub_context.get_history().clone()),
-                description: Some(self.get_step_description(uri, &Ok(result.clone())).await),
-            });
+            if track_and_return {
+                resolution_context.track_step(UriResolutionStep {
+                    source_uri: uri.clone(),
+                    result: result.clone(),
+                    sub_history: Some(sub_context.get_history().clone()),
+                    description: Some(self.get_step_description(uri, &result).await),
+                });
 
-            return Ok(result);
+                return result;
+            }
         }
-        // TODO
-        Err(crate::error::Error::ResolutionError("".to_string()))
+
+        let result = Ok(UriPackageOrWrapper::Uri(uri.clone()));
+
+        resolution_context.track_step(UriResolutionStep {
+            source_uri: uri.clone(),
+            result: result.clone(),
+            sub_history: Some(sub_context.get_history().clone()),
+            description: Some(self.get_step_description(uri, &result).await),
+        });
+
+        result
     }
 }
-
-

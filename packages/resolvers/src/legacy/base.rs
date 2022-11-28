@@ -1,3 +1,5 @@
+use core::fmt;
+
 use async_trait::async_trait;
 use polywrap_core::{
     error::Error,
@@ -37,4 +39,10 @@ impl UriResolver for BaseResolver {
           Ok(redirected_uri)
         }
     }
+}
+
+impl fmt::Debug for BaseResolver {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "BaseResolver", )
+  }
 }

@@ -1,3 +1,4 @@
+use core::fmt;
 use std::sync::Arc;
 
 use crate::{
@@ -100,4 +101,10 @@ impl UriResolver for RecursiveResolver {
             result
         }
     }
+}
+
+impl fmt::Debug for RecursiveResolver {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "RecursiveResolver")
+  }
 }

@@ -1,3 +1,5 @@
+use core::fmt;
+
 use async_trait::async_trait;
 
 use crate::{loader::Loader, uri::Uri};
@@ -36,4 +38,10 @@ impl ResolverWithHistory for RedirectResolver {
             Ok(UriPackageOrWrapper::Uri(self.to.clone()))
         }
     }
+}
+
+impl fmt::Debug for RedirectResolver {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "RedirectResolver: {} - {}", self.from, self.to)
+  }
 }

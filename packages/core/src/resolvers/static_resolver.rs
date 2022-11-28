@@ -1,3 +1,4 @@
+use core::fmt;
 use std::{collections::HashMap};
 
 use async_trait::async_trait;
@@ -102,4 +103,10 @@ impl UriResolver for StaticResolver {
 
         Ok(result)
     }
+}
+
+impl fmt::Debug for StaticResolver {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "StaticResolver")
+  }
 }

@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::sync::Arc;
 
 use crate::error::Error;
@@ -21,11 +22,11 @@ pub trait UriResolverHandler {
 }
 
 #[async_trait]
-pub trait UriResolver: Send + Sync {
+pub trait UriResolver: Send + Sync + Debug {
     async fn try_resolve_uri(
         &self,
         uri: &Uri,
-        client: &dyn Loader,
+        loader: &dyn Loader,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error>;
 }

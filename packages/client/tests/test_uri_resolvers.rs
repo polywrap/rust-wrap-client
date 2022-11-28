@@ -41,7 +41,7 @@ async fn test_uri_resolver_wrapper() {
     let client = PolywrapClient::new(ClientConfig {
         envs: None,
         interfaces: None,
-        resolver: Arc::new(Mutex::new(Box::new(resolver)))
+        resolver: Arc::new(resolver)
     });
 
     let mut uri_resolution_context = UriResolutionContext::new();
@@ -109,9 +109,7 @@ async fn recursive_uri_resolver() {
         vec![extendable_resolver_like, static_resolver_like]
     );
 
-    let r = Arc::new(Mutex::new(
-        Box::new(recursive_resolver) as Box<dyn UriResolver>
-    ));
+    let r = Arc::new(recursive_resolver);
 
     let client = PolywrapClient::new(ClientConfig {
         envs: None,
@@ -119,7 +117,7 @@ async fn recursive_uri_resolver() {
         resolver: r.clone()
     });
     let mut uri_resolution_context = UriResolutionContext::new();
-    let result = recursive_resolver.try_resolve_uri(
+    let result = r.try_resolve_uri(
         &fs_wrapper_uri.clone(), 
         &client.loader, 
         &mut uri_resolution_context
@@ -129,6 +127,8 @@ async fn recursive_uri_resolver() {
         if let UriPackageOrWrapper::Wrapper(_, _w) = r {
             dbg!("works");
         }
+    } else {
+      println!("{:?}", result.err().unwrap());
     }
     // assert_eq!(true, false);
 }

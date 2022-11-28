@@ -1,3 +1,4 @@
+use core::fmt;
 use std::{sync::Arc};
 
 use async_trait::async_trait;
@@ -92,4 +93,10 @@ impl UriResolverAggregatorBase for UriResolverAggregator {
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
         Ok(self.resolvers.clone())
     }
+}
+
+impl fmt::Debug for UriResolverAggregator {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "UriResolverAggregator\nResolvers: {:?}", self.resolvers)
+  }
 }

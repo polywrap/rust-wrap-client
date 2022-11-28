@@ -1,3 +1,4 @@
+use core::fmt;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -38,4 +39,10 @@ impl ResolverWithHistory for WrapperResolver {
             ))
         }
     }
+}
+
+impl fmt::Debug for WrapperResolver {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "WrapperResolver: {}", self.uri)
+  }
 }

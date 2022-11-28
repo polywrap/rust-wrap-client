@@ -1,3 +1,4 @@
+use core::fmt;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -26,5 +27,11 @@ impl ResolverWithHistory for PackageResolver {
     } else {
       Ok(UriPackageOrWrapper::Package(uri.clone(), self.package.clone()))
     }
+  }
+}
+
+impl fmt::Debug for PackageResolver {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "PackageResolver: {}", self.uri)
   }
 }

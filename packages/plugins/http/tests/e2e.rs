@@ -24,7 +24,7 @@ fn get_client() -> PolywrapClient {
 
     PolywrapClient::new(
         ClientConfig {
-            resolver: Arc::new(Mutex::new(Box::new(resolver))),
+            resolver: Arc::new(resolver),
             interfaces: None,
             envs: None
         }

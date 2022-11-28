@@ -1,3 +1,4 @@
+use core::fmt;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -60,7 +61,7 @@ impl UriResolverWrapper {
       let result = invoker.lock().await.invoke_wrapper(
           wrapper, 
           &implementation_uri.clone(), 
-          "try_resolve_uri", 
+          "tryResolveUri", 
           Some(&invoke_args), 
           env, 
           Some(resolution_context)

@@ -1,3 +1,4 @@
+use core::fmt;
 use std::{sync::Arc};
 
 use async_trait::async_trait;
@@ -34,4 +35,10 @@ impl UriResolver for ResolverWithLoopGuard {
           result
         }
     }
+}
+
+impl fmt::Debug for ResolverWithLoopGuard {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "ResolverWithLoopGuard")
+  }
 }

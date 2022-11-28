@@ -15,14 +15,14 @@ use crate::wrapper_invoker::WrapperInvoker;
 
 #[derive(Clone)]
 pub struct WrapperLoader {
-    pub resolver: Arc<Mutex<Box<dyn UriResolver>>>,
+    pub resolver: Arc<dyn UriResolver>,
     pub envs: Option<Envs>,
     pub interfaces: Option<InterfaceImplementations>
 }
 
 impl WrapperLoader {
     pub fn new(
-        resolver: Arc<Mutex<Box<dyn UriResolver>>>, 
+        resolver: Arc<dyn UriResolver>, 
         envs: Option<Envs>,
         interfaces: Option<InterfaceImplementations>,
     ) -> Self {
@@ -45,7 +45,7 @@ impl UriResolverHandler for WrapperLoader {
             None => &mut uri_resolver_context,
         };
 
-        let x = uri_resolver.lock().await
+        let x = uri_resolver
             .try_resolve_uri(uri, self, &mut resolution_context)
             .await; x
     }
@@ -57,7 +57,7 @@ impl Loader for WrapperLoader {
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
+    ) -> Result<Arc<dyn Wrapper>, Error> {
         let mut empty_res_context = UriResolutionContext::new();
         let mut resolution_ctx = match resolution_context {
             Some(ctx) => ctx,
@@ -70,13 +70,13 @@ impl Loader for WrapperLoader {
             .map_err(|e| Error::ResolutionError(e.to_string()))?;
 
         match uri_package_or_wrapper {
-            UriPackageOrWrapper::Uri(uri) => Err(Error::InvokeError(format!(
+            UriPackageOrWrapper::Uri(uLoaderri) => Err(Error::InvokeError(format!(
                 "Failed to resolve wrapper: {}",
                 uri
             ))),
             UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
             UriPackageOrWrapper::Package(_, package) => {
-                let wrapper = package.lock().await
+                let wrapper = package
                     .create_wrapper()
                     .await
                     .map_err(|e| Error::WrapperCreateError(e.to_string()))?;

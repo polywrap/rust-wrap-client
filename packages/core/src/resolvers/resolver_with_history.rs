@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use async_trait::async_trait;
 use crate::{
     error::Error,
@@ -14,7 +16,7 @@ pub trait ResolverWithHistory: Send + Sync {
 }
 
 #[async_trait]
-impl<T: ResolverWithHistory> UriResolver for T {
+impl<T: ResolverWithHistory + Debug> UriResolver for T {
   async fn try_resolve_uri(&self, uri: &Uri, loader: &dyn Loader, resolution_ctx: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error> {
     let result = self._try_resolve_uri(uri, loader, resolution_ctx).await;
 

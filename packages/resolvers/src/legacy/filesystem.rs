@@ -1,4 +1,4 @@
-use std::{fs, path::Path, sync::Arc};
+use std::{fs, path::Path, sync::Arc, fmt};
 
 use async_trait::async_trait;
 use polywrap_core::{
@@ -62,4 +62,10 @@ impl UriResolver for FilesystemResolver {
             )));
         }
     }
+}
+
+impl fmt::Debug for FilesystemResolver {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "FilesystemResolver", )
+  }
 }
