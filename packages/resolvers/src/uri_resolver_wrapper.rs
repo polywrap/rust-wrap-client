@@ -45,8 +45,6 @@ impl UriResolverWrapper {
         &mut sub_context
       ).await?;
 
-      dbg!("sii");
-
       let mut env = None;
       if let Some(e) = loader.get_env_by_uri(&uri.clone()) {
           let e = e.to_owned();
@@ -59,7 +57,6 @@ impl UriResolverWrapper {
       }));
 
       let invoker = loader.get_invoker()?;
-      dbg!(implementation_uri.clone()); 
       let result = invoker.lock().await.invoke_wrapper(
           wrapper, 
           &implementation_uri.clone(), 

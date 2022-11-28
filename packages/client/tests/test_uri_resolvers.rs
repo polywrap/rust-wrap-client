@@ -80,7 +80,7 @@ async fn recursive_uri_resolver() {
     let fs_resolver_plugin_package: PluginPackage = fs_resolver.into();
     let fs_resolver_package = Arc::new(Mutex::new(fs_resolver_plugin_package));
 
-    let resolver = StaticResolver::from(
+    let static_resolver = StaticResolver::from(
         vec![
             StaticResolverLike::Package(UriPackage {
                 uri: Uri::try_from("wrap://ens/fs.polywrap.eth").unwrap(),
@@ -104,8 +104,7 @@ async fn recursive_uri_resolver() {
 
     let extendable_uri_resolver = ExtendableUriResolver::new(None);
     let extendable_resolver_like = UriResolverLike::Resolver(Box::new(extendable_uri_resolver));
-
-    let static_resolver_like = UriResolverLike::Resolver(Box::new(resolver));
+    let static_resolver_like = UriResolverLike::Resolver(Box::new(static_resolver));
     let recursive_resolver = RecursiveResolver::from(
         vec![extendable_resolver_like, static_resolver_like]
     );
@@ -120,7 +119,7 @@ async fn recursive_uri_resolver() {
         resolver: r.clone()
     });
     let mut uri_resolution_context = UriResolutionContext::new();
-    let result = r.lock().await.try_resolve_uri(
+    let result = recursive_resolver.try_resolve_uri(
         &fs_wrapper_uri.clone(), 
         &client.loader, 
         &mut uri_resolution_context
@@ -128,7 +127,7 @@ async fn recursive_uri_resolver() {
 
     if let Ok(r) = result {
         if let UriPackageOrWrapper::Wrapper(_, _w) = r {
-            dbg!("SIUUUUU");
+            dbg!("works");
         }
     }
     // assert_eq!(true, false);

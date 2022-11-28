@@ -46,7 +46,6 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
 
         let resolvers = implementations.into_iter().filter_map(|implementation| {
             if !resolution_context.is_resolving(&implementation) {
-                dbg!(&implementation);
                 let wrapper = Arc::new(UriResolverWrapper::new(implementation));
                 return Some(wrapper as Arc<dyn UriResolver>);
             }
