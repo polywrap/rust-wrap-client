@@ -17,5 +17,5 @@ pub trait Loader: UriResolverHandler + Send + Sync {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Arc<Mutex<dyn Wrapper>>, Error>;
     fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env>;
-    fn get_invoker(&self) -> Result<Arc<Mutex<dyn Invoker>>, Error>;
+    fn get_invoker(&self) -> Result<Arc<dyn Invoker>, Error>;
 }

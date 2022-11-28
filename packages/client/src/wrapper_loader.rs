@@ -94,9 +94,9 @@ impl Loader for WrapperLoader {
         None
     }
 
-    fn get_invoker(&self) -> Result<Arc<Mutex<dyn Invoker>>, Error> {
-        Ok(Arc::new(Mutex::new(WrapperInvoker { 
+    fn get_invoker(&self) -> Result<Arc<dyn Invoker>, Error> {
+        Ok(Arc::new(WrapperInvoker { 
             loader: self.to_owned()
-        })))
+        }))
     }
 }

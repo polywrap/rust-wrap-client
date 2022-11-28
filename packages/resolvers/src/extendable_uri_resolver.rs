@@ -41,7 +41,7 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
         resolution_context: &mut UriResolutionContext
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
         let invoker = loader.get_invoker()?;
-        let implementations = invoker.lock().await.get_implementations(
+        let implementations = invoker.get_implementations(
            Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?
         ).await?;
 
