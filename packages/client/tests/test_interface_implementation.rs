@@ -13,7 +13,7 @@ use polywrap_core::resolvers::{
 use polywrap_resolvers::legacy::{base::BaseResolver, filesystem::FilesystemResolver};
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::{collections::HashMap, sync::Arc};
-use tokio::sync::Mutex;
+
 
 
 #[tokio::test]

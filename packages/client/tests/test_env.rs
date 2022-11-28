@@ -14,7 +14,7 @@ use polywrap_core::resolvers::{
 use polywrap_resolvers::legacy::{filesystem::FilesystemResolver, base::BaseResolver};
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::{sync::Arc, collections::HashMap};
-use tokio::sync::Mutex;
+
 use serde_json::json;
 
 #[allow(non_snake_case)]

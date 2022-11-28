@@ -70,7 +70,7 @@ async fn recursive_uri_resolver() {
     let fs_wrapper_uri = Uri::try_from(format!("fs/{}", wrapper_local_path)).unwrap();
 
     let wrapper_github_path = "https://raw.githubusercontent.com/polywrap/wasm-test-harness/v0.1.1/wrappers/subinvoke/00-subinvoke/implementations/as/wrap.info";
-    let http_wrapper_uri = Uri::try_from(format!("http/{}", wrapper_github_path)).unwrap();
+    let _http_wrapper_uri = Uri::try_from(format!("http/{}", wrapper_github_path)).unwrap();
 
     let fs = FileSystemPlugin {};
     let fs_plugin_package: PluginPackage = fs.into();

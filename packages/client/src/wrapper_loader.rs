@@ -40,14 +40,14 @@ impl UriResolverHandler for WrapperLoader {
         let uri_resolver = self.resolver.clone();
         let mut uri_resolver_context = UriResolutionContext::new();
 
-        let mut resolution_context = match resolution_context {
+        let resolution_context = match resolution_context {
             Some(ctx) => ctx,
             None => &mut uri_resolver_context,
         };
 
-        let x = uri_resolver
-            .try_resolve_uri(uri, self, &mut resolution_context)
-            .await; x
+         uri_resolver
+            .try_resolve_uri(uri, self, resolution_context)
+            .await
     }
 }
 
@@ -70,7 +70,7 @@ impl Loader for WrapperLoader {
             .map_err(|e| Error::ResolutionError(e.to_string()))?;
 
         match uri_package_or_wrapper {
-            UriPackageOrWrapper::Uri(uLoaderri) => Err(Error::InvokeError(format!(
+            UriPackageOrWrapper::Uri(_uLoaderri) => Err(Error::InvokeError(format!(
                 "Failed to resolve wrapper: {}",
                 uri
             ))),

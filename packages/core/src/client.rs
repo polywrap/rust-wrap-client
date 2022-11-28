@@ -7,7 +7,7 @@ use crate::interface_implementation::InterfaceImplementations;
 use crate::resolvers::uri_resolver::{UriResolverHandler, UriResolver};
 use crate::env::{Envs};
 use async_trait::async_trait;
-use tokio::sync::Mutex;
+
 
 #[derive(Clone,Debug)]
 pub struct UriRedirect {

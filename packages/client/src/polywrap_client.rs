@@ -82,11 +82,7 @@ impl Invoker for PolywrapClient {
         let env_uri = match env {
             Some(env) => Some(env),
             None => {
-                if let Some(env) = self.loader.get_env_by_uri(uri) {
-                    Some(env.to_owned())
-                } else {
-                    None
-                }
+                self.loader.get_env_by_uri(uri).map(|env| env.to_owned())
             }
         };
         self.invoker.invoke(uri, method, args, env_uri, resolution_context).await

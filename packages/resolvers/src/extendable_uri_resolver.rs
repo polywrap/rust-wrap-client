@@ -84,7 +84,7 @@ impl UriResolver for ExtendableUriResolver {
             resolution_context
         ).await?;
 
-        if resolvers.len() == 0 {
+        if resolvers.is_empty() {
             let uri = UriPackageOrWrapper::Uri(uri.clone());
             return Ok(uri);
         }

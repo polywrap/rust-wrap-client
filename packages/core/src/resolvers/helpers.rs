@@ -51,14 +51,14 @@ impl FileReader for UriResolverExtensionFileReader {
 pub async fn get_implementations(
     wrapper_uri: Uri,
     interfaces: Option<InterfaceImplementations>,
-    loader: Box<dyn Loader>,
+    _loader: Box<dyn Loader>,
 ) -> Result<Vec<Uri>, Error> {
     let mut implementation_uris: Vec<Uri> = vec![];
 
     if let Some(interfaces) = interfaces {
         let implementations_value = interfaces.get(&wrapper_uri.uri);
         if let Some(implementations) = implementations_value {
-            for implementation in implementations.into_iter() {
+            for implementation in implementations.iter() {
                 // TODO: Validate if implementation is already added
                 // or if the implementation uri has redirect
                 // by invoking loader.try_resolve_uri
