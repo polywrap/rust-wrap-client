@@ -141,7 +141,7 @@ impl Loader for PolywrapClient {
         self.loader.get_env_by_uri(uri)
     }
     
-    fn get_invoker(&self) -> Result<Arc<Mutex<dyn Invoker>>, Error>  {
+    fn get_invoker(&self) -> Result<Arc<dyn Invoker>, Error>  {
         self.loader.get_invoker()
     }
 }

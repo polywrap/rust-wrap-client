@@ -47,10 +47,8 @@ impl Wrapper for PluginWrapper {
 
         let result =
             self.instance
-                .clone()
+                .lock().await._wrap_invoke(method, &json_args, invoker).await;
                 .lock()
-                .await
-                ._wrap_invoke(method, &json_args, invoker).await;
 
         match result {
             Ok(result) => Ok(rmp_serde::encode::to_vec(&result)
