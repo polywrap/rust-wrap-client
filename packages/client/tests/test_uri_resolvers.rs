@@ -54,10 +54,8 @@ async fn test_uri_resolver_wrapper() {
         &mut uri_resolution_context
     ).await;
 
-    if let Ok(r) = result {
-        if let UriPackageOrWrapper::Wrapper(_, _w) = r {
-            dbg!("works :)");
-        }
+    if let Ok(UriPackageOrWrapper::Wrapper(_, _w)) = result {
+        dbg!("works :)");
     }
     
 }

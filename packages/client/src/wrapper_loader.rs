@@ -70,7 +70,7 @@ impl Loader for WrapperLoader {
             .map_err(|e| Error::ResolutionError(e.to_string()))?;
 
         match uri_package_or_wrapper {
-            UriPackageOrWrapper::Uri(_uLoaderri) => Err(Error::InvokeError(format!(
+            UriPackageOrWrapper::Uri(uri) => Err(Error::InvokeError(format!(
                 "Failed to resolve wrapper: {}",
                 uri
             ))),
