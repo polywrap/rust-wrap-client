@@ -58,7 +58,7 @@ impl UriResolverWrapper {
       }));
 
       let invoker = loader.get_invoker()?;
-      let result = invoker.lock().await.invoke_wrapper(
+      let result = invoker.invoke_wrapper(
           wrapper, 
           &implementation_uri.clone(), 
           "tryResolveUri", 
@@ -139,7 +139,7 @@ impl ResolverWithHistory for UriResolverWrapper {
 
           let wrapper = package.create_wrapper().await?;
 
-        return Ok(UriPackageOrWrapper::Wrapper(self.implementation_uri.clone(), wrapper));
+        return Ok(UriPackageOrWrapper::Wrapper(uri.clone(), wrapper));
       }
 
       let package = WasmPackage::new(
@@ -148,7 +148,7 @@ impl ResolverWithHistory for UriResolverWrapper {
 
       if package.get_manifest(None).await.is_ok() {
         return Ok(
-          UriPackageOrWrapper::Package(self.implementation_uri.clone(), 
+          UriPackageOrWrapper::Package(uri.clone(), 
           Arc::new(Mutex::new(package)))
         );
       }

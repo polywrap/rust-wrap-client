@@ -60,7 +60,6 @@ impl Invoker for WrapperInvoker {
             None => &mut empty_res_context,
             Some(ctx) => ctx,
         };
-        let uri = uri;
 
         let wrapper = self
             .loader

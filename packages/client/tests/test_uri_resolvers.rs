@@ -106,7 +106,7 @@ async fn recursive_uri_resolver() {
     let extendable_resolver_like = UriResolverLike::Resolver(Box::new(extendable_uri_resolver));
     let static_resolver_like = UriResolverLike::Resolver(Box::new(static_resolver));
     let recursive_resolver = RecursiveResolver::from(
-        vec![extendable_resolver_like, static_resolver_like]
+        vec![static_resolver_like, extendable_resolver_like]
     );
 
     let r = Arc::new(recursive_resolver);
