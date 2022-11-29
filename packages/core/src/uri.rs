@@ -20,7 +20,7 @@ impl Uri {
         }
     }
 
-    pub fn from_string(uri: &str) -> Result<Uri, Error> {
+    fn from_string(uri: &str) -> Result<Uri, Error> {
         let mut processed = uri.to_string();
 
         while processed.starts_with('/') {
@@ -71,10 +71,10 @@ impl PartialEq for Uri {
     }
 }
 
-impl Into<String> for Uri {
-  fn into(self) -> String {
-    self.uri
-  }
+impl From<Uri> for String {
+    fn from(uri: Uri) -> Self {
+        uri.uri
+    }
 }
 
 impl TryFrom<String> for Uri {

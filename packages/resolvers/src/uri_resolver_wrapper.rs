@@ -154,7 +154,7 @@ impl ResolverWithHistory for UriResolverWrapper {
       }
 
       if let Some(uri) = result.uri {
-          return Ok(UriPackageOrWrapper::Uri(Uri::from_string(uri.as_str())?));
+          return Ok(UriPackageOrWrapper::Uri(uri.try_into()?));
       }
 
       Ok(UriPackageOrWrapper::Uri(uri.clone()))
