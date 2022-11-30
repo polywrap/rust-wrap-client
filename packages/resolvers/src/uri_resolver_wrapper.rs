@@ -66,8 +66,9 @@ impl UriResolverWrapper {
           env, 
           Some(resolution_context)
       ).await?;
-      decode::<MaybeUriOrManifest>(result.as_slice())
-        .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {}", e)))
+      let result = decode::<MaybeUriOrManifest>(result.as_slice())?;
+
+      Ok(result)
   }
 
   async fn load_extension(

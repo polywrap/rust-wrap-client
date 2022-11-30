@@ -1,24 +1,28 @@
 use std::collections::HashMap;
 
+use error::MsgpackError;
 pub use rmpv;
 pub use rmpv::{encode::write_value, Value};
 pub use rmp_serde::{Serializer};
 use serde::{Serialize, de::DeserializeOwned, Deserialize};
+pub mod error;
 
-pub fn encode(value: &rmpv::Value) -> Result<Vec<u8>, rmp_serde::encode::Error> {
+pub fn encode(value: &rmpv::Value) -> Result<Vec<u8>, MsgpackError> {
     let mut buf = Vec::new();
     write_value(&mut buf, value)?;
     Ok(buf)
 }
 
-pub fn serialize<T: Serialize>(val: T) -> Result<Vec<u8>, rmp_serde::encode::Error> {
+pub fn serialize<T: Serialize>(val: T) -> Result<Vec<u8>, MsgpackError> {
   let mut buf = Vec::new();
   val.serialize(&mut Serializer::new(&mut buf))?;
   Ok(buf)
 }
 
-pub fn decode<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, rmp_serde::decode::Error> {
-    rmp_serde::from_slice(bytes)
+pub fn decode<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, MsgpackError> {
+    let result = rmp_serde::from_slice(bytes)?;
+
+    Ok(result)
 }
 
 pub struct RMPVObject {

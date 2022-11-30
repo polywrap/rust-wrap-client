@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use polywrap_msgpack::error::MsgpackError;
+
 #[derive(thiserror::Error, Debug, Clone)]
 pub enum Error {
   #[error("Error parsing URI: `{0}`")]
@@ -32,4 +34,10 @@ pub enum Error {
   ResolverError(String),
   #[error("`{0}`")]
   PluginError(String),
+}
+
+impl From<MsgpackError> for Error {
+  fn from(e: MsgpackError) -> Self {
+    Error::MsgpackError(e.to_string())
+  }
 }

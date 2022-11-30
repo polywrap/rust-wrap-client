@@ -1,11 +1,14 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use polywrap_core::{
-    invoke::{Invoker, InvokeArgs},
-    wrapper::{GetFileOptions, Wrapper}, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::Env,
-};
 use futures::lock::Mutex;
+use polywrap_core::{
+    env::Env,
+    invoke::{InvokeArgs, Invoker},
+    resolvers::uri_resolution_context::UriResolutionContext,
+    uri::Uri,
+    wrapper::{GetFileOptions, Wrapper},
+};
 
 use crate::module::PluginModule;
 
@@ -34,30 +37,31 @@ impl Wrapper for PluginWrapper {
         let args = match args {
             Some(args) => match args {
                 polywrap_core::invoke::InvokeArgs::Msgpack(value) => {
-                    polywrap_msgpack::encode(value)
-                        .map_err(|e| polywrap_core::error::Error::MsgpackError(e.to_string()))?
+                    polywrap_msgpack::encode(value)?
                 }
                 polywrap_core::invoke::InvokeArgs::UIntArray(arr) => arr.clone(),
             },
             None => vec![],
         };
 
-        let json_args: serde_json::Value = polywrap_msgpack::decode(args.as_slice())
-            .map_err(|e| polywrap_core::error::Error::MsgpackError(e.to_string()))?;
+        let json_args: serde_json::Value = polywrap_msgpack::decode(args.as_slice())?;
 
-        let result =
-            self.instance
-                .lock().await._wrap_invoke(method, &json_args, invoker).await;
+        let result = self
+            .instance
+            .lock()
+            .await
+            ._wrap_invoke(method, &json_args, invoker)
+            .await;
 
         match result {
-            Ok(result) => Ok(rmp_serde::encode::to_vec(&result)
-                .map_err(|e| polywrap_core::error::Error::MsgpackError(e.to_string()))?),
+            Ok(result) => Ok(polywrap_msgpack::serialize(&result)?),
             Err(e) => Err(crate::error::PluginError::InvocationError {
                 uri: uri.to_string(),
                 method: method.to_string(),
                 args: json_args.to_string(),
                 exception: e.to_string(),
-            }.into()),
+            }
+            .into()),
         }
     }
     async fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
@@ -72,10 +76,10 @@ mod tests {
     use async_trait::async_trait;
     use polywrap_core::invoke::Invoker;
 
-    use crate::{module::PluginModule, error::PluginError};
+    use crate::{error::PluginError, module::PluginModule};
 
     #[derive(serde::Serialize, serde::Deserialize)]
-    struct GetMapArgs { }
+    struct GetMapArgs {}
 
     #[derive(serde::Serialize, serde::Deserialize)]
     struct UpdateMapArgs {
@@ -86,8 +90,7 @@ mod tests {
     }
 
     impl MockMapPlugin {
-        pub fn get_map(&self, _: GetMapArgs,
-          _: Arc<dyn Invoker>,) -> &HashMap<String, u32> {
+        pub fn get_map(&self, _: GetMapArgs, _: Arc<dyn Invoker>) -> &HashMap<String, u32> {
             &self.map
         }
 
@@ -121,14 +124,20 @@ mod tests {
         ) -> Result<serde_json::Value, PluginError> {
             match method_name {
                 "get_map" => {
-                let result = self.get_map(serde_json::from_value::<GetMapArgs>(params.clone()).unwrap(), invoker.clone());
-                Ok(serde_json::to_value(result).unwrap())
-                },
+                    let result = self.get_map(
+                        serde_json::from_value::<GetMapArgs>(params.clone()).unwrap(),
+                        invoker.clone(),
+                    );
+                    Ok(serde_json::to_value(result).unwrap())
+                }
                 "update_map" => {
-                let result = self.update_map(serde_json::from_value::<UpdateMapArgs>(params.clone()).unwrap(), invoker.clone());
-                Ok(serde_json::to_value(result).unwrap())
-                },
-                e => panic!("No method named '{}' found in MockMapPlugin", e)
+                    let result = self.update_map(
+                        serde_json::from_value::<UpdateMapArgs>(params.clone()).unwrap(),
+                        invoker.clone(),
+                    );
+                    Ok(serde_json::to_value(result).unwrap())
+                }
+                e => panic!("No method named '{}' found in MockMapPlugin", e),
             }
         }
     }
