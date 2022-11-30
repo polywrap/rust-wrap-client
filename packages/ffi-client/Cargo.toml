@@ -1,0 +1,18 @@
+[package]
+name = "polywrap_ffi_client"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+polywrap_client = {path = "../client"}
+polywrap_resolvers = {path = "../resolvers"}
+polywrap_core = {path = "../core"}
+futures = "0.3.24"
+polywrap_plugin = {path ="../plugin"}
+fs_resolver_plugin = {path = "../plugins/fs-resolver"}
+filesystem_plugin = {path = "../plugins/fs"}
+polywrap_paste = "1.0.0"
+libc = "0.2.137"
