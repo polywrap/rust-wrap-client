@@ -12,8 +12,9 @@ use polywrap_core::{
     wrapper::Wrapper, env::{Env},
     interface_implementation::InterfaceImplementations
 };
-use polywrap_msgpack::{decode, DeserializeOwned};
-use tokio::sync::Mutex;
+use polywrap_msgpack::{decode};
+use serde::de::DeserializeOwned;
+use futures::lock::Mutex;
 
 use crate::{wrapper_invoker::WrapperInvoker, wrapper_loader::WrapperLoader};
 

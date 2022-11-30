@@ -34,9 +34,7 @@ impl ClientBuilder for BuilderConfig {
 
         if let Some(i) = config.interfaces {
             for (interface, implementation_uris) in i.into_iter() {
-                let interface_uri =Uri::from_string(
-                    interface.as_str()
-                ).unwrap(); 
+                let interface_uri: Uri = interface.try_into().unwrap(); 
                 self.add_interface_implementations(
                     interface_uri, 
                     implementation_uris

@@ -11,7 +11,7 @@ use polywrap_manifest::{
     versions::WrapManifest,
 };
 
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 use crate::wasm_wrapper::WasmWrapper;
 

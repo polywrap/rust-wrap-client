@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 use crate::{
     env::Env, error::Error, invoke::Invoker,

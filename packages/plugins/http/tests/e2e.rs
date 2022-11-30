@@ -10,7 +10,7 @@ use polywrap_core::{
 use polywrap_plugin::package::PluginPackage;
 use polywrap_core::resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use serde_json::json;
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 fn get_client() -> PolywrapClient {
     let http_plugin = HttpPlugin {};

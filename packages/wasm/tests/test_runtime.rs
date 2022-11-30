@@ -14,7 +14,7 @@ use polywrap_msgpack::msgpack;
 use std::sync::Arc;
 use std::fs;
 use polywrap_tests_utils::helpers::get_tests_path;
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 #[derive(Clone)]
 struct MockInvoker {
@@ -113,8 +113,9 @@ async fn invoke_test() {
     let args = InvokeArgs::Msgpack(msgpack!({ "a": 1, "b": 1}));
 
     let mock_invoker = MockInvoker::new(wrapper);
+    let uri: Uri = "fs/tests/cases/simple-invoke".to_string().try_into().unwrap();
     let result = mock_invoker.invoke(
-        &Uri::from_string("fs/tests/cases/simple-invoke").unwrap(),
+        &uri,
         "add",
         Some(&args), 
         None,

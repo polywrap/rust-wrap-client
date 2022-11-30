@@ -1,4 +1,4 @@
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 use crate::{package::WrapPackage, wrapper::Wrapper, error::Error};
 use std::{collections::HashMap, sync::Arc, vec};

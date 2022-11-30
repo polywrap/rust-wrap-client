@@ -2,7 +2,7 @@ use std::{sync::Arc};
 use async_trait::async_trait;
 use serde_json::Value;
 
-use polywrap_core::error::Error;
+use crate::error::PluginError;
 
 #[async_trait]
 pub trait PluginModule: Send + Sync {
@@ -11,5 +11,5 @@ pub trait PluginModule: Send + Sync {
         method_name: &str,
         params: &Value,
         invoker: Arc<dyn polywrap_core::invoke::Invoker>,
-    ) -> Result<Value, Error>;
+    ) -> Result<Value, PluginError>;
 }

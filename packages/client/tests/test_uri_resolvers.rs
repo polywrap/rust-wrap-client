@@ -1,7 +1,7 @@
 use std::{sync::Arc, collections::HashMap};
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_resolvers::{uri_resolver_wrapper::UriResolverWrapper, extendable_uri_resolver::ExtendableUriResolver};
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 use polywrap_core::{uri::Uri, resolvers::{uri_resolution_context::{UriPackage, UriResolutionContext, UriPackageOrWrapper}, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike, uri_resolver::UriResolver}, client::ClientConfig, interface_implementation::InterfaceImplementations};
 use polywrap_core::resolvers::{static_resolver::{StaticResolver, StaticResolverLike}, resolver_with_history::ResolverWithHistory};

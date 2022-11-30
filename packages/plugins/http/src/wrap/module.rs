@@ -2,7 +2,8 @@
 ///       All modifications will be overwritten.
 
 use std::sync::Arc;
-use polywrap_core::{error::Error, invoke::Invoker};
+use polywrap_core::invoke::Invoker;
+use polywrap_plugin::error::PluginError;
 use polywrap_plugin::module::PluginModule;
 use serde::{Serialize, Deserialize};
 use super::types::*;
@@ -35,7 +36,7 @@ pub struct ArgsPost {
 
 #[async_trait]
 pub trait Module: PluginModule {
-  async fn get(&mut self, args: &ArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, Error>;
+  async fn get(&mut self, args: &ArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, PluginError>;
 
-  async fn post(&mut self, args: &ArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, Error>;
+  async fn post(&mut self, args: &ArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, PluginError>;
 }

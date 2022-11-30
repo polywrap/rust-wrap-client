@@ -90,29 +90,29 @@ fn test_redirects() {
 
     let redirects = vec![
         UriRedirect{
-            from: Uri::from_string("ens/c.eth").unwrap(), 
-            to: Uri::from_string("ens/d.eth").unwrap()
+            from: "ens/c.eth".to_string().try_into().unwrap(), 
+            to: "ens/d.eth".to_string().try_into().unwrap()
         },
         UriRedirect{
-            from: Uri::from_string("ens/f.eth").unwrap(), 
-            to: Uri::from_string("ens/g.eth").unwrap()
+            from: "ens/f.eth".to_string().try_into().unwrap(), 
+            to: "ens/g.eth".to_string().try_into().unwrap()
         },
     ];
     builder.add_redirects(redirects);
 
     assert_eq!(builder.redirects.is_some(), true);
     let builder_redirects = builder.redirects.unwrap();
-    assert_eq!(builder_redirects[0].from, Uri::from_string("ens/c.eth").unwrap());
-    assert_eq!(builder_redirects[0].to, Uri::from_string("ens/d.eth").unwrap());
-    assert_eq!(builder_redirects[1].from, Uri::from_string("ens/f.eth").unwrap());
-    assert_eq!(builder_redirects[1].to, Uri::from_string("ens/g.eth").unwrap());
+    assert_eq!(builder_redirects[0].from, "ens/c.eth".to_string().try_into().unwrap());
+    assert_eq!(builder_redirects[0].to, "ens/d.eth".to_string().try_into().unwrap());
+    assert_eq!(builder_redirects[1].from, "ens/f.eth".to_string().try_into().unwrap());
+    assert_eq!(builder_redirects[1].to, "ens/g.eth".to_string().try_into().unwrap());
 
     let mut builder = BuilderConfig::new(None);
     assert_eq!(builder.redirects.is_some(), false);
 
-    builder.add_redirect(Uri::from_string("ens/a.eth").unwrap(), Uri::from_string("ens/b.eth").unwrap());
+    builder.add_redirect("ens/a.eth".to_string().try_into().unwrap(), "ens/b.eth".to_string().try_into().unwrap());
     assert_eq!(builder.redirects.is_some(), true);
 
-    builder.remove_redirect(Uri::from_string("ens/a.eth").unwrap());
+    builder.remove_redirect("ens/a.eth".to_string().try_into().unwrap());
     assert_eq!(builder.redirects.is_some(), false);
 }

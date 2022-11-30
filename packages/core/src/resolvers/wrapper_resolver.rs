@@ -2,7 +2,7 @@ use core::fmt;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 use crate::{loader::Loader, uri::Uri, wrapper::Wrapper};
 

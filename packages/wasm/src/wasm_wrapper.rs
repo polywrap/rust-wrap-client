@@ -6,13 +6,13 @@ use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
 use polywrap_core::invoke::InvokeArgs;
 use polywrap_core::invoke::Invoker;
-use polywrap_core::uri::Uri;
 use polywrap_core::resolvers::uri_resolution_context::UriResolutionContext;
-use polywrap_core::wrapper::GetFileOptions;
+use polywrap_core::uri::Uri;
 use polywrap_core::wrapper::Encoding;
+use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
 use polywrap_manifest::versions::WrapManifest;
-use polywrap_msgpack::{decode};
+use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
 use std::sync::Arc;
 
@@ -55,11 +55,15 @@ impl WasmWrapper {
         method: &str,
         args: Option<&InvokeArgs>,
         resolution_context: Option<&mut UriResolutionContext>,
-        env: Option<Env>
+        env: Option<Env>,
     ) -> Result<T, Error> {
-        let result = self.invoke(invoker, uri, method, args, env, resolution_context).await?;
+        let result = self
+            .invoke(invoker, uri, method, args, env, resolution_context)
+            .await?;
 
-        decode(result.as_slice()).map_err(|e| Error::WrapperError(e.to_string()))
+        let result = decode(result.as_slice())?;
+
+        Ok(result)
     }
 }
 
@@ -76,20 +80,15 @@ impl Wrapper for WasmWrapper {
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => match args {
-                InvokeArgs::Msgpack(value) => polywrap_msgpack::encode(value)
-                    .map_err(|e| Error::MsgpackError(e.to_string()))?,
+                InvokeArgs::Msgpack(value) => polywrap_msgpack::encode(value)?,
                 InvokeArgs::UIntArray(arr) => arr.clone(),
             },
             None => vec![],
         };
 
-        let env =  match env {
-            Some(e) => {
-                rmp_serde::to_vec(&e).map_err(
-                    |e| Error::MsgpackError(e.to_string())
-                )?
-            },
-            None => polywrap_msgpack::encode(&rmpv::Value::Nil).map_err(|e| Error::MsgpackError(e.to_string()))?
+        let env = match env {
+            Some(e) => polywrap_msgpack::serialize(&e)?,
+            None => polywrap_msgpack::encode(&rmpv::Value::Nil)?,
         };
 
         let params = &[

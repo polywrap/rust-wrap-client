@@ -12,7 +12,7 @@ use polywrap_core::{
 use polywrap_wasm::{
     wasm_package::WasmPackage,
 };
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 pub struct FilesystemResolver {
     file_reader: Arc<dyn FileReader>,

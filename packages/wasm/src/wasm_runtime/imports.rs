@@ -118,7 +118,7 @@ pub fn create_imports(
                   args_ptr: u32,
                   args_len: u32| {
                 let memory = memory.lock().unwrap();
-                let async_memory = Arc::new(tokio::sync::Mutex::new(*memory));
+                let async_memory = Arc::new(futures::lock::Mutex::new(*memory));
 
                 Box::new(async move {
                     let memory = async_memory.lock().await;
@@ -129,7 +129,7 @@ pub fn create_imports(
                         read_from_memory(memory_buffer, method_ptr as usize, method_len as usize);
                     let args_bytes = read_from_memory(memory_buffer, args_ptr as usize, args_len as usize);
 
-                    let uri = Uri::from_string(&String::from_utf8(uri_bytes).unwrap()).unwrap();
+                    let uri = String::from_utf8(uri_bytes).unwrap().try_into().unwrap();
                     let method = String::from_utf8(method_bytes).unwrap();
                     let invoke_args = InvokeArgs::UIntArray(args_bytes);
 
@@ -250,7 +250,7 @@ pub fn create_imports(
                   args_ptr: u32,
                   args_len: u32| {
                 let memory = memory.lock().unwrap();
-                let async_memory = Arc::new(tokio::sync::Mutex::new(*memory));
+                let async_memory = Arc::new(futures::lock::Mutex::new(*memory));
 
                 Box::new(async move {
                     let memory = async_memory.lock().await;
@@ -263,7 +263,7 @@ pub fn create_imports(
                     let method_bytes = read_from_memory(memory_buffer, method_ptr as usize, method_len as usize);
                     let args_bytes = read_from_memory(memory_buffer, args_ptr as usize, args_len as usize);
 
-                    let uri = Uri::from_string(&String::from_utf8(impl_uri_bytes).unwrap()).unwrap();
+                    let uri: Uri = String::from_utf8(impl_uri_bytes).unwrap().try_into().unwrap();
                     let method = String::from_utf8(method_bytes).unwrap();
                     let invoke_args = InvokeArgs::UIntArray(args_bytes);
 
@@ -401,7 +401,7 @@ pub fn create_imports(
             "__wrap_getImplementations",
             move |mut caller: Caller<'_, State>, ptr: u32, len: u32| {
                 let memory = memory.lock().unwrap();
-                let async_memory = Arc::new(tokio::sync::Mutex::new(*memory));
+                let async_memory = Arc::new(futures::lock::Mutex::new(*memory));
 
                 Box::new(async move {
                     let memory = async_memory.lock().await;

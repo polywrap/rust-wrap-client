@@ -14,7 +14,7 @@ use polywrap_wasm::wasm_package::{WasmPackage};
 use serde::{Serialize,Deserialize};
 
 use polywrap_core::{resolvers::resolver_with_history::ResolverWithHistory, resolvers::helpers::UriResolverExtensionFileReader};
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 pub struct UriResolverWrapper {
   pub implementation_uri: Uri
@@ -66,8 +66,9 @@ impl UriResolverWrapper {
           env, 
           Some(resolution_context)
       ).await?;
-      decode::<MaybeUriOrManifest>(result.as_slice())
-        .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {}", e)))
+      let result = decode::<MaybeUriOrManifest>(result.as_slice())?;
+
+      Ok(result)
   }
 
   async fn load_extension(
@@ -154,7 +155,7 @@ impl ResolverWithHistory for UriResolverWrapper {
       }
 
       if let Some(uri) = result.uri {
-          return Ok(UriPackageOrWrapper::Uri(Uri::from_string(uri.as_str())?));
+          return Ok(UriPackageOrWrapper::Uri(uri.try_into()?));
       }
 
       Ok(UriPackageOrWrapper::Uri(uri.clone()))

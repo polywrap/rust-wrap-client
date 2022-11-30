@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use async_trait::async_trait;
 
-use crate::{method::PluginMethod, module::PluginModule};
+use crate::{method::PluginMethod, module::PluginModule, error::PluginError};
 
 #[derive(Clone)]
 pub struct PluginModuleWithMethods {
@@ -29,11 +29,11 @@ impl PluginModule for PluginModuleWithMethods {
         method_name: &str,
         params: &serde_json::Value,
         invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,
-    ) -> Result<serde_json::Value, polywrap_core::error::Error> {
+    ) -> Result<serde_json::Value, PluginError> {
         if let Some(method) = self.methods_map.get(method_name) {
           (method)(params.clone(), invoker)
         } else {
-          Err(polywrap_core::error::Error::InvokeError("No method found".to_string()))
+          Err(PluginError::MethodNotFoundError(method_name.to_string()))
         }
     }
 }
