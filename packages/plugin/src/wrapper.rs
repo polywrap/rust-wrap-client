@@ -5,7 +5,7 @@ use polywrap_core::{
     invoke::{Invoker, InvokeArgs},
     wrapper::{GetFileOptions, Wrapper}, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::Env,
 };
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 use crate::module::PluginModule;
 

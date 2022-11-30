@@ -5,7 +5,7 @@ use polywrap_core::{
     invoke::{InvokeArgs, Invoker},
     uri::Uri,
 };
-use polywrap_msgpack::{decode, msgpack, Deserialize};
+use polywrap_msgpack::{decode, msgpack};
 
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::resolvers::{
@@ -13,6 +13,7 @@ use polywrap_core::resolvers::{
 };
 use polywrap_resolvers::legacy::{filesystem::FilesystemResolver, base::BaseResolver};
 use polywrap_tests_utils::helpers::get_tests_path;
+use serde::Deserialize;
 use std::{sync::Arc, collections::HashMap};
 
 use serde_json::json;

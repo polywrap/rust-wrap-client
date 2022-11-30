@@ -3,7 +3,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use std::{sync::Arc};
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 pub enum InvokeArgs {
     Msgpack(polywrap_msgpack::Value),

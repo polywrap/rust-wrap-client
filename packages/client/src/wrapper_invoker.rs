@@ -9,7 +9,7 @@ use polywrap_core::{
     wrapper::Wrapper, uri::Uri, env::{Env}, 
     interface_implementation::InterfaceImplementations
 };
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 use crate::wrapper_loader::WrapperLoader;
 

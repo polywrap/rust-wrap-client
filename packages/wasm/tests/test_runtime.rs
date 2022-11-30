@@ -14,7 +14,7 @@ use polywrap_msgpack::msgpack;
 use std::sync::Arc;
 use std::fs;
 use polywrap_tests_utils::helpers::get_tests_path;
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 #[derive(Clone)]
 struct MockInvoker {

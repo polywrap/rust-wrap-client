@@ -118,7 +118,7 @@ pub fn create_imports(
                   args_ptr: u32,
                   args_len: u32| {
                 let memory = memory.lock().unwrap();
-                let async_memory = Arc::new(tokio::sync::Mutex::new(*memory));
+                let async_memory = Arc::new(futures::lock::Mutex::new(*memory));
 
                 Box::new(async move {
                     let memory = async_memory.lock().await;
@@ -250,7 +250,7 @@ pub fn create_imports(
                   args_ptr: u32,
                   args_len: u32| {
                 let memory = memory.lock().unwrap();
-                let async_memory = Arc::new(tokio::sync::Mutex::new(*memory));
+                let async_memory = Arc::new(futures::lock::Mutex::new(*memory));
 
                 Box::new(async move {
                     let memory = async_memory.lock().await;
@@ -401,7 +401,7 @@ pub fn create_imports(
             "__wrap_getImplementations",
             move |mut caller: Caller<'_, State>, ptr: u32, len: u32| {
                 let memory = memory.lock().unwrap();
-                let async_memory = Arc::new(tokio::sync::Mutex::new(*memory));
+                let async_memory = Arc::new(futures::lock::Mutex::new(*memory));
 
                 Box::new(async move {
                     let memory = async_memory.lock().await;

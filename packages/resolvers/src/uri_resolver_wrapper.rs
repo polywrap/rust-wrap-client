@@ -14,7 +14,7 @@ use polywrap_wasm::wasm_package::{WasmPackage};
 use serde::{Serialize,Deserialize};
 
 use polywrap_core::{resolvers::resolver_with_history::ResolverWithHistory, resolvers::helpers::UriResolverExtensionFileReader};
-use tokio::sync::Mutex;
+use futures::lock::Mutex;
 
 pub struct UriResolverWrapper {
   pub implementation_uri: Uri
