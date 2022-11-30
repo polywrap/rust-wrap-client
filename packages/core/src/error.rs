@@ -6,8 +6,6 @@ use polywrap_msgpack::error::MsgpackError;
 pub enum Error {
   #[error("Error parsing URI: `{0}`")]
   UriParseError(String),
-  #[error("Error getting file: `{0}`")]
-  GetFileError(String),
   #[error("`{0}`\nResolution Stack: `{1:#?}`")]
   RedirectsError(String, HashMap<String, String>),
   #[error("`{0}`")]
@@ -28,8 +26,6 @@ pub enum Error {
   ManifestError(String),
   #[error("Error reading file: `{0}`")]
   FileReadError(String),
-  #[error("Plugin missing method : `{0}`")]
-  MissingPluginMethodError(String),
   #[error("`{0}`")]
   ResolverError(String),
   #[error("`{0}`")]
