@@ -1,10 +1,10 @@
-use std::collections::{BTreeMap};
+use crate::wrap::types::{Request, Response};
 use polywrap_plugin::error::PluginError;
-use crate::wrap::types::{Response, Request};
+use std::collections::BTreeMap;
 
 pub enum RequestMethod {
     GET,
-    PUT,
+    POST,
 }
 
 pub fn parse_response(response: ureq::Response) -> Result<Response, PluginError> {
@@ -36,24 +36,26 @@ pub fn parse_response(response: ureq::Response) -> Result<Response, PluginError>
 
 pub fn parse_request(
     url: &str,
-    request: Request,
+    request: Option<Request>,
     method: RequestMethod,
 ) -> Result<ureq::Request, PluginError> {
     let mut req = match method {
         RequestMethod::GET => ureq::get(url),
-        RequestMethod::PUT => ureq::post(url),
+        RequestMethod::POST => ureq::post(url),
     };
 
-    if let Some(url_params) = request.url_params {
-        for (param, value) in url_params.iter() {
-            req = req.query(param, value)
+    if let Some(request) = request {
+        if let Some(url_params) = request.url_params {
+            for (param, value) in url_params.iter() {
+                req = req.query(param, value)
+            }
+        };
+
+        if let Some(headers) = request.headers {
+            for (name, value) in headers.iter() {
+                req = req.set(name, value)
+            }
         }
-    };
-
-    if let Some(headers) = request.headers {
-      for (name, value) in headers.iter() {
-        req = req.set(name, value)
-      }
     }
 
     Ok(req)

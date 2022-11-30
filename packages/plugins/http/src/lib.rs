@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use mapping::parse_response;
+use mapping::{parse_response, parse_request};
 use polywrap_core::invoke::Invoker;
 use polywrap_plugin::error::PluginError;
 use wrap::{module::Module};
@@ -17,7 +17,7 @@ impl Module for HttpPlugin {
         args: &wrap::module::ArgsGet,
         _: Arc<dyn Invoker>,
     ) -> Result<Option<wrap::types::Response>, PluginError> {
-        let response = ureq::get(&args.url)
+        let response = parse_request(&args.url, args.request.clone(), mapping::RequestMethod::GET).unwrap()
             .call()
             .map_err(|e| PluginError::ModuleError(e.to_string()))?;
 
@@ -31,7 +31,7 @@ impl Module for HttpPlugin {
         args: &wrap::module::ArgsPost,
         _: Arc<dyn Invoker>,
     ) -> Result<Option<wrap::types::Response>, PluginError> {
-        let response = ureq::get(&args.url)
+        let response = parse_request(&args.url, args.request.clone(), mapping::RequestMethod::POST).unwrap()
             .call()
             .map_err(|e| PluginError::ModuleError(e.to_string()))?;
 
