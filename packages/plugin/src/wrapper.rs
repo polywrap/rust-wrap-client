@@ -52,12 +52,12 @@ impl Wrapper for PluginWrapper {
         match result {
             Ok(result) => Ok(rmp_serde::encode::to_vec(&result)
                 .map_err(|e| polywrap_core::error::Error::MsgpackError(e.to_string()))?),
-            Err(e) => Err(polywrap_core::error::Error::PluginError {
+            Err(e) => Err(crate::error::PluginError::InvocationError {
                 uri: uri.to_string(),
                 method: method.to_string(),
                 args: json_args.to_string(),
                 exception: e.to_string(),
-            }),
+            }.into()),
         }
     }
     async fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
@@ -72,7 +72,7 @@ mod tests {
     use async_trait::async_trait;
     use polywrap_core::invoke::Invoker;
 
-    use crate::{module::PluginModule};
+    use crate::{module::PluginModule, error::PluginError};
 
     #[derive(serde::Serialize, serde::Deserialize)]
     struct GetMapArgs { }
@@ -118,7 +118,7 @@ mod tests {
             method_name: &str,
             params: &serde_json::Value,
             invoker: Arc<dyn polywrap_core::invoke::Invoker>,
-        ) -> Result<serde_json::Value, polywrap_core::error::Error> {
+        ) -> Result<serde_json::Value, PluginError> {
             match method_name {
                 "get_map" => {
                 let result = self.get_map(serde_json::from_value::<GetMapArgs>(params.clone()).unwrap(), invoker.clone());

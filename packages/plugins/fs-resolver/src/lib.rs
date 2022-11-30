@@ -1,7 +1,8 @@
 use std::{sync::Arc, path::Path};
 
 use async_trait::async_trait;
-use polywrap_core::{error::Error, invoke::Invoker};
+use polywrap_core::invoke::Invoker;
+use polywrap_plugin::error::PluginError;
 use wrap::{
     module::{ArgsGetFile, ArgsTryResolveUri, Module},
     types::{MaybeUriOrManifest, FileSystemModule, FileSystemModuleArgsExists, FileSystemModuleArgsReadFile},
@@ -16,7 +17,7 @@ impl Module for FileSystemResolverPlugin {
         &mut self,
         args: &ArgsTryResolveUri,
         invoker: Arc<dyn Invoker>,
-    ) -> Result<Option<MaybeUriOrManifest>, Error> {
+    ) -> Result<Option<MaybeUriOrManifest>, PluginError> {
         if args.authority != "fs" && args.authority != "file" {
             return Ok(None);
         };
@@ -53,7 +54,7 @@ impl Module for FileSystemResolverPlugin {
         &mut self,
         args: &ArgsGetFile,
         invoker: Arc<dyn Invoker>,
-    ) -> Result<Option<Vec<u8>>, Error> {
+    ) -> Result<Option<Vec<u8>>, PluginError> {
         let resolve_result = FileSystemModule::read_file(
             &FileSystemModuleArgsReadFile { path: args.path.clone() },
             invoker,

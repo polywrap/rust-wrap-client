@@ -10,7 +10,8 @@ use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 use std::sync::Arc;
 use polywrap_msgpack::{decode, serialize};
-use polywrap_core::{error::Error, invoke::{Invoker, InvokeArgs}, uri::Uri};
+use polywrap_core::{invoke::{Invoker, InvokeArgs}, uri::Uri};
+use polywrap_plugin::error::PluginError;
 
 // Env START //
 
@@ -113,116 +114,165 @@ impl FileSystemModule {
         FileSystemModule {}
     }
 
-    pub async fn read_file(args: &FileSystemModuleArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, String> {
+    pub async fn read_file(args: &FileSystemModuleArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
-        let args = Some(&serialized_args);
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
+        let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke(
-            &Uri::try_from(uri).unwrap(),
+            &uri,
             "readFile",
-            args,
+            opt_args,
             None,
             None
-        ).await.map_err(|e| e.to_string())?;
+        )
+        .await
+        .map_err(|e| PluginError::SubinvocationError {
+            uri: uri.to_string(),
+            method: "readFile".to_string(),
+            args: serde_json::to_string(&args).unwrap(),
+            exception: e.to_string(),
+        })?;
 
-        Ok(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap())
+        Ok(decode(result.as_slice())?)
     }
 
-    pub async fn read_file_as_string(args: &FileSystemModuleArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, String> {
+    pub async fn read_file_as_string(args: &FileSystemModuleArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
-        let args = Some(&serialized_args);
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
+        let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke(
-            &Uri::try_from(uri).unwrap(),
+            &uri,
             "readFileAsString",
-            args,
+            opt_args,
             None,
             None
-        ).await.map_err(|e| e.to_string())?;
+        )
+        .await
+        .map_err(|e| PluginError::SubinvocationError {
+            uri: uri.to_string(),
+            method: "readFileAsString".to_string(),
+            args: serde_json::to_string(&args).unwrap(),
+            exception: e.to_string(),
+        })?;
 
-        Ok(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap())
+        Ok(decode(result.as_slice())?)
     }
 
-    pub async fn exists(args: &FileSystemModuleArgsExists, invoker: Arc<dyn Invoker>) -> Result<bool, String> {
+    pub async fn exists(args: &FileSystemModuleArgsExists, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
-        let args = Some(&serialized_args);
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
+        let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke(
-            &Uri::try_from(uri).unwrap(),
+            &uri,
             "exists",
-            args,
+            opt_args,
             None,
             None
-        ).await.map_err(|e| e.to_string())?;
+        )
+        .await
+        .map_err(|e| PluginError::SubinvocationError {
+            uri: uri.to_string(),
+            method: "exists".to_string(),
+            args: serde_json::to_string(&args).unwrap(),
+            exception: e.to_string(),
+        })?;
 
-        Ok(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap())
+        Ok(decode(result.as_slice())?)
     }
 
-    pub async fn write_file(args: &FileSystemModuleArgsWriteFile, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
+    pub async fn write_file(args: &FileSystemModuleArgsWriteFile, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
-        let args = Some(&serialized_args);
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
+        let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke(
-            &Uri::try_from(uri).unwrap(),
+            &uri,
             "writeFile",
-            args,
+            opt_args,
             None,
             None
-        ).await.map_err(|e| e.to_string())?;
+        )
+        .await
+        .map_err(|e| PluginError::SubinvocationError {
+            uri: uri.to_string(),
+            method: "writeFile".to_string(),
+            args: serde_json::to_string(&args).unwrap(),
+            exception: e.to_string(),
+        })?;
 
-        Ok(Some(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
+        Ok(Some(decode(result.as_slice())?))
     }
 
-    pub async fn mkdir(args: &FileSystemModuleArgsMkdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
+    pub async fn mkdir(args: &FileSystemModuleArgsMkdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
-        let args = Some(&serialized_args);
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
+        let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke(
-            &Uri::try_from(uri).unwrap(),
+            &uri,
             "mkdir",
-            args,
+            opt_args,
             None,
             None
-        ).await.map_err(|e| e.to_string())?;
+        )
+        .await
+        .map_err(|e| PluginError::SubinvocationError {
+            uri: uri.to_string(),
+            method: "mkdir".to_string(),
+            args: serde_json::to_string(&args).unwrap(),
+            exception: e.to_string(),
+        })?;
 
-        Ok(Some(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
+        Ok(Some(decode(result.as_slice())?))
     }
 
-    pub async fn rm(args: &FileSystemModuleArgsRm, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
+    pub async fn rm(args: &FileSystemModuleArgsRm, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
-        let args = Some(&serialized_args);
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
+        let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke(
-            &Uri::try_from(uri).unwrap(),
+            &uri,
             "rm",
-            args,
+            opt_args,
             None,
             None
-        ).await.map_err(|e| e.to_string())?;
+        )
+        .await
+        .map_err(|e| PluginError::SubinvocationError {
+            uri: uri.to_string(),
+            method: "rm".to_string(),
+            args: serde_json::to_string(&args).unwrap(),
+            exception: e.to_string(),
+        })?;
 
-        Ok(Some(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
+        Ok(Some(decode(result.as_slice())?))
     }
 
-    pub async fn rmdir(args: &FileSystemModuleArgsRmdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, String> {
+    pub async fn rmdir(args: &FileSystemModuleArgsRmdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
-        let args = Some(&serialized_args);
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
+        let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke(
-            &Uri::try_from(uri).unwrap(),
+            &uri,
             "rmdir",
-            args,
+            opt_args,
             None,
             None
-        ).await.map_err(|e| e.to_string())?;
+        )
+        .await
+        .map_err(|e| PluginError::SubinvocationError {
+            uri: uri.to_string(),
+            method: "rmdir".to_string(),
+            args: serde_json::to_string(&args).unwrap(),
+            exception: e.to_string(),
+        })?;
 
-        Ok(Some(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
+        Ok(Some(decode(result.as_slice())?))
     }
 }
 // Imported Modules END //

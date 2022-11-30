@@ -10,7 +10,8 @@ use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 use std::sync::Arc;
 use polywrap_msgpack::{decode, serialize};
-use polywrap_core::{error::Error, invoke::{Invoker, InvokeArgs}, uri::Uri};
+use polywrap_core::{invoke::{Invoker, InvokeArgs}, uri::Uri};
+use polywrap_plugin::error::PluginError;
 
 // Env START //
 
@@ -87,36 +88,50 @@ impl HttpModule {
         HttpModule {}
     }
 
-    pub async fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, String> {
+    pub async fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
-        let args = Some(&serialized_args);
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
+        let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke(
-            &Uri::try_from(uri).unwrap(),
+            &uri,
             "get",
-            args,
+            opt_args,
             None,
             None
-        ).await.map_err(|e| e.to_string())?;
+        )
+        .await
+        .map_err(|e| PluginError::SubinvocationError {
+            uri: uri.to_string(),
+            method: "get".to_string(),
+            args: serde_json::to_string(&args).unwrap(),
+            exception: e.to_string(),
+        })?;
 
-        Ok(Some(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
+        Ok(Some(decode(result.as_slice())?))
     }
 
-    pub async fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, String> {
+    pub async fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args).unwrap());
-        let args = Some(&serialized_args);
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
+        let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke(
-            &Uri::try_from(uri).unwrap(),
+            &uri,
             "post",
-            args,
+            opt_args,
             None,
             None
-        ).await.map_err(|e| e.to_string())?;
+        )
+        .await
+        .map_err(|e| PluginError::SubinvocationError {
+            uri: uri.to_string(),
+            method: "post".to_string(),
+            args: serde_json::to_string(&args).unwrap(),
+            exception: e.to_string(),
+        })?;
 
-        Ok(Some(decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e))).unwrap()))
+        Ok(Some(decode(result.as_slice())?))
     }
 }
 // Imported Modules END //

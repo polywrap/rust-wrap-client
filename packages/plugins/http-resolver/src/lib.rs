@@ -2,7 +2,8 @@ use std::sync::Arc;
 
 use crate::wrap::types::HttpModuleArgsGet;
 use async_trait::async_trait;
-use polywrap_core::{error::Error, invoke::Invoker};
+use polywrap_core::invoke::Invoker;
+use polywrap_plugin::error::PluginError;
 use wrap::{
     module::{ArgsGetFile, ArgsTryResolveUri, Module},
     types::{HttpModule, HttpRequest, MaybeUriOrManifest},
@@ -17,7 +18,7 @@ impl Module for HttpResolverPlugin {
         &mut self,
         args: &ArgsTryResolveUri,
         invoker: Arc<dyn Invoker>,
-    ) -> Result<Option<MaybeUriOrManifest>, Error> {
+    ) -> Result<Option<MaybeUriOrManifest>, PluginError> {
         if args.authority != "http" && args.authority != "https" {
             return Ok(None);
         };
@@ -63,7 +64,7 @@ impl Module for HttpResolverPlugin {
         &mut self,
         args: &ArgsGetFile,
         invoker: Arc<dyn Invoker>,
-    ) -> Result<Option<Vec<u8>>, Error> {
+    ) -> Result<Option<Vec<u8>>, PluginError> {
         let resolve_result = HttpModule::get(
             &HttpModuleArgsGet {
                 url: args.path.clone(),

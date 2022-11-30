@@ -1,5 +1,5 @@
 use std::collections::{BTreeMap};
-
+use polywrap_plugin::error::PluginError;
 use crate::wrap::types::{Response, Request};
 
 pub enum RequestMethod {
@@ -7,7 +7,7 @@ pub enum RequestMethod {
     PUT,
 }
 
-pub fn parse_response(response: ureq::Response) -> Result<Response, polywrap_core::error::Error> {
+pub fn parse_response(response: ureq::Response) -> Result<Response, PluginError> {
     let headers = response
         .headers_names()
         .iter()
@@ -24,7 +24,7 @@ pub fn parse_response(response: ureq::Response) -> Result<Response, polywrap_cor
 
     let data = response
         .into_string()
-        .map_err(|e| polywrap_core::error::Error::InvokeError(e.to_string()))?;
+        .map_err(|e| PluginError::ModuleError(e.to_string()))?;
 
     Ok(Response {
         status: status.into(),
@@ -38,7 +38,7 @@ pub fn parse_request(
     url: &str,
     request: Request,
     method: RequestMethod,
-) -> Result<ureq::Request, polywrap_core::error::Error> {
+) -> Result<ureq::Request, PluginError> {
     let mut req = match method {
         RequestMethod::GET => ureq::get(url),
         RequestMethod::PUT => ureq::post(url),

@@ -3,6 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use mapping::parse_response;
 use polywrap_core::invoke::Invoker;
+use polywrap_plugin::error::PluginError;
 use wrap::{module::Module};
 pub mod mapping;
 pub mod wrap;
@@ -15,10 +16,10 @@ impl Module for HttpPlugin {
         &mut self,
         args: &wrap::module::ArgsGet,
         _: Arc<dyn Invoker>,
-    ) -> Result<Option<wrap::types::Response>, polywrap_core::error::Error> {
+    ) -> Result<Option<wrap::types::Response>, PluginError> {
         let response = ureq::get(&args.url)
             .call()
-            .map_err(|e| polywrap_core::error::Error::InvokeError(e.to_string()))?;
+            .map_err(|e| PluginError::ModuleError(e.to_string()))?;
 
         let parsed_response = parse_response(response)?;
 
@@ -29,10 +30,10 @@ impl Module for HttpPlugin {
         &mut self,
         args: &wrap::module::ArgsPost,
         _: Arc<dyn Invoker>,
-    ) -> Result<Option<wrap::types::Response>, polywrap_core::error::Error> {
+    ) -> Result<Option<wrap::types::Response>, PluginError> {
         let response = ureq::get(&args.url)
             .call()
-            .map_err(|e| polywrap_core::error::Error::InvokeError(e.to_string()))?;
+            .map_err(|e| PluginError::ModuleError(e.to_string()))?;
 
         let parsed_response = parse_response(response)?;
 

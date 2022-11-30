@@ -10,18 +10,16 @@ macro_rules! impl_plugin_traits {
           method_name: &str,
           params: &serde_json::Value,
           invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,
-      ) -> Result<serde_json::Value, polywrap_core::error::Error> {
+      ) -> Result<serde_json::Value, $crate::error::PluginError> {
           let supported_methods: Vec<&str> = vec![$($crate::macros::paste! {stringify!([<$method_name:camel>])}),*];
           match method_name {
               $($crate::macros::paste! {stringify!([<$method_name:camel>])} => {
                 let result = self.$method_name(
-                  &serde_json::from_value::<$args_type>(params.clone())
-                      .map_err(|e| polywrap_core::error::Error::InvokeError(e.to_string()))?,
+                  &serde_json::from_value::<$args_type>(params.clone())?,
                   invoker,
               ).await?;
 
-              Ok(serde_json::to_value(result)
-                  .map_err(|e| polywrap_core::error::Error::InvokeError(e.to_string()))?)
+              Ok(serde_json::to_value(result)?)
               }),*
               _ => panic!("Method '{}' not found. Supported methods: {:#?}", method_name, supported_methods),
           }
