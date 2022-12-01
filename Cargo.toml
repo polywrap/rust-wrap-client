@@ -2,7 +2,6 @@
 
 members = [
     "packages/client",
-    "packages/ffi-client",
     "packages/core",
     "packages/wasm",
     "packages/resolvers",
