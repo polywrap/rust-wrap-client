@@ -6,6 +6,7 @@ use futures::{executor::block_on, lock::Mutex};
 use jni::JNIEnv;
 use jni::sys::jstring;
 use jni::{sys::{jlong}, objects::{JClass, JString}};
+use logger::Logger;
 pub use polywrap_client::polywrap_client::PolywrapClient;
 pub use polywrap_core::resolvers::static_resolver::StaticResolver;
 use polywrap_core::{
@@ -16,12 +17,17 @@ use polywrap_core::{
 };
 use polywrap_plugin::package::PluginPackage;
 
+pub mod logger;
+
 #[allow(non_snake_case)]
 #[no_mangle]
 pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_createResolver(
-    _: JNIEnv,
+    env: JNIEnv,
     _: JClass,
 ) -> jlong {
+    let logger = Logger::new(env, "FFIPolywrapClient").unwrap();
+    logger.d("Invoked 'Java_com_example_polywrapmobile_NativeClient_createResolver'").unwrap();
+
     let fs = FileSystemPlugin {};
     let fs_plugin_package: PluginPackage = fs.into();
     let fs_package = Arc::new(Mutex::new(fs_plugin_package));
@@ -59,10 +65,13 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_destructReso
 #[allow(non_snake_case)]
 #[no_mangle]
 pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_createClient(
-  _: JNIEnv,
+  env: JNIEnv,
   _: JClass,
   resolver_ptr: jlong,
 ) -> *mut PolywrapClient {
+    let logger = Logger::new(env, "FFIPolywrapClient").unwrap();
+    logger.d("Invoked 'Java_com_example_polywrapmobile_NativeClient_createClient'").unwrap();
+
     let resolver = unsafe {
         Arc::from_raw(resolver_ptr as *mut StaticResolver)
     };
@@ -99,6 +108,9 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_invoke(
     args_ptr: jlong,
     args_len: jlong,
 ) -> jstring {
+    let logger = Logger::new(env, "FFIPolywrapClient").unwrap();
+    logger.d("Invoked 'Java_com_example_polywrapmobile_NativeClient_invoke'").unwrap();
+
     let client = unsafe {
         Box::from_raw(client_ptr as *mut PolywrapClient)
     };
