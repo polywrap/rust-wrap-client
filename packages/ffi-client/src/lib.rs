@@ -1,37 +1,27 @@
-use std::{ffi::CStr, sync::Arc};
+use std::{sync::Arc};
 
 use filesystem_plugin::FileSystemPlugin;
 use fs_resolver_plugin::FileSystemResolverPlugin;
-use futures::{lock::Mutex, executor::block_on};
-use libc::c_char;
-use polywrap_client::polywrap_client::PolywrapClient;
+use futures::{executor::block_on, lock::Mutex};
+use jni::JNIEnv;
+use jni::sys::jstring;
+use jni::{sys::{jlong}, objects::{JClass, JString}};
+pub use polywrap_client::polywrap_client::PolywrapClient;
+pub use polywrap_core::resolvers::static_resolver::StaticResolver;
 use polywrap_core::{
     client::ClientConfig,
-    invoke::{Invoker, InvokeArgs},
-    resolvers::{
-        static_resolver::{StaticResolver, StaticResolverLike},
-        uri_resolution_context::UriPackage,
-    },
+    invoke::{InvokeArgs, Invoker},
+    resolvers::{static_resolver::StaticResolverLike, uri_resolution_context::UriPackage},
     uri::Uri,
 };
 use polywrap_plugin::package::PluginPackage;
 
-macro_rules! create_free_fn {
-    ($entity:ty, $name: ident) => {
-        #[no_mangle]
-        pub extern "C" fn $name(ptr: *mut $entity) {
-            if ptr.is_null() {
-                return;
-            }
-            unsafe {
-                drop(Box::from_raw(ptr));
-            }
-        }
-    };
-}
-
+#[allow(non_snake_case)]
 #[no_mangle]
-pub extern "C" fn create_static_resolver() -> *mut StaticResolver {
+pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_createResolver(
+    _: JNIEnv,
+    _: JClass,
+) -> jlong {
     let fs = FileSystemPlugin {};
     let fs_plugin_package: PluginPackage = fs.into();
     let fs_package = Arc::new(Mutex::new(fs_plugin_package));
@@ -51,16 +41,30 @@ pub extern "C" fn create_static_resolver() -> *mut StaticResolver {
         }),
     ]);
 
-    Box::into_raw(Box::new(resolver))
+    Box::into_raw(Box::new(resolver)) as jlong
 }
 
-create_free_fn!(StaticResolver, static_resolver);
-
+#[allow(non_snake_case)]
 #[no_mangle]
-pub extern "C" fn create_client(resolver: *mut StaticResolver) -> *mut PolywrapClient {
+pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_destructResolver(
+    _: JNIEnv,
+    _: JClass,
+    resolver_ptr: jlong,
+) {
+  unsafe {
+    drop(Box::from_raw(resolver_ptr as *mut StaticResolver));
+  };
+}
+
+#[allow(non_snake_case)]
+#[no_mangle]
+pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_createClient(
+  _: JNIEnv,
+  _: JClass,
+  resolver_ptr: jlong,
+) -> *mut PolywrapClient {
     let resolver = unsafe {
-        assert!(!resolver.is_null());
-        Arc::from_raw(resolver)
+        Arc::from_raw(resolver_ptr as *mut StaticResolver)
     };
 
     let client = PolywrapClient::new(ClientConfig {
@@ -72,47 +76,61 @@ pub extern "C" fn create_client(resolver: *mut StaticResolver) -> *mut PolywrapC
     Box::into_raw(Box::new(client))
 }
 
-create_free_fn!(PolywrapClient, polywrap_client);
-
+#[allow(non_snake_case)]
 #[no_mangle]
-pub extern "C" fn invoke(
-    client: *mut PolywrapClient,
-    uri: *const c_char,
-    method: *const c_char,
-    args: *mut u8,
-    args_len: libc::size_t,
-) -> *mut u32 {
+pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_destructClient(
+    _: JNIEnv,
+    _: JClass,
+    client_ptr: jlong,
+) {
+  unsafe {
+    drop(Box::from_raw(client_ptr as *mut PolywrapClient));
+  };
+}
+
+#[allow(non_snake_case)]
+#[no_mangle]
+pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_invoke(
+    env: JNIEnv,
+    _: JClass,
+    client_ptr: jlong,
+    uri: JString,
+    method: JString,
+    args_ptr: jlong,
+    args_len: jlong,
+) -> jstring {
     let client = unsafe {
-        assert!(!client.is_null());
-        Box::from_raw(client)
+        Box::from_raw(client_ptr as *mut PolywrapClient)
     };
 
-    let uri = unsafe {
-        assert!(!uri.is_null());
+    let uri_str: String = env
+      .get_string(uri)
+      .expect("Couldn't get java string! for URI")
+      .into();
 
-        CStr::from_ptr(uri)
-    }
-    .to_str()
-    .unwrap().to_string();
+    let uri: Uri = uri_str.try_into().unwrap();
 
-    let method = unsafe {
-        assert!(!method.is_null());
-
-        CStr::from_ptr(method)
-    }
-    .to_str()
-    .unwrap();
+    let method: String = env
+      .get_string(method)
+      .expect("Couldn't get java string! for Method")
+      .into();
 
     let args = unsafe {
         let len = args_len as usize;
-        Vec::from_raw_parts(args, len, len)
+        Vec::from_raw_parts(args_ptr as *mut u8, len, len)
     };
 
-    let uri: Uri = uri.try_into().unwrap(); 
+    let uri: Uri = uri.try_into().unwrap();
 
     let invoke_result = block_on(async {
-      client.invoke(&uri, method, Some(&InvokeArgs::UIntArray(args)), None, None).await.unwrap()
+        client
+            .invoke(&uri, &method, Some(&InvokeArgs::UIntArray(args)), None, None)
+            .await
+            .unwrap()
     });
 
-    Box::into_raw(Box::new(invoke_result)) as *mut _
+    let output = env
+    .new_string(format!("Result: {:#?}", invoke_result))
+    .expect("Couldn't create java string!");
+    output.into_raw()
 }
