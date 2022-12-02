@@ -22,10 +22,12 @@ pub fn parse_response(response: ureq::Response) -> Result<Response, PluginError>
     let status = response.status();
     let status_text = response.status_text().to_string();
 
+    dbg!(&response);
+
     let data = response
         .into_string()
         .map_err(|e| PluginError::ModuleError(e.to_string()))?;
-
+        dbg!(&data);
     Ok(Response {
         status: status.into(),
         status_text,

@@ -61,6 +61,8 @@ impl WrapPackage for WasmPackage {
             None => self.file_reader.read_file("wrap.info").await?,
         };
 
+        dbg!(encoded_manifest.clone());
+
         let opts = options.map(|options| DeserializeManifestOptions {
                 no_validate: options.no_validate,
                 ext_schema: None,
@@ -68,6 +70,8 @@ impl WrapPackage for WasmPackage {
         let deserialized_manifest = deserialize_wrap_manifest(&encoded_manifest, opts)
             .map_err(|e| polywrap_core::error::Error::ManifestError(e.to_string()))?;
 
+
+        dbg!(&deserialized_manifest);
         return Ok(deserialized_manifest);
     }
 
