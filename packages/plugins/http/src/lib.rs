@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use mapping::{parse_response, parse_request};
+use mapping::{parse_request, parse_response};
 use polywrap_core::invoke::Invoker;
 use polywrap_plugin::error::PluginError;
-use wrap::{module::Module};
+use wrap::{module::Module, types::ResponseType};
 pub mod mapping;
 pub mod wrap;
 
@@ -17,11 +17,19 @@ impl Module for HttpPlugin {
         args: &wrap::module::ArgsGet,
         _: Arc<dyn Invoker>,
     ) -> Result<Option<wrap::types::Response>, PluginError> {
-        let response = parse_request(&args.url, args.request.clone(), mapping::RequestMethod::GET).unwrap()
-            .call()
+        let response = parse_request(&args.url, args.request.clone(), mapping::RequestMethod::GET)
+            .unwrap()
+            .send()
+            .await
             .map_err(|e| PluginError::ModuleError(e.to_string()))?;
 
-        let parsed_response = parse_response(response)?;
+        let response_type = if let Some(r) = &args.request {
+            r.response_type
+        } else {
+            ResponseType::TEXT
+        };
+
+        let parsed_response = parse_response(response, response_type).await?;
 
         Ok(Some(parsed_response))
     }
@@ -31,11 +39,23 @@ impl Module for HttpPlugin {
         args: &wrap::module::ArgsPost,
         _: Arc<dyn Invoker>,
     ) -> Result<Option<wrap::types::Response>, PluginError> {
-        let response = parse_request(&args.url, args.request.clone(), mapping::RequestMethod::POST).unwrap()
-            .call()
-            .map_err(|e| PluginError::ModuleError(e.to_string()))?;
+        let response = parse_request(
+            &args.url,
+            args.request.clone(),
+            mapping::RequestMethod::POST,
+        )
+        .unwrap()
+        .send()
+        .await
+        .map_err(|e| PluginError::ModuleError(e.to_string()))?;
 
-        let parsed_response = parse_response(response)?;
+        let response_type = if let Some(r) = &args.request {
+            r.response_type
+        } else {
+            ResponseType::TEXT
+        };
+
+        let parsed_response = parse_response(response, response_type).await?;
 
         Ok(Some(parsed_response))
     }

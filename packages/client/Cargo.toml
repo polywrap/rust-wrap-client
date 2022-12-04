@@ -13,6 +13,8 @@ polywrap_tests_utils = {path = "../tests-utils"}
 polywrap_plugin = {path ="../plugin"}
 fs_resolver_plugin = {path = "../plugins/fs-resolver"}
 filesystem_plugin = {path = "../plugins/fs"}
+http_resolver_plugin = {path = "../plugins/http-resolver"}
+http_plugin = {path = "../plugins/http"}
 serde = {version = "1.0.145", features = ["derive"]}
 serde_json = "1.0.87"
 

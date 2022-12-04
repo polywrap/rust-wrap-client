@@ -47,8 +47,8 @@ async fn subinvoke_test() {
 
     let invoke_result = client
         .invoke_and_decode::<u32>(
-            &invoke_uri,
-            "addAndIncrement",
+            &subinvoke_uri,
+            "add",
             Some(&invoke_args),
             None,
             None,
@@ -56,5 +56,5 @@ async fn subinvoke_test() {
         .await
         .unwrap();
 
-    assert_eq!(invoke_result, 3);
+    assert_eq!(invoke_result, 2);
 }
