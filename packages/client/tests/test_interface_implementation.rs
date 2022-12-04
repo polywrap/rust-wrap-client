@@ -63,5 +63,4 @@ async fn test_env() {
         .invoke(&wrapper_uri, "moduleMethod", Some(&invoke_args), None, None)
         .await
         .unwrap();
-    dbg!(invoke_result);
 }

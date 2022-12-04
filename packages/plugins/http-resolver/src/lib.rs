@@ -42,10 +42,8 @@ impl Module for HttpResolverPlugin {
         let manifest = match get_result {
             Ok(opt_response) => {
                 if let Some(response) = opt_response {
-                    dbg!(&response);
                     let body = response.body.unwrap();
                     Some(base64::decode(body).unwrap())
-                    // response.body(|body| base64::decode(body).unwrap())
                 } else {
                     None
                 }
