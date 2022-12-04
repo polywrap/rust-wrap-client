@@ -24,10 +24,10 @@ impl Module for HttpResolverPlugin {
         };
 
         let manifest_search_pattern = "wrap.info";
-
+        let url = format!("{}/{}", args.path, manifest_search_pattern);
         let get_result = HttpModule::get(
             &HttpModuleArgsGet {
-                url: format!("{}/{}", args.path, manifest_search_pattern),
+                url,
                 request: Some(HttpRequest {
                     response_type: wrap::types::HttpResponseType::BINARY,
                     headers: None,
@@ -42,7 +42,8 @@ impl Module for HttpResolverPlugin {
         let manifest = match get_result {
             Ok(opt_response) => {
                 if let Some(response) = opt_response {
-                    response.body.map(|body| base64::decode(body).unwrap())
+                    let body = response.body.unwrap();
+                    Some(base64::decode(body).unwrap())
                 } else {
                     None
                 }

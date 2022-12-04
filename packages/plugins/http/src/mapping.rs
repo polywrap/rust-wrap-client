@@ -1,33 +1,38 @@
-use crate::wrap::types::{Request, Response};
+use crate::wrap::types::{Request, Response, ResponseType};
 use polywrap_plugin::error::PluginError;
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap};
 
 pub enum RequestMethod {
     GET,
     POST,
 }
 
-pub fn parse_response(response: ureq::Response) -> Result<Response, PluginError> {
+pub async fn parse_response(response: reqwest::Response, encoding: ResponseType) -> Result<Response, PluginError> {
     let headers = response
-        .headers_names()
+        .headers()
         .iter()
-        .map(|header_name| {
+        .map(|(name, value)| {
             (
-                header_name.to_string(),
-                response.header(header_name).unwrap().to_string(),
+              name.to_string(),
+              value.to_str().unwrap().to_string(),
             )
         })
         .collect::<BTreeMap<String, String>>();
 
     let status = response.status();
-    let status_text = response.status_text().to_string();
-
+    let status_text = status.canonical_reason().unwrap().to_string();
+    
     let data = response
-        .into_string()
+        .bytes().await
         .map_err(|e| PluginError::ModuleError(e.to_string()))?;
 
+    let data = match encoding {
+        ResponseType::BINARY => base64::encode(data),
+        _ => String::from_utf8_lossy(&data).to_string()
+    };
+
     Ok(Response {
-        status: status.into(),
+        status: status.as_u16().into(),
         status_text,
         headers: Some(headers),
         body: Some(data),
@@ -38,25 +43,28 @@ pub fn parse_request(
     url: &str,
     request: Option<Request>,
     method: RequestMethod,
-) -> Result<ureq::Request, PluginError> {
-    let mut req = match method {
-        RequestMethod::GET => ureq::get(url),
-        RequestMethod::POST => ureq::post(url),
+) -> Result<reqwest::RequestBuilder, PluginError> {
+    let http_client = reqwest::Client::new();
+    let mut request_builder = match method {
+        RequestMethod::GET => http_client.get(url),
+        RequestMethod::POST => http_client.post(url),
     };
 
     if let Some(request) = request {
         if let Some(url_params) = request.url_params {
-            for (param, value) in url_params.iter() {
-                req = req.query(param, value)
-            }
+            let query_params: Vec<(String, String)> = url_params
+                .iter()
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect();
+            request_builder = request_builder.query(&query_params)
         };
 
         if let Some(headers) = request.headers {
             for (name, value) in headers.iter() {
-                req = req.set(name, value)
+                request_builder = request_builder.header(name, value)
             }
         }
     }
 
-    Ok(req)
+    Ok(request_builder)
 }
