@@ -1,14 +1,21 @@
+use std::collections::HashMap;
 use std::{sync::Arc};
 
 use filesystem_plugin::FileSystemPlugin;
 use fs_resolver_plugin::FileSystemResolverPlugin;
 use futures::{executor::block_on, lock::Mutex};
+use http_plugin::HttpPlugin;
+use http_resolver_plugin::HttpResolverPlugin;
 use jni::JNIEnv;
 use jni::sys::jstring;
 use jni::{sys::{jlong}, objects::{JClass, JString}};
 use logger::Logger;
 pub use polywrap_client::polywrap_client::PolywrapClient;
+use polywrap_core::client::UriRedirect;
+use polywrap_core::interface_implementation::InterfaceImplementations;
+use polywrap_core::resolvers::recursive_resolver::RecursiveResolver;
 pub use polywrap_core::resolvers::static_resolver::StaticResolver;
+use polywrap_core::resolvers::uri_resolver_like::UriResolverLike;
 use polywrap_core::{
     client::ClientConfig,
     invoke::{InvokeArgs, Invoker},
@@ -16,6 +23,7 @@ use polywrap_core::{
     uri::Uri,
 };
 use polywrap_plugin::package::PluginPackage;
+use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
 
 pub mod logger;
 
@@ -36,7 +44,15 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_createResolv
     let fs_resolver_plugin_package: PluginPackage = fs_resolver.into();
     let fs_resolver_package = Arc::new(Mutex::new(fs_resolver_plugin_package));
 
-    let resolver = StaticResolver::from(vec![
+    let http = HttpPlugin {};
+    let http_plugin_package: PluginPackage = http.into();
+    let http_package = Arc::new(Mutex::new(http_plugin_package));
+
+    let http_resolver = HttpResolverPlugin {};
+    let http_resolver_plugin_package: PluginPackage = http_resolver.into();
+    let http_resolver_package = Arc::new(Mutex::new(http_resolver_plugin_package));
+
+    let static_resolver = StaticResolver::from(vec![
         StaticResolverLike::Package(UriPackage {
             uri: Uri::try_from("wrap://ens/fs.polywrap.eth").unwrap(),
             package: fs_package,
@@ -45,9 +61,27 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_createResolv
             uri: Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap(),
             package: fs_resolver_package,
         }),
+        StaticResolverLike::Package(UriPackage {
+            uri: Uri::try_from("wrap://ens/http.polywrap.eth").unwrap(),
+            package: http_package,
+        }),
+        StaticResolverLike::Package(UriPackage {
+            uri: Uri::try_from("wrap://ens/http-resolver.polywrap.eth").unwrap(),
+            package: http_resolver_package,
+        }),
+        StaticResolverLike::Redirect(UriRedirect {
+          from: Uri::try_from("wrap://ens/add.eth").unwrap(),
+          to: Uri::try_from("wrap://http/https://raw.githubusercontent.com/namesty/test-wrappers/main/subinvoke").unwrap()
+        })
     ]);
 
-    Box::into_raw(Box::new(resolver)) as jlong
+    let extendable_uri_resolver = ExtendableUriResolver::new(None);
+    let extendable_resolver_like = UriResolverLike::Resolver(Box::new(extendable_uri_resolver));
+    let static_resolver_like = UriResolverLike::Resolver(Box::new(static_resolver));
+    let recursive_resolver =
+        RecursiveResolver::from(vec![static_resolver_like, extendable_resolver_like]);
+
+    Box::into_raw(Box::new(recursive_resolver)) as jlong
 }
 
 #[allow(non_snake_case)]
@@ -58,7 +92,7 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_destructReso
     resolver_ptr: jlong,
 ) {
   unsafe {
-    drop(Box::from_raw(resolver_ptr as *mut StaticResolver));
+    drop(Box::from_raw(resolver_ptr as *mut RecursiveResolver));
   };
 }
 
@@ -73,12 +107,21 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_createClient
     logger.d("Invoked 'Java_com_example_polywrapmobile_NativeClient_createClient'").unwrap();
 
     let resolver = unsafe {
-        Arc::from_raw(resolver_ptr as *mut StaticResolver)
+        Arc::from_raw(resolver_ptr as *mut RecursiveResolver)
     };
+
+    let mut interfaces: InterfaceImplementations = HashMap::new();
+    interfaces.insert(
+        "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
+        vec![
+            Uri::try_from("wrap://ens/http-resolver.polywrap.eth").unwrap(),
+            Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap(),
+        ],
+    );
 
     let client = PolywrapClient::new(ClientConfig {
         envs: None,
-        interfaces: None,
+        interfaces: Some(interfaces),
         resolver,
     });
 
