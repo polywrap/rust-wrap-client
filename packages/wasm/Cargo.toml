@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-wasmtime = "1.0.1"
+wasmtime = "3.0.1"
 rmp-serde = "1.1.1"
 rmpv = "1.0.0"
 serde = "1.0.145"

@@ -10,6 +10,26 @@ use crate::{
 };
 use polywrap_msgpack::{msgpack};
 
+fn combine_paths(a: &str, b: &str) -> String {
+  let mut a = a.to_string();
+  let mut b = b.to_string();
+
+  a = a.replace("\\", "/");
+  b = b.replace("\\", "/");
+
+  if a.chars().last().unwrap() != '/' {
+      a.push('/');
+  };
+
+  while b.chars().rev().last().unwrap() == '/' || b.chars().rev().last().unwrap() == '.' {
+      b = b.split_off(1);
+  }
+
+  a.push_str(&b);
+
+  a
+}
+
 pub struct UriResolverExtensionFileReader {
     pub resolver_extension_uri: Uri,
     pub wrapper_uri: Uri,
@@ -32,17 +52,22 @@ impl UriResolverExtensionFileReader {
 
 #[async_trait]
 impl FileReader for UriResolverExtensionFileReader {
-    async fn read_file(&self, path: &str) -> Result<Vec<u8>, Error> {
+    async fn read_file(&self, file_path: &str) -> Result<Vec<u8>, Error> {
+        let path = combine_paths(&self.wrapper_uri.path, file_path);
+
         let invoker_args = InvokeArgs::Msgpack(msgpack!({
             "path": path
         }));
+        // TODO: This vec<u8> isn't the file but the msgpack representation of it
         let result = self.invoker.invoke(
             &self.resolver_extension_uri,
             "getFile",
             Some(&invoker_args),
             None,
             None
-        ).await?; 
+        ).await?;
+        
+        let result: Vec<u8> = polywrap_msgpack::decode(&result)?;
         Ok(result)
     }
 }
