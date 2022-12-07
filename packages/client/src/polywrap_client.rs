@@ -9,7 +9,7 @@ use polywrap_core::{
     uri::Uri,
     resolvers::uri_resolution_context::UriResolutionContext,
     resolvers::uri_resolver::{UriResolverHandler},
-    wrapper::Wrapper, env::{Env},
+    wrapper::Wrapper, env::{Env, Envs},
     interface_implementation::InterfaceImplementations
 };
 use polywrap_msgpack::{decode};
@@ -107,6 +107,10 @@ impl Invoker for PolywrapClient {
 
     fn get_interfaces(&self) -> Option<InterfaceImplementations> {
         self.invoker.get_interfaces()
+    }
+
+    fn set_env(&self, envs: Envs) {
+        self.invoker.set_env(envs);
     }
 }
 

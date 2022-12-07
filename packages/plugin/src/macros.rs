@@ -1,4 +1,20 @@
 pub use polywrap_paste::paste;
+#[macro_export]
+macro_rules! impl_plugin_envs {
+  ($plugin_type:ty) => {
+    impl $crate::module::PluginWithEnv for $plugin_type {
+      fn set_env(&mut self, envs: polywrap_core::env::Envs) {
+        if self.envs {
+          self.envs = envs;
+        }
+      }
+
+      fn get_env(&self, key: String) -> Option<&polywrap_core::env::Env> {
+        None
+      }
+    }
+  }
+}
 
 #[macro_export]
 macro_rules! impl_plugin_traits {

@@ -6,7 +6,7 @@ use polywrap_core::{
     invoke::{Invoker, InvokeArgs},
     loader::Loader,
     resolvers::uri_resolution_context::UriResolutionContext,
-    wrapper::Wrapper, uri::Uri, env::{Env}, 
+    wrapper::Wrapper, uri::Uri, env::{Env, Envs}, 
     interface_implementation::InterfaceImplementations
 };
 use futures::lock::Mutex;
@@ -24,7 +24,7 @@ impl WrapperInvoker {
     ) -> Self {
         Self { loader }
     }
-}
+} 
 
 #[async_trait]
 impl Invoker for WrapperInvoker {
@@ -97,5 +97,10 @@ impl Invoker for WrapperInvoker {
         }
 
         None
+    }
+
+    fn set_env(&self, envs: Envs) {
+
+        self.loader.set_env(envs);
     }
 }

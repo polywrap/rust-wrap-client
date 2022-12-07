@@ -1,9 +1,9 @@
-use std::sync::Arc;
+use std::{sync::Arc, collections::HashMap};
 
 use async_trait::async_trait;
 use futures::lock::Mutex;
 use polywrap_core::{
-    env::Env,
+    env::{Env},
     invoke::{InvokeArgs, Invoker},
     resolvers::uri_resolution_context::UriResolutionContext,
     uri::Uri,
@@ -30,10 +30,16 @@ impl Wrapper for PluginWrapper {
         uri: &Uri,
         method: &str,
         args: Option<&InvokeArgs>,
-        _: Option<Env>,
+        env: Option<Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
-        // self.set_env(env);
+        if let Some(e) = env {
+            invoker.set_env(
+                HashMap::from([
+                    (uri.clone().uri, e)
+                ])
+            );
+        };
         let args = match args {
             Some(args) => match args {
                 polywrap_core::invoke::InvokeArgs::Msgpack(value) => {
@@ -66,79 +72,5 @@ impl Wrapper for PluginWrapper {
     }
     async fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
         unimplemented!("client.get_file(...) is not implemented for Plugins.")
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use std::{collections::HashMap, sync::Arc};
-
-    use async_trait::async_trait;
-    use polywrap_core::invoke::Invoker;
-
-    use crate::{error::PluginError, module::PluginModule};
-
-    #[derive(serde::Serialize, serde::Deserialize)]
-    struct GetMapArgs {}
-
-    #[derive(serde::Serialize, serde::Deserialize)]
-    struct UpdateMapArgs {
-        map: HashMap<String, u32>,
-    }
-    struct MockMapPlugin {
-        map: HashMap<String, u32>,
-    }
-
-    impl MockMapPlugin {
-        pub fn get_map(&self, _: GetMapArgs, _: Arc<dyn Invoker>) -> &HashMap<String, u32> {
-            &self.map
-        }
-
-        pub fn update_map(
-            &mut self,
-            args: UpdateMapArgs,
-            _: Arc<dyn Invoker>,
-        ) -> &HashMap<String, u32> {
-            for (arg_key, arg_value) in args.map.iter() {
-                self.map.insert(
-                    arg_key.clone(),
-                    if let Some(existing_key) = self.map.get(arg_key) {
-                        existing_key + arg_value
-                    } else {
-                        *arg_value
-                    },
-                );
-            }
-
-            &self.map
-        }
-    }
-
-    #[async_trait]
-    impl PluginModule for MockMapPlugin {
-        async fn _wrap_invoke(
-            &mut self,
-            method_name: &str,
-            params: &serde_json::Value,
-            invoker: Arc<dyn polywrap_core::invoke::Invoker>,
-        ) -> Result<serde_json::Value, PluginError> {
-            match method_name {
-                "get_map" => {
-                    let result = self.get_map(
-                        serde_json::from_value::<GetMapArgs>(params.clone()).unwrap(),
-                        invoker.clone(),
-                    );
-                    Ok(serde_json::to_value(result).unwrap())
-                }
-                "update_map" => {
-                    let result = self.update_map(
-                        serde_json::from_value::<UpdateMapArgs>(params.clone()).unwrap(),
-                        invoker.clone(),
-                    );
-                    Ok(serde_json::to_value(result).unwrap())
-                }
-                e => panic!("No method named '{}' found in MockMapPlugin", e),
-            }
-        }
     }
 }
