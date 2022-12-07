@@ -82,7 +82,12 @@ impl Module for HttpResolverPlugin {
 
         let file = if let Ok(opt_result) = resolve_result {
             if let Some(result) = opt_result {
-                result.body.map(|body| base64::decode(body).unwrap())
+                result.body.map(|body| {
+                  let b = base64::decode(body).unwrap();
+
+                  println!("URI: {}\n\n{:?}", args.path.clone(), b.clone());
+                  b
+                })
             } else {
                 None
             }

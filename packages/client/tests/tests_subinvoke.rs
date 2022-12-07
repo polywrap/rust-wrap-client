@@ -18,6 +18,10 @@ use polywrap_plugin::package::PluginPackage;
 use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
 use polywrap_resolvers::legacy::{base::BaseResolver, filesystem::FilesystemResolver};
 use polywrap_tests_utils::helpers::get_tests_path;
+use polywrap_wasm::wasm_package::WasmPackage;
+use polywrap_wasm::wasm_runtime::instance::WasmModule;
+use polywrap_wasm::wasm_wrapper::WasmWrapper;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -124,7 +128,10 @@ async fn test() {
     });
 
     let uri = Uri::try_from("wrap://http/https://raw.githubusercontent.com/namesty/test-wrappers/main/invoke").unwrap();
-    let invoke_args = InvokeArgs::Msgpack(msgpack!({"a": 1, "b": 1}));
+    let args_json = String::from("{\"a\": 1, \"b\": 1}");
+    let json_args: Value = serde_json::from_str(&args_json).unwrap();
+
+    let invoke_args = InvokeArgs::UIntArray(polywrap_msgpack::serialize(json_args).unwrap());
     let result = client.invoke(&uri, "add", Some(&invoke_args), None, None).await.unwrap();
 
     println!("{:?}", result);

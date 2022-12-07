@@ -19,8 +19,7 @@ impl Module for HttpPlugin {
     ) -> Result<Option<wrap::types::Response>, PluginError> {
         let response = parse_request(&args.url, args.request.clone(), mapping::RequestMethod::GET)
             .unwrap()
-            .send()
-            .await
+            .call()
             .map_err(|e| PluginError::ModuleError(e.to_string()))?;
 
         let response_type = if let Some(r) = &args.request {
@@ -45,8 +44,7 @@ impl Module for HttpPlugin {
             mapping::RequestMethod::POST,
         )
         .unwrap()
-        .send()
-        .await
+        .call()
         .map_err(|e| PluginError::ModuleError(e.to_string()))?;
 
         let response_type = if let Some(r) = &args.request {

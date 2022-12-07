@@ -24,7 +24,8 @@ use polywrap_core::{
 };
 use polywrap_plugin::package::PluginPackage;
 use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
-
+use android_logger::Config;
+use log::Level;
 pub mod logger;
 
 #[allow(non_snake_case)]
@@ -33,6 +34,9 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_createResolv
     env: JNIEnv,
     _: JClass,
 ) -> jlong {
+  android_logger::init_once(
+    Config::default().with_min_level(Level::Trace));
+
     let logger = Logger::new(env, "FFIPolywrapClient").unwrap();
     logger.d("Invoked 'Java_com_example_polywrapmobile_NativeClient_createResolver'").unwrap();
 
@@ -148,8 +152,7 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_invoke(
     client_ptr: jlong,
     uri: JString,
     method: JString,
-    args_ptr: jlong,
-    args_len: jlong,
+    args: JString,
 ) -> jstring {
     let logger = Logger::new(env, "FFIPolywrapClient").unwrap();
     logger.d("Invoked 'Java_com_example_polywrapmobile_NativeClient_invoke'").unwrap();
@@ -170,16 +173,19 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_invoke(
       .expect("Couldn't get java string! for Method")
       .into();
 
-    let args = unsafe {
-        let len = args_len as usize;
-        Vec::from_raw_parts(args_ptr as *mut u8, len, len)
-    };
+    let args: String = env
+      .get_string(args)
+      .expect("Couldn't get java string! for args")
+      .into();
 
     let uri: Uri = uri.try_into().unwrap();
+    let json_args: serde_json::Value = serde_json::from_str(&args).unwrap();
+
+    let invoke_args = InvokeArgs::UIntArray(polywrap_msgpack::serialize(json_args).unwrap());
 
     let invoke_result = block_on(async {
         client
-            .invoke(&uri, &method, Some(&InvokeArgs::UIntArray(args)), None, None)
+            .invoke(&uri, &method, Some(&invoke_args), None, None)
             .await
             .unwrap()
     });
