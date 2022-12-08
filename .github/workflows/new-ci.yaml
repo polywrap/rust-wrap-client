@@ -54,26 +54,7 @@ jobs:
           RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
 
       - name: Get coverage
-        run: grcov . -s . --binary-path ./target/debug -o ./coverage/cov.info --ignore */tests/*
-
-      - name: Save coverage
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage
-          path: ./coverage/
-
-  UploadCoverage:
-    runs-on: ubuntu-latest
-    needs:
-      - Test
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: coverage
-          path: ./coverage/
+        run: grcov . -s . --binary-path ./target/debug -o ./cov.info --ignore */tests/*
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
