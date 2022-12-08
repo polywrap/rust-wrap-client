@@ -18,3 +18,4 @@ polywrap_paste = "1.0.0"
 serde = {version = "1.0.145", features = ["derive"]}
 polywrap_client = { path = "../client" }
 tokio = { version = "1.3", features = ["full"] }
+filesystem_plugin = { path = "../plugins/fs" }

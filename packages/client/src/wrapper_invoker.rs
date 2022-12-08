@@ -98,9 +98,4 @@ impl Invoker for WrapperInvoker {
 
         None
     }
-
-    fn set_env(&self, envs: Envs) {
-
-        self.loader.set_env(envs);
-    }
 }

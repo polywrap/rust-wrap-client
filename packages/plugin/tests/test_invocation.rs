@@ -1,98 +1,82 @@
 
-use std::{collections::HashMap, sync::Arc, hash::Hash};
+use std::{collections::HashMap, sync::Arc};
 
 use async_trait::async_trait;
 use polywrap_client::polywrap_client::PolywrapClient;
-use polywrap_core::{invoke::{Invoker, InvokeArgs}, env::{Env, Envs}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}, uri_resolution_context::UriPackage}, uri::Uri, client::ClientConfig};
+use polywrap_core::{invoke::{Invoker, InvokeArgs}, env::{Env}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}, uri_resolution_context::UriPackage}, uri::Uri, client::ClientConfig};
 
 use polywrap_manifest::versions::{WrapManifest, WrapManifestAbi};
 use polywrap_msgpack::msgpack;
-use polywrap_plugin::{error::PluginError, module::PluginModule, package::PluginPackage, impl_plugin_envs};
+use polywrap_plugin::{error::PluginError, module::{PluginModule, PluginWithEnv}, package::PluginPackage, impl_plugin_traits};
 use serde_json::{Value, from_value, json};
 use futures::lock::Mutex;
 
-#[derive(serde::Serialize, serde::Deserialize)]
-struct GetMapArgs {}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-struct UpdateMapArgs {
-    map: HashMap<String, u32>,
+#[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
+pub struct GetEnvArgs {
+    key: String
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
-struct GetEnvArgs {
-    key: String,
-}
-struct MockMapPlugin {
-    map: HashMap<String, u32>,
-    envs: Envs
+pub struct PluginEnv {
+    pub env: Env
 }
 
-impl MockMapPlugin {
-    pub fn get_map(&self, _: GetMapArgs, _: Arc<dyn Invoker>) -> &HashMap<String, u32> {
-        &self.map
-    }
+#[async_trait]
+pub trait Module: PluginModule {
+  async fn check_env_is_bar(&mut self, args: &GetEnvArgs, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
+}
 
-    pub fn update_map(
+
+#[async_trait]
+impl Module for PluginEnv {
+    async fn check_env_is_bar(
         &mut self,
-        args: UpdateMapArgs,
-        _: Arc<dyn Invoker>,
-    ) -> &HashMap<String, u32> {
-        for (arg_key, arg_value) in args.map.iter() {
-            self.map.insert(
-                arg_key.clone(),
-                if let Some(existing_key) = self.map.get(arg_key) {
-                    existing_key + arg_value
-                } else {
-                    *arg_value
-                },
-            );
+        args: &GetEnvArgs,
+        _: Arc<dyn Invoker>
+    ) -> Result<bool, PluginError> {
+        let env = self.get_env(args.key.clone());
+        if let Some(e) = env {
+            return Ok(e.eq(&Value::String("bar".to_string())));
         }
-
-        &self.map
+        Ok(false)
     }
+}
 
-    pub fn get_env(&self, args: GetEnvArgs, _: Arc<dyn Invoker>) -> Option<&Value> {
-        self.env.get(args.key)
+
+pub fn get_manifest() -> WrapManifest {
+    WrapManifest {
+        name: "env".to_string(),
+        type_: "plugin".to_string(),
+        version: "0.1".to_string(),
+        abi: from_value::<WrapManifestAbi>(json!({})).unwrap()
     }
 }
 
 impl_plugin_traits!(
-    MockMapPlugin, 
-    manifest, 
-    (
-        update_map, UpdateMapArgs,
-    )
+    PluginEnv, 
+    get_manifest(),
+    (check_env_is_bar, GetEnvArgs),
 );
-
-impl_plugin_envs!(MockMapPlugin);
 
 #[tokio::test]
 async fn invoke_test() {
-
-    let mock = MockMapPlugin { map: HashMap::new(), envs: HashMap::new() };
-    let package: PluginPackage = mock.into();
-    let plugin = Arc::new(Mutex::new(package));
-    let manifest = WrapManifest {
-        name: "mockMap".to_string(),
-        type_: "plugin".to_string(),
-        version: "0.1".to_string(),
-        abi: from_value::<WrapManifestAbi>(json!({})).unwrap()
-    };
-
+    
+    let plugin = PluginEnv { env: Value::Null };
+    let package: PluginPackage = plugin.into();
+    let module = Arc::new(Mutex::new(package));
 
     let uri_package = UriPackage {
-        package: plugin,
-        uri: Uri::try_from("ens/mock-plugin.eth").unwrap()
+        package: module,
+        uri: Uri::try_from("ens/env-plugin.eth").unwrap()
     };
     let plugin_static_like = StaticResolverLike::Package(uri_package);
+
     let static_resolver = StaticResolver::from(vec![
         plugin_static_like
     ]);
 
-    let bar = json!("bar");
+    let foo = json!({"foo": "bar"});
     let envs = HashMap::from([
-        ("foo".to_string(), bar)
+        ( Uri::try_from("ens/env-plugin.eth").unwrap().uri, foo)
     ]);
     let client = PolywrapClient::new(
         ClientConfig {
@@ -105,9 +89,9 @@ async fn invoke_test() {
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"key": "foo"}));
 
     let invoke_result = client
-        .invoke_and_decode::<Value>(
-            &Uri::try_from("ens/mock-plugin.eth").unwrap(),
-            "get_env",
+        .invoke_and_decode::<bool>(
+            &Uri::try_from("ens/env-plugin.eth").unwrap(),
+            "checkEnvIsBar",
             Some(&invoke_args),
             None,
             None,
@@ -115,5 +99,5 @@ async fn invoke_test() {
         .await
         .unwrap();
 
-    assert_eq!(invoke_result, json!("bar"));
+    assert_eq!(invoke_result, true);
 }

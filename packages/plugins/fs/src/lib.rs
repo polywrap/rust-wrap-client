@@ -1,8 +1,8 @@
 use std::{fs, path::Path, sync::Arc};
 
 use async_trait::async_trait;
-use polywrap_core::invoke::Invoker;
-use polywrap_plugin::error::PluginError;
+use polywrap_core::{invoke::Invoker, env::Env};
+use polywrap_plugin::{error::PluginError};
 use wrap::{
     module::{
         ArgsExists, ArgsMkdir, ArgsReadFile, ArgsReadFileAsString, ArgsRm, ArgsRmdir,
@@ -11,7 +11,9 @@ use wrap::{
 };
 pub mod wrap;
 
-pub struct FileSystemPlugin {}
+pub struct FileSystemPlugin {
+    pub env: Env
+ }
 
 #[async_trait]
 impl Module for FileSystemPlugin {

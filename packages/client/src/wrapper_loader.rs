@@ -28,15 +28,6 @@ impl WrapperLoader {
     ) -> Self {
         Self { resolver, envs, interfaces }
     }
-
-    pub fn set_env(&mut self, envs: Envs) {
-        self.envs = Some(envs);
-        // if let Some(e) = self.envs. {
-        //     self.envs = Some(e)
-        // } else {
-        //     self.envs = Some(envs)
-        // }
-    }
 }
 
 #[async_trait]

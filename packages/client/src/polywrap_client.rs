@@ -108,10 +108,6 @@ impl Invoker for PolywrapClient {
     fn get_interfaces(&self) -> Option<InterfaceImplementations> {
         self.invoker.get_interfaces()
     }
-
-    fn set_env(&self, envs: Envs) {
-        self.invoker.set_env(envs);
-    }
 }
 
 #[async_trait(?Send)]

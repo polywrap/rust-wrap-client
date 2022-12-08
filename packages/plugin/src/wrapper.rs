@@ -10,14 +10,20 @@ use polywrap_core::{
     wrapper::{GetFileOptions, Wrapper},
 };
 
-use crate::module::PluginModule;
+use crate::module::{PluginModule};
+
+
+type PluginModuleInstance = Arc<Mutex<Box<dyn (PluginModule)>>>;
+
 
 pub struct PluginWrapper {
-    instance: Arc<Mutex<Box<dyn (PluginModule)>>>,
+    instance: PluginModuleInstance,
 }
 
 impl PluginWrapper {
-    pub fn new(instance: Arc<Mutex<Box<dyn (PluginModule)>>>) -> Self {
+    pub fn new(
+        instance: PluginModuleInstance,
+    ) -> Self {
         Self { instance }
     }
 }
@@ -34,12 +40,9 @@ impl Wrapper for PluginWrapper {
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         if let Some(e) = env {
-            invoker.set_env(
-                HashMap::from([
-                    (uri.clone().uri, e)
-                ])
-            );
+            self.instance.lock().await.set_env(e);
         };
+
         let args = match args {
             Some(args) => match args {
                 polywrap_core::invoke::InvokeArgs::Msgpack(value) => {

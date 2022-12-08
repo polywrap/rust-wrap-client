@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use async_trait::async_trait;
-use polywrap_core::env::{Env, Envs};
+use polywrap_core::env::{Env};
 use serde_json::Value;
 
 use crate::{method::PluginMethod, module::{PluginModule, PluginWithEnv}, error::PluginError};
@@ -9,14 +9,14 @@ use crate::{method::PluginMethod, module::{PluginModule, PluginWithEnv}, error::
 #[derive(Clone)]
 pub struct PluginModuleWithMethods {
   methods_map: HashMap<String, Arc<PluginMethod>>,
-  envs: Envs
+  env: Env
 }
 
 impl PluginModuleWithMethods {
   pub fn new() -> Self {
     Self {
       methods_map: HashMap::new(),
-      envs: HashMap::new()
+      env: Value::Null
     }
   }
 
@@ -44,13 +44,12 @@ impl PluginModule for PluginModuleWithMethods {
 
 #[async_trait]
 impl PluginWithEnv for PluginModuleWithMethods {
-
-    fn set_env(&mut self, envs: Envs) {
-        self.envs = envs;
+    fn set_env(&mut self, env: Env) {
+        self.env = env;
     }
     
     fn get_env(&self, key: String) -> Option<&Env> {
-        if let Some(env) = self.envs.get(&key) {
+        if let Some(env) = self.env.get(&key) {
           Some(env)
         } else {
           None

@@ -31,5 +31,4 @@ pub trait Invoker: Send + Sync {
     ) -> Result<Vec<u8>, Error>;
     async fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error>;
     fn get_interfaces(&self) -> Option<InterfaceImplementations>;
-    fn set_env(&self, envs: Envs);
 }
