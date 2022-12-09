@@ -2,6 +2,7 @@ use std::{fs, path::Path, sync::Arc};
 
 use async_trait::async_trait;
 use polywrap_core::{invoke::Invoker, env::Env};
+use polywrap_plugin_macro::plugin_struct;
 use polywrap_plugin::{error::PluginError};
 use wrap::{
     module::{
@@ -11,8 +12,8 @@ use wrap::{
 };
 pub mod wrap;
 
+#[plugin_struct]
 pub struct FileSystemPlugin {
-    pub env: Env
  }
 
 #[async_trait]

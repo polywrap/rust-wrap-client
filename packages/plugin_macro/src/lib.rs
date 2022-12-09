@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::parse::{Parser};
-use syn::{parse, parse_macro_input, ItemStruct};
+use syn::{parse, parse_macro_input, ItemStruct, DeriveInput};
 
 #[proc_macro_attribute]
 pub fn plugin_struct(args: TokenStream, input: TokenStream) -> TokenStream {
@@ -17,7 +17,34 @@ pub fn plugin_struct(args: TokenStream, input: TokenStream) -> TokenStream {
     }
 
     return quote! {
+        #[derive(polywrap_plugin_macro::Plugin)]
         #item_struct
     }
     .into();
+}
+
+
+#[proc_macro_derive(Plugin)]
+pub fn derive_plugin(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let name = input.ident;
+
+    let expanded = quote! {
+        impl polywrap_plugin::module::PluginWithEnv for #name {
+            fn set_env(&mut self, env: polywrap_core::env::Env) {
+                self.env = env;
+            }
+            
+            fn get_env(&self, key: String) -> Option<&polywrap_core::env::Env> {
+                if let Some(env) = self.env.get(&key) {
+                  Some(env)
+                } else {
+                  None
+                }
+            }
+        }
+    };
+
+    proc_macro::TokenStream::from(expanded)
 }

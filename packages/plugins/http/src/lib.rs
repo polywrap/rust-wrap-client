@@ -4,12 +4,13 @@ use async_trait::async_trait;
 use mapping::{parse_request, parse_response};
 use polywrap_core::{invoke::Invoker, env::Env};
 use polywrap_plugin::error::PluginError;
+use polywrap_plugin_macro::plugin_struct;
 use wrap::{module::Module, types::ResponseType};
 pub mod mapping;
 pub mod wrap;
 
+#[plugin_struct]
 pub struct HttpPlugin {
-    pub env: Env
 }
 
 #[async_trait]
