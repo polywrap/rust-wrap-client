@@ -1,38 +1,41 @@
 use crate::wrap::types::{Request, Response, ResponseType};
 use polywrap_plugin::error::PluginError;
-use std::{collections::BTreeMap};
+use std::collections::BTreeMap;
 
 pub enum RequestMethod {
     GET,
     POST,
 }
 
-pub async fn parse_response(response: reqwest::Response, encoding: ResponseType) -> Result<Response, PluginError> {
+pub async fn parse_response(
+    response: ureq::Response,
+    encoding: ResponseType,
+) -> Result<Response, PluginError> {
     let headers = response
-        .headers()
+        .headers_names()
         .iter()
-        .map(|(name, value)| {
+        .map(|header_name| {
             (
-              name.to_string(),
-              value.to_str().unwrap().to_string(),
+                header_name.to_string(),
+                response.header(header_name).unwrap().to_string(),
             )
         })
         .collect::<BTreeMap<String, String>>();
 
     let status = response.status();
-    let status_text = status.canonical_reason().unwrap().to_string();
-    
-    let data = response
-        .bytes().await
-        .map_err(|e| PluginError::ModuleError(e.to_string()))?;
+    let status_text = response.status_text().to_string();
+
+    let mut reader = response.into_reader();
+    let mut data = vec![];
+    reader.read_to_end(&mut data).unwrap();
 
     let data = match encoding {
         ResponseType::BINARY => base64::encode(data),
-        _ => String::from_utf8_lossy(&data).to_string()
+        _ => String::from_utf8_lossy(&data).to_string(),
     };
 
     Ok(Response {
-        status: status.as_u16().into(),
+        status: status.into(),
         status_text,
         headers: Some(headers),
         body: Some(data),
@@ -43,25 +46,22 @@ pub fn parse_request(
     url: &str,
     request: Option<Request>,
     method: RequestMethod,
-) -> Result<reqwest::RequestBuilder, PluginError> {
-    let http_client = reqwest::Client::new();
+) -> Result<ureq::Request, PluginError> {
     let mut request_builder = match method {
-        RequestMethod::GET => http_client.get(url),
-        RequestMethod::POST => http_client.post(url),
+        RequestMethod::GET => ureq::get(url),
+        RequestMethod::POST => ureq::post(url),
     };
 
     if let Some(request) = request {
         if let Some(url_params) = request.url_params {
-            let query_params: Vec<(String, String)> = url_params
-                .iter()
-                .map(|(key, value)| (key.clone(), value.clone()))
-                .collect();
-            request_builder = request_builder.query(&query_params)
+            for (key, value) in url_params.iter() {
+                request_builder = request_builder.query(key, value);
+            }
         };
 
         if let Some(headers) = request.headers {
             for (name, value) in headers.iter() {
-                request_builder = request_builder.header(name, value)
+                request_builder = request_builder.set(name, value)
             }
         }
     }

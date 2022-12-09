@@ -1,0 +1,10 @@
+format: 0.3.0
+project:
+  name: HttpResolver
+  type: plugin/rust
+source:
+  module: ./Cargo.toml
+  schema: ./schema.graphql
+  import_abis:
+    - uri: "ens/http.polywrap.eth"
+      abi: ../http/build/wrap.info

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::wrap::types::HttpModuleArgsGet;
 use async_trait::async_trait;
-use polywrap_core::invoke::Invoker;
+use polywrap_core::{invoke::Invoker, env::Env};
 use polywrap_plugin::error::PluginError;
 use wrap::{
     module::{ArgsGetFile, ArgsTryResolveUri, Module},
@@ -10,7 +10,9 @@ use wrap::{
 };
 pub mod wrap;
 
-pub struct HttpResolverPlugin {}
+pub struct HttpResolverPlugin {
+    pub env: Env
+}
 
 #[async_trait]
 impl Module for HttpResolverPlugin {
@@ -82,7 +84,12 @@ impl Module for HttpResolverPlugin {
 
         let file = if let Ok(opt_result) = resolve_result {
             if let Some(result) = opt_result {
-                result.body.map(|body| base64::decode(body).unwrap())
+                result.body.map(|body| {
+                  let b = base64::decode(body).unwrap();
+
+                  println!("URI: {}\n\n{:?}", args.path.clone(), b.clone());
+                  b
+                })
             } else {
                 None
             }

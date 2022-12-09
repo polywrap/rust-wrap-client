@@ -77,13 +77,15 @@ impl WasmInstance {
         let mut linker = wasmtime::Linker::new(&engine);
 
         let mut store = Store::new(&engine, shared_state);
-        let module_result = match wasm_module {
-            WasmModule::Bytes(ref bytes) => Module::new(&engine, bytes),
-            WasmModule::Wat(ref wat) => Module::new(&engine, wat),
-            WasmModule::Path(ref path) => Module::from_file(&engine, path),
+
+        let module = match wasm_module {
+            WasmModule::Bytes(ref bytes) => {
+              Module::from_binary(&engine, bytes).unwrap()
+            },
+            WasmModule::Wat(ref wat) => Module::new(&engine, wat).unwrap(),
+            WasmModule::Path(ref path) => Module::from_file(&engine, path).unwrap(),
         };
 
-        let module = module_result.map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
         let module_bytes = module
             .serialize()
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
