@@ -11,6 +11,7 @@ use fs_resolver_plugin::FileSystemResolverPlugin;
 use filesystem_plugin::FileSystemPlugin;
 use http_resolver_plugin::HttpResolverPlugin;
 use http_plugin::HttpPlugin;
+use serde_json::Value;
 
 #[tokio::test]
 async fn test_uri_resolver_wrapper() {
@@ -19,11 +20,15 @@ async fn test_uri_resolver_wrapper() {
     let wrapper_path = format!("{}/subinvoke/00-subinvoke/implementations/as", path);
     let wrapper_uri = Uri::try_from(format!("fs/{}", wrapper_path)).unwrap();
 
-    let fs = FileSystemPlugin {};
+    let fs = FileSystemPlugin {
+        env: Value::Null
+    };
     let fs_plugin_package: PluginPackage = fs.into();
     let fs_package = Arc::new(Mutex::new(fs_plugin_package));
 
-    let fs_resolver = FileSystemResolverPlugin {};
+    let fs_resolver = FileSystemResolverPlugin {
+        env: Value::Null
+    };
     let fs_resolver_plugin_package: PluginPackage = fs_resolver.into();
     let fs_resolver_package = Arc::new(Mutex::new(fs_resolver_plugin_package));
 
@@ -72,19 +77,27 @@ async fn recursive_uri_resolver() {
     let wrapper_github_path = "https://raw.githubusercontent.com/polywrap/wasm-test-harness/v0.2.1/wrappers/subinvoke/00-subinvoke/implementations/as";
     let http_wrapper_uri = Uri::try_from(format!("http/{}", wrapper_github_path)).unwrap();
 
-    let fs = FileSystemPlugin {};
+    let fs = FileSystemPlugin {
+        env: Value::Null
+    };
     let fs_plugin_package: PluginPackage = fs.into();
     let fs_package = Arc::new(Mutex::new(fs_plugin_package));
 
-    let fs_resolver = FileSystemResolverPlugin {};
+    let fs_resolver = FileSystemResolverPlugin {
+        env: Value::Null
+    };
     let fs_resolver_plugin_package: PluginPackage = fs_resolver.into();
     let fs_resolver_package = Arc::new(Mutex::new(fs_resolver_plugin_package));
 
-    let http = HttpPlugin {};
+    let http = HttpPlugin {
+        env: Value::Null
+    };
     let http_plugin_package: PluginPackage = http.into();
     let http_package = Arc::new(Mutex::new(http_plugin_package));
 
-    let http_resolver = HttpResolverPlugin {};
+    let http_resolver = HttpResolverPlugin {
+        env: Value::Null
+    };
     let http_resolver_plugin_package: PluginPackage = http_resolver.into();
     let http_resolver_package = Arc::new(Mutex::new(http_resolver_plugin_package));
 
@@ -110,7 +123,6 @@ async fn recursive_uri_resolver() {
         ]
     );
 
-    
     let mut interfaces: InterfaceImplementations = HashMap::new();
     interfaces.insert(
         "wrap://ens/uri-resolver.core.polywrap.eth".to_string(), 

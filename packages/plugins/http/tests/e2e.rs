@@ -9,11 +9,13 @@ use polywrap_core::{
 };
 use polywrap_plugin::package::PluginPackage;
 use polywrap_core::resolvers::static_resolver::{StaticResolver, StaticResolverLike};
-use serde_json::json;
+use serde_json::{Value, json};
 use futures::lock::Mutex;
 
 fn get_client() -> PolywrapClient {
-    let http_plugin = HttpPlugin {};
+    let http_plugin = HttpPlugin {
+        env: Value::Null
+    };
     let plugin_pkg: PluginPackage = http_plugin.into();
     let package = Arc::new(Mutex::new(plugin_pkg));
 
