@@ -1,0 +1,22 @@
+[package]
+name = "polywrap_ffi_swift_client"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+polywrap_client = {path = "../client"}
+polywrap_core = {path = "../core"}
+polywrap_resolvers = {path = "../resolvers"}
+polywrap_plugin = {path ="../plugin"}
+fs_resolver_plugin = {path = "../plugins/fs-resolver"}
+filesystem_plugin = {path = "../plugins/fs"}
+http_resolver_plugin = {path = "../plugins/http-resolver"}
+http_plugin = {path = "../plugins/http"}
+polywrap_msgpack = {path = "../msgpack"}
+futures = "0.3.24"
+rmp-serde = "1.1.1"
+serde_json = "1.0.87"
+libc = "0.2"

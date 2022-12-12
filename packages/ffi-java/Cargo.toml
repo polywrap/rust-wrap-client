@@ -1,5 +1,5 @@
 [package]
-name = "polywrap_ffi_client"
+name = "polywrap_ffi_java_client"
 version = "0.1.0"
 edition = "2021"
 
