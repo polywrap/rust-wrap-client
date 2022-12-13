@@ -1,5 +1,5 @@
 pub mod c_api {
-    use std::{ffi::{CStr}, sync::Arc, collections::HashMap};
+    use std::{ffi::{CStr,c_int}, sync::Arc, collections::HashMap};
 
     use filesystem_plugin::FileSystemPlugin;
     use fs_resolver_plugin::FileSystemResolverPlugin;
@@ -19,13 +19,19 @@ pub mod c_api {
     use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
     use serde_json::Value;
 
+    #[repr(C)]
+    pub struct Buffer {
+        pub data: *mut u8,
+        pub len: libc::c_int,
+    }
+
     #[no_mangle]
     pub extern "C" fn invoke(
         client_ptr: *const libc::c_char,
         uri: *const libc::c_char,
         method: *const libc::c_char,
         args: *const libc::c_char,
-    ) -> *const Vec<u8> {
+    ) -> Buffer {
         let client = unsafe {
             Box::from_raw(client_ptr as *mut PolywrapClient)
         };
@@ -52,13 +58,20 @@ pub mod c_api {
             polywrap_msgpack::serialize(json_args).unwrap()
         );
 
-        let invoke_result = block_on(async {
+        let mut invoke_result = block_on(async {
             client
                 .invoke(&uri_str.try_into().unwrap(), &method_str, Some(&invoke_args), None, None)
                 .await
                 .unwrap()
-        });
-       Box::into_raw(Box::new(invoke_result))
+        }).into_boxed_slice();
+
+        let buffer = Buffer {
+            data: invoke_result.as_mut_ptr(),
+            len: invoke_result.len() as i32
+        };
+        std::mem::forget(invoke_result);
+
+        buffer
     }
 
     #[no_mangle]
