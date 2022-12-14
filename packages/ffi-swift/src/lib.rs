@@ -1,5 +1,5 @@
 pub mod c_api {
-    use std::{ffi::{CStr,c_int}, sync::Arc, collections::HashMap};
+    use std::{ffi::{CStr}, sync::Arc, collections::HashMap};
 
     use filesystem_plugin::FileSystemPlugin;
     use fs_resolver_plugin::FileSystemResolverPlugin;
@@ -35,6 +35,7 @@ pub mod c_api {
         let client = unsafe {
             Box::from_raw(client_ptr as *mut PolywrapClient)
         };
+
         let uri_c_str = unsafe { CStr::from_ptr(uri) };
         let uri_str = match uri_c_str.to_str() {
             Ok(u) => u.to_string(),
