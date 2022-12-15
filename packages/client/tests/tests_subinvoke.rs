@@ -124,7 +124,7 @@ async fn test() {
         resolver,
     });
 
-    let uri = Uri::try_from("wrap://http/https://raw.githubusercontent.com/namesty/test-wrappers/main/invoke").unwrap();
+    let uri = Uri::try_from("wrap://ens/add.eth").unwrap();
     let args_json = String::from("{\"a\": 1, \"b\": 1}");
     let json_args: Value = serde_json::from_str(&args_json).unwrap();
 
