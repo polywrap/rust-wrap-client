@@ -13,5 +13,6 @@ members = [
     "packages/plugins/http",
     "packages/plugins/http-resolver",
     "packages/plugins/fs",
-    "packages/plugins/fs-resolver"
+    "packages/plugins/fs-resolver",
+    "packages/plugin_macro"
 ]

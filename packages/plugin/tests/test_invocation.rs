@@ -8,6 +8,7 @@ use polywrap_core::{invoke::{Invoker, InvokeArgs}, env::{Env}, resolvers::{stati
 use polywrap_manifest::versions::{WrapManifest, WrapManifestAbi};
 use polywrap_msgpack::msgpack;
 use polywrap_plugin::{error::PluginError, module::{PluginModule, PluginWithEnv}, package::PluginPackage, impl_plugin_traits};
+use polywrap_plugin_macro::plugin_struct;
 use serde_json::{Value, from_value, json};
 use futures::lock::Mutex;
 
@@ -16,9 +17,8 @@ pub struct GetEnvArgs {
     key: String
 }
 
-pub struct PluginEnv {
-    pub env: Env
-}
+#[plugin_struct]
+pub struct PluginEnv {}
 
 #[async_trait]
 pub trait Module: PluginModule {
