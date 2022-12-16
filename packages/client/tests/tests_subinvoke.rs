@@ -62,19 +62,19 @@ async fn subinvoke_test() {
 
 #[tokio::test]
 async fn test() {
-    let fs = FileSystemPlugin {};
+    let fs = FileSystemPlugin { env: Value::Null };
     let fs_plugin_package: PluginPackage = fs.into();
     let fs_package = Arc::new(Mutex::new(fs_plugin_package));
 
-    let fs_resolver = FileSystemResolverPlugin {};
+    let fs_resolver = FileSystemResolverPlugin { env: Value::Null };
     let fs_resolver_plugin_package: PluginPackage = fs_resolver.into();
     let fs_resolver_package = Arc::new(Mutex::new(fs_resolver_plugin_package));
 
-    let http = HttpPlugin {};
+    let http = HttpPlugin { env: Value::Null };
     let http_plugin_package: PluginPackage = http.into();
     let http_package = Arc::new(Mutex::new(http_plugin_package));
 
-    let http_resolver = HttpResolverPlugin {};
+    let http_resolver = HttpResolverPlugin { env: Value::Null };
     let http_resolver_plugin_package: PluginPackage = http_resolver.into();
     let http_resolver_package = Arc::new(Mutex::new(http_resolver_plugin_package));
 

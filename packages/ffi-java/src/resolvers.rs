@@ -19,6 +19,7 @@ use polywrap_core::{
 };
 use polywrap_plugin::package::PluginPackage;
 use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
+use serde_json::Value;
 
 #[allow(non_snake_case)]
 #[no_mangle]
@@ -27,19 +28,19 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_nCreateResol
     _: JClass,
     redirects: JObject,
 ) -> jlong {
-    let fs = FileSystemPlugin {};
+    let fs = FileSystemPlugin { env: Value::Null };
     let fs_plugin_package: PluginPackage = fs.into();
     let fs_package = Arc::new(Mutex::new(fs_plugin_package));
 
-    let fs_resolver = FileSystemResolverPlugin {};
+    let fs_resolver = FileSystemResolverPlugin { env: Value::Null };
     let fs_resolver_plugin_package: PluginPackage = fs_resolver.into();
     let fs_resolver_package = Arc::new(Mutex::new(fs_resolver_plugin_package));
 
-    let http = HttpPlugin {};
+    let http = HttpPlugin { env: Value::Null };
     let http_plugin_package: PluginPackage = http.into();
     let http_package = Arc::new(Mutex::new(http_plugin_package));
 
-    let http_resolver = HttpResolverPlugin {};
+    let http_resolver = HttpResolverPlugin { env: Value::Null };
     let http_resolver_plugin_package: PluginPackage = http_resolver.into();
     let http_resolver_package = Arc::new(Mutex::new(http_resolver_plugin_package));
 
