@@ -1,5 +1,5 @@
 [package]
-name = "polywrap_ffi_swift_client"
+name = "polywrap_ffi_c"
 version = "0.1.0"
 edition = "2021"
 

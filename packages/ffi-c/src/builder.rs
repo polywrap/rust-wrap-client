@@ -57,7 +57,6 @@ pub extern "C" fn add_static_resolver(builder: *const libc::c_char, resolver: *c
     let mut b: Box<ResolverBuilder> = unsafe { Box::from_raw(builder as *mut ResolverBuilder) };
     let r: Box<StaticResolverLike> = unsafe { Box::from_raw(resolver as *mut StaticResolverLike) };
     b.add_static(r, HashMap::new());
-
 }
 
 #[no_mangle]
