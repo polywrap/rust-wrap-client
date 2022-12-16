@@ -26,21 +26,6 @@ macro_rules! impl_plugin_traits {
       }
   }
 
-  impl $crate::module::PluginWithEnv for $plugin_type {
-    fn set_env(&mut self, env: polywrap_core::env::Env) {
-      self.env = env;
-    }
-
-    fn get_env(&self, key: String) -> Option<&polywrap_core::env::Env> {
-      let value = self.env.get(&key);
-      if let Some(v) = value {
-        Some(v)
-      } else {
-        None
-      }
-    }
-  }
-
   impl Into<$crate::package::PluginPackage> for $plugin_type {
     fn into(self) -> $crate::package::PluginPackage {
         let plugin_module = Arc::new($crate::Mutex::new(Box::new(self) as Box<dyn $crate::module::PluginModule>));
