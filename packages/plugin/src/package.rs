@@ -1,7 +1,7 @@
 use std::{sync::{Arc}};
 
 use async_trait::async_trait;
-use polywrap_manifest::{
+use wrap_manifest_schemas::{
     versions::WrapManifest,
 };
 use polywrap_core::{error::Error, package::{GetManifestOptions, WrapPackage}, wrapper::Wrapper};

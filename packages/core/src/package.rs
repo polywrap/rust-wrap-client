@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use polywrap_manifest::{versions::WrapManifest};
+use wrap_manifest_schemas::{versions::WrapManifest};
 use futures::lock::Mutex;
 
 use crate::{error::Error, wrapper::Wrapper};

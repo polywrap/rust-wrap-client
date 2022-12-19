@@ -11,7 +11,7 @@ use polywrap_core::uri::Uri;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
-use polywrap_manifest::versions::WrapManifest;
+use wrap_manifest_schemas::versions::WrapManifest;
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
 use std::sync::Arc;
