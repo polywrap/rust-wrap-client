@@ -6,7 +6,7 @@ use polywrap_core::{
     error::Error,
     file_reader::{SimpleFileReader}, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env, interface_implementation::InterfaceImplementations
 };
-use polywrap_manifest::{
+use wrap_manifest_schemas::{
     deserialize::deserialize_wrap_manifest
 };
 use async_trait::async_trait;
