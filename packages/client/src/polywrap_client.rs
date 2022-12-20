@@ -9,7 +9,7 @@ use polywrap_core::{
     uri::Uri,
     resolvers::uri_resolution_context::UriResolutionContext,
     resolvers::uri_resolver::{UriResolverHandler},
-    wrapper::Wrapper, env::{Env, Envs},
+    wrapper::Wrapper, env::{Env},
     interface_implementation::InterfaceImplementations
 };
 use polywrap_msgpack::{decode};

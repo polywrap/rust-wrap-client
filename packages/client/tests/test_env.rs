@@ -1,20 +1,15 @@
 use polywrap_client::polywrap_client::PolywrapClient;
+use polywrap_client_builder::types::{ClientBuilder, BuilderConfig, ClientConfigHandler};
 use polywrap_core::{
-    client::{UriRedirect, ClientConfig},
     env::Envs,
     invoke::{InvokeArgs, Invoker},
     uri::Uri,
 };
 use polywrap_msgpack::{decode, msgpack};
 
-use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_core::resolvers::{
-    static_resolver::{StaticResolver, StaticResolverLike},
-};
-use polywrap_resolvers::legacy::{filesystem::FilesystemResolver, base::BaseResolver};
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Deserialize;
-use std::{sync::Arc, collections::HashMap};
+use std::{collections::HashMap};
 
 use serde_json::json;
 
@@ -39,19 +34,15 @@ struct Response {
 async fn test_env() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let env_wrapper: Uri = format!("fs/{}/env-type/01-main/implementations/as", path)
-        .try_into()
-        .unwrap();
-    let as_env_external_wrapper_path: Uri =
-        format!("fs/{}/env-type/00-external/implementations/as", path)
-            .try_into()
-            .unwrap();
+    let env_wrapper= Uri::try_from(format!("fs/{}/env-type/01-main/implementations/as", path)).unwrap();
+    let as_env_external_wrapper_path = Uri::try_from(format!("fs/{}/env-type/00-external/implementations/as", path)).unwrap();
 
     let mut envs: Envs = HashMap::new();
     let external_env = json!({
         "externalArray": [1, 2, 3],
         "externalString": "iamexternal"
     });
+
     envs.insert(as_env_external_wrapper_path.clone().uri, external_env);
 
     let response = json!({
@@ -69,23 +60,14 @@ async fn test_env() {
     obj.insert("prop".to_string(), "object string".to_string());
     envs.insert(env_wrapper.clone().uri, response);
 
-    let redirect = UriRedirect::new(
-        "ens/external-env.polywrap.eth".try_into().unwrap(),
-        as_env_external_wrapper_path.clone(),
+    let mut builder = BuilderConfig::new(None);
+    builder.add_redirect(
+        Uri::try_from("ens/external-env.polywrap.eth").unwrap(),
+        as_env_external_wrapper_path.clone()
     );
-
-    let redirects_static_like = StaticResolverLike::Redirect(redirect);
-    let static_resolver = StaticResolver::from(vec![redirects_static_like]);
-
-    let file_reader = SimpleFileReader::new();
-    let client = PolywrapClient::new(ClientConfig {
-        resolver: Arc::new(BaseResolver::new(
-            Box::new(FilesystemResolver::new(Arc::new(file_reader))),
-            Box::new(static_resolver),
-        )),
-        envs: Some(envs),
-        interfaces: None
-    });
+    builder.add_envs(envs);
+    let config = builder.build();
+    let client = PolywrapClient::new(config);
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"arg": "test"}));
 
     let invoke_result: Vec<u8> = client

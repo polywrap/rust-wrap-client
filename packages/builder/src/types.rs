@@ -50,6 +50,6 @@ pub trait ClientBuilder {
 }
 
 pub trait ClientConfigHandler {
-    fn build(&self) -> &ClientConfig;
+    fn build(self) -> ClientConfig;
 }
 

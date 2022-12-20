@@ -68,7 +68,7 @@ impl State {
 }
 
 impl WasmInstance {
-    pub async fn new(wasm_module: &WasmModule, shared_state: State) -> Result<Self, WrapperError> {
+    pub async fn new(wasm_module: &Vec<u8>, shared_state: State) -> Result<Self, WrapperError> {
         let mut config = Config::new();
         config.async_support(true);
 
@@ -78,13 +78,7 @@ impl WasmInstance {
 
         let mut store = Store::new(&engine, shared_state);
 
-        let module = match wasm_module {
-            WasmModule::Bytes(ref bytes) => {
-              Module::from_binary(&engine, bytes).unwrap()
-            },
-            WasmModule::Wat(ref wat) => Module::new(&engine, wat).unwrap(),
-            WasmModule::Path(ref path) => Module::from_file(&engine, path).unwrap(),
-        };
+        let module =  Module::from_binary(&engine, wasm_module).unwrap();
 
         let module_bytes = module
             .serialize()

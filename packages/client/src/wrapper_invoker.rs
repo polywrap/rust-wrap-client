@@ -6,7 +6,7 @@ use polywrap_core::{
     invoke::{Invoker, InvokeArgs},
     loader::Loader,
     resolvers::uri_resolution_context::UriResolutionContext,
-    wrapper::Wrapper, uri::Uri, env::{Env, Envs}, 
+    wrapper::Wrapper, uri::Uri, env::{Env}, 
     interface_implementation::InterfaceImplementations
 };
 use futures::lock::Mutex;

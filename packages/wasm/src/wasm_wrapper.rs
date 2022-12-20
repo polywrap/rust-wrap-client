@@ -17,19 +17,18 @@ use serde::de::DeserializeOwned;
 use std::sync::Arc;
 
 use crate::wasm_runtime::instance::WasmInstance;
-use crate::wasm_runtime::instance::WasmModule;
 use wasmtime::Val;
 
 #[derive(Clone)]
 pub struct WasmWrapper {
-    wasm_module: WasmModule,
+    wasm_module: Vec<u8>,
     file_reader: Arc<dyn FileReader>,
     manifest: WrapManifest,
 }
 
 impl WasmWrapper {
     pub fn new(
-        wasm_module: WasmModule,
+        wasm_module: Vec<u8>,
         file_reader: Arc<dyn FileReader>,
         manifest: WrapManifest,
     ) -> Self {
@@ -40,7 +39,7 @@ impl WasmWrapper {
         }
     }
 
-    pub fn get_wasm_module(&self) -> Result<&WasmModule, WrapperError> {
+    pub fn get_wasm_module(&self) -> Result<&Vec<u8>, WrapperError> {
         Ok(&self.wasm_module)
     }
 

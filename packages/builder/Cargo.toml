@@ -11,6 +11,12 @@ polywrap_core = {path = "../core"}
 polywrap_resolvers = { path = "../resolvers" }
 serde_json = "1.0.87"
 serde = {version = "1.0.145", features = ["derive"]}
+polywrap_plugin = {path ="../plugin"}
+fs_resolver_plugin = {path = "../plugins/fs-resolver"}
+filesystem_plugin = {path = "../plugins/fs"}
+http_resolver_plugin = {path = "../plugins/http-resolver"}
+http_plugin = {path = "../plugins/http"}
+futures = "0.3.24"
 
 [dev-dependencies]
 mockall = "0.11.2"

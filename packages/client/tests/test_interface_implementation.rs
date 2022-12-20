@@ -1,18 +1,14 @@
 use polywrap_client::polywrap_client::PolywrapClient;
+use polywrap_client_builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler};
 use polywrap_core::{
     interface_implementation::InterfaceImplementations,
     invoke::{InvokeArgs, Invoker},
-    uri::Uri, client::ClientConfig,
+    uri::Uri,
 };
 use polywrap_msgpack::msgpack;
 
-use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_core::resolvers::{
-    static_resolver::{StaticResolver},
-};
-use polywrap_resolvers::legacy::{base::BaseResolver, filesystem::FilesystemResolver};
 use polywrap_tests_utils::helpers::get_tests_path;
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap};
 
 
 
@@ -20,35 +16,27 @@ use std::{collections::HashMap, sync::Arc};
 async fn test_env() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let implementation_uri: Uri = format!(
+    let implementation_uri = Uri::try_from(format!(
         "fs/{}/interface-invoke/01-implementation/implementations/as",
         path
-    )
-    .try_into()
-    .unwrap();
-    let wrapper_uri: Uri = format!("fs/{}/interface-invoke/02-wrapper/implementations/as", path)
-        .try_into()
-        .unwrap();
+    )).unwrap();
+    let wrapper_uri = Uri::try_from(format!(
+        "fs/{}/interface-invoke/02-wrapper/implementations/as", path
+    )).unwrap();
 
     let mut interfaces: InterfaceImplementations = HashMap::new();
     interfaces.insert(
         "wrap://ens/interface.eth".to_string(),
-        vec![implementation_uri],
+        vec![implementation_uri.clone()],
     );
-
-    let static_resolver = StaticResolver::from(vec![]);
-
-    let file_reader = SimpleFileReader::new();
-    let client = PolywrapClient::new(
-        ClientConfig {
-            resolver: Arc::new(BaseResolver::new(
-                Box::new(FilesystemResolver::new(Arc::new(file_reader))),
-                Box::new(static_resolver),
-            )),
-            interfaces: Some(interfaces),
-            envs: None
-        }
+    let mut builder = BuilderConfig::new(None);
+    builder.add_interface_implementation(
+        Uri::try_from("wrap://ens/interface.eth").unwrap(),
+        implementation_uri
     );
+    let config = builder.build();
+
+    let client = PolywrapClient::new(config);
 
     let invoke_args = InvokeArgs::Msgpack(msgpack!(
         {

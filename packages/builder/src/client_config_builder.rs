@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap};
 
 use polywrap_core::{
     client::{ClientConfig, UriRedirect},
@@ -7,21 +7,32 @@ use polywrap_core::{
     uri::Uri
 };
 
-use crate::{helpers::merge, types::{BuilderConfig, ClientBuilder, ClientConfigHandler}};
+use crate::{helpers::{merge, add_default, build_resolver}, types::{BuilderConfig, ClientBuilder, ClientConfigHandler}};
 
 impl BuilderConfig {
     pub fn new(config: Option<BuilderConfig>) -> Self {
         if let Some(c) = config {
-            let mut builder = BuilderConfig::new(None);
-            builder.add(c);
+            c
+        } else {
+            BuilderConfig { 
+                interfaces: None,
+                envs: None,
+                wrappers: None,
+                packages: None,
+                redirects: None,
+                resolvers: None
+            }
         }
-        BuilderConfig { 
-            interfaces: None,
-            envs: None,
-            wrappers: None,
-            packages: None,
-            redirects: None,
-            resolvers: None
+    }
+
+    pub fn config(self) -> BuilderConfig {
+        BuilderConfig {
+            interfaces: self.interfaces,
+            envs: self.envs,
+            wrappers: self.wrappers,
+            packages: self.packages,
+            redirects: self.redirects,
+            resolvers: self.resolvers
         }
     }
 }
@@ -41,6 +52,22 @@ impl ClientBuilder for BuilderConfig {
                 );
             }
         };
+
+        if let Some(r) = config.redirects {
+            self.add_redirects(r);
+        }
+
+        if let Some(w) = config.wrappers {
+            self.add_wrappers(w);
+        }
+
+        if let Some(p) = config.packages {
+            self.add_packages(p);
+        }
+
+        if let Some(resolvers) = config.resolvers {
+            self.add_resolvers(resolvers);
+        }
 
         self
     }
@@ -206,6 +233,7 @@ impl ClientBuilder for BuilderConfig {
 
     fn add_packages(&mut self, packages: Vec<UriPackage>) -> &mut Self {
         for package in packages.into_iter() {
+            dbg!(package.uri.clone());
             self.add_package(package);
         }
         self
@@ -279,7 +307,9 @@ impl ClientBuilder for BuilderConfig {
 }
 
 impl ClientConfigHandler for BuilderConfig {
-    fn build(&self) -> &ClientConfig {
-        todo!()
+    fn build(self) -> ClientConfig {
+        let mut builder = BuilderConfig::new(Some(add_default()));
+        builder.add(self.config());
+        build_resolver(builder)
     }
 }
