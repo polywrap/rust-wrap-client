@@ -8,9 +8,14 @@ use polywrap_core::{
 use polywrap_msgpack::msgpack;
 
 use polywrap_tests_utils::helpers::get_tests_path;
+use serde::Deserialize;
 use std::{collections::HashMap};
 
-
+#[derive(Deserialize, Debug, PartialEq)]
+struct ModuleMethodResponse {
+    uint8: i8,
+    str: String
+}
 
 #[tokio::test]
 async fn test_env() {
@@ -51,4 +56,10 @@ async fn test_env() {
         .invoke(&wrapper_uri, "moduleMethod", Some(&invoke_args), None, None)
         .await
         .unwrap();
+    let result: ModuleMethodResponse = polywrap_msgpack::decode(&invoke_result).unwrap();
+    let mock_response = ModuleMethodResponse {
+        uint8: 1,
+        str: "Test String 1".to_string()
+    };
+    assert_eq!(result, mock_response);
 }
