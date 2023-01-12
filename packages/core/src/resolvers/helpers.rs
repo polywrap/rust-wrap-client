@@ -59,7 +59,7 @@ impl FileReader for UriResolverExtensionFileReader {
             "path": path
         }));
         // TODO: This vec<u8> isn't the file but the msgpack representation of it
-        let result = self.invoker.invoke(
+        let result = self.invoker.invoke_raw(
             &self.resolver_extension_uri,
             "getFile",
             Some(&invoker_args),

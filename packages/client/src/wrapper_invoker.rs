@@ -28,7 +28,7 @@ impl WrapperInvoker {
 
 #[async_trait]
 impl Invoker for WrapperInvoker {
-    async fn invoke_wrapper(
+    async fn invoke_wrapper_raw(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -47,7 +47,7 @@ impl Invoker for WrapperInvoker {
         Ok(result)
     }
 
-    async fn invoke(
+    async fn invoke_raw(
         &self,
         uri: &Uri,
         method: &str,
@@ -76,7 +76,7 @@ impl Invoker for WrapperInvoker {
         }
 
         let invoke_result = self
-            .invoke_wrapper(wrapper, uri, method, args, env, Some(resolution_context))
+            .invoke_wrapper_raw(wrapper, uri, method, args, env, Some(resolution_context))
             .await
             .map_err(|e| Error::InvokeError(e.to_string()))?;
 
