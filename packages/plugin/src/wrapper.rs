@@ -1,4 +1,4 @@
-use std::{sync::Arc};
+use std::{sync::Arc, fmt::{Formatter, Debug}};
 
 use async_trait::async_trait;
 use futures::lock::Mutex;
@@ -73,5 +73,17 @@ impl Wrapper for PluginWrapper {
     }
     async fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
         unimplemented!("client.get_file(...) is not implemented for Plugins.")
+    }
+}
+
+impl PartialEq for PluginWrapper {
+    fn eq(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+
+impl Debug for PluginWrapper {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+        write!(f, "PluginWrapper: {:?}", self)
     }
 }

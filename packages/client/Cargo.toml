@@ -22,3 +22,4 @@ rmp-serde = "1.1.1"
 polywrap_wasm = {path = "../wasm"}
 polywrap_tests_utils = {path = "../tests-utils"}
 wrap_manifest_schemas = {path = "../manifest"}
+downcast-rs = "1.2.0"

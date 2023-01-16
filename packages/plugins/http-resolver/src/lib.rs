@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::wrap::types::HttpModuleArgsGet;
 use async_trait::async_trait;
-use polywrap_core::{invoke::Invoker, env::Env};
+use polywrap_core::{invoke::Invoker};
 use polywrap_plugin_macro::plugin_struct;
 use polywrap_plugin::error::PluginError;
 use wrap::{

@@ -2,7 +2,7 @@ use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_client_builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler};
 use polywrap_core::{
     interface_implementation::InterfaceImplementations,
-    invoke::{InvokeArgs, Invoker},
+    invoke::{InvokeArgs},
     uri::Uri,
 };
 use polywrap_msgpack::msgpack;

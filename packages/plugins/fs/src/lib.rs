@@ -1,7 +1,7 @@
 use std::{fs, path::Path, sync::Arc};
 
 use async_trait::async_trait;
-use polywrap_core::{invoke::Invoker, env::Env};
+use polywrap_core::{invoke::Invoker};
 use polywrap_plugin_macro::plugin_struct;
 use polywrap_plugin::{error::PluginError};
 use wrap::{
