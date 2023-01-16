@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::quote;
 use syn::parse::Parser;
-use syn::{parse, parse_macro_input, DeriveInput, FnArg, ItemImpl, ItemStruct, ImplItem};
+use syn::{parse, parse_macro_input, DeriveInput, ItemImpl, ItemStruct};
 
 #[proc_macro_attribute]
 pub fn plugin_struct(args: TokenStream, input: TokenStream) -> TokenStream {
@@ -39,19 +39,19 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                 match method.sig.clone().inputs.len() {
                     3 => {
                         let function_input = match &method.sig.inputs[1] {
-                          syn::FnArg::Typed(pat_type) => {
-                              if let syn::Type::Reference(type_reference) = &*pat_type.ty {
-                                  if let syn::Type::Path(type_path) = &*type_reference.elem {
-                                      Some(type_path.path.segments[0].ident.clone())
-                                  } else {
+                            syn::FnArg::Typed(pat_type) => {
+                                if let syn::Type::Reference(type_reference) = &*pat_type.ty {
+                                    if let syn::Type::Path(type_path) = &*type_reference.elem {
+                                        Some(type_path.path.segments[0].ident.clone())
+                                    } else {
+                                        None
+                                    }
+                                } else {
                                     None
-                                  }
-                              } else {
-                                None
-                              }
-                          }
-                          _ => panic!("Wrong argument type")
-                      };
+                                }
+                            }
+                            _ => panic!("Wrong argument type"),
+                        };
                         let function_ident = &method.sig.ident;
                         let function_ident_str = function_ident.to_string();
 
@@ -61,7 +61,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                             function_input.unwrap().clone(),
                         ))
                     }
-                    _ => panic!("Wrong number of arguments")
+                    _ => panic!("Wrong number of arguments"),
                 };
             }
             _ => panic!("Wrong function signature"),
@@ -71,7 +71,8 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
     dbg!(method_idents.clone());
 
     let supported_methods =
-        method_idents.clone()
+        method_idents
+            .clone()
             .into_iter()
             .enumerate()
             .map(|(_, (_, ident_str, _))| {
@@ -114,70 +115,13 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         }
     };
 
-    let s = quote! {
+    return quote! {
         #item_impl
 
         #module_impl
-    };
-
-    println!("{}", s);
-
-    return s.into();
+    }
+    .into();
 }
-
-// #[proc_macro_attribute]
-// pub fn my_macro(args: TokenStream, input: TokenStream) -> TokenStream {
-//     let input_clone_a = input.clone();
-//     let input_clone_b = input.clone();
-//     let inputA = parse_macro_input!(input_clone_a as DeriveInput);
-//     let inputB = parse_macro_input!(input_clone_b as ItemImpl);
-
-//     let mut impl_block = match inputA.data {
-//         syn::Data::Struct(data) => {
-//             let struct_ident = data.struct_token;
-//             let mut function_map = quote! {};
-//             // Iterate through the trait implementation's functions
-//             for item in inputB.items.iter() {
-//                 if let ImplItem::Method(method) = item {
-//                     let sig = match method.sig.clone().inputs.len() {
-//                         2 => {
-//                             let second_input = &method.sig.inputs[1];
-//                             let function_ident = &method.sig.ident;
-//                             function_map = quote! {
-//                                 #function_map
-//                                 #function_ident => {
-//                                     let second_arg: #second_input = serde_json::from_value(json_value.clone()).unwrap();
-//                                     self.#function_ident(second_arg);
-//                                 },
-//                             };
-//                             quote!()
-//                         }
-//                         _ => {
-//                             quote!(#item)
-//                         }
-//                     };
-//                     // impl_block.extend(sig);
-//                 } else {
-//                     // impl_block.extend(quote!(#item));
-//                 }
-//             }
-//             // Create a new trait implementation block
-//             quote! {
-//                 impl MyAdditionalTrait for #struct_ident {
-//                     fn wrap_invoke(&self, method_name: &str, json_value: &Value) {
-//                         match method_name {
-//                             #function_map
-//                             _ => println!("Method not found"),
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//         _ => panic!("This macro can only be applied to structs"),
-//     };
-//     // Return the modified impl block
-//     impl_block.into()
-// }
 
 #[proc_macro_derive(Plugin)]
 pub fn derive_plugin(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
