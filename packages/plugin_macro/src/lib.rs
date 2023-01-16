@@ -99,7 +99,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
 
     let module_impl = quote! {
         #[async_trait]
-        impl PluginModule for #struct_ident {
+        impl polywrap_plugin::module::PluginModule for #struct_ident {
           async fn _wrap_invoke(
             &mut self,
             method_name: &str,
@@ -115,10 +115,28 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         }
     };
 
+    let into_impls = quote! {
+      impl Into<polywrap_plugin::package::PluginPackage> for #struct_ident {
+        fn into(self) -> polywrap_plugin::package::PluginPackage {
+            let plugin_module = Arc::new(futures::lock::Mutex::new(Box::new(self) as Box<dyn polywrap_plugin::module::PluginModule>));
+            polywrap_plugin::package::PluginPackage::new(plugin_module, crate::wrap::wrap_info::get_manifest())
+        }
+      }
+    
+      impl Into<polywrap_plugin::wrapper::PluginWrapper> for #struct_ident {
+          fn into(self) -> polywrap_plugin::wrapper::PluginWrapper {
+            let plugin_module = Arc::new(futures::lock::Mutex::new(Box::new(self) as Box<dyn polywrap_plugin::module::PluginModule>));
+            polywrap_plugin::wrapper::PluginWrapper::new(plugin_module)
+          }
+      }
+    };
+
     return quote! {
         #item_impl
 
         #module_impl
+
+        #into_impls
     }
     .into();
 }

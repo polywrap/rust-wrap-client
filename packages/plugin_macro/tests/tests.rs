@@ -50,7 +50,6 @@ mod tests {
             }
         }
 
-        #[plugin_impl]
         #[async_trait]
         impl Module for Foo {
           async fn foo_method(&mut self, arg: &Args, s: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError> {
