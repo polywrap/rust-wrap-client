@@ -58,7 +58,7 @@ impl UriResolverWrapper {
       }));
 
       let invoker = loader.get_invoker()?;
-      let result = invoker.invoke_wrapper(
+      let result = invoker.invoke_wrapper_raw(
           wrapper, 
           &implementation_uri.clone(), 
           "tryResolveUri", 

@@ -89,7 +89,7 @@ async fn invoke_test() {
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"key": "foo"}));
 
     let invoke_result = client
-        .invoke_and_decode::<bool>(
+        .invoke::<bool>(
             &Uri::try_from("ens/env-plugin.eth").unwrap(),
             "checkEnvIsBar",
             Some(&invoke_args),

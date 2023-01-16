@@ -21,7 +21,7 @@ async fn subinvoke_test() {
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"a": 1, "b": 1}));
 
     let invoke_result = client
-        .invoke_and_decode::<u32>(&invoke_uri, "addAndIncrement", Some(&invoke_args), None, None)
+        .invoke::<u32>(&invoke_uri, "addAndIncrement", Some(&invoke_args), None, None)
         .await
         .unwrap();
 

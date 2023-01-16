@@ -29,7 +29,7 @@ impl MockInvoker {
 
 #[async_trait]
 impl Invoker for MockInvoker {
-    async fn invoke_wrapper(
+    async fn invoke_wrapper_raw(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -59,7 +59,7 @@ impl Invoker for MockInvoker {
         Ok(result)    
     }
 
-    async fn invoke(
+    async fn invoke_raw(
         &self,
         uri: &Uri,
         method: &str,
@@ -67,7 +67,7 @@ impl Invoker for MockInvoker {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        let invoke_result = self.invoke_wrapper(
+        let invoke_result = self.invoke_wrapper_raw(
             Arc::new(Mutex::new(self.wrapper.clone())),
             uri,
             method,
@@ -114,7 +114,7 @@ async fn invoke_test() {
     let args = InvokeArgs::Msgpack(msgpack!({ "a": 1, "b": 1}));
 
     let mock_invoker = MockInvoker::new(wrapper);
-    let result = mock_invoker.invoke(
+    let result = mock_invoker.invoke_raw(
         &Uri::try_from("ens/wrapper.eth").unwrap(),
         "add",
         Some(&args), 

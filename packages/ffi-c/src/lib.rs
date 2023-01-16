@@ -61,7 +61,7 @@ pub extern "C" fn invoke(
 
     let mut invoke_result = block_on(async {
         client
-            .invoke(&uri_str.try_into().unwrap(), &method_str, Some(&invoke_args), None, None)
+            .invoke_raw(&uri_str.try_into().unwrap(), &method_str, Some(&invoke_args), None, None)
             .await
             .unwrap()
     }).into_boxed_slice();
