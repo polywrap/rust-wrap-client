@@ -14,7 +14,8 @@ use polywrap_core::wrapper::Wrapper;
 use wrap_manifest_schemas::versions::WrapManifest;
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
-use std::sync::Arc;
+use std::fmt::Formatter;
+use std::{sync::Arc, fmt::Debug};
 
 use crate::wasm_runtime::instance::WasmInstance;
 use wasmtime::Val;
@@ -63,6 +64,18 @@ impl WasmWrapper {
         let result = decode(result.as_slice())?;
 
         Ok(result)
+    }
+}
+
+impl PartialEq for WasmWrapper {
+    fn eq(&self, other: &Self) -> bool {
+        self.get_wasm_module().unwrap() == other.get_wasm_module().unwrap()
+    }
+}
+
+impl Debug for WasmWrapper {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+        write!(f, "WasmWrapper: {}", &self.get_manifest().unwrap().name)
     }
 }
 
