@@ -11,6 +11,7 @@ use wrap::{
     },
 };
 pub mod wrap;
+use crate::wrap::wrap_info::get_manifest;
 
 #[plugin_struct]
 pub struct FileSystemPlugin {

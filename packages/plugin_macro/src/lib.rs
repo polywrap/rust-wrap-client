@@ -119,7 +119,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
       impl Into<polywrap_plugin::package::PluginPackage> for #struct_ident {
         fn into(self) -> polywrap_plugin::package::PluginPackage {
             let plugin_module = Arc::new(futures::lock::Mutex::new(Box::new(self) as Box<dyn polywrap_plugin::module::PluginModule>));
-            polywrap_plugin::package::PluginPackage::new(plugin_module, crate::wrap::wrap_info::get_manifest())
+            polywrap_plugin::package::PluginPackage::new(plugin_module, get_manifest())
         }
       }
     

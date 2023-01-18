@@ -9,6 +9,7 @@ use wrap::{
     types::{MaybeUriOrManifest, FileSystemModule, FileSystemModuleArgsExists, FileSystemModuleArgsReadFile},
 };
 pub mod wrap;
+use crate::wrap::wrap_info::get_manifest;
 
 #[plugin_struct]
 pub struct FileSystemResolverPlugin {
