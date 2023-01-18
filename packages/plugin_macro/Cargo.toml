@@ -8,12 +8,16 @@ edition = "2021"
 [dependencies]
 proc-macro2 = "1.0"
 quote = "1.0"
-syn = { version = "1.0.105", features=["full", "extra-traits"] }
+syn = { version = "1.0.105", features=["full", "extra-traits", "visit"] }
 polywrap_core = { path = "../core" }
 polywrap_plugin = { path = "../plugin" }
+async-trait = "0.1.57"
+serde = {version = "1.0.145", features = ["derive"]}
 
 [lib]
 proc-macro = true
 
 [dev-dependencies]
 serde_json = "1.0.87"
+wrap_manifest_schemas = { path = "../manifest" }
+futures = "0.3.24"

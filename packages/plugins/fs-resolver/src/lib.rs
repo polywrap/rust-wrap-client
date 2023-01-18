@@ -1,19 +1,21 @@
 use std::{sync::Arc, path::Path};
 
 use async_trait::async_trait;
-use polywrap_core::{invoke::Invoker, env::Env};
-use polywrap_plugin_macro::plugin_struct;
+use polywrap_core::{invoke::Invoker};
+use polywrap_plugin_macro::{plugin_struct, plugin_impl};
 use polywrap_plugin::error::PluginError;
 use wrap::{
     module::{ArgsGetFile, ArgsTryResolveUri, Module},
     types::{MaybeUriOrManifest, FileSystemModule, FileSystemModuleArgsExists, FileSystemModuleArgsReadFile},
 };
 pub mod wrap;
+use crate::wrap::wrap_info::get_manifest;
 
 #[plugin_struct]
 pub struct FileSystemResolverPlugin {
 }
 
+#[plugin_impl]
 #[async_trait]
 impl Module for FileSystemResolverPlugin {
     async fn try_resolve_uri(
@@ -73,4 +75,3 @@ impl Module for FileSystemResolverPlugin {
     }
 }
 
-impl_traits!(FileSystemResolverPlugin);
