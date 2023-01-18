@@ -2,7 +2,7 @@
 mod tests {
     use std::sync::Arc;
 
-    use polywrap_manifest::versions::WrapManifest;
+    use wrap_manifest_schemas::versions::WrapManifest;
     use polywrap_plugin_macro::{plugin_struct, plugin_impl};
     use polywrap_plugin::{module::PluginModule, error::PluginError};
     use async_trait::async_trait;
