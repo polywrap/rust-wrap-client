@@ -6,7 +6,7 @@ use polywrap_core::{
     package::{GetManifestOptions, WrapPackage},
     wrapper::Wrapper,
 };
-use polywrap_manifest::{
+use wrap_manifest_schemas::{
     deserialize::{deserialize_wrap_manifest, DeserializeManifestOptions},
     versions::WrapManifest,
 };
@@ -78,7 +78,7 @@ impl WrapPackage for WasmPackage {
         let manifest = self.get_manifest(None).await?;
 
         Ok(Arc::new(Mutex::new(WasmWrapper::new(
-            crate::wasm_runtime::instance::WasmModule::Bytes(wasm_module),
+            wasm_module,
             self.file_reader.clone(),
             manifest,
         ))))

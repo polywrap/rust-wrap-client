@@ -37,6 +37,13 @@ impl From<Vec<UriResolverLike>> for RecursiveResolver {
     }
 }
 
+impl From<UriResolverLike> for RecursiveResolver {
+    fn from(resolver_like: UriResolverLike) -> Self {
+        let resolver: Arc<dyn UriResolver> = resolver_like.into();
+        RecursiveResolver::new(resolver)
+    }
+}
+
 impl RecursiveResolver {
     pub fn new(resolver: Arc<dyn UriResolver>) -> Self {
         Self { resolver }
@@ -64,13 +71,6 @@ impl RecursiveResolver {
         } else {
             result
         }
-    }
-}
-
-impl From<UriResolverLike> for RecursiveResolver {
-    fn from(resolver_like: UriResolverLike) -> Self {
-        let resolver: Arc<dyn UriResolver> = resolver_like.into();
-        RecursiveResolver::new(resolver)
     }
 }
 

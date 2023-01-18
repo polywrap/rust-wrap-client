@@ -9,7 +9,7 @@ fn main() {
 
     let mut checkout = Command::new("git");
     checkout.current_dir("./wasm-test-harness");
-    checkout.arg("checkout").arg("tags/v0.1.1");
+    checkout.arg("checkout").arg("tags/v0.2.1");
 
     checkout.output().expect("failed checkout");
 

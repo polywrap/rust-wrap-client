@@ -133,7 +133,7 @@ pub fn create_imports(
                     let method = String::from_utf8(method_bytes).unwrap();
                     let invoke_args = InvokeArgs::UIntArray(args_bytes);
 
-                    let result = state.invoker.invoke(&uri, &method, Some(&invoke_args), None, None).await;
+                    let result = state.invoker.invoke_raw(&uri, &method, Some(&invoke_args), None, None).await;
                     match result {
                         Ok(res) => {
                             state.subinvoke.result = Some(res);
@@ -267,7 +267,7 @@ pub fn create_imports(
                     let method = String::from_utf8(method_bytes).unwrap();
                     let invoke_args = InvokeArgs::UIntArray(args_bytes);
 
-                    let result = state.invoker.invoke(&uri, &method, Some(&invoke_args), None, None).await;
+                    let result = state.invoker.invoke_raw(&uri, &method, Some(&invoke_args), None, None).await;
                     match result {
                         Ok(res) => {
                             state.subinvoke.result = Some(res);

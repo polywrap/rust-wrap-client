@@ -1,4 +1,4 @@
-use std::{sync::Arc, collections::HashMap};
+use std::{sync::Arc};
 
 use async_trait::async_trait;
 use futures::lock::Mutex;
@@ -12,9 +12,7 @@ use polywrap_core::{
 
 use crate::module::{PluginModule};
 
-
 type PluginModuleInstance = Arc<Mutex<Box<dyn (PluginModule)>>>;
-
 
 pub struct PluginWrapper {
     instance: PluginModuleInstance,

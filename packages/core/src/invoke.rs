@@ -12,7 +12,7 @@ pub enum InvokeArgs {
 
 #[async_trait]
 pub trait Invoker: Send + Sync {
-    async fn invoke_wrapper(
+    async fn invoke_wrapper_raw(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -21,7 +21,7 @@ pub trait Invoker: Send + Sync {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
-    async fn invoke(
+    async fn invoke_raw(
         &self,
         uri: &Uri,
         method: &str,

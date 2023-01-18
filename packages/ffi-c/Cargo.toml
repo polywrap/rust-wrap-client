@@ -1,23 +1,22 @@
 [package]
-name = "polywrap_client_builder"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
+name = "polywrap_ffi_c"
+version = "0.1.0"
 edition = "2021"
 
+[lib]
+crate-type = ["cdylib"]
+
 [dependencies]
-async-trait = "0.1.57"
+polywrap_client = {path = "../client"}
 polywrap_core = {path = "../core"}
-polywrap_resolvers = { path = "../resolvers" }
-serde_json = "1.0.87"
-serde = {version = "1.0.145", features = ["derive"]}
+polywrap_resolvers = {path = "../resolvers"}
 polywrap_plugin = {path ="../plugin"}
 fs_resolver_plugin = {path = "../plugins/fs-resolver"}
 filesystem_plugin = {path = "../plugins/fs"}
 http_resolver_plugin = {path = "../plugins/http-resolver"}
 http_plugin = {path = "../plugins/http"}
+polywrap_msgpack = {path = "../msgpack"}
 futures = "0.3.24"
-
-[dev-dependencies]
-mockall = "0.11.2"
-actix-rt = "*"
+rmp-serde = "1.1.1"
+serde_json = "1.0.87"
+libc = "0.2"

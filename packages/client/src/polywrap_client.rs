@@ -9,7 +9,7 @@ use polywrap_core::{
     uri::Uri,
     resolvers::uri_resolution_context::UriResolutionContext,
     resolvers::uri_resolver::{UriResolverHandler},
-    wrapper::Wrapper, env::{Env, Envs},
+    wrapper::Wrapper, env::{Env},
     interface_implementation::InterfaceImplementations
 };
 use polywrap_msgpack::{decode};
@@ -40,7 +40,7 @@ impl PolywrapClient {
         }
     }
 
-    pub async fn invoke_wrapper_and_decode<T: DeserializeOwned>(
+    pub async fn invoke_wrapper<T: DeserializeOwned>(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -50,13 +50,13 @@ impl PolywrapClient {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
         let result = self
-            .invoke_wrapper(wrapper, uri, method, args, env, resolution_context)
+            .invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)
             .await?;
         decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
     }
 
-    pub async fn invoke_and_decode<T: DeserializeOwned>(
+    pub async fn invoke<T: DeserializeOwned>(
         &self,
         uri: &Uri,
         method: &str,
@@ -64,7 +64,7 @@ impl PolywrapClient {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
-        let result = self.invoke(uri, method, args, env, resolution_context).await?;
+        let result = self.invoke_raw(uri, method, args, env, resolution_context).await?;
         decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
     }
@@ -72,7 +72,7 @@ impl PolywrapClient {
 
 #[async_trait]
 impl Invoker for PolywrapClient {
-    async fn invoke(
+    async fn invoke_raw(
         &self,
         uri: &Uri,
         method: &str,
@@ -86,10 +86,10 @@ impl Invoker for PolywrapClient {
                 self.loader.get_env_by_uri(uri).map(|env| env.to_owned())
             }
         };
-        self.invoker.invoke(uri, method, args, env_uri, resolution_context).await
+        self.invoker.invoke_raw(uri, method, args, env_uri, resolution_context).await
     }
 
-    async fn invoke_wrapper(
+    async fn invoke_wrapper_raw(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -98,7 +98,7 @@ impl Invoker for PolywrapClient {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        self.invoker.invoke_wrapper(wrapper, uri, method, args, env, resolution_context).await
+        self.invoker.invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context).await
     }
 
     async fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {

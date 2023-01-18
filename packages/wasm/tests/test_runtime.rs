@@ -1,12 +1,12 @@
 use std::{path::Path, collections::HashMap};
-use polywrap_wasm::{wasm_wrapper::{WasmWrapper}, wasm_runtime::instance::WasmModule};
+use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
 use polywrap_core::{
     invoke::{Invoker,InvokeArgs},
     uri::Uri,
     error::Error,
     file_reader::{SimpleFileReader}, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env, interface_implementation::InterfaceImplementations
 };
-use polywrap_manifest::{
+use wrap_manifest_schemas::{
     deserialize::deserialize_wrap_manifest
 };
 use async_trait::async_trait;
@@ -29,7 +29,7 @@ impl MockInvoker {
 
 #[async_trait]
 impl Invoker for MockInvoker {
-    async fn invoke_wrapper(
+    async fn invoke_wrapper_raw(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -59,7 +59,7 @@ impl Invoker for MockInvoker {
         Ok(result)    
     }
 
-    async fn invoke(
+    async fn invoke_raw(
         &self,
         uri: &Uri,
         method: &str,
@@ -67,7 +67,7 @@ impl Invoker for MockInvoker {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        let invoke_result = self.invoke_wrapper(
+        let invoke_result = self.invoke_wrapper_raw(
             Arc::new(Mutex::new(self.wrapper.clone())),
             uri,
             method,
@@ -102,20 +102,20 @@ async fn invoke_test() {
     let path = test_path.into_os_string().into_string().unwrap();
 
     let module_path = format!("{}/subinvoke/00-subinvoke/implementations/as/wrap.wasm", path);
-    let module = WasmModule::Path(module_path);
-
     let manifest_path = format!("{}/subinvoke/00-subinvoke/implementations/as/wrap.info", path);
-    let manifest_bytes = fs::read(Path::new(&manifest_path)).unwrap();
-    let manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
 
+    let module_bytes = fs::read(Path::new(&module_path)).unwrap();
+    let manifest_bytes = fs::read(Path::new(&manifest_path)).unwrap();
+    
+    let manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
     let file_reader = SimpleFileReader::new();
-    let wrapper = WasmWrapper::new(module, Arc::new(file_reader), manifest);
+
+    let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader), manifest);
     let args = InvokeArgs::Msgpack(msgpack!({ "a": 1, "b": 1}));
 
     let mock_invoker = MockInvoker::new(wrapper);
-    let uri: Uri = "fs/tests/cases/simple-invoke".to_string().try_into().unwrap();
-    let result = mock_invoker.invoke(
-        &uri,
+    let result = mock_invoker.invoke_raw(
+        &Uri::try_from("ens/wrapper.eth").unwrap(),
         "add",
         Some(&args), 
         None,

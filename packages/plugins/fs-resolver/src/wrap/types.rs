@@ -119,7 +119,7 @@ impl FileSystemModule {
         let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
         let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke(
+        let result = invoker.invoke_raw(
             &uri,
             "readFile",
             opt_args,
@@ -142,7 +142,7 @@ impl FileSystemModule {
         let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
         let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke(
+        let result = invoker.invoke_raw(
             &uri,
             "readFileAsString",
             opt_args,
@@ -165,7 +165,7 @@ impl FileSystemModule {
         let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
         let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke(
+        let result = invoker.invoke_raw(
             &uri,
             "exists",
             opt_args,
@@ -188,7 +188,7 @@ impl FileSystemModule {
         let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
         let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke(
+        let result = invoker.invoke_raw(
             &uri,
             "writeFile",
             opt_args,
@@ -211,7 +211,7 @@ impl FileSystemModule {
         let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
         let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke(
+        let result = invoker.invoke_raw(
             &uri,
             "mkdir",
             opt_args,
@@ -234,7 +234,7 @@ impl FileSystemModule {
         let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
         let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke(
+        let result = invoker.invoke_raw(
             &uri,
             "rm",
             opt_args,
@@ -257,7 +257,7 @@ impl FileSystemModule {
         let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
         let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke(
+        let result = invoker.invoke_raw(
             &uri,
             "rmdir",
             opt_args,

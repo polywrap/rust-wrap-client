@@ -93,7 +93,7 @@ impl HttpModule {
         let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
         let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke(
+        let result = invoker.invoke_raw(
             &uri,
             "get",
             opt_args,
@@ -116,7 +116,7 @@ impl HttpModule {
         let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
         let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke(
+        let result = invoker.invoke_raw(
             &uri,
             "post",
             opt_args,

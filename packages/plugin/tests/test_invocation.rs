@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{invoke::{Invoker, InvokeArgs}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}, uri_resolution_context::UriPackage}, uri::Uri, client::ClientConfig};
 
-use polywrap_manifest::versions::{WrapManifest, WrapManifestAbi};
+use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
 use polywrap_msgpack::msgpack;
 use polywrap_plugin::{error::PluginError, module::{PluginModule, PluginWithEnv}, package::PluginPackage};
 use polywrap_plugin_macro::{plugin_struct, plugin_impl};
@@ -83,7 +83,7 @@ async fn invoke_test() {
     let invoke_args = InvokeArgs::Msgpack(msgpack!({"key": "foo"}));
 
     let invoke_result = client
-        .invoke_and_decode::<bool>(
+        .invoke::<bool>(
             &Uri::try_from("ens/env-plugin.eth").unwrap(),
             "checkEnvIsBar",
             Some(&invoke_args),
