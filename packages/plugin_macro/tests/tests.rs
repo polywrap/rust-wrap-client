@@ -2,6 +2,7 @@
 mod tests {
     use std::sync::Arc;
 
+    use polywrap_manifest::versions::WrapManifest;
     use polywrap_plugin_macro::{plugin_struct, plugin_impl};
     use polywrap_plugin::{module::PluginModule, error::PluginError};
     use async_trait::async_trait;
@@ -17,6 +18,10 @@ mod tests {
     #[async_trait]
     pub trait Module {
       async fn foo_method(&mut self, args: &Args, a: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError>;
+    }
+
+    fn get_manifest() -> WrapManifest {
+      todo!()
     }
 
     #[test]
@@ -51,6 +56,7 @@ mod tests {
         }
 
         #[async_trait]
+        #[plugin_impl]
         impl Module for Foo {
           async fn foo_method(&mut self, arg: &Args, s: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError> {
             Ok(Some(vec![0]))

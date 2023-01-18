@@ -18,7 +18,7 @@ use polywrap_plugin::package::PluginPackage;
 use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
 use polywrap_resolvers::legacy::{base::BaseResolver, filesystem::FilesystemResolver};
 use polywrap_tests_utils::helpers::get_tests_path;
-use serde_json::Value;
+use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -62,19 +62,19 @@ async fn subinvoke_test() {
 
 #[tokio::test]
 async fn test() {
-    let fs = FileSystemPlugin {};
+    let fs = FileSystemPlugin { env: json!({}) };
     let fs_plugin_package: PluginPackage = fs.into();
     let fs_package = Arc::new(Mutex::new(fs_plugin_package));
 
-    let fs_resolver = FileSystemResolverPlugin {};
+    let fs_resolver = FileSystemResolverPlugin { env: json!({}) };
     let fs_resolver_plugin_package: PluginPackage = fs_resolver.into();
     let fs_resolver_package = Arc::new(Mutex::new(fs_resolver_plugin_package));
 
-    let http = HttpPlugin {};
+    let http = HttpPlugin { env: json!({}) };
     let http_plugin_package: PluginPackage = http.into();
     let http_package = Arc::new(Mutex::new(http_plugin_package));
 
-    let http_resolver = HttpResolverPlugin {};
+    let http_resolver = HttpResolverPlugin { env: json!({}) };
     let http_resolver_plugin_package: PluginPackage = http_resolver.into();
     let http_resolver_package = Arc::new(Mutex::new(http_resolver_plugin_package));
 
