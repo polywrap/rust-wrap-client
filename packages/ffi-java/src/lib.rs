@@ -17,8 +17,6 @@ use polywrap_core::{
 use android_logger::Config;
 use log::Level;
 
-pub mod resolvers;
-
 #[allow(non_snake_case)]
 #[no_mangle]
 pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_nStartLogger(

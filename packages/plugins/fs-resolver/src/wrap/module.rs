@@ -9,18 +9,6 @@ use serde::{Serialize, Deserialize};
 use super::types::*;
 use async_trait::async_trait;
 
-#[macro_export]
-macro_rules! impl_traits {
-    ($plugin_type:ty) => {
-        $crate::wrap::module::impl_plugin_traits!(
-            $plugin_type,
-            $crate::wrap::wrap_info::get_manifest(),
-            (try_resolve_uri, $crate::wrap::module::ArgsTryResolveUri),
-            (get_file, $crate::wrap::module::ArgsGetFile),
-        );
-    };
-}
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsTryResolveUri {
     pub authority: String,
