@@ -2,7 +2,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use crate::{
     file_reader::FileReader,
-    invoke::{Invoker, InvokeArgs},
+    invoke::{Invoker},
     uri::Uri,
     error::Error,
     loader::Loader,
@@ -55,9 +55,9 @@ impl FileReader for UriResolverExtensionFileReader {
     async fn read_file(&self, file_path: &str) -> Result<Vec<u8>, Error> {
         let path = combine_paths(&self.wrapper_uri.path, file_path);
 
-        let invoker_args = InvokeArgs::Msgpack(msgpack!({
+        let invoker_args = msgpack!({
             "path": path
-        }));
+        });
         // TODO: This vec<u8> isn't the file but the msgpack representation of it
         let result = self.invoker.invoke_raw(
             &self.resolver_extension_uri,

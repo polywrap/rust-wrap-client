@@ -1,5 +1,5 @@
 #[macro_export(local_inner_macros)]
-macro_rules! msgpack {
+macro_rules! msgpack_to_value {
     // Hide distracting implementation details from the generated rustdoc.
     ($($msgpack:tt)+) => {
         msgpack_internal!($($msgpack)+)
@@ -7,7 +7,7 @@ macro_rules! msgpack {
 }
 
 #[macro_export(local_inner_macros)]
-macro_rules! msgpack_to_vec {
+macro_rules! msgpack {
     // Hide distracting implementation details from the generated rustdoc.
     ($($msgpack:tt)+) => {
       {
@@ -263,7 +263,7 @@ mod tests {
 
     #[test]
     fn msgpack() {
-        let value = msgpack!({
+        let value = msgpack_to_value!({
             "code": 200,
             "success": true,
             "payload": {
@@ -292,7 +292,7 @@ mod tests {
 
     #[test]
     fn msgpack_to_vec() {
-        let value = msgpack_to_vec!({
+        let value = msgpack!({
             "code": 200,
             "success": true,
             "payload": {

@@ -11,7 +11,7 @@ use polywrap_core::resolvers::recursive_resolver::RecursiveResolver;
 pub use polywrap_core::resolvers::static_resolver::StaticResolver;
 use polywrap_core::{
     client::ClientConfig,
-    invoke::{InvokeArgs, Invoker},
+    invoke::{Invoker},
     uri::Uri,
 };
 use android_logger::Config;
@@ -102,7 +102,7 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_nInvoke(
     let uri: Uri = uri.try_into().unwrap();
     let json_args: serde_json::Value = serde_json::from_str(&args).unwrap();
 
-    let invoke_args = InvokeArgs::UIntArray(polywrap_msgpack::serialize(json_args).unwrap());
+    let invoke_args = polywrap_msgpack::serialize(json_args).unwrap();
 
     let invoke_result = block_on(async {
         client

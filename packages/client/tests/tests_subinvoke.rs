@@ -1,6 +1,6 @@
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_client_builder::types::{BuilderConfig, ClientConfigHandler, ClientBuilder};
-use polywrap_core::{invoke::InvokeArgs, uri::Uri};
+use polywrap_core::{uri::Uri};
 use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::helpers::get_tests_path;
 
@@ -18,10 +18,8 @@ async fn subinvoke_test() {
     let config = builder.build();
     let client = PolywrapClient::new(config);
 
-    let invoke_args = InvokeArgs::Msgpack(msgpack!({"a": 1, "b": 1}));
-
     let invoke_result = client
-        .invoke::<u32>(&invoke_uri, "addAndIncrement", Some(&invoke_args), None, None)
+        .invoke::<u32>(&invoke_uri, "addAndIncrement", Some(&msgpack!({"a": 1, "b": 1})), None, None)
         .await
         .unwrap();
 

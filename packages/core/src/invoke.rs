@@ -5,11 +5,6 @@ use async_trait::async_trait;
 use std::{sync::Arc};
 use futures::lock::Mutex;
 
-pub enum InvokeArgs {
-    Msgpack(polywrap_msgpack::Value),
-    UIntArray(Vec<u8>),
-}
-
 #[async_trait]
 pub trait Invoker: Send + Sync {
     async fn invoke_wrapper_raw(
@@ -17,7 +12,7 @@ pub trait Invoker: Send + Sync {
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
@@ -25,7 +20,7 @@ pub trait Invoker: Send + Sync {
         &self,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;

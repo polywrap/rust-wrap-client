@@ -4,7 +4,6 @@ use async_trait::async_trait;
 use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
-use polywrap_core::invoke::InvokeArgs;
 use polywrap_core::invoke::Invoker;
 use polywrap_core::resolvers::uri_resolution_context::UriResolutionContext;
 use polywrap_core::uri::Uri;
@@ -52,7 +51,7 @@ impl WasmWrapper {
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         resolution_context: Option<&mut UriResolutionContext>,
         env: Option<Env>,
     ) -> Result<T, Error> {
@@ -73,15 +72,12 @@ impl Wrapper for WasmWrapper {
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
-            Some(args) => match args {
-                InvokeArgs::Msgpack(value) => polywrap_msgpack::encode(value)?,
-                InvokeArgs::UIntArray(arr) => arr.clone(),
-            },
+            Some(args) => args.to_vec(),
             None => vec![],
         };
 

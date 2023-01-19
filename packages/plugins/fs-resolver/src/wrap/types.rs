@@ -10,7 +10,7 @@ use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 use std::sync::Arc;
 use polywrap_msgpack::{decode, serialize};
-use polywrap_core::{invoke::{Invoker, InvokeArgs}, uri::Uri};
+use polywrap_core::{invoke::{Invoker}, uri::Uri};
 use polywrap_plugin::error::PluginError;
 
 // Env START //
@@ -116,8 +116,8 @@ impl FileSystemModule {
 
     pub async fn read_file(args: &FileSystemModuleArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
-        let opt_args = Some(&serialized_args);
+        let serialized_args = serialize(args.clone()).unwrap();
+        let opt_args = Some(serialized_args.as_slice());
         let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke_raw(
             &uri,
@@ -139,8 +139,8 @@ impl FileSystemModule {
 
     pub async fn read_file_as_string(args: &FileSystemModuleArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
-        let opt_args = Some(&serialized_args);
+        let serialized_args = serialize(args.clone()).unwrap();
+        let opt_args = Some(serialized_args.as_slice());
         let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke_raw(
             &uri,
@@ -162,8 +162,8 @@ impl FileSystemModule {
 
     pub async fn exists(args: &FileSystemModuleArgsExists, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
-        let opt_args = Some(&serialized_args);
+        let serialized_args = serialize(args.clone()).unwrap();
+        let opt_args = Some(serialized_args.as_slice());
         let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke_raw(
             &uri,
@@ -185,8 +185,8 @@ impl FileSystemModule {
 
     pub async fn write_file(args: &FileSystemModuleArgsWriteFile, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
-        let opt_args = Some(&serialized_args);
+        let serialized_args = serialize(args.clone()).unwrap();
+        let opt_args = Some(serialized_args.as_slice());
         let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke_raw(
             &uri,
@@ -208,8 +208,8 @@ impl FileSystemModule {
 
     pub async fn mkdir(args: &FileSystemModuleArgsMkdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
-        let opt_args = Some(&serialized_args);
+        let serialized_args = serialize(args.clone()).unwrap();
+        let opt_args = Some(serialized_args.as_slice());
         let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke_raw(
             &uri,
@@ -231,8 +231,8 @@ impl FileSystemModule {
 
     pub async fn rm(args: &FileSystemModuleArgsRm, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
-        let opt_args = Some(&serialized_args);
+        let serialized_args = serialize(args.clone()).unwrap();
+        let opt_args = Some(serialized_args.as_slice());
         let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke_raw(
             &uri,
@@ -254,8 +254,8 @@ impl FileSystemModule {
 
     pub async fn rmdir(args: &FileSystemModuleArgsRmdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
-        let opt_args = Some(&serialized_args);
+        let serialized_args = serialize(args.clone()).unwrap();
+        let opt_args = Some(serialized_args.as_slice());
         let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke_raw(
             &uri,

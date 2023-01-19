@@ -2,13 +2,7 @@ use std::{sync::Arc};
 
 use async_trait::async_trait;
 use futures::lock::Mutex;
-use polywrap_core::{
-    env::{Env},
-    invoke::{InvokeArgs, Invoker},
-    resolvers::uri_resolution_context::UriResolutionContext,
-    uri::Uri,
-    wrapper::{GetFileOptions, Wrapper},
-};
+use polywrap_core::{uri::Uri, invoke::Invoker, wrapper::{Wrapper, GetFileOptions}, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
 
 use crate::module::{PluginModule};
 
@@ -33,7 +27,7 @@ impl Wrapper for PluginWrapper {
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
@@ -42,12 +36,7 @@ impl Wrapper for PluginWrapper {
         };
 
         let args = match args {
-            Some(args) => match args {
-                polywrap_core::invoke::InvokeArgs::Msgpack(value) => {
-                    polywrap_msgpack::encode(value)?
-                }
-                polywrap_core::invoke::InvokeArgs::UIntArray(arr) => arr.clone(),
-            },
+            Some(args) => args.to_vec(),
             None => vec![],
         };
 

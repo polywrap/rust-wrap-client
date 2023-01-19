@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use crate::{error::Error, invoke::{Invoker, InvokeArgs}, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
+use crate::{error::Error, invoke::{Invoker}, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
 pub enum Encoding {
     Base64,
     UTF8,
@@ -20,7 +20,7 @@ pub trait Wrapper: Send + Sync {
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;

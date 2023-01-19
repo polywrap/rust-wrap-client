@@ -4,7 +4,6 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use polywrap_core::{
   resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-  invoke::{InvokeArgs},
   uri::Uri,
   error::Error, 
   wrapper::Wrapper, loader::Loader, package::WrapPackage, 
@@ -52,17 +51,15 @@ impl UriResolverWrapper {
           env = Some(e);
       };
 
-      let invoke_args = InvokeArgs::Msgpack(msgpack!({
-        "authority": uri.clone().authority.as_str(),
-        "path": uri.clone().path.as_str(),
-      }));
-
       let invoker = loader.get_invoker()?;
       let result = invoker.invoke_wrapper_raw(
           wrapper, 
           &implementation_uri.clone(), 
           "tryResolveUri", 
-          Some(&invoke_args), 
+          Some(&msgpack!({
+            "authority": uri.clone().authority.as_str(),
+            "path": uri.clone().path.as_str(),
+          })), 
           env, 
           Some(resolution_context)
       ).await?;

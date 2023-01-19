@@ -15,7 +15,7 @@ use crate::wrap::wrap_info::get_manifest;
 
 #[plugin_struct]
 pub struct FileSystemPlugin {
- }
+}
 
 #[plugin_impl]
 #[async_trait]
