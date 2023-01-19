@@ -118,7 +118,7 @@ pub extern "C" fn create_resolver() -> *const libc::c_char {
     let http_resolver_plugin_package: PluginPackage = http_resolver.into();
     let http_resolver_package = Arc::new(Mutex::new(http_resolver_plugin_package));
 
-    let mut static_resolver_likes = vec![
+    let static_resolver_likes = vec![
         StaticResolverLike::Package(UriPackage {
             uri: Uri::try_from("wrap://ens/fs.polywrap.eth").unwrap(),
             package: fs_package,

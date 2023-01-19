@@ -90,7 +90,7 @@ impl Module for HttpResolverPlugin {
                 result.body.map(|body| {
                   let b = base64::decode(body).unwrap();
 
-                  println!("URI: {}\n\n{:?}", args.path.clone(), b.clone());
+                  println!("URI: {}\n\n{:?}", args.path.clone(), b);
                   b
                 })
             } else {

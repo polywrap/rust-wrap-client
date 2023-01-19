@@ -17,11 +17,11 @@ pub fn plugin_struct(args: TokenStream, input: TokenStream) -> TokenStream {
         );
     }
 
-    return quote! {
+    quote! {
         #[derive(polywrap_plugin_macro::Plugin)]
         #item_struct
     }
-    .into();
+    .into()
 }
 
 #[proc_macro_attribute]
@@ -68,8 +68,6 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         }
     }
 
-    dbg!(method_idents.clone());
-
     let supported_methods =
         method_idents
             .clone()
@@ -115,30 +113,30 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         }
     };
 
-    let into_impls = quote! {
-      impl Into<polywrap_plugin::package::PluginPackage> for #struct_ident {
-        fn into(self) -> polywrap_plugin::package::PluginPackage {
-            let plugin_module = Arc::new(futures::lock::Mutex::new(Box::new(self) as Box<dyn polywrap_plugin::module::PluginModule>));
+    let from_impls = quote! {
+      impl From<#struct_ident> for polywrap_plugin::package::PluginPackage {
+        fn from(plugin: #struct_ident) -> polywrap_plugin::package::PluginPackage {
+            let plugin_module = Arc::new(futures::lock::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
             polywrap_plugin::package::PluginPackage::new(plugin_module, get_manifest())
         }
       }
-    
-      impl Into<polywrap_plugin::wrapper::PluginWrapper> for #struct_ident {
-          fn into(self) -> polywrap_plugin::wrapper::PluginWrapper {
-            let plugin_module = Arc::new(futures::lock::Mutex::new(Box::new(self) as Box<dyn polywrap_plugin::module::PluginModule>));
+      
+      impl From<#struct_ident> for polywrap_plugin::wrapper::PluginWrapper {
+        fn from(plugin: #struct_ident) -> polywrap_plugin::wrapper::PluginWrapper {
+            let plugin_module = Arc::new(futures::lock::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
             polywrap_plugin::wrapper::PluginWrapper::new(plugin_module)
-          }
+        }
       }
     };
 
-    return quote! {
+    quote! {
         #item_impl
 
         #module_impl
 
-        #into_impls
+        #from_impls
     }
-    .into();
+    .into()
 }
 
 #[proc_macro_derive(Plugin)]

@@ -14,10 +14,10 @@ fn combine_paths(a: &str, b: &str) -> String {
   let mut a = a.to_string();
   let mut b = b.to_string();
 
-  a = a.replace("\\", "/");
-  b = b.replace("\\", "/");
+  a = a.replace('\\', "/");
+  b = b.replace('\\', "/");
 
-  if a.chars().last().unwrap() != '/' {
+  if !a.ends_with('/') {
       a.push('/');
   };
 

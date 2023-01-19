@@ -12,7 +12,7 @@ async fn test_uri_resolver_wrapper() {
     let wrapper_path = format!("{}/subinvoke/00-subinvoke/implementations/as", path);
     let wrapper_uri = Uri::try_from(format!("fs/{}", wrapper_path)).unwrap();
 
-    let mut builder = BuilderConfig::new(None);
+    let builder = BuilderConfig::new(None);
     let config = builder.build();
     let client = PolywrapClient::new(config);
 

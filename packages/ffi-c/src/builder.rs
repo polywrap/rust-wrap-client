@@ -11,7 +11,7 @@ impl ResolverBuilder {
         ResolverBuilder { statics: vec![] }
     }
 
-    pub fn add_static(&mut self, resolver: Box<StaticResolverLike>, redirects: HashMap<String, String>) {
+    pub fn add_static(&mut self, resolver: Box<StaticResolverLike>, _redirects: HashMap<String, String>) {
         self.statics.push(*resolver);
     }
 

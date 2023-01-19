@@ -8,6 +8,12 @@ pub trait FileReader: Send + Sync {
 
 pub struct SimpleFileReader {}
 
+impl Default for SimpleFileReader {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SimpleFileReader {
     pub fn new() -> Self {
         Self {}

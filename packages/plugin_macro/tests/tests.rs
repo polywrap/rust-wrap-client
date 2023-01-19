@@ -4,14 +4,14 @@ mod tests {
 
     use wrap_manifest_schemas::versions::WrapManifest;
     use polywrap_plugin_macro::{plugin_struct, plugin_impl};
-    use polywrap_plugin::{module::PluginModule, error::PluginError};
+    use polywrap_plugin::{error::PluginError};
     use async_trait::async_trait;
     use serde::{Serialize, Deserialize};
     use polywrap_core::invoke::Invoker;
     use serde_json::json;
 
     #[derive(Serialize, Deserialize)]
-    struct Args {
+    pub struct Args {
       boo: String
     }
 
@@ -39,7 +39,7 @@ mod tests {
         };
 
         impl Foo {
-            pub fn new(a: String) -> Self {
+            pub fn new(_a: String) -> Self {
                 Self {
                     env: json!({}),
                     a: "sss".to_string()
@@ -50,7 +50,7 @@ mod tests {
                 b.try_into().unwrap()
             }
 
-            pub fn methodb(&mut self, b: i32) {
+            pub fn methodb(&mut self, _b: i32) {
                 self.env = json!({})
             }
         }
@@ -58,7 +58,7 @@ mod tests {
         #[async_trait]
         #[plugin_impl]
         impl Module for Foo {
-          async fn foo_method(&mut self, arg: &Args, s: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError> {
+          async fn foo_method(&mut self, _arg: &Args, _s: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError> {
             Ok(Some(vec![0]))
           }
         }

@@ -12,6 +12,12 @@ pub struct PluginModuleWithMethods {
   env: Env
 }
 
+impl Default for PluginModuleWithMethods {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 impl PluginModuleWithMethods {
   pub fn new() -> Self {
     Self {
@@ -20,7 +26,7 @@ impl PluginModuleWithMethods {
     }
   }
 
-  pub fn methods<'a>(&'a mut self, methods: HashMap<String, Arc<PluginMethod>>) -> &'a mut Self {
+  pub fn methods(&mut self, methods: HashMap<String, Arc<PluginMethod>>) -> &mut Self {
     self.methods_map = methods;
     self
   }

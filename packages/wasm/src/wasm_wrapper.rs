@@ -39,7 +39,7 @@ impl WasmWrapper {
         }
     }
 
-    pub fn get_wasm_module(&self) -> Result<&Vec<u8>, WrapperError> {
+    pub fn get_wasm_module(&self) -> Result<&[u8], WrapperError> {
         Ok(&self.wasm_module)
     }
 
