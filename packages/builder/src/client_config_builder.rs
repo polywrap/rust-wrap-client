@@ -233,7 +233,6 @@ impl ClientBuilder for BuilderConfig {
 
     fn add_packages(&mut self, packages: Vec<UriPackage>) -> &mut Self {
         for package in packages.into_iter() {
-            dbg!(package.uri.clone());
             self.add_package(package);
         }
         self
