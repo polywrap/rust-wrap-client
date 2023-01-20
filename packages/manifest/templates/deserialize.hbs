@@ -25,7 +25,7 @@ pub fn deserialize_wrap_manifest(
 
     match options {
         Some(opts) => {
-            if opts.no_validate == false {
+            if !opts.no_validate {
                 validate_wrap_manifest(&any_wrap_manifest, opts.ext_schema)?;
             };
         }

@@ -14,6 +14,7 @@ async fn test_uri_resolver_wrapper() {
     let path = test_path.into_os_string().into_string().unwrap();
     let wrapper_path = format!("{}/subinvoke/00-subinvoke/implementations/as", path);
     let wrapper_uri = Uri::try_from(format!("fs/{}", wrapper_path)).unwrap();
+
     let builder = BuilderConfig::new(None);
     let config = builder.build();
     let client = PolywrapClient::new(config);
@@ -27,7 +28,7 @@ async fn test_uri_resolver_wrapper() {
         &client.loader, 
         &mut uri_resolution_context
     ).await.unwrap();
-    
+
     if let UriPackageOrWrapper::Wrapper(_, w) = result {
         let wasm_wrapper = (&w as &dyn std::any::Any).downcast_ref::<WasmWrapper>();
         if let Some(wrapper) = wasm_wrapper {
@@ -42,11 +43,11 @@ async fn test_uri_resolver_wrapper() {
 async fn recursive_uri_resolver() {
     let wrapper_github_path = "https://raw.githubusercontent.com/polywrap/wasm-test-harness/v0.2.1/wrappers/subinvoke/00-subinvoke/implementations/as";
     let http_wrapper_uri = Uri::try_from(format!("http/{}", wrapper_github_path)).unwrap();
-    
+
     let builder = BuilderConfig::new(None);
     let config = builder.build();
     let client = PolywrapClient::new(config);
-    
+
     let mut uri_resolution_context = UriResolutionContext::new();
     let result = client.loader.resolver.try_resolve_uri(
         &http_wrapper_uri.clone(), 

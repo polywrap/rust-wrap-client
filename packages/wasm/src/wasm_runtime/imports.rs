@@ -1,7 +1,6 @@
 use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
-    invoke::{InvokeArgs},
     uri::Uri,
 };
 use wasmtime::{AsContextMut, Caller, Linker, Memory};
@@ -131,9 +130,8 @@ pub fn create_imports(
 
                     let uri = String::from_utf8(uri_bytes).unwrap().try_into().unwrap();
                     let method = String::from_utf8(method_bytes).unwrap();
-                    let invoke_args = InvokeArgs::UIntArray(args_bytes);
 
-                    let result = state.invoker.invoke_raw(&uri, &method, Some(&invoke_args), None, None).await;
+                    let result = state.invoker.invoke_raw(&uri, &method, Some(&args_bytes), None, None).await;
                     match result {
                         Ok(res) => {
                             state.subinvoke.result = Some(res);
@@ -265,9 +263,8 @@ pub fn create_imports(
 
                     let uri: Uri = String::from_utf8(impl_uri_bytes).unwrap().try_into().unwrap();
                     let method = String::from_utf8(method_bytes).unwrap();
-                    let invoke_args = InvokeArgs::UIntArray(args_bytes);
 
-                    let result = state.invoker.invoke_raw(&uri, &method, Some(&invoke_args), None, None).await;
+                    let result = state.invoker.invoke_raw(&uri, &method, Some(&args_bytes), None, None).await;
                     match result {
                         Ok(res) => {
                             state.subinvoke.result = Some(res);

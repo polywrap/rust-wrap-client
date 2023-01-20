@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use polywrap_core::{
     client::{Client, ClientConfig},
     error::Error,
-    invoke::{Invoker, InvokeArgs},
+    invoke::{Invoker},
     loader::Loader,
     uri::Uri,
     resolvers::uri_resolution_context::UriResolutionContext,
@@ -45,7 +45,7 @@ impl PolywrapClient {
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
@@ -60,7 +60,7 @@ impl PolywrapClient {
         &self,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
@@ -76,17 +76,17 @@ impl Invoker for PolywrapClient {
         &self,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        let env_uri = match env {
+        let env = match env {
             Some(env) => Some(env),
             None => {
                 self.loader.get_env_by_uri(uri).map(|env| env.to_owned())
             }
         };
-        self.invoker.invoke_raw(uri, method, args, env_uri, resolution_context).await
+        self.invoker.invoke_raw(uri, method, args, env, resolution_context).await
     }
 
     async fn invoke_wrapper_raw(
@@ -94,7 +94,7 @@ impl Invoker for PolywrapClient {
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {

@@ -11,7 +11,7 @@ impl ResolverBuilder {
         ResolverBuilder { statics: vec![] }
     }
 
-    pub fn add_static(&mut self, resolver: Box<StaticResolverLike>, redirects: HashMap<String, String>) {
+    pub fn add_static(&mut self, resolver: Box<StaticResolverLike>, _redirects: HashMap<String, String>) {
         self.statics.push(*resolver);
     }
 
@@ -59,8 +59,10 @@ pub extern "C" fn add_static_resolver(builder: *const libc::c_char, resolver: *c
     b.add_static(r, HashMap::new());
 }
 
-#[no_mangle]
-pub extern "C" fn build_resolver(builder: *const libc::c_char) -> *const libc::c_char {
-    let b: Box<ResolverBuilder> = unsafe { Box::from_raw(builder as *mut ResolverBuilder) };
-    Box::into_raw(Box::new(b.build())) as *const libc::c_char
-}
+
+
+// #[no_mangle]
+// pub extern "C" fn build_resolver(builder: *const libc::c_char) -> *const libc::c_char {
+//     let b: Box<ResolverBuilder> = unsafe { Box::from_raw(builder as *mut dyn Resolver) };
+//     Box::into_raw(Box::new(b.build())) as *const libc::c_char
+// }

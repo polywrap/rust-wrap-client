@@ -3,7 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use polywrap_core::{
     error::Error,
-    invoke::{Invoker, InvokeArgs},
+    invoke::{Invoker},
     loader::Loader,
     resolvers::uri_resolution_context::UriResolutionContext,
     wrapper::Wrapper, uri::Uri, env::{Env}, 
@@ -33,7 +33,7 @@ impl Invoker for WrapperInvoker {
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
@@ -51,7 +51,7 @@ impl Invoker for WrapperInvoker {
         &self,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {

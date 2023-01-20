@@ -54,7 +54,7 @@ jobs:
           RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests'
 
       - name: Get coverage
-        run: grcov . -s . --binary-path ./target/debug -o ./cov.info --ignore */tests/*
+        run: grcov . -s . --binary-path ./target/debug -o ./cov.info --ignore */tests/* --ignore */wrap/*
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3

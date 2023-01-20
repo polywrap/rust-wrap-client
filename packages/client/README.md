@@ -8,7 +8,3 @@ The polywrap rust client allows to invoke functions of wrappers (WASM & plugins)
 [dependencies]
 polywrap_client = "0.1.0"
 ```
-
-## Usage
-
-Instante the client

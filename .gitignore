@@ -14,3 +14,4 @@ Cargo.lock
 *.pdb
 
 */tests-utils/cases
+cov.info

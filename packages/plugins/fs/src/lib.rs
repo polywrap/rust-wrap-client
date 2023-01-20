@@ -2,7 +2,7 @@ use std::{fs, path::Path, sync::Arc};
 
 use async_trait::async_trait;
 use polywrap_core::{invoke::Invoker};
-use polywrap_plugin_macro::plugin_struct;
+use polywrap_plugin_macro::{plugin_struct, plugin_impl};
 use polywrap_plugin::{error::PluginError};
 use wrap::{
     module::{
@@ -11,11 +11,13 @@ use wrap::{
     },
 };
 pub mod wrap;
+use crate::wrap::wrap_info::get_manifest;
 
 #[plugin_struct]
 pub struct FileSystemPlugin {
- }
+}
 
+#[plugin_impl]
 #[async_trait]
 impl Module for FileSystemPlugin {
     async fn read_file(
@@ -114,5 +116,3 @@ impl Module for FileSystemPlugin {
         Ok(Some(true))
     }
 }
-
-impl_traits!(FileSystemPlugin);

@@ -2,13 +2,8 @@ use std::{sync::Arc, fmt::{Formatter, Debug}};
 
 use async_trait::async_trait;
 use futures::lock::Mutex;
-use polywrap_core::{
-    env::{Env},
-    invoke::{InvokeArgs, Invoker},
-    resolvers::uri_resolution_context::UriResolutionContext,
-    uri::Uri,
-    wrapper::{GetFileOptions, Wrapper},
-};
+use polywrap_core::{uri::Uri, invoke::Invoker, wrapper::{Wrapper, GetFileOptions}, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
+use serde_json::Value;
 
 use crate::module::{PluginModule};
 
@@ -33,7 +28,7 @@ impl Wrapper for PluginWrapper {
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
@@ -42,30 +37,24 @@ impl Wrapper for PluginWrapper {
         };
 
         let args = match args {
-            Some(args) => match args {
-                polywrap_core::invoke::InvokeArgs::Msgpack(value) => {
-                    polywrap_msgpack::encode(value)?
-                }
-                polywrap_core::invoke::InvokeArgs::UIntArray(arr) => arr.clone(),
-            },
+            Some(args) => args.to_vec(),
             None => vec![],
         };
-
-        let json_args: serde_json::Value = polywrap_msgpack::decode(args.as_slice())?;
 
         let result = self
             .instance
             .lock()
             .await
-            ._wrap_invoke(method, &json_args, invoker)
+            ._wrap_invoke(method, &args, invoker)
             .await;
 
         match result {
-            Ok(result) => Ok(polywrap_msgpack::serialize(&result)?),
+            Ok(result) => Ok(result),
             Err(e) => Err(crate::error::PluginError::InvocationError {
                 uri: uri.to_string(),
                 method: method.to_string(),
-                args: json_args.to_string(),
+                // Decode the args from msgpack to JSON for better error logging
+                args: polywrap_msgpack::decode::<Value>(&args).unwrap().to_string(),
                 exception: e.to_string(),
             }
             .into()),

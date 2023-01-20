@@ -1,7 +1,7 @@
 use std::{path::Path, collections::HashMap};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
 use polywrap_core::{
-    invoke::{Invoker,InvokeArgs},
+    invoke::{Invoker},
     uri::Uri,
     error::Error,
     file_reader::{SimpleFileReader}, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env, interface_implementation::InterfaceImplementations
@@ -34,7 +34,7 @@ impl Invoker for MockInvoker {
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>
     ) -> Result<Vec<u8>, Error> {
@@ -63,7 +63,7 @@ impl Invoker for MockInvoker {
         &self,
         uri: &Uri,
         method: &str,
-        args: Option<&InvokeArgs>,
+        args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
@@ -111,13 +111,12 @@ async fn invoke_test() {
     let file_reader = SimpleFileReader::new();
 
     let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader), manifest);
-    let args = InvokeArgs::Msgpack(msgpack!({ "a": 1, "b": 1}));
 
     let mock_invoker = MockInvoker::new(wrapper);
     let result = mock_invoker.invoke_raw(
         &Uri::try_from("ens/wrapper.eth").unwrap(),
         "add",
-        Some(&args), 
+        Some(&msgpack!({ "a": 1, "b": 1})), 
         None,
         None
     ).await.unwrap();

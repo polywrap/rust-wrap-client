@@ -10,7 +10,7 @@ use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 use std::sync::Arc;
 use polywrap_msgpack::{decode, serialize};
-use polywrap_core::{invoke::{Invoker, InvokeArgs}, uri::Uri};
+use polywrap_core::{invoke::{Invoker}, uri::Uri};
 use polywrap_plugin::error::PluginError;
 
 // Env START //
@@ -90,8 +90,8 @@ impl HttpModule {
 
     pub async fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
-        let opt_args = Some(&serialized_args);
+        let serialized_args = serialize(args.clone()).unwrap();
+        let opt_args = Some(serialized_args.as_slice());
         let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke_raw(
             &uri,
@@ -113,8 +113,8 @@ impl HttpModule {
 
     pub async fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
-        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
-        let opt_args = Some(&serialized_args);
+        let serialized_args = serialize(args.clone()).unwrap();
+        let opt_args = Some(serialized_args.as_slice());
         let uri = Uri::try_from(uri).unwrap();
         let result = invoker.invoke_raw(
             &uri,

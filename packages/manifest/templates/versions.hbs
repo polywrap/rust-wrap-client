@@ -39,7 +39,7 @@ impl AnyManifest {
             {{#each versions}}
             "{{version}}" => Ok(AnyManifest::WrapManifest{{vsuffix version}}(serde_json::from_value(value)?)),
             {{/each}}
-            v => Err(Error::FromJSONError(format!("Invalid manifest version: {}", v).to_string())),
+            v => Err(Error::FromJSONError(format!("Invalid manifest version: {}", v))),
         }
     }
 

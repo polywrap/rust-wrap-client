@@ -8,24 +8,6 @@ use polywrap_plugin::module::PluginModule;
 use serde::{Serialize, Deserialize};
 use super::types::*;
 use async_trait::async_trait;
-pub use polywrap_plugin::impl_plugin_traits;
-
-#[macro_export]
-macro_rules! impl_traits {
-    ($plugin_type:ty) => {
-        $crate::wrap::module::impl_plugin_traits!(
-            $plugin_type,
-            $crate::wrap::wrap_info::get_manifest(),
-            (read_file, $crate::wrap::module::ArgsReadFile),
-            (read_file_as_string, $crate::wrap::module::ArgsReadFileAsString),
-            (exists, $crate::wrap::module::ArgsExists),
-            (write_file, $crate::wrap::module::ArgsWriteFile),
-            (mkdir, $crate::wrap::module::ArgsMkdir),
-            (rm, $crate::wrap::module::ArgsRm),
-            (rmdir, $crate::wrap::module::ArgsRmdir),
-        );
-    };
-}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsReadFile {

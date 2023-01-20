@@ -1,11 +1,10 @@
-use polywrap_client::polywrap_client::PolywrapClient;
+use polywrap_client::{polywrap_client::PolywrapClient};
 use polywrap_client_builder::types::{ClientBuilder, BuilderConfig, ClientConfigHandler};
 use polywrap_core::{
     env::Envs,
-    invoke::{InvokeArgs},
     uri::Uri,
 };
-use polywrap_msgpack::{decode, msgpack};
+use polywrap_msgpack::{msgpack};
 
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Deserialize;
@@ -68,13 +67,12 @@ async fn test_env() {
     builder.add_envs(envs);
     let config = builder.build();
     let client = PolywrapClient::new(config);
-    let invoke_args = InvokeArgs::Msgpack(msgpack!({"arg": "test"}));
 
-    let invoke_result: Vec<u8> = client
-        .invoke(
+    let invoke_result = client
+        .invoke::<Response>(
             &env_wrapper,
             "methodRequireEnv",
-            Some(&invoke_args),
+            Some(&msgpack!({"arg": "test"})),
             None,
             None,
         )
@@ -97,7 +95,7 @@ async fn test_env() {
     };
 
     assert_eq!(
-        decode::<Response>(&invoke_result as &[u8]).unwrap() as Response,
+        invoke_result,
         decoded_response
     );
 }

@@ -6,7 +6,7 @@ use http_resolver_plugin::HttpResolverPlugin;
 use futures::executor::block_on;
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{
-    invoke::{Invoker, InvokeArgs},
+    invoke::{Invoker},
     uri::Uri,
     resolvers::{recursive_resolver::RecursiveResolver, uri_resolution_context::UriPackage, static_resolver::{StaticResolverLike, StaticResolver}, uri_resolver_like::UriResolverLike},
     interface_implementation::InterfaceImplementations,
@@ -55,9 +55,7 @@ pub extern "C" fn invoke(
     };
 
     let json_args: serde_json::Value = serde_json::from_str(&args_str).unwrap();
-    let invoke_args = InvokeArgs::UIntArray(
-        polywrap_msgpack::serialize(json_args).unwrap()
-    );
+    let invoke_args = polywrap_msgpack::serialize(json_args).unwrap();
 
     let mut invoke_result = block_on(async {
         client
@@ -118,7 +116,7 @@ pub extern "C" fn create_resolver() -> *const libc::c_char {
     let http_resolver_plugin_package: PluginPackage = http_resolver.into();
     let http_resolver_package = Arc::new(Mutex::new(http_resolver_plugin_package));
 
-    let mut static_resolver_likes = vec![
+    let static_resolver_likes = vec![
         StaticResolverLike::Package(UriPackage {
             uri: Uri::try_from("wrap://ens/fs.polywrap.eth").unwrap(),
             package: fs_package,

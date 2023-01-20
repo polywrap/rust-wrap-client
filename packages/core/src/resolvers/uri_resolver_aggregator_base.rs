@@ -34,12 +34,8 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
             let result = resolver
                 .try_resolve_uri(uri, loader, resolution_context)
                 .await;
-            let track_and_return = if let Ok(result_value) = &result {
-                if let UriPackageOrWrapper::Uri(result_uri) = result_value {
-                    uri.to_string() != result_uri.to_string()
-                } else {
-                    true
-                }
+            let track_and_return = if let Ok(UriPackageOrWrapper::Uri(result_uri)) = &result {
+                uri.to_string() != result_uri.to_string()
             } else {
                 true
             };
