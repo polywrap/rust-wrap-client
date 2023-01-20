@@ -3,6 +3,7 @@ use std::{sync::Arc};
 use async_trait::async_trait;
 use futures::lock::Mutex;
 use polywrap_core::{uri::Uri, invoke::Invoker, wrapper::{Wrapper, GetFileOptions}, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
+use serde_json::Value;
 
 use crate::module::{PluginModule};
 
@@ -40,21 +41,20 @@ impl Wrapper for PluginWrapper {
             None => vec![],
         };
 
-        let json_args: serde_json::Value = polywrap_msgpack::decode(args.as_slice())?;
-
         let result = self
             .instance
             .lock()
             .await
-            ._wrap_invoke(method, &json_args, invoker)
+            ._wrap_invoke(method, &args, invoker)
             .await;
 
         match result {
-            Ok(result) => Ok(polywrap_msgpack::serialize(&result)?),
+            Ok(result) => Ok(result),
             Err(e) => Err(crate::error::PluginError::InvocationError {
                 uri: uri.to_string(),
                 method: method.to_string(),
-                args: json_args.to_string(),
+                // Decode the args from msgpack to JSON for better error logging
+                args: polywrap_msgpack::decode::<Value>(&args).unwrap().to_string(),
                 exception: e.to_string(),
             }
             .into()),
