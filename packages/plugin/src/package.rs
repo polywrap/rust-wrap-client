@@ -1,4 +1,4 @@
-use std::{sync::{Arc}};
+use std::{sync::{Arc}, fmt::{Formatter,Debug}};
 
 use async_trait::async_trait;
 use wrap_manifest_schemas::{
@@ -23,6 +23,18 @@ impl PluginPackage {
             plugin_module,
             manifest,
         }
+    }
+}
+
+impl PartialEq for PluginPackage {
+    fn eq(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+
+impl Debug for PluginPackage {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+        write!(f, "PluginPackage: {:?}", self)
     }
 }
 

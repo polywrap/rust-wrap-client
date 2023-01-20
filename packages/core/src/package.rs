@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, fmt::Debug};
 
 use async_trait::async_trait;
 use wrap_manifest_schemas::{versions::WrapManifest};
@@ -15,7 +15,7 @@ pub struct SerializeManifestOptions {
 }
 
 #[async_trait]
-pub trait WrapPackage: Send + Sync {
+pub trait WrapPackage: Send + Sync + Debug {
     async fn create_wrapper(
         &self,
     ) -> Result<Arc<Mutex<dyn Wrapper>>, Error>;

@@ -116,3 +116,16 @@ fn test_redirects() {
     builder.remove_redirect("ens/a.eth".to_string().try_into().unwrap());
     assert_eq!(builder.redirects.is_some(), false);
 }
+
+#[test]
+fn test_packages() {
+    let mut builder = BuilderConfig::new(None);
+    assert_eq!(builder.packages.is_some(), false);
+
+    
+}
+
+
+#[test]
+fn test_wrappers() {
+}
