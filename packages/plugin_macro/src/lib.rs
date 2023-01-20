@@ -4,6 +4,19 @@ use quote::quote;
 use syn::parse::Parser;
 use syn::{parse, parse_macro_input, DeriveInput, ItemImpl, ItemStruct};
 
+fn snake_case_to_camel_case(s: &str) -> String {
+    s.split('_')
+        .enumerate()
+        .map(|(i, s)| {
+            if i == 0 {
+                s.to_string()
+            } else {
+                s.chars().next().unwrap().to_uppercase().collect::<String>() + &s[1..]
+            }
+        })
+        .collect()
+}
+
 #[proc_macro_attribute]
 pub fn plugin_struct(args: TokenStream, input: TokenStream) -> TokenStream {
     let mut item_struct = parse_macro_input!(input as ItemStruct);
@@ -53,7 +66,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                             _ => panic!("Wrong argument type"),
                         };
                         let function_ident = &method.sig.ident;
-                        let function_ident_str = function_ident.to_string();
+                        let function_ident_str = snake_case_to_camel_case(&function_ident.to_string());
 
                         method_idents.push((
                             function_ident.clone(),
@@ -86,11 +99,11 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             quote! {
               #ident_str => {
                 let result = self.#ident(
-                  &serde_json::from_value::<#args>(params.clone())?,
+                  &polywrap_msgpack::decode::<#args>(params.clone())?,
                   invoker,
                 ).await?;
 
-                Ok(serde_json::to_value(result)?)
+                Ok(polywrap_msgpack::serialize(result)?)
               }
             }
         });
@@ -101,9 +114,9 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
           async fn _wrap_invoke(
             &mut self,
             method_name: &str,
-            params: &serde_json::Value,
+            params: &[u8],
             invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,
-        ) -> Result<serde_json::Value, polywrap_plugin::error::PluginError> {
+        ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
                 let supported_methods = vec![#(#supported_methods),*];
                 match method_name {
                     #(#methods)*
@@ -120,7 +133,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             polywrap_plugin::package::PluginPackage::new(plugin_module, get_manifest())
         }
       }
-      
+
       impl From<#struct_ident> for polywrap_plugin::wrapper::PluginWrapper {
         fn from(plugin: #struct_ident) -> polywrap_plugin::wrapper::PluginWrapper {
             let plugin_module = Arc::new(futures::lock::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
@@ -135,8 +148,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         #module_impl
 
         #from_impls
-    }
-    .into()
+    }.into()
 }
 
 #[proc_macro_derive(Plugin)]
