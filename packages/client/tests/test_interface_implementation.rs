@@ -42,8 +42,8 @@ async fn test_env() {
 
     let client = PolywrapClient::new(config);
 
-    let invoke_result: Vec<u8> = client
-        .invoke(&wrapper_uri, "moduleMethod", Some(&msgpack!(
+    let invoke_result = client
+        .invoke::<ModuleMethodResponse>(&wrapper_uri, "moduleMethod", Some(&msgpack!(
           {
               "arg": {
                   "uint8": 1,
@@ -53,10 +53,9 @@ async fn test_env() {
       )), None, None)
         .await
         .unwrap();
-    let result: ModuleMethodResponse = polywrap_msgpack::decode(&invoke_result).unwrap();
     let mock_response = ModuleMethodResponse {
         uint8: 1,
         str: "Test String 1".to_string()
     };
-    assert_eq!(result, mock_response);
+    assert_eq!(invoke_result, mock_response);
 }

@@ -80,13 +80,13 @@ impl Invoker for PolywrapClient {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        let env_uri = match env {
+        let env = match env {
             Some(env) => Some(env),
             None => {
                 self.loader.get_env_by_uri(uri).map(|env| env.to_owned())
             }
         };
-        self.invoker.invoke_raw(uri, method, args, env_uri, resolution_context).await
+        self.invoker.invoke_raw(uri, method, args, env, resolution_context).await
     }
 
     async fn invoke_wrapper_raw(
