@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 polywrap_core = { path = "../core" }
 async-trait = "0.1.57"
+wrap_manifest_schemas = { path = "../manifest" }
+futures = "0.3.24"
+
