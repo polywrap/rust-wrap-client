@@ -1,3 +1,4 @@
+#![feature(trait_upcasting)]
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_client_builder::types::{BuilderConfig, ClientConfigHandler};
 use polywrap_resolvers::{uri_resolver_wrapper::UriResolverWrapper};
@@ -40,8 +41,8 @@ async fn test_uri_resolver_wrapper() {
 }
 
 #[tokio::test]
-async fn recursive_uri_resolver() {
-    let wrapper_github_path = "https://raw.githubusercontent.com/polywrap/wasm-test-harness/v0.2.1/wrappers/subinvoke/00-subinvoke/implementations/as";
+async fn test_recursive_uri_resolver() {
+    let wrapper_github_path = "https://raw.githubusercontent.com/polywrap/wrap-test-harness/v0.2.1/wrappers/subinvoke/00-subinvoke/implementations/as";
     let http_wrapper_uri = Uri::try_from(format!("http/{}", wrapper_github_path)).unwrap();
 
     let builder = BuilderConfig::new(None);
@@ -57,11 +58,19 @@ async fn recursive_uri_resolver() {
 
     if let Ok(r) = result {
         if let UriPackageOrWrapper::Wrapper(_, w) = r {
-            let wasm_wrapper = (&w as &dyn std::any::Any).downcast_ref::<WasmWrapper>();
+            let wrapper = &*(w.lock().await) as &dyn std::any::Any;
+            let wasm_wrapper = wrapper.downcast_ref::<WasmWrapper>();
             if let Some(wrapper) = wasm_wrapper {
                 let mock_wrapper = helpers::get_mock_wrapper();
                 assert_eq!(wrapper, &mock_wrapper);
-            };
+            } else {
+                panic!("not wasm wrapper");
+            }
+        } else {
+            dbg!("not wrapper");
         }
+    } else {
+        dbg!(result.clone().err());
+        dbg!("not ok");
     }
 }

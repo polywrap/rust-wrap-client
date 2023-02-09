@@ -63,9 +63,15 @@ impl UriResolverWrapper {
           env, 
           Some(resolution_context)
       ).await?;
-      let result = decode::<MaybeUriOrManifest>(result.as_slice())?;
 
-      Ok(result)
+      if result.is_empty() {
+        Ok(MaybeUriOrManifest {
+          uri: None,
+          manifest: None
+        })
+      } else {
+        Ok(decode::<MaybeUriOrManifest>(result.as_slice())?)
+      }
   }
 
   async fn load_extension(

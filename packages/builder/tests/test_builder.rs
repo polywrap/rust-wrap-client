@@ -119,7 +119,7 @@ fn test_redirects() {
 
 #[test]
 fn test_packages() {
-    let mut builder = BuilderConfig::new(None);
+    let builder = BuilderConfig::new(None);
     assert_eq!(builder.packages.is_some(), false);
 
     
