@@ -7,7 +7,10 @@ edition = "2021"
 
 [dependencies]
 polywrap_core = { path = "../core" }
-async-trait = "0.1.57"
 wrap_manifest_schemas = { path = "../manifest" }
+async-trait = "0.1.57"
 futures = "0.3.24"
-
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1.23.0", features = ["full"] }
+zip = "0.6.4"
+thiserror = "1.0"
