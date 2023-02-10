@@ -37,7 +37,6 @@ async fn test_uri_resolver_wrapper() {
             assert_eq!(wrapper, &mock_wrapper);
         };
     }
-    
 }
 
 #[tokio::test]
