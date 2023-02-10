@@ -5,8 +5,12 @@ use futures::lock::Mutex;
 use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoke::Invoker, uri::Uri, env::Env, resolvers::uri_resolution_context::UriResolutionContext, package::WrapPackage};
 use wrap_manifest_schemas::versions::WrapManifest;
 
-pub struct MockWrapper;
-pub struct MockPackage;
+pub struct MockWrapper {
+    pub name: String
+}
+pub struct MockPackage {
+    pub name: String
+}
 
 impl Debug for MockWrapper {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -15,8 +19,10 @@ impl Debug for MockWrapper {
 }
 
 impl MockWrapper {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(name: Option<String>) -> Self {
+        Self {
+            name: name.unwrap_or("MockWrapper".to_string())
+        }
     }
 }
 
@@ -28,15 +34,17 @@ impl Debug for MockPackage {
 }
 
 impl MockPackage {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(name: Option<String>) -> Self {
+        Self {
+            name: name.unwrap_or("MockWrapper".to_string())
+        }
     }
 }
 
 #[async_trait]
 impl WrapPackage for MockPackage {
     async fn create_wrapper(&self) -> Result<Arc<Mutex<dyn Wrapper>>, polywrap_core::error::Error> {
-        Ok(Arc::new(Mutex::new(get_mock_wrapper())))
+        Ok(Arc::new(Mutex::new(MockWrapper::new(None))))
     }
 
     async fn get_manifest(
@@ -69,8 +77,12 @@ impl Wrapper for MockWrapper {
     }
 }
 
-pub fn get_mock_wrapper() -> MockWrapper {
-    MockWrapper::new()
+pub fn get_mock_package(name: Option<String>) -> Arc<Mutex<dyn WrapPackage>> {
+    Arc::new(Mutex::new(MockPackage::new(name)))
+}
+
+pub fn get_mock_wrapper(name: Option<String>) -> Arc<Mutex<dyn Wrapper>> {
+    Arc::new(Mutex::new(MockWrapper::new(name)))
 }
 
 pub fn get_tests_path() -> Result<PathBuf, ()> {

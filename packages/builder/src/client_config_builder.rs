@@ -193,7 +193,15 @@ impl ClientBuilder for BuilderConfig {
 
     fn add_wrapper(&mut self, wrapper: UriWrapper) -> &mut Self {
         if let Some(wrappers) = self.wrappers.as_mut() {
-            wrappers.push(wrapper);
+            let existing_wrapper = wrappers
+            .iter_mut()
+            .find(|i| i.uri == wrapper.uri);
+            
+            if let Some(p) = existing_wrapper {
+                p.wrapper = wrapper.wrapper;
+            } else {
+                wrappers.push(wrapper);
+            }
         } else {
             self.wrappers = Some(vec![wrapper]);
         }
@@ -226,7 +234,9 @@ impl ClientBuilder for BuilderConfig {
                 p.package = package.package;
             } else {
                 packages.push(package);
-            } 
+            }
+        } else {
+            self.packages = Some(vec![package]);
         }
         self
     }

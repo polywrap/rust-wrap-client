@@ -17,7 +17,7 @@ filesystem_plugin = {path = "../plugins/fs"}
 http_resolver_plugin = {path = "../plugins/http-resolver"}
 http_plugin = {path = "../plugins/http"}
 futures = "0.3.24"
+polywrap_tests_utils = {path = "../tests-utils"}
 
 [dev-dependencies]
-mockall = "0.11.2"
-actix-rt = "*"
+tokio = { version = "1.3", features = ["full"] }
