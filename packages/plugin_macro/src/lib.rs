@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::quote;
 use syn::parse::Parser;
-use syn::{parse, parse_macro_input, DeriveInput, ItemImpl, ItemStruct};
+use syn::{parse, parse_macro_input, DeriveInput, ItemImpl, ItemStruct };
 
 fn snake_case_to_camel_case(s: &str) -> String {
     s.split('_')
@@ -44,7 +44,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
 
     let struct_ident = item_impl.clone().self_ty;
 
-    let mut method_idents: Vec<(Ident, String, Ident)> = vec![];
+    let mut method_idents: Vec<(Ident, String, Ident, bool)> = vec![];
 
     for item in item_impl.clone().items {
         match item {
@@ -66,12 +66,19 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                             _ => panic!("Wrong argument type"),
                         };
                         let function_ident = &method.sig.ident;
-                        let function_ident_str = snake_case_to_camel_case(&function_ident.to_string());
+                        let function_ident_str =
+                            snake_case_to_camel_case(&function_ident.to_string());
+
+                        let output_is_option = quote!{
+                            #method.sig.output
+                        }.to_string().contains("Option <");
+
 
                         method_idents.push((
                             function_ident.clone(),
                             function_ident_str.clone(),
                             function_input.unwrap().clone(),
+                            output_is_option,
                         ))
                     }
                     _ => panic!("Wrong number of arguments"),
@@ -86,7 +93,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             .clone()
             .into_iter()
             .enumerate()
-            .map(|(_, (_, ident_str, _))| {
+            .map(|(_, (_, ident_str, _, _))| {
                 quote! {
                   #ident_str
                 }
@@ -95,16 +102,33 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
     let methods = method_idents
         .into_iter()
         .enumerate()
-        .map(|(_, (ident, ident_str, args))| {
-            quote! {
-              #ident_str => {
-                let result = self.#ident(
-                  &polywrap_msgpack::decode::<#args>(params.clone())?,
-                  invoker,
-                ).await?;
+        .map(|(_, (ident, ident_str, args, output_is_option))| {
+            if output_is_option {
+                quote! {
+                    #ident_str => {
+                      let result = self.#ident(
+                        &polywrap_msgpack::decode::<#args>(params.clone())?,
+                        invoker,
+                      ).await?;
 
-                Ok(polywrap_msgpack::serialize(result)?)
-              }
+                      if let Some(r) = result {
+                        Ok(polywrap_msgpack::serialize(r)?)
+                      } else {
+                        Ok(vec![])
+                      }
+                    }
+                  }
+            } else {
+                quote! {
+                  #ident_str => {
+                    let result = self.#ident(
+                      &polywrap_msgpack::decode::<#args>(params.clone())?,
+                      invoker,
+                    ).await?;
+    
+                    Ok(polywrap_msgpack::serialize(result)?)
+                  }
+                }
             }
         });
 
@@ -148,7 +172,8 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         #module_impl
 
         #from_impls
-    }.into()
+    }
+    .into()
 }
 
 #[proc_macro_derive(Plugin)]

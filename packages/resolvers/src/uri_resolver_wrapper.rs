@@ -63,9 +63,15 @@ impl UriResolverWrapper {
           env, 
           Some(resolution_context)
       ).await?;
-      let result = decode::<MaybeUriOrManifest>(result.as_slice())?;
 
-      Ok(result)
+      if result.is_empty() {
+        Ok(MaybeUriOrManifest {
+          uri: None,
+          manifest: None
+        })
+      } else {
+        Ok(decode::<MaybeUriOrManifest>(result.as_slice())?)
+      }
   }
 
   async fn load_extension(
@@ -120,7 +126,6 @@ impl ResolverWithHistory for UriResolverWrapper {
         loader, 
         resolution_context
       ).await?;
-
       let invoker = loader.get_invoker()?;
       let file_reader = UriResolverExtensionFileReader::new(
         self.implementation_uri.clone(),
@@ -134,10 +139,8 @@ impl ResolverWithHistory for UriResolverWrapper {
             Some(manifest),
             None
           );
-
           let wrapper = package.create_wrapper().await?;
-
-        return Ok(UriPackageOrWrapper::Wrapper(uri.clone(), wrapper));
+          return Ok(UriPackageOrWrapper::Wrapper(uri.clone(), wrapper));
       }
 
       let package = WasmPackage::new(

@@ -17,7 +17,7 @@ mod tests {
 
     #[async_trait]
     pub trait Module {
-      async fn foo_method(&mut self, args: &Args, a: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError>;
+      async fn foo_method(&mut self, args: &Args, a: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError>;
     }
 
     fn get_manifest() -> WrapManifest {
@@ -58,8 +58,8 @@ mod tests {
         #[async_trait]
         #[plugin_impl]
         impl Module for Foo {
-          async fn foo_method(&mut self, _arg: &Args, _s: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError> {
-            Ok(Some(vec![0]))
+          async fn foo_method(&mut self, _arg: &Args, _s: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError> {
+            Ok(vec![0])
           }
         }
 

@@ -65,6 +65,7 @@ impl PolywrapClient {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
         let result = self.invoke_raw(uri, method, args, env, resolution_context).await?;
+        
         decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
     }

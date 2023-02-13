@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, fmt::{Formatter,Debug}};
 
 use async_trait::async_trait;
 use polywrap_core::{
@@ -47,6 +47,18 @@ impl WasmPackage {
         let file_content = self.file_reader.read_file("wrap.wasm").await?;
 
         Ok(file_content)
+    }
+}
+
+impl PartialEq for WasmPackage {
+    fn eq(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+
+impl Debug for WasmPackage {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+        write!(f, "WasmPackage: {:?}", self)
     }
 }
 

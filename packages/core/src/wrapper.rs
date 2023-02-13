@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, fmt::Debug, any::Any};
 
 use async_trait::async_trait;
 
@@ -14,7 +14,7 @@ pub struct GetFileOptions {
 }
 
 #[async_trait]
-pub trait Wrapper: Send + Sync {
+pub trait Wrapper: Send + Sync + Debug + Any {
     async fn invoke(
         &mut self,
         invoker: Arc<dyn Invoker>,
