@@ -1,5 +1,5 @@
 use crate::error::WrapperError;
-use crate::wasm_runtime::instance::State;
+use crate::wasm_runtime::old_instance::State;
 use async_trait::async_trait;
 use polywrap_core::env::Env;
 use polywrap_core::error::Error;
@@ -16,7 +16,7 @@ use serde::de::DeserializeOwned;
 use std::fmt::Formatter;
 use std::{sync::Arc, fmt::Debug};
 
-use crate::wasm_runtime::instance::WasmInstance;
+use crate::wasm_runtime::old_instance::WasmInstance;
 use wasmtime::Val;
 
 #[derive(Clone)]
