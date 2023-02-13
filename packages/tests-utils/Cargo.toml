@@ -5,6 +5,9 @@ license = "MIT"
 description = "Todo"
 edition = "2021"
 
+[lib]
+test = false
+
 [dependencies]
 polywrap_core = { path = "../core" }
 wrap_manifest_schemas = { path = "../manifest" }
