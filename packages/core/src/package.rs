@@ -15,7 +15,7 @@ pub struct SerializeManifestOptions {
 }
 
 #[async_trait]
-pub trait WrapPackage: Send + Sync + Debug + Any{
+pub trait WrapPackage: Send + Sync + Debug + Any {
     async fn create_wrapper(
         &self,
     ) -> Result<Arc<Mutex<dyn Wrapper>>, Error>;

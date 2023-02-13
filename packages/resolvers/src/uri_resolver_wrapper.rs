@@ -126,7 +126,6 @@ impl ResolverWithHistory for UriResolverWrapper {
         loader, 
         resolution_context
       ).await?;
-
       let invoker = loader.get_invoker()?;
       let file_reader = UriResolverExtensionFileReader::new(
         self.implementation_uri.clone(),
@@ -140,10 +139,8 @@ impl ResolverWithHistory for UriResolverWrapper {
             Some(manifest),
             None
           );
-
           let wrapper = package.create_wrapper().await?;
-
-        return Ok(UriPackageOrWrapper::Wrapper(uri.clone(), wrapper));
+          return Ok(UriPackageOrWrapper::Wrapper(uri.clone(), wrapper));
       }
 
       let package = WasmPackage::new(

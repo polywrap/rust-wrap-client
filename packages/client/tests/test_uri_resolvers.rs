@@ -1,4 +1,6 @@
 #![feature(trait_upcasting)]
+use std::any::TypeId;
+
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_client_builder::types::{BuilderConfig, ClientConfigHandler};
 use polywrap_resolvers::{uri_resolver_wrapper::UriResolverWrapper};
@@ -6,8 +8,6 @@ use polywrap_resolvers::{uri_resolver_wrapper::UriResolverWrapper};
 use polywrap_core::{uri::Uri, resolvers::{uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}, resolver_with_history::ResolverWithHistory}};
 use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_wasm::wasm_wrapper::WasmWrapper;
-
-mod helpers;
 
 #[tokio::test]
 async fn test_uri_resolver_wrapper() {
@@ -28,14 +28,19 @@ async fn test_uri_resolver_wrapper() {
         &wrapper_uri.clone(), 
         &client.loader, 
         &mut uri_resolution_context
-    ).await.unwrap();
+    ).await;
 
+    if result.is_err() {
+        panic!("Error in try resolver uri: {:?}", result.err());
+    }
+
+    let result = result.unwrap();
     if let UriPackageOrWrapper::Wrapper(_, w) = result {
-        let wasm_wrapper = (&w as &dyn std::any::Any).downcast_ref::<WasmWrapper>();
-        if let Some(wrapper) = wasm_wrapper {
-            let mock_wrapper = helpers::get_mock_wrapper();
-            assert_eq!(wrapper, &mock_wrapper);
-        };
+        let wrapper = w.lock().await;
+        let wrapper = &*wrapper as &dyn std::any::Any;
+        assert_eq!(wrapper.type_id(), TypeId::of::<WasmWrapper>());
+    } else {
+        panic!("Expected wrapper, got package or uri");
     }
 }
 
@@ -55,21 +60,16 @@ async fn test_recursive_uri_resolver() {
         &mut uri_resolution_context
     ).await;
 
-    if let Ok(r) = result {
-        if let UriPackageOrWrapper::Wrapper(_, w) = r {
-            let wrapper = &*(w.lock().await) as &dyn std::any::Any;
-            let wasm_wrapper = wrapper.downcast_ref::<WasmWrapper>();
-            if let Some(wrapper) = wasm_wrapper {
-                let mock_wrapper = helpers::get_mock_wrapper();
-                assert_eq!(wrapper, &mock_wrapper);
-            } else {
-                panic!("not wasm wrapper");
-            }
-        } else {
-            dbg!("not wrapper");
-        }
+    if result.is_err() {
+        panic!("Error in try resolver uri: {:?}", result.err());
+    }
+
+    let result = result.unwrap();
+    if let UriPackageOrWrapper::Wrapper(_, w) = result {
+        let wrapper = w.lock().await;
+        let wrapper = &*wrapper as &dyn std::any::Any;
+        assert_eq!(wrapper.type_id(), TypeId::of::<WasmWrapper>());
     } else {
-        dbg!(result.clone().err());
-        dbg!("not ok");
+        panic!("Expected wrapper, got package or uri");
     }
 }
