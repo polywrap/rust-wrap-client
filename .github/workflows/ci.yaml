@@ -26,9 +26,8 @@ jobs:
       - name: Instal llvm-tools
         run: rustup component add llvm-tools-preview
 
-      - uses: actions-rs/cargo@v1
-        with:
-          command: run --package polywrap_tests_utils --bin generate 
+      - name: Generate test cases
+        run: cargo run --package polywrap_tests_utils --bin generate 
 
       - uses: actions-rs/cargo@v1
         with:
