@@ -1,6 +1,6 @@
-use std::{sync::{Arc, Mutex}, io::Read};
+use std::{sync::{Arc, Mutex}};
 use polywrap_core::invoke::{Invoker};
-use wasmer::{Module, Instance, Store, InstantiationError, Memory, MemoryType, Value};
+use wasmer::{Module, Instance, Store, Memory, MemoryType, Value};
 
 use crate::error::WrapperError;
 
@@ -37,6 +37,10 @@ pub struct State {
     pub subinvoke_implementation: Option<SubinvokeImplementationState>
 }
 
+pub struct SharedState {
+    pub state: Arc<Mutex<State>>
+}
+
 impl State {
     pub fn new(
         invoker: Arc<dyn Invoker>,
@@ -61,22 +65,23 @@ impl State {
 
 pub struct WasmInstance {
     instance: Instance,
-    pub store: Store,
+    pub store: Box<Store>,
     pub module: Module,
 }
 
 impl WasmInstance {
-    pub async fn new(wasm_module: &Vec<u8>, state: State) -> Result<Self, WrapperError> {
-        let mut store = Store::default();
-        let module = Module::new(&mut store, wasm_module.to_vec()).unwrap();
+    pub async fn new(wasm_module: &Vec<u8>, state: Arc<Mutex<State>>) -> Result<Self, WrapperError> {
+        let mut store = Box::new(Store::default());
+        let module = Module::new(store.as_mut(), wasm_module.to_vec()).unwrap();
         let memory = WasmInstance::create_memory(&mut store)?;
-        let imports = create_imports(Arc::new(Mutex::new(memory)));
-        // Value::ExternRef(Some(state));
-        let instance = Instance::new(&mut store, &module, &imports)
+        let imports = create_imports(
+            Arc::new(Mutex::new(memory)),
+            store.as_mut(),
+            state
+        );
+        let instance = Instance::new(store.as_mut(), &module, &imports)
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
-        let mutable_store = instance.exports.get_global("one")
-            .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
-        mutable_store.set(&mut store, state);
+
         Ok(Self {
             instance,
             store,
@@ -84,11 +89,30 @@ impl WasmInstance {
         })
     }
 
-    pub fn create_memory(&mut store: &mut Store) -> Result<Memory, WrapperError> {
-        let memory = Memory::new(&mut store, 
+    pub fn create_memory(store: &mut Store) -> Result<Memory, WrapperError> {
+        let memory = Memory::new(store, 
             MemoryType::new(1, None, true)
         ).unwrap();
 
         Ok(memory)
+    }
+
+    pub async fn call_export(
+        &mut self,
+        name: &str,
+        params: &[Value],
+        results: &mut [Value],
+    ) -> Result<(), WrapperError> {
+        let export = self.instance.exports.get_function(name);
+        if export.is_err() {
+            return Err(WrapperError::WasmRuntimeError(format!(
+                "Export {} not found",
+                name
+            )));
+        }
+        let function = export.unwrap();
+        function.call(self.store.as_mut(), params).unwrap();
+
+        Ok(())
     }
 }
