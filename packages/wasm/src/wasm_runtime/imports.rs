@@ -1,46 +1,45 @@
 use std::sync::{Mutex, Arc};
 
-use wasmer::{Imports, imports, Memory, FunctionEnvMut, Function, FunctionType, Value, Type, FunctionEnv, Store};
-use crate::{wasm_runtime::instance::State};
+use wasmer::{Imports, imports, Memory, FunctionEnvMut, Function, FunctionType, Value, Type, FunctionEnv, Store, StoreRef};
 
-// fn read_from_memory() -> {
-
-// }
+use super::instance::State;
 
 pub fn create_imports(
-    memory: Arc<Mutex<Memory>>,
+    memory: Memory,
     store: &mut Store,
     state: Arc<Mutex<State>>
 ) -> Imports {
-    let memory_cloned = Arc::clone(&memory);
-    let invoke_args = move |mut state: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+    // let memory_view = memory.view(store);
+    // let memory_arc  = Arc::new(Mutex::new(memory_view));
 
-        let method_ptr = &values[0];        
-        let args_ptr = &values[1];        
-        let method_ptr = match method_ptr {
+    let invoke_args = move |mut state: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+        let method_ptr = match &values[0] {
             Value::I64(p) => *p,
             _ => panic!("method is None")
         };
-        
-        let args_ptr = match args_ptr {
+
+        let args_ptr = match &values[1] {
             Value::I64(p) => *p,
             _ => panic!("args is None")
         };
 
-        // let mut state = state.data_mut().lock().unwrap();
-        // state.method = vec![];
-        // let method_pr
+        let z = state.as_mut();
+        let mutable_state = z.data().lock().unwrap();
+        // mutable_state.
+        // let mut memory = memory_view.lock().unwrap();
+        if mutable_state.method.is_empty() {
+            (mutable_state.abort)("__wrap_invoke_args: method is not set".to_string());
+        }
 
-        let invocation_memory = memory_cloned.lock().unwrap();
-        // let t = Box::new(store);
-    
-        // invocation_memory.view(store.as_mut());
-        // let memory = memory.view(&state.as_store_mut());
-        // let state = state.data_mut();
-        // memory.write(method_ptr.try_into().unwrap(), state.method.as_slice());
-        // memory.write(args_ptr.try_into().unwrap(), state.args.as_slice());
-
-        Ok(vec![Value::I32(1)])
+        if mutable_state.args.is_empty() {
+            (mutable_state.abort)("__wrap_invoke_args: args is not set".to_string());
+        }
+        let memory = mutable_state.memory.as_ref().unwrap();
+        let memory_view = memory.view(&z);
+        memory_view.write(method_ptr.try_into().unwrap(), &mutable_state.method).unwrap();
+        // let memory = state.
+        // memory_arc.lock().unwrap().write(method_ptr as usize, &state.method);
+        Ok(vec![])
     };
 
     let invoke_args_signature = FunctionType::new(
@@ -48,10 +47,10 @@ pub fn create_imports(
         vec![Type::I32]
     );
 
-    let state = FunctionEnv::new(store, state);
+    let shared_state = FunctionEnv::new(store, state);
     let invoke_args_function = Function::new_with_env(
         store,
-        &state,
+        &shared_state,
         invoke_args_signature,
         invoke_args
     );
@@ -61,7 +60,7 @@ pub fn create_imports(
             "__wrap_invoke_args" => invoke_args_function
         },
         "env" => {
-            // "memory" => *memory.lock().unwrap(),
+            "memory" => memory,
         }
     }
 }

@@ -1,6 +1,6 @@
 use std::{sync::{Arc, Mutex}};
 use polywrap_core::invoke::{Invoker};
-use wasmer::{Module, Instance, Store, Memory, MemoryType, Value};
+use wasmer::{Module, Instance, Store, Memory, MemoryType, Value, MemoryView};
 
 use crate::error::WrapperError;
 
@@ -34,11 +34,8 @@ pub struct State {
     pub abort: Box<dyn Fn(String) + Send + Sync>,
     pub invoker: Arc<dyn Invoker>,
     pub get_implementations_result: Option<Vec<u8>>,
-    pub subinvoke_implementation: Option<SubinvokeImplementationState>
-}
-
-pub struct SharedState {
-    pub state: Arc<Mutex<State>>
+    pub subinvoke_implementation: Option<SubinvokeImplementationState>,
+    pub memory: Option<Memory>,
 }
 
 impl State {
@@ -58,29 +55,37 @@ impl State {
             abort,
             invoker,
             get_implementations_result: None,
-            subinvoke_implementation: None
+            subinvoke_implementation: None,
+            memory: None,
         }
     }
 }
 
 pub struct WasmInstance {
     instance: Instance,
-    pub store: Box<Store>,
+    pub store: Store,
     pub module: Module,
 }
 
 impl WasmInstance {
     pub async fn new(wasm_module: &Vec<u8>, state: Arc<Mutex<State>>) -> Result<Self, WrapperError> {
-        let mut store = Box::new(Store::default());
-        let module = Module::new(store.as_mut(), wasm_module.to_vec()).unwrap();
+        let mut store = Store::default();
+        let module = Module::new(&store, wasm_module.to_vec()).unwrap();
         let memory = WasmInstance::create_memory(&mut store)?;
+
         let imports = create_imports(
-            Arc::new(Mutex::new(memory)),
-            store.as_mut(),
-            state
+            memory,
+            &mut store,
+            state.clone()
         );
-        let instance = Instance::new(store.as_mut(), &module, &imports)
-            .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+        
+        let instance = Instance::new(&mut store, &module, &imports)
+        .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+    
+        let memory = instance.exports.get_memory("memory").unwrap().clone();
+
+        state.lock().unwrap().memory = Some(memory);
+
 
         Ok(Self {
             instance,
@@ -111,7 +116,7 @@ impl WasmInstance {
             )));
         }
         let function = export.unwrap();
-        function.call(self.store.as_mut(), params).unwrap();
+        function.call(&mut self.store, params).unwrap();
 
         Ok(())
     }
