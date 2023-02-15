@@ -120,7 +120,6 @@ async fn invoke_test() {
         None,
         None
     ).await.unwrap();
-
     assert_eq!(result, [2])
 }
 

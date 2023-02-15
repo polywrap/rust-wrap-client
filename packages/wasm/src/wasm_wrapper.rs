@@ -19,10 +19,6 @@ use std::fmt::Formatter;
 use std::sync::Mutex;
 use std::{sync::Arc, fmt::Debug};
 
-// use crate::wasm_runtime::old_instance::State;
-// use crate::wasm_runtime::old_instance::WasmInstance;
-// use wasmtime::Val;
-
 #[derive(Clone)]
 pub struct WasmWrapper {
     wasm_module: Vec<u8>,
@@ -134,14 +130,13 @@ impl Wrapper for WasmWrapper {
         let state = Arc::new(Mutex::new(State::new(invoker, abort.clone(), method, args, env)));
         let mut wasm_instance = WasmInstance::new(&self.wasm_module, state.clone()).await.unwrap();
 
-        let mut result: [Value; 1] = [Value::I32(0)];
-        wasm_instance
-            .call_export("_wrap_invoke", params, &mut result)
+        let result = wasm_instance
+            .call_export("_wrap_invoke", params)
             .await
             .map_err(|e| Error::WrapperError(e.to_string()))?;
-        let state = state.lock().unwrap();
 
-        if result[0].unwrap_i32() == 1 {
+        let state = state.lock().unwrap();
+        if result {
             if state.invoke.result.is_none() {
                 abort("Invoke result is missing".to_string());
             }

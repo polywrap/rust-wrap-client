@@ -1,6 +1,6 @@
 use std::{sync::{Arc, Mutex}};
 use polywrap_core::invoke::{Invoker};
-use wasmer::{Module, Instance, Store, Memory, MemoryType, Value, MemoryView};
+use wasmer::{Module, Instance, Store, Memory, MemoryType, Value};
 
 use crate::error::WrapperError;
 
@@ -78,14 +78,13 @@ impl WasmInstance {
             &mut store,
             state.clone()
         );
-        
+
         let instance = Instance::new(&mut store, &module, &imports)
-        .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
-    
+            .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+
         let memory = instance.exports.get_memory("memory").unwrap().clone();
 
         state.lock().unwrap().memory = Some(memory);
-
 
         Ok(Self {
             instance,
@@ -96,7 +95,7 @@ impl WasmInstance {
 
     pub fn create_memory(store: &mut Store) -> Result<Memory, WrapperError> {
         let memory = Memory::new(store, 
-            MemoryType::new(1, None, true)
+            MemoryType::new(1, None, false)
         ).unwrap();
 
         Ok(memory)
@@ -105,9 +104,8 @@ impl WasmInstance {
     pub async fn call_export(
         &mut self,
         name: &str,
-        params: &[Value],
-        results: &mut [Value],
-    ) -> Result<(), WrapperError> {
+        params: &[Value]
+    ) -> Result<bool, WrapperError> {
         let export = self.instance.exports.get_function(name);
         if export.is_err() {
             return Err(WrapperError::WasmRuntimeError(format!(
@@ -118,6 +116,6 @@ impl WasmInstance {
         let function = export.unwrap();
         function.call(&mut self.store, params).unwrap();
 
-        Ok(())
+        Ok(true)
     }
 }
