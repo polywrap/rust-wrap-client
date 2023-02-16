@@ -102,13 +102,35 @@ pub fn create_imports(
     );
 
     let abort = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+        let msg_offset = values[0].unwrap_i32() as u32;
+        let msg_length = values[1].unwrap_i32() as u32;
+        let file_offset = values[2].unwrap_i32() as u32;
+        let file_length = values[3].unwrap_i32() as u32;
+        let line = values[4].unwrap_i32() as u32;
+        let column = values[5].unwrap_i32() as u32;
+
         let mutable_context = context.as_mut();
-        let mut mutable_state = mutable_context.data().lock().unwrap();
-        let memory = mutable_state.memory.as_ref().unwrap();
+        let state = mutable_context.data().lock().unwrap();
+        let memory = state.memory.as_ref().unwrap();
         let memory_view = memory.view(&mutable_context);
 
-        Ok(vec![])
+        let mut msg_buffer: Vec<u8> = vec![0; msg_length as usize];
+        let mut file_buffer: Vec<u8> = vec![0; file_length as usize];
 
+        memory_view.read(msg_offset.try_into().unwrap(), &mut msg_buffer).unwrap();
+        memory_view.read(file_offset.try_into().unwrap(), &mut file_buffer).unwrap();
+
+        let msg = String::from_utf8(msg_buffer).unwrap();
+        let file = String::from_utf8(file_buffer).unwrap();
+        (state.abort)(format!(
+            "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]",
+            msg = msg,
+            file = file,
+            line = line,
+            column = column
+        ));
+
+        Ok(vec![])
     };
 
 
