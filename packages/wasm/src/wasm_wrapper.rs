@@ -1,5 +1,5 @@
 use crate::error::WrapperError;
-use crate::wasm_runtime::instance::{State,WasmInstance};
+use crate::runtime::instance::{State,WasmInstance};
 
 use async_trait::async_trait;
 use polywrap_core::env::Env;
