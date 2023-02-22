@@ -1,6 +1,7 @@
 use std::sync::{Mutex, Arc};
 
 use futures::{executor::block_on};
+use polywrap_core::uri::Uri;
 use wasmer::{Imports, imports, Memory, FunctionEnvMut, Function, FunctionType, Value, Type, FunctionEnv, Store};
 
 use super::instance::State;
@@ -309,6 +310,73 @@ pub fn create_imports(
         subinvoke_error
     );
 
+    let subinvoke_implementation_signature = FunctionType::new(
+        vec![Type::I32, Type::I32, Type::I32, Type::I32, Type::I32, Type::I32, Type::I32, Type::I32],
+        vec![Type::I32]
+    );
+
+    let subinvoke_implementation = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+        let interface_ptr = values[0].unwrap_i32() as u32;
+        let interface_len = values[1].unwrap_i32() as u32;
+        let impl_uri_ptr = values[2].unwrap_i32() as u32;
+        let impl_uri_len = values[3].unwrap_i32() as u32;
+        let method_ptr = values[4].unwrap_i32() as u32;
+        let method_len = values[5].unwrap_i32() as u32;
+        let args_ptr = values[6].unwrap_i32() as u32;
+        let args_len = values[7].unwrap_i32() as u32;
+
+        let async_context = Arc::new(futures::lock::Mutex::new(context));
+
+        block_on(async move {
+            let mut context = async_context.lock().await;
+            let mutable_context = context.as_mut();
+            let mut state = mutable_context.data().lock().unwrap();
+
+            let mut interface_buffer = vec![0; interface_len.try_into().unwrap()];
+            let mut impl_uri_buffer = vec![0; impl_uri_len.try_into().unwrap()];
+            let mut method_buffer = vec![0; method_len.try_into().unwrap()];
+            let mut args_buffer = vec![0; args_len.try_into().unwrap()];
+            
+            let memory = state.memory.as_ref().unwrap();
+            memory.view(&mutable_context).read(interface_ptr.try_into().unwrap(), &mut interface_buffer).unwrap();
+            memory.view(&mutable_context).read(impl_uri_ptr.try_into().unwrap(), &mut impl_uri_buffer).unwrap();
+            memory.view(&mutable_context).read(method_ptr.try_into().unwrap(), &mut method_buffer).unwrap();
+            memory.view(&mutable_context).read(args_ptr.try_into().unwrap(), &mut args_buffer).unwrap();
+
+            let interface = String::from_utf8(interface_buffer).unwrap();
+            let uri = String::from_utf8(impl_uri_buffer).unwrap();
+            let method = String::from_utf8(method_buffer).unwrap();
+
+            let result = state.invoker.invoke_raw(
+                &uri.try_into().unwrap(),
+                &method,
+                Some(&args_buffer),
+                None,
+                None
+            ).await;
+    
+            match result {
+                Ok(r) => {
+                    state.subinvoke.result = Some(r);
+                    Ok(vec![Value::I32(1)])
+                }
+                Err(e) => {
+                    let error = format!("interface implementation subinvoke failed for uri: {} with error: {}", interface, e.to_string());
+                    state.subinvoke.error = Some(error);
+                    Ok(vec![Value::I32(0)])
+                }
+            }
+        })
+    };
+
+    let wrap_subinvoke_implementation = Function::new_with_env(
+        store,
+        &context,
+        subinvoke_implementation_signature,
+        subinvoke_implementation
+    );
+
+
     imports! {
         "wrap" => {
             "__wrap_invoke_args" => wrap_invoke_args,
@@ -320,6 +388,7 @@ pub fn create_imports(
             "__wrap_subinvoke_result" => wrap_subinvoke_result,
             "__wrap_subinvoke_error_len" => wrap_subinvoke_error_len,
             "__wrap_subinvoke_error" => wrap_subinvoke_error,
+            "__wrap_subinvoke_implementation" => wrap_subinvoke_implementation,
         },
         "env" => {
             "memory" => memory,
