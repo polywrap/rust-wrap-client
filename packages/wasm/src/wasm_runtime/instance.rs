@@ -71,18 +71,15 @@ impl WasmInstance {
     pub async fn new(wasm_module: &Vec<u8>, state: Arc<Mutex<State>>) -> Result<Self, WrapperError> {
         let mut store = Store::default();
         let module = Module::new(&store, wasm_module.to_vec()).unwrap();
-        let memory = WasmInstance::create_memory(&mut store)?;
-
+        let memory = WasmInstance::create_memory(&mut store, wasm_module)?;
         let imports = create_imports(
-            memory,
+            memory.clone(),
             &mut store,
             state.clone()
         );
 
         let instance = Instance::new(&mut store, &module, &imports)
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
-
-        let memory = instance.exports.get_memory("memory").unwrap().clone();
 
         state.lock().unwrap().memory = Some(memory);
 
@@ -93,9 +90,27 @@ impl WasmInstance {
         })
     }
 
-    pub fn create_memory(store: &mut Store) -> Result<Memory, WrapperError> {
+    pub fn create_memory(store: &mut Store, module: &[u8]) -> Result<Memory, WrapperError> {
+        const ENV_MEMORY_IMPORTS_SIGNATURE: [u8; 11] = [
+            0x65, 0x6e, 0x76, 0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02,
+        ];
+
+        let idx = module.windows(
+            ENV_MEMORY_IMPORTS_SIGNATURE.len()
+        ).position(|window| window == ENV_MEMORY_IMPORTS_SIGNATURE);
+
+        if idx.is_none() {
+            return Err(WrapperError::ModuleReadError(
+                r#"Unable to find Wasm memory import section.
+                Modules must import memory from the "env" module's
+                "memory" field like so:
+                (import "env" "memory" (memory (;0;) #))"#.to_string(),
+            ));
+        }
+
+        let memory_initial_limits = module[idx.unwrap() + ENV_MEMORY_IMPORTS_SIGNATURE.len() + 1];
         let memory = Memory::new(store, 
-            MemoryType::new(1, None, false)
+            MemoryType::new(memory_initial_limits as u32, None, false)
         ).unwrap();
 
         Ok(memory)

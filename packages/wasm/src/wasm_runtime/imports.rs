@@ -18,6 +18,7 @@ pub fn create_imports(
 
         let mutable_context = context.as_mut();
         let mutable_state = mutable_context.data().lock().unwrap();
+
         if mutable_state.method.is_empty() {
             (mutable_state.abort)("__wrap_invoke_args: method is not set".to_string());
         }
@@ -25,6 +26,7 @@ pub fn create_imports(
         if mutable_state.args.is_empty() {
             (mutable_state.abort)("__wrap_invoke_args: args is not set".to_string());
         }
+
         let memory = mutable_state.memory.as_ref().unwrap();
         let memory_view = memory.view(&mutable_context);
 
@@ -133,7 +135,6 @@ pub fn create_imports(
 
         Ok(vec![])
     };
-
 
     let wrap_abort = Function::new_with_env(
         store,
