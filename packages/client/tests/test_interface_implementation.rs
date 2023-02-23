@@ -17,7 +17,7 @@ struct ModuleMethodResponse {
 }
 
 #[tokio::test]
-async fn test_env() {
+async fn test_interface_implementation() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let implementation_uri = Uri::try_from(format!(

@@ -6,7 +6,7 @@ language that can import dynamic libraries (`.so` in linux or `.dylib` in mac).
 In order to import it in other project (like c++ or swift), you need to:
 
 - Build this package using `cargo build --release --lib`
-- Run `cbindgen --config cbindgen.toml --crate polywrap_ffi_c --output header.hpp`
+- Run `cbindgen --config cbindgen.toml --crate polywrap_ffi_c --output header.h --lang c`
 
 This will generate a `headers.hpp` file in the current crate & generate the `target` folder.
 In the `target/release` folder (which is in the root of the monorepo) is where the `.so` or `.dylib`

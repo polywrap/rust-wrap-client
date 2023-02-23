@@ -1,5 +1,6 @@
 use crate::error::WrapperError;
-use crate::wasm_runtime::instance::State;
+use crate::runtime::instance::{State,WasmInstance};
+
 use async_trait::async_trait;
 use polywrap_core::env::Env;
 use polywrap_core::error::Error;
@@ -10,14 +11,13 @@ use polywrap_core::uri::Uri;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
+use wasmer::Value;
 use wrap_manifest_schemas::versions::WrapManifest;
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
 use std::fmt::Formatter;
+use std::sync::Mutex;
 use std::{sync::Arc, fmt::Debug};
-
-use crate::wasm_runtime::instance::WasmInstance;
-use wasmtime::Val;
 
 #[derive(Clone)]
 pub struct WasmWrapper {
@@ -100,9 +100,9 @@ impl Wrapper for WasmWrapper {
         };
 
         let params = &[
-            Val::I32(method.to_string().len().try_into().unwrap()),
-            Val::I32(args.len().try_into().unwrap()),
-            Val::I32(env.len().try_into().unwrap()),
+            Value::I32(method.to_string().len().try_into().unwrap()),
+            Value::I32(args.len().try_into().unwrap()),
+            Value::I32(env.len().try_into().unwrap()),
         ];
 
         let abort_uri = uri.clone();
@@ -127,25 +127,23 @@ impl Wrapper for WasmWrapper {
             );
         });
 
-        let state = State::new(invoker, abort.clone(), method, args, env);
-        let mut wasm_instance = WasmInstance::new(&self.wasm_module, state).await.unwrap();
+        let state = Arc::new(Mutex::new(State::new(invoker, abort.clone(), method, args, env)));
+        let mut wasm_instance = WasmInstance::new(&self.wasm_module, state.clone()).await.unwrap();
 
-        let mut result: [Val; 1] = [Val::I32(0)];
-        wasm_instance
-            .call_export("_wrap_invoke", params, &mut result)
+        let result = wasm_instance
+            .call_export("_wrap_invoke", params)
             .await
             .map_err(|e| Error::WrapperError(e.to_string()))?;
 
-        let state = wasm_instance.store.data_mut();
-
-        if result[0].unwrap_i32() == 1 {
+        let state = state.lock().unwrap();
+        if result {
             if state.invoke.result.is_none() {
                 abort("Invoke result is missing".to_string());
             }
 
             Ok(state.invoke.result.as_ref().unwrap().to_vec())
         } else {
-            if state.invoke.error.as_ref().is_none() {
+            if state.invoke.error.is_none() {
                 abort("Invoke error is missing".to_string());
             }
 
