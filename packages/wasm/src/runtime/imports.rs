@@ -1,7 +1,6 @@
 use std::sync::{Mutex, Arc};
 
 use futures::{executor::block_on};
-use polywrap_core::uri::Uri;
 use wasmer::{Imports, imports, Memory, FunctionEnvMut, Function, FunctionType, Value, Type, FunctionEnv, Store};
 
 use super::instance::State;
@@ -315,7 +314,7 @@ pub fn create_imports(
         vec![Type::I32]
     );
 
-    let subinvoke_implementation = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+    let subinvoke_implementation = move |context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
         let interface_ptr = values[0].unwrap_i32() as u32;
         let interface_len = values[1].unwrap_i32() as u32;
         let impl_uri_ptr = values[2].unwrap_i32() as u32;
@@ -376,6 +375,270 @@ pub fn create_imports(
         subinvoke_implementation
     );
 
+    let subinvoke_implementation_result_len_signature = FunctionType::new(
+        vec![],
+        vec![Type::I32]
+    );
+
+    let subinvoke_implementation_result_len = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, _: &[Value]| {
+        let mutable_context = context.as_mut();
+        let mutable_state = mutable_context.data().lock().unwrap();
+
+        if let Some (implementation) = &mutable_state.subinvoke_implementation {
+            if let Some(r) = &implementation.result {
+                let length = r.len();
+                Ok(vec![Value::I32(length as i32)])
+            } else {
+                (mutable_state.abort)(
+                    "__wrap_subinvoke_implementation_result_len: subinvoke_implementation.result is not set".to_string(),
+                );
+                Ok(vec![Value::I32(0)])
+
+            }
+        } else {
+            (mutable_state.abort)(
+                "__wrap_subinvoke_implementation_result_len: subinvoke_implementation is not set".to_string(),
+            );
+            Ok(vec![Value::I32(0)])
+        }
+    };
+
+    let wrap_subinvoke_implementation_result_len = Function::new_with_env(
+        store,
+        &context,
+        subinvoke_implementation_result_len_signature,
+        subinvoke_implementation_result_len
+    );
+
+    let subinvoke_implementation_result_signature = FunctionType::new(
+        vec![Type::I32],
+        vec![],
+    );
+
+    let subinvoke_implementation_result = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+        let mutable_context = context.as_mut();
+        let mutable_state = mutable_context.data().lock().unwrap();
+        let memory = mutable_state.memory.as_ref().unwrap();
+        let pointer = values[0].unwrap_i32() as u32;
+
+        if let Some (implementation) = &mutable_state.subinvoke_implementation {
+            if let Some(r) = &implementation.result {
+                memory.view(&mutable_context).write(pointer.try_into().unwrap(), r).unwrap();
+            } else {
+                (mutable_state.abort)(
+                    "__wrap_subinvoke_implementation_result: subinvoke_implementation.result is not set".to_string(),
+                );
+            };
+        } else {
+            (mutable_state.abort)(
+                "__wrap_subinvoke_implementation_result: subinvoke_implementation is not set".to_string(),
+            );
+        };
+        Ok(vec![])
+    };
+
+    let wrap_subinvoke_implementation_result = Function::new_with_env(
+        store,
+        &context,
+        subinvoke_implementation_result_signature,
+        subinvoke_implementation_result
+    );
+
+    let subinvoke_implementation_error_len_signature = FunctionType::new(
+        vec![],
+        vec![Type::I32]
+    );
+
+    let subinvoke_implementation_error_len = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, _: &[Value]| {
+        let mutable_context = context.as_mut();
+        let mutable_state = mutable_context.data().lock().unwrap();
+
+        if let Some (implementation) = &mutable_state.subinvoke_implementation {
+            if let Some(r) = &implementation.error {
+                let length = r.as_bytes().len();
+                Ok(vec![Value::I32(length as i32)])
+            } else {
+                (mutable_state.abort)(
+                    "__wrap_subinvoke_implementation_error_len: subinvoke_implementation.error is not set".to_string(),
+                );
+                Ok(vec![Value::I32(0)])
+
+            }
+        } else {
+            (mutable_state.abort)(
+                "__wrap_subinvoke_implementation_error_len: subinvoke_implementation is not set".to_string(),
+            );
+            Ok(vec![Value::I32(0)])
+        }
+    };
+
+    let wrap_subinvoke_implementation_error_len = Function::new_with_env(
+        store,
+        &context,
+        subinvoke_implementation_error_len_signature,
+        subinvoke_implementation_error_len
+    );
+
+    let subinvoke_implementation_error_signature = FunctionType::new(
+        vec![Type::I32],
+        vec![],
+    );
+
+    let subinvoke_implementation_error = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+        let mutable_context = context.as_mut();
+        let mutable_state = mutable_context.data().lock().unwrap();
+        let memory = mutable_state.memory.as_ref().unwrap();
+        let pointer = values[0].unwrap_i32() as u32;
+
+        if let Some (implementation) = &mutable_state.subinvoke_implementation {
+            if let Some(r) = &implementation.error {
+                memory.view(&mutable_context).write(pointer.try_into().unwrap(), &r.as_bytes().to_vec()).unwrap();
+            } else {
+                (mutable_state.abort)(
+                    "__wrap_subinvoke_implementation_error: subinvoke_implementation.error is not set".to_string(),
+                );
+            };
+        } else {
+            (mutable_state.abort)(
+                "__wrap_subinvoke_implementation_error: subinvoke_implementation is not set".to_string(),
+            );
+        };
+        Ok(vec![])
+    };
+
+    let wrap_subinvoke_implementation_error = Function::new_with_env(
+        store,
+        &context,
+        subinvoke_implementation_error_signature,
+        subinvoke_implementation_error
+    );
+
+    let get_implementations_signature = FunctionType::new(
+        vec![Type::I32, Type::I32],
+        vec![Type::I32],
+    );
+
+    let get_implementations = move |context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+        let pointer = values[0].unwrap_i32() as u32;
+        let length = values[1].unwrap_i32() as u32;
+
+        let async_context = Arc::new(futures::lock::Mutex::new(context));
+
+        block_on(async move {
+            let mut context = async_context.lock().await;
+            let mutable_context = context.as_mut();
+            let mut state = mutable_context.data().lock().unwrap();
+
+            let memory = state.memory.as_ref().unwrap();
+            let mut uri_bytes = vec![0; length as usize];
+            memory.view(&mutable_context).read(pointer.try_into().unwrap(), &mut uri_bytes).unwrap();
+            let uri = String::from_utf8(uri_bytes).unwrap();
+            let result = state.invoker.get_implementations(uri.try_into().unwrap()).await;
+
+            if result.is_err() {
+                let result = result.as_ref().err().unwrap();
+                (state.abort)(result.to_string());
+                return Ok(vec![Value::I32(0)]);
+            }
+
+            let implementations = &result.unwrap();
+            let encoded_implementations = rmp_serde::encode::to_vec(implementations);                
+            state.get_implementations_result = Some(encoded_implementations.unwrap());
+
+            if !state.get_implementations_result.as_ref().unwrap().is_empty() {
+                return Ok(vec![Value::I32(1)]);
+            }
+            return Ok(vec![Value::I32(0)]);
+        })
+    };
+
+    let wrap_get_implementation = Function::new_with_env(
+        store,
+        &context,
+        get_implementations_signature,
+        get_implementations
+    );
+
+    let get_implementation_result_len_signature = FunctionType::new(
+        vec![],
+        vec![Type::I32],
+    );
+
+    let get_implementation_result_len = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, _: &[Value]| {
+        let mutable_context = context.as_mut();
+        let state = mutable_context.data().lock().unwrap();
+
+        if let Some(r) = &state.get_implementations_result {
+            let length = r.len();
+            Ok(vec![Value::I32(length as i32)])
+        } else {
+            (state.abort)(
+                "__wrap_get_implementation_result_len: get_implementation_result is not set".to_string(),
+            );
+            Ok(vec![Value::I32(0)])
+        }
+    };
+
+    let wrap_get_implementation_result_len = Function::new_with_env(
+        store,
+        &context,
+        get_implementation_result_len_signature,
+        get_implementation_result_len
+    );
+
+
+    let get_implementation_result_signature = FunctionType::new(
+        vec![Type::I32],
+        vec![],
+    );
+
+    let get_implementation_result = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+        let pointer = values[0].unwrap_i32() as u32;
+
+        let mutable_context = context.as_mut();
+        let state = mutable_context.data().lock().unwrap();
+        let memory = state.memory.as_ref().unwrap();
+
+        if let Some(r) = &state.get_implementations_result {
+            memory.view(&mutable_context).write(pointer.try_into().unwrap(), r).unwrap();
+        } else {
+            (state.abort)(
+                "__wrap_get_implementation_result: get_implementation_result is not set".to_string(),
+            );
+        }
+        Ok(vec![])
+    };
+
+    let wrap_get_implementation_result = Function::new_with_env(
+        store,
+        &context,
+        get_implementation_result_signature,
+        get_implementation_result
+    );
+
+    let load_env_signature = FunctionType::new(
+        vec![Type::I32],
+        vec![],
+    );
+
+    let load_env = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+        let pointer = values[0].unwrap_i32() as u32;
+
+        let mutable_context = context.as_mut();
+        let state = mutable_context.data().lock().unwrap();
+        let memory = state.memory.as_ref().unwrap();
+
+        memory.view(&mutable_context).write(pointer.try_into().unwrap(), &state.env.to_vec()).unwrap();
+
+        Ok(vec![])
+    };
+
+    let wrap_load_env = Function::new_with_env(
+        store,
+        &context,
+        load_env_signature,
+        load_env
+    );
 
     imports! {
         "wrap" => {
@@ -388,7 +651,15 @@ pub fn create_imports(
             "__wrap_subinvoke_result" => wrap_subinvoke_result,
             "__wrap_subinvoke_error_len" => wrap_subinvoke_error_len,
             "__wrap_subinvoke_error" => wrap_subinvoke_error,
-            "__wrap_subinvoke_implementation" => wrap_subinvoke_implementation,
+            "__wrap_subinvokeImplementation" => wrap_subinvoke_implementation,
+            "__wrap_subinvokeImplementation_result_len" => wrap_subinvoke_implementation_result_len,
+            "__wrap_subinvokeImplementation_result" => wrap_subinvoke_implementation_result,
+            "__wrap_subinvokeImplementation_error_len" => wrap_subinvoke_implementation_error_len,
+            "__wrap_subinvokeImplementation_error" => wrap_subinvoke_implementation_error,
+            "__wrap_getImplementations" => wrap_get_implementation,
+            "__wrap_getImplementations_result" => wrap_get_implementation_result,
+            "__wrap_getImplementations_result_len" => wrap_get_implementation_result_len,
+            "__wrap_load_env" => wrap_load_env,
         },
         "env" => {
             "memory" => memory,
