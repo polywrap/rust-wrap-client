@@ -9,6 +9,7 @@ use polywrap_core::{resolvers::{uri_resolution_context::UriPackage, static_resol
 use polywrap_plugin::package::PluginPackage;
 use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
 use serde_json::{json, Value};
+use polywrap_core::client::UriRedirect;
 use polywrap_core::env::Envs;
 use crate::embeds::{
     ipfs_http_client::wasm_package as ipfsHttpClientPackage,
@@ -56,12 +57,19 @@ pub fn add_default() -> BuilderConfig {
             "retries": { "tryResolveUri": 2, "getFile": 2 },
         })
     );
+
+    let mut redirects: Vec<UriRedirect> = Vec::new();
+    redirects.push(UriRedirect {
+        from: Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
+        to: Uri::try_from("wrap://ens/http.polywrap.eth").unwrap()
+    });
+
     BuilderConfig { 
         interfaces: Some(interfaces),
         envs: Some(envs),
         wrappers: None,
         packages: Some(get_default_plugins()),
-        redirects: None,
+        redirects: Some(redirects),
         resolvers: None
     }
 }

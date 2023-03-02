@@ -246,6 +246,7 @@ pub fn get_manifest() -> WrapManifest {
           "type": "ResponseType"
         },
         {
+          "comment": "The body of the request. If present, the `formData` property will be ignored.",
           "kind": 34,
           "name": "body",
           "scalar": {
@@ -254,9 +255,94 @@ pub fn get_manifest() -> WrapManifest {
             "type": "String"
           },
           "type": "String"
+        },
+        {
+          "array": {
+            "item": {
+              "kind": 8192,
+              "name": "formData",
+              "required": true,
+              "type": "FormDataEntry"
+            },
+            "kind": 18,
+            "name": "formData",
+            "object": {
+              "kind": 8192,
+              "name": "formData",
+              "required": true,
+              "type": "FormDataEntry"
+            },
+            "type": "[FormDataEntry]"
+          },
+          "comment": "An alternative to the standard request body, 'formData' is expected to be in the 'multipart/form-data' format.\nIf present, the `body` property is not null, `formData` will be ignored.\nOtherwise, if formData is not null, the following header will be added to the request: 'Content-Type: multipart/form-data'.",
+          "kind": 34,
+          "name": "formData",
+          "type": "[FormDataEntry]"
+        },
+        {
+          "kind": 34,
+          "name": "timeout",
+          "scalar": {
+            "kind": 4,
+            "name": "timeout",
+            "type": "UInt32"
+          },
+          "type": "UInt32"
         }
       ],
       "type": "Request"
+    },
+    {
+      "kind": 1,
+      "properties": [
+        {
+          "comment": "FormData entry key",
+          "kind": 34,
+          "name": "name",
+          "required": true,
+          "scalar": {
+            "kind": 4,
+            "name": "name",
+            "required": true,
+            "type": "String"
+          },
+          "type": "String"
+        },
+        {
+          "comment": "If 'type' is defined, value is treated as a base64 byte string",
+          "kind": 34,
+          "name": "value",
+          "scalar": {
+            "kind": 4,
+            "name": "value",
+            "type": "String"
+          },
+          "type": "String"
+        },
+        {
+          "comment": "File name to report to the server",
+          "kind": 34,
+          "name": "fileName",
+          "scalar": {
+            "kind": 4,
+            "name": "fileName",
+            "type": "String"
+          },
+          "type": "String"
+        },
+        {
+          "comment": "MIME type (https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types). Defaults to empty string.",
+          "kind": 34,
+          "name": "type",
+          "scalar": {
+            "kind": 4,
+            "name": "type",
+            "type": "String"
+          },
+          "type": "String"
+        }
+      ],
+      "type": "FormDataEntry"
     }
   ],
   "version": "0.1"
