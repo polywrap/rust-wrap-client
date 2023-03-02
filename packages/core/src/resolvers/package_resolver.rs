@@ -21,7 +21,7 @@ impl ResolverWithHistory for PackageResolver {
       format!("Package ({})", self.uri)
   }
 
-  async fn _try_resolve_uri(&self, uri: &Uri, _: &dyn Loader, _: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, crate::error::Error> {
+  fn _try_resolve_uri(&self, uri: &Uri, _: &dyn Loader, _: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, crate::error::Error> {
     if uri.to_string() != self.uri.to_string() {
       Ok(UriPackageOrWrapper::Uri(uri.clone()))
     } else {

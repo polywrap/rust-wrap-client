@@ -27,9 +27,8 @@ impl MockInvoker {
     }
 }
 
-#[async_trait]
 impl Invoker for MockInvoker {
-    async fn invoke_wrapper_raw(
+    fn invoke_wrapper_raw(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -38,14 +37,14 @@ impl Invoker for MockInvoker {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>
     ) -> Result<Vec<u8>, Error> {
-        let result = wrapper.lock().await.invoke(
+        let result = wrapper.try_lock().unwrap().invoke(
             Arc::new(self.clone()),
             uri,
             method,
             args,
             env,
             resolution_context
-        ).await;
+        );
 
         if result.is_err() {
             return Err(Error::InvokeError(format!(
@@ -59,7 +58,7 @@ impl Invoker for MockInvoker {
         Ok(result)    
     }
 
-    async fn invoke_raw(
+    fn invoke_raw(
         &self,
         uri: &Uri,
         method: &str,
@@ -74,7 +73,7 @@ impl Invoker for MockInvoker {
             args,
             env,
             resolution_context,
-        ).await;
+        );
 
         if invoke_result.is_err() {
             return Err(Error::InvokeError(format!(
@@ -86,7 +85,7 @@ impl Invoker for MockInvoker {
         Ok(invoke_result.unwrap())
     }
 
-    async fn get_implementations(&self, _uri: Uri) -> Result<Vec<Uri>, Error> {
+    fn get_implementations(&self, _uri: Uri) -> Result<Vec<Uri>, Error> {
         Ok(vec![])
     }
 
@@ -119,7 +118,7 @@ async fn invoke_test() {
         Some(&msgpack!({ "a": 1, "b": 1})), 
         None,
         None
-    ).await.unwrap();
+    ).unwrap();
     assert_eq!(result, [2])
 }
 

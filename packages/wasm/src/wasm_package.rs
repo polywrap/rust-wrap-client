@@ -1,6 +1,5 @@
 use std::{sync::Arc, fmt::{Formatter,Debug}};
 
-use async_trait::async_trait;
 use polywrap_core::{
     file_reader::FileReader,
     package::{GetManifestOptions, WrapPackage},
@@ -39,12 +38,12 @@ impl WasmPackage {
         }
     }
 
-    pub async fn get_wasm_module(&self) -> Result<Vec<u8>, polywrap_core::error::Error> {
+    pub fn get_wasm_module(&self) -> Result<Vec<u8>, polywrap_core::error::Error> {
         if self.wasm_module.is_some() {
             return Ok(self.wasm_module.clone().unwrap());
         }
 
-        let file_content = self.file_reader.read_file("wrap.wasm").await?;
+        let file_content = self.file_reader.read_file("wrap.wasm")?;
 
         Ok(file_content)
     }
@@ -62,15 +61,14 @@ impl Debug for WasmPackage {
     }
 }
 
-#[async_trait]
 impl WrapPackage for WasmPackage {
-    async fn get_manifest(
+    fn get_manifest(
         &self,
         options: Option<GetManifestOptions>,
     ) -> Result<WrapManifest, polywrap_core::error::Error> {
         let encoded_manifest = match self.manifest.clone() {
             Some(manifest) => manifest,
-            None => self.file_reader.read_file("wrap.info").await?,
+            None => self.file_reader.read_file("wrap.info")?,
         };
 
         let opts = options.map(|options| DeserializeManifestOptions {
@@ -83,11 +81,11 @@ impl WrapPackage for WasmPackage {
         return Ok(deserialized_manifest);
     }
 
-    async fn create_wrapper(
+    fn create_wrapper(
         &self
     ) -> Result<Arc<Mutex<dyn Wrapper>>, polywrap_core::error::Error> {
-        let wasm_module = self.get_wasm_module().await?;
-        let manifest = self.get_manifest(None).await?;
+        let wasm_module = self.get_wasm_module()?;
+        let manifest = self.get_manifest(None)?;
 
         Ok(Arc::new(Mutex::new(WasmWrapper::new(
             wasm_module,

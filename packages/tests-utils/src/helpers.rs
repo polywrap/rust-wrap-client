@@ -41,13 +41,12 @@ impl MockPackage {
     }
 }
 
-#[async_trait]
 impl WrapPackage for MockPackage {
-    async fn create_wrapper(&self) -> Result<Arc<Mutex<dyn Wrapper>>, polywrap_core::error::Error> {
+    fn create_wrapper(&self) -> Result<Arc<Mutex<dyn Wrapper>>, polywrap_core::error::Error> {
         Ok(Arc::new(Mutex::new(MockWrapper::new(None))))
     }
 
-    async fn get_manifest(
+    fn get_manifest(
         &self, 
         _: Option<polywrap_core::package::GetManifestOptions>
     ) ->  Result<WrapManifest, polywrap_core::error::Error> {
@@ -57,7 +56,7 @@ impl WrapPackage for MockPackage {
 
 #[async_trait]
 impl Wrapper for MockWrapper {
-    async fn invoke(
+    fn invoke(
         &mut self,
         _: Arc<dyn Invoker>,
         _: &Uri,
@@ -69,7 +68,7 @@ impl Wrapper for MockWrapper {
         Ok(vec![2])
     }
 
-    async fn get_file(
+    fn get_file(
         &self,
         _: &GetFileOptions
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {

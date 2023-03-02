@@ -9,9 +9,8 @@ use crate::{
     resolvers::uri_resolver::UriResolverHandler, uri::Uri, wrapper::Wrapper,
 };
 
-#[async_trait]
 pub trait Loader: UriResolverHandler + Send + Sync {
-    async fn load_wrapper(
+    fn load_wrapper(
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,

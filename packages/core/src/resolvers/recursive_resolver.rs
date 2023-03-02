@@ -49,7 +49,7 @@ impl RecursiveResolver {
         Self { resolver }
     }
 
-    async fn try_resolve_again_if_redirect(
+    fn try_resolve_again_if_redirect(
         &self,
         result: Result<UriPackageOrWrapper, Error>,
         uri: &Uri,
@@ -61,7 +61,6 @@ impl RecursiveResolver {
                 UriPackageOrWrapper::Uri(result_uri) => {
                     if result_uri.clone().to_string() != uri.to_string() {
                         self.try_resolve_uri(result_uri, loader, resolution_context)
-                            .await
                     } else {
                         result
                     }
@@ -76,7 +75,7 @@ impl RecursiveResolver {
 
 #[async_trait]
 impl UriResolver for RecursiveResolver {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &self,
         uri: &Uri,
         loader: &dyn Loader,
@@ -89,12 +88,10 @@ impl UriResolver for RecursiveResolver {
             resolution_context.start_resolving(uri);
             let resolver_result = self
                 .resolver
-                .try_resolve_uri(uri, loader, resolution_context)
-                .await;
+                .try_resolve_uri(uri, loader, resolution_context);
 
             let result = self
-                .try_resolve_again_if_redirect(resolver_result, uri, loader, resolution_context)
-                .await;
+                .try_resolve_again_if_redirect(resolver_result, uri, loader, resolution_context);
 
             resolution_context.stop_resolving(uri);
 

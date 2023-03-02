@@ -50,9 +50,8 @@ impl UriResolverExtensionFileReader {
     } 
 }
 
-#[async_trait]
 impl FileReader for UriResolverExtensionFileReader {
-    async fn read_file(&self, file_path: &str) -> Result<Vec<u8>, Error> {
+    fn read_file(&self, file_path: &str) -> Result<Vec<u8>, Error> {
         let path = combine_paths(&self.wrapper_uri.path, file_path);
 
         let invoker_args = msgpack!({
@@ -65,19 +64,21 @@ impl FileReader for UriResolverExtensionFileReader {
             Some(&invoker_args),
             None,
             None
-        ).await?;
+        )?;
         
         let result: Vec<u8> = polywrap_msgpack::decode(&result)?;
         Ok(result)
     }
 }
 
-pub async fn get_implementations(
+pub fn get_implementations(
     wrapper_uri: Uri,
     interfaces: Option<InterfaceImplementations>,
     _loader: Box<dyn Loader>,
 ) -> Result<Vec<Uri>, Error> {
     let mut implementation_uris: Vec<Uri> = vec![];
+
+    println!("URIS: {:#?}", implementation_uris);
 
     if let Some(interfaces) = interfaces {
         let implementations_value = interfaces.get(&wrapper_uri.uri);

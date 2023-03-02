@@ -12,18 +12,16 @@ use super::uri_resolver_aggregator::UriResolverAggregator;
 use super::uri_resolver_like::UriResolverLike;
 use super::wrapper_resolver::WrapperResolver;
 
-#[async_trait]
 pub trait UriResolverHandler {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<UriPackageOrWrapper, Error>;
 }
 
-#[async_trait]
 pub trait UriResolver: Send + Sync + Debug {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &self,
         uri: &Uri,
         loader: &dyn Loader,

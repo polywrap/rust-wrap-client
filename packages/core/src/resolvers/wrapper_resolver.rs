@@ -18,13 +18,12 @@ pub struct WrapperResolver {
 
 impl WrapperResolver {}
 
-#[async_trait]
 impl ResolverWithHistory for WrapperResolver {
     fn get_step_description(&self, _: &crate::uri::Uri) -> String {
         format!("Wrapper ({})", self.uri)
     }
 
-    async fn _try_resolve_uri(
+    fn _try_resolve_uri(
         &self,
         uri: &Uri,
         _: &dyn Loader,

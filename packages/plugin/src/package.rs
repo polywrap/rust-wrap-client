@@ -40,14 +40,14 @@ impl Debug for PluginPackage {
 
 #[async_trait]
 impl WrapPackage for PluginPackage {
-    async fn get_manifest(
+    fn get_manifest(
         &self,
         _: Option<GetManifestOptions>,
     ) -> Result<WrapManifest, Error> {
         return Ok(self.manifest.clone());
     }
 
-    async fn create_wrapper(&self) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
+    fn create_wrapper(&self) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
         Ok(Arc::new(Mutex::new(PluginWrapper::new(self.plugin_module.clone()))))
     }
 }

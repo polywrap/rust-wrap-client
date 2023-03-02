@@ -1,19 +1,19 @@
 #![allow(unused_imports)]
 #![allow(non_camel_case_types)]
 
-/// NOTE: This is an auto-generated file.
-///       All modifications will be overwritten.
+// NOTE: This is an auto-generated file.
+//       All modifications will be overwritten.
 use serde::{Serialize, Deserialize};
 use num_bigint::BigInt;
 use bigdecimal::BigDecimal as BigNumber;
 use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 
-/// Env START ///
+// Env START //
 
-/// Env END ///
+// Env END //
 
-/// Objects START ///
+// Objects START //
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Response {
@@ -39,9 +39,9 @@ pub struct FormDataEntry {
     #[serde(rename = "type")]
     pub _type: Option<String>,
 }
-/// Objects END ///
+// Objects END //
 
-/// Enums START ///
+// Enums START //
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub enum ResponseType {
@@ -49,20 +49,20 @@ pub enum ResponseType {
     BINARY,
     _MAX_
 }
-/// Enums END ///
+// Enums END //
 
-/// Imported objects START ///
+// Imported objects START //
 
-/// Imported objects END ///
+// Imported objects END //
 
-/// Imported envs START ///
+// Imported envs START //
 
-/// Imported envs END ///
+// Imported envs END //
 
-/// Imported enums START ///
+// Imported enums START //
 
-/// Imported enums END ///
+// Imported enums END //
 
-/// Imported Modules START ///
+// Imported Modules START //
 
-/// Imported Modules END ///
+// Imported Modules END //

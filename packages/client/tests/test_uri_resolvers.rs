@@ -2,13 +2,14 @@
 use std::any::TypeId;
 
 use polywrap_client::polywrap_client::PolywrapClient;
-use polywrap_client_builder::types::{BuilderConfig, ClientConfigHandler};
+use polywrap_client_builder::types::{BuilderConfig, ClientConfigHandler, ClientBuilder};
 use polywrap_resolvers::{uri_resolver_wrapper::UriResolverWrapper};
 
-use polywrap_core::{uri::Uri, resolvers::{uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}, resolver_with_history::ResolverWithHistory}};
+use polywrap_core::{uri::Uri, resolvers::{uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}, resolver_with_history::ResolverWithHistory}, env::Env};
 use polywrap_core::resolvers::uri_resolver::UriResolverHandler;
 use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_wasm::wasm_wrapper::WasmWrapper;
+use serde_json::json;
 
 #[tokio::test]
 async fn test_uri_resolver_wrapper() {
@@ -79,12 +80,17 @@ async fn test_recursive_uri_resolver() {
 async fn test_ipfs_uri_resolver_extension() {
     let wrapper_uri = Uri::try_from("wrap://ipfs/QmaM318ABUXDhc5eZGGbmDxkb2ZgnbLxigm5TyZcCsh1Kw").unwrap();
 
-    let builder = BuilderConfig::new(None);
+    let mut builder = BuilderConfig::new(None);
+    builder.add_env(wrapper_uri.clone(), json!({
+        "provider": "https://ipfs.wrappers.io",
+        "fallbackProviders": ["https://ipfs.io"],
+        "retries": { "tryResolveUri": 2, "getFile": 2 },
+      }));
     let config = builder.build();
     let client = PolywrapClient::new(config);
 
 
-    let result = client.try_resolve_uri(&wrapper_uri.clone(), None).await;
+    let result = client.try_resolve_uri(&wrapper_uri, None).await;
 
     if result.is_err() {
         panic!("Error in try_resolve_uri: {:?}", result.err());

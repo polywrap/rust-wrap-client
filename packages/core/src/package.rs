@@ -14,12 +14,11 @@ pub struct SerializeManifestOptions {
     pub no_validate: bool,
 }
 
-#[async_trait]
 pub trait WrapPackage: Send + Sync + Debug + Any {
-    async fn create_wrapper(
+    fn create_wrapper(
         &self,
     ) -> Result<Arc<Mutex<dyn Wrapper>>, Error>;
-    async fn get_manifest(
+    fn get_manifest(
         &self,
         options: Option<GetManifestOptions>,
     ) -> Result<WrapManifest, Error>;

@@ -30,7 +30,7 @@ impl UriResolverWrapper {
     UriResolverWrapper { implementation_uri }
   }
 
-  async fn try_resolve_uri_with_implementation(
+  fn try_resolve_uri_with_implementation(
     &self,
     uri: Uri,
     implementation_uri: Uri,
@@ -43,7 +43,7 @@ impl UriResolverWrapper {
         implementation_uri.clone(), 
         loader, 
         &mut sub_context
-      ).await?;
+      )?;
 
       let mut env = None;
       if let Some(e) = loader.get_env_by_uri(&uri.clone()) {
@@ -62,7 +62,7 @@ impl UriResolverWrapper {
           })), 
           env, 
           Some(resolution_context)
-      ).await?;
+      )?;
 
       if result.is_empty() {
         Ok(MaybeUriOrManifest {
@@ -74,7 +74,7 @@ impl UriResolverWrapper {
       }
   }
 
-  async fn load_extension(
+  fn load_extension(
     &self,
     current_uri: Uri,
     resolver_extension_uri: Uri,
@@ -85,7 +85,7 @@ impl UriResolverWrapper {
     let result = loader.try_resolve_uri(
       &resolver_extension_uri,
       Some(resolution_context)
-    ).await?;
+    )?;
 
     match result {
       UriPackageOrWrapper::Uri(uri) => {
@@ -98,9 +98,8 @@ impl UriResolverWrapper {
           Err(Error::LoadWrapperError(error))
         },
         UriPackageOrWrapper::Package(_, package) => {
-          let wrapper = package.lock().await
+          let wrapper = package.try_lock().unwrap()
             .create_wrapper()
-            .await
             .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
 
           Ok(wrapper)
@@ -112,9 +111,8 @@ impl UriResolverWrapper {
   }
 }
 
-#[async_trait]
 impl ResolverWithHistory for UriResolverWrapper {
-    async fn _try_resolve_uri(
+    fn _try_resolve_uri(
       &self, 
       uri: &Uri, 
       loader: &dyn Loader, 
@@ -125,7 +123,7 @@ impl ResolverWithHistory for UriResolverWrapper {
         self.implementation_uri.clone(), 
         loader, 
         resolution_context
-      ).await?;
+      )?;
       let invoker = loader.get_invoker()?;
       let file_reader = UriResolverExtensionFileReader::new(
         self.implementation_uri.clone(),
@@ -139,7 +137,7 @@ impl ResolverWithHistory for UriResolverWrapper {
             Some(manifest),
             None
           );
-          let wrapper = package.create_wrapper().await?;
+          let wrapper = package.create_wrapper()?;
           return Ok(UriPackageOrWrapper::Wrapper(uri.clone(), wrapper));
       }
 
@@ -147,7 +145,7 @@ impl ResolverWithHistory for UriResolverWrapper {
         Arc::new(file_reader), None, None
       );
 
-      if package.get_manifest(None).await.is_ok() {
+      if package.get_manifest(None).is_ok() {
         return Ok(
           UriPackageOrWrapper::Package(uri.clone(), 
           Arc::new(Mutex::new(package)))

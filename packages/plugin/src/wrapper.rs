@@ -23,7 +23,7 @@ impl PluginWrapper {
 
 #[async_trait]
 impl Wrapper for PluginWrapper {
-    async fn invoke(
+    fn invoke(
         &mut self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
@@ -33,7 +33,7 @@ impl Wrapper for PluginWrapper {
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         if let Some(e) = env {
-            self.instance.lock().await.set_env(e);
+            self.instance.try_lock().unwrap().set_env(e);
         };
 
         let args = match args {
@@ -43,10 +43,8 @@ impl Wrapper for PluginWrapper {
 
         let result = self
             .instance
-            .lock()
-            .await
-            ._wrap_invoke(method, &args, invoker)
-            .await;
+            .try_lock().unwrap()
+            ._wrap_invoke(method, &args, invoker);
 
         match result {
             Ok(result) => Ok(result),
@@ -60,7 +58,7 @@ impl Wrapper for PluginWrapper {
             .into()),
         }
     }
-    async fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
+    fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
         unimplemented!("client.get_file(...) is not implemented for Plugins.")
     }
 }

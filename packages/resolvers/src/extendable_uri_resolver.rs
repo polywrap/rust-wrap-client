@@ -28,13 +28,12 @@ impl ExtendableUriResolver {
     }
 }
 
-#[async_trait]
 impl UriResolverAggregatorBase for ExtendableUriResolver {
     fn get_resolver_name(&self) -> Option<String> {
         self.name.clone()
     }
 
-    async fn get_uri_resolvers(
+    fn get_uri_resolvers(
         &self,
         _: &Uri,
         loader: &dyn Loader,
@@ -43,7 +42,7 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
         let invoker = loader.get_invoker()?;
         let implementations = invoker.get_implementations(
            Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?
-        ).await?;
+        )?;
 
         let resolvers = implementations.into_iter().filter_map(|implementation| {
             if !resolution_context.is_resolving(&implementation) {
@@ -57,7 +56,7 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
         Ok(resolvers)
     }
 
-    async fn get_step_description(
+    fn get_step_description(
         &self,
         _: &Uri,
         _: &Result<UriPackageOrWrapper, Error>,
@@ -70,9 +69,8 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
     }
 }
 
-#[async_trait]
 impl UriResolver for ExtendableUriResolver {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &self, 
         uri: &Uri, 
         loader: &dyn Loader, 
@@ -82,7 +80,7 @@ impl UriResolver for ExtendableUriResolver {
             &uri.clone(),
             loader,
             resolution_context
-        ).await?;
+        )?;
 
         if resolvers.is_empty() {
             let uri = UriPackageOrWrapper::Uri(uri.clone());
@@ -94,7 +92,7 @@ impl UriResolver for ExtendableUriResolver {
             loader,
             resolvers,
             resolution_context
-        ).await
+        )
     }
 }
 

@@ -32,7 +32,7 @@ impl WrapperLoader {
 
 #[async_trait]
 impl UriResolverHandler for WrapperLoader {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
@@ -47,13 +47,12 @@ impl UriResolverHandler for WrapperLoader {
 
          uri_resolver
             .try_resolve_uri(uri, self, resolution_context)
-            .await
     }
 }
 
 #[async_trait]
 impl Loader for WrapperLoader {
-    async fn load_wrapper(
+    fn load_wrapper(
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
@@ -66,7 +65,6 @@ impl Loader for WrapperLoader {
 
         let uri_package_or_wrapper = self
             .try_resolve_uri(uri, Some(&mut resolution_ctx))
-            .await
             .map_err(|e| Error::ResolutionError(e.to_string()))?;
 
         match uri_package_or_wrapper {
@@ -77,10 +75,8 @@ impl Loader for WrapperLoader {
             UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
             UriPackageOrWrapper::Package(_, package) => {
                 let wrapper = package
-                    .lock().await
-                    .create_wrapper()
-                    .await
-                    .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
+                    .try_lock().unwrap()
+                    .create_wrapper().map_err(|e| Error::WrapperCreateError(e.to_string()))?;
                 Ok(wrapper)
             }
         }
