@@ -1,0 +1,12 @@
+{
+  "name": "@polywrap/http-interface",
+  "description": "Polywrap Http Interface",
+  "version": "0.10.0-pre.10",
+  "scripts": {
+    "build": "npx polywrap build --no-codegen",
+    "codegen": "npx polywrap codegen"
+  },
+  "devDependencies": {
+    "polywrap": "0.10.0-pre.10"
+  }
+}

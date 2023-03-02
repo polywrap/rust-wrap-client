@@ -1,8 +1,8 @@
 #![allow(unused_imports)]
 #![allow(non_camel_case_types)]
 
-// NOTE: This is an auto-generated file.
-//       All modifications will be overwritten.
+/// NOTE: This is an auto-generated file.
+///       All modifications will be overwritten.
 use serde::{Serialize, Deserialize};
 use num_bigint::BigInt;
 use bigdecimal::BigDecimal as BigNumber;
@@ -10,27 +10,27 @@ use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 use std::sync::Arc;
 use polywrap_msgpack::{decode, serialize};
-use polywrap_core::{invoke::{Invoker}, uri::Uri};
+use polywrap_core::{invoke::{Invoker, InvokeArgs}, uri::Uri};
 use polywrap_plugin::error::PluginError;
 
-// Env START //
+/// Env START ///
 
-// Env END //
+/// Env END ///
 
-// Objects START //
+/// Objects START ///
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MaybeUriOrManifest {
     pub uri: Option<String>,
     pub manifest: Option<Vec<u8>>,
 }
-// Objects END //
+/// Objects END ///
 
-// Enums START //
+/// Enums START ///
 
-// Enums END //
+/// Enums END ///
 
-// Imported objects START //
+/// Imported objects START ///
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpRequest {
@@ -38,6 +38,16 @@ pub struct HttpRequest {
     pub url_params: Option<Map<String, String>>,
     pub response_type: HttpResponseType,
     pub body: Option<String>,
+    pub form_data: Option<Vec<HttpFormDataEntry>>,
+    pub timeout: Option<u32>,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct HttpFormDataEntry {
+    pub name: String,
+    pub value: Option<String>,
+    pub file_name: Option<String>,
+    #[serde(rename = "type")]
+    pub _type: Option<String>,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpResponse {
@@ -46,13 +56,13 @@ pub struct HttpResponse {
     pub headers: Option<Map<String, String>>,
     pub body: Option<String>,
 }
-// Imported objects END //
+/// Imported objects END ///
 
-// Imported envs START //
+/// Imported envs START ///
 
-// Imported envs END //
+/// Imported envs END ///
 
-// Imported enums START //
+/// Imported enums START ///
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub enum HttpResponseType {
@@ -60,18 +70,18 @@ pub enum HttpResponseType {
     BINARY,
     _MAX_
 }
-// Imported enums END //
+/// Imported enums END ///
 
-// Imported Modules START //
+/// Imported Modules START ///
 
-// URI: "ens/http.polywrap.eth" //
+/// URI: "ens/http.polywrap.eth" ///
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpModuleArgsGet {
     pub url: String,
     pub request: Option<HttpRequest>,
 }
 
-// URI: "ens/http.polywrap.eth" //
+/// URI: "ens/http.polywrap.eth" ///
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpModuleArgsPost {
     pub url: String,
@@ -90,10 +100,10 @@ impl HttpModule {
 
     pub async fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
-        let serialized_args = serialize(args.clone()).unwrap();
-        let opt_args = Some(serialized_args.as_slice());
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke_raw(
+        let result = invoker.invoke(
             &uri,
             "get",
             opt_args,
@@ -113,10 +123,10 @@ impl HttpModule {
 
     pub async fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
-        let serialized_args = serialize(args.clone()).unwrap();
-        let opt_args = Some(serialized_args.as_slice());
+        let serialized_args = InvokeArgs::UIntArray(serialize(args.clone()).unwrap());
+        let opt_args = Some(&serialized_args);
         let uri = Uri::try_from(uri).unwrap();
-        let result = invoker.invoke_raw(
+        let result = invoker.invoke(
             &uri,
             "post",
             opt_args,
@@ -134,4 +144,4 @@ impl HttpModule {
         Ok(Some(decode(result.as_slice())?))
     }
 }
-// Imported Modules END //
+/// Imported Modules END ///

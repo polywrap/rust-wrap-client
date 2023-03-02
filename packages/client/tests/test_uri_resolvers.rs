@@ -6,6 +6,7 @@ use polywrap_client_builder::types::{BuilderConfig, ClientConfigHandler};
 use polywrap_resolvers::{uri_resolver_wrapper::UriResolverWrapper};
 
 use polywrap_core::{uri::Uri, resolvers::{uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}, resolver_with_history::ResolverWithHistory}};
+use polywrap_core::resolvers::uri_resolver::UriResolverHandler;
 use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_wasm::wasm_wrapper::WasmWrapper;
 
@@ -62,6 +63,31 @@ async fn test_recursive_uri_resolver() {
 
     if result.is_err() {
         panic!("Error in try resolver uri: {:?}", result.err());
+    }
+
+    let result = result.unwrap();
+    if let UriPackageOrWrapper::Wrapper(_, w) = result {
+        let wrapper = w.lock().await;
+        let wrapper = &*wrapper as &dyn std::any::Any;
+        assert_eq!(wrapper.type_id(), TypeId::of::<WasmWrapper>());
+    } else {
+        panic!("Expected wrapper, got package or uri");
+    }
+}
+
+#[tokio::test]
+async fn test_ipfs_uri_resolver_extension() {
+    let wrapper_uri = Uri::try_from("wrap://ipfs/QmaM318ABUXDhc5eZGGbmDxkb2ZgnbLxigm5TyZcCsh1Kw").unwrap();
+
+    let builder = BuilderConfig::new(None);
+    let config = builder.build();
+    let client = PolywrapClient::new(config);
+
+
+    let result = client.try_resolve_uri(&wrapper_uri.clone(), None).await;
+
+    if result.is_err() {
+        panic!("Error in try_resolve_uri: {:?}", result.err());
     }
 
     let result = result.unwrap();

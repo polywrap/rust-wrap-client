@@ -1,16 +1,15 @@
 use std::sync::Arc;
 
-use crate::wrap::types::HttpModuleArgsGet;
 use async_trait::async_trait;
 use polywrap_core::{invoke::Invoker};
 use polywrap_plugin_macro::{plugin_struct, plugin_impl};
 use polywrap_plugin::error::PluginError;
 use wrap::{
     module::{ArgsGetFile, ArgsTryResolveUri, Module},
-    types::{HttpModule, HttpRequest, MaybeUriOrManifest},
+    types::{HttpModule, HttpRequest, MaybeUriOrManifest, HttpModuleArgsGet},
+    wrap_info::get_manifest,
 };
 pub mod wrap;
-use crate::wrap::wrap_info::get_manifest;
 
 #[plugin_struct]
 pub struct HttpResolverPlugin {
@@ -38,6 +37,8 @@ impl Module for HttpResolverPlugin {
                     headers: None,
                     body: None,
                     url_params: None,
+                    timeout: None,
+                    form_data: None,
                 }),
             },
             invoker,
@@ -79,6 +80,8 @@ impl Module for HttpResolverPlugin {
                     headers: None,
                     body: None,
                     url_params: None,
+                    timeout: None,
+                    form_data: None,
                 }),
             },
             invoker,

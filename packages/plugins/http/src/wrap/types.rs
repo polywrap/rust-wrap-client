@@ -9,6 +9,10 @@ use bigdecimal::BigDecimal as BigNumber;
 use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 
+/// Env START ///
+
+/// Env END ///
+
 /// Objects START ///
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -45,3 +49,20 @@ pub enum ResponseType {
     BINARY,
     _MAX_
 }
+/// Enums END ///
+
+/// Imported objects START ///
+
+/// Imported objects END ///
+
+/// Imported envs START ///
+
+/// Imported envs END ///
+
+/// Imported enums START ///
+
+/// Imported enums END ///
+
+/// Imported Modules START ///
+
+/// Imported Modules END ///
