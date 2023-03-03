@@ -1,6 +1,6 @@
 use core::fmt;
 use std::sync::Arc;
-use async_trait::async_trait;
+
 
 use polywrap_core::{
     resolvers::{

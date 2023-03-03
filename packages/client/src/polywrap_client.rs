@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use async_trait::async_trait;
 use polywrap_core::{
     client::{Client, ClientConfig},
     error::Error,
@@ -109,7 +108,6 @@ impl Invoker for PolywrapClient {
     }
 }
 
-#[async_trait(?Send)]
 impl Client for PolywrapClient {
     fn get_config(&self) -> &ClientConfig {
         todo!()
@@ -126,7 +124,6 @@ impl UriResolverHandler for PolywrapClient {
     }
 }
 
-#[async_trait]
 impl Loader for PolywrapClient {
     fn load_wrapper(
         &self,

@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use async_trait::async_trait;
+
 use polywrap_core::env::{Env};
 use serde_json::Value;
 

@@ -1,7 +1,7 @@
 
 use std::{collections::HashMap, sync::Arc};
 
-use async_trait::async_trait;
+
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{invoke::{Invoker}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}, uri_resolution_context::UriPackage}, uri::Uri, client::ClientConfig};
 

@@ -107,7 +107,6 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_nInvoke(
     let invoke_result = block_on(async {
         client
             .invoke_raw(&uri, &method, Some(&invoke_args), None, None)
-            .await
             .unwrap()
     });
 

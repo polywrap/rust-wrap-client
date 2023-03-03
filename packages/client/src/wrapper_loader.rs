@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use async_trait::async_trait;
 use polywrap_core::{
     error::Error,
     loader::Loader,
@@ -30,7 +29,6 @@ impl WrapperLoader {
     }
 }
 
-#[async_trait]
 impl UriResolverHandler for WrapperLoader {
     fn try_resolve_uri(
         &self,
@@ -50,7 +48,6 @@ impl UriResolverHandler for WrapperLoader {
     }
 }
 
-#[async_trait]
 impl Loader for WrapperLoader {
     fn load_wrapper(
         &self,

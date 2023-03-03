@@ -1,8 +1,5 @@
 use core::fmt;
 use std::{sync::Arc};
-
-use async_trait::async_trait;
-
 use crate::{error::Error, loader::Loader, uri::Uri};
 
 use super::{
@@ -65,7 +62,6 @@ impl UriResolver for UriResolverAggregator {
     }
 }
 
-#[async_trait]
 impl UriResolverAggregatorBase for UriResolverAggregator {
     fn get_resolver_name(&self) -> Option<String> {
         self.name.clone()

@@ -7,7 +7,7 @@ use polywrap_plugin::error::PluginError;
 use polywrap_plugin::module::PluginModule;
 use serde::{Serialize, Deserialize};
 use super::types::*;
-use async_trait::async_trait;
+
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsGet {

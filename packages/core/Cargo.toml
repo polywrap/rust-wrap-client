@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 thiserror = "1.0.37"
 regex = "1.6.0"
-async-trait = "0.1.57"
 wrap_manifest_schemas = { path = "../manifest" }
 polywrap_msgpack = { path = "../msgpack" }
 serde = "1.0.145"

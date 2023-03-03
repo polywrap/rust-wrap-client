@@ -9,7 +9,7 @@ use polywrap_core::{
 use wrap_manifest_schemas::{
     deserialize::deserialize_wrap_manifest
 };
-use async_trait::async_trait;
+
 use polywrap_msgpack::msgpack;
 use std::sync::Arc;
 use std::fs;

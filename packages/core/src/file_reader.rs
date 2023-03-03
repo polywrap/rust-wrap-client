@@ -1,5 +1,5 @@
 use crate::error::Error;
-use async_trait::async_trait;
+
 
 pub trait FileReader: Send + Sync {
     fn read_file(&self, path: &str) -> Result<Vec<u8>, Error>;

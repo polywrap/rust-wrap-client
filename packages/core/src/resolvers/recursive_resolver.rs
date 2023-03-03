@@ -8,7 +8,6 @@ use crate::{
     resolvers::uri_resolver::UriResolver,
     uri::Uri,
 };
-use async_trait::async_trait;
 
 use super::{uri_resolver_like::UriResolverLike, uri_resolver_aggregator::UriResolverAggregator};
 
@@ -73,7 +72,6 @@ impl RecursiveResolver {
     }
 }
 
-#[async_trait]
 impl UriResolver for RecursiveResolver {
     fn try_resolve_uri(
         &self,

@@ -1,6 +1,6 @@
 use std::{sync::Arc, fmt::{Formatter, Debug}};
 
-use async_trait::async_trait;
+
 use futures::lock::Mutex;
 use polywrap_core::{uri::Uri, invoke::Invoker, wrapper::{Wrapper, GetFileOptions}, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
 use serde_json::Value;

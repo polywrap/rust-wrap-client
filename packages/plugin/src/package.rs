@@ -1,6 +1,4 @@
 use std::{sync::{Arc}, fmt::{Formatter,Debug}};
-
-use async_trait::async_trait;
 use wrap_manifest_schemas::{
     versions::WrapManifest,
 };
@@ -38,7 +36,6 @@ impl Debug for PluginPackage {
     }
 }
 
-#[async_trait]
 impl WrapPackage for PluginPackage {
     fn get_manifest(
         &self,

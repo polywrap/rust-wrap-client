@@ -3,7 +3,6 @@ use std::sync::Arc;
 
 use crate::error::Error;
 use crate::loader::Loader;
-use async_trait::async_trait;
 use crate::uri::Uri;
 use super::package_resolver::PackageResolver;
 use super::redirect_resolver::RedirectResolver;

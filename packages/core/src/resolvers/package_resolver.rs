@@ -1,7 +1,5 @@
 use core::fmt;
 use std::sync::Arc;
-
-use async_trait::async_trait;
 use futures::lock::Mutex;
 
 use crate::{uri::Uri, loader::Loader, package::WrapPackage};
@@ -15,7 +13,6 @@ pub struct PackageResolver {
 
 impl PackageResolver {}
 
-#[async_trait]
 impl ResolverWithHistory for PackageResolver {
   fn get_step_description(&self, _: &crate::uri::Uri) -> String {
       format!("Package ({})", self.uri)

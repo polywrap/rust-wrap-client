@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 thiserror = "1.0.37"
-async-trait = "0.1.57"
 polywrap_core = {path = "../core"}
 wrap_manifest_schemas = {path = "../manifest"}
 polywrap_msgpack = { path = "../msgpack" }

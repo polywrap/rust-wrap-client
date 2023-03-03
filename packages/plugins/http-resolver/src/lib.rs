@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use async_trait::async_trait;
+
 use polywrap_core::{invoke::Invoker};
 use polywrap_plugin_macro::{plugin_struct, plugin_impl};
 use polywrap_plugin::error::PluginError;

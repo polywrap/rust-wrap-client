@@ -1,5 +1,5 @@
 use std::{path::{Path,PathBuf},sync::{Arc}, fmt::{Debug, Formatter}};
-use async_trait::async_trait;
+
 use futures::lock::Mutex;
 
 use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoke::Invoker, uri::Uri, env::Env, resolvers::uri_resolution_context::UriResolutionContext, package::WrapPackage};
@@ -54,7 +54,6 @@ impl WrapPackage for MockPackage {
     }
 }
 
-#[async_trait]
 impl Wrapper for MockWrapper {
     fn invoke(
         &mut self,

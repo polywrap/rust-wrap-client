@@ -1,8 +1,6 @@
 use core::fmt;
 use std::{sync::Arc};
 
-use async_trait::async_trait;
-
 use crate::{error::Error, loader::Loader};
 
 use super::{uri_resolver_like::UriResolverLike, uri_resolver::UriResolver, uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}};

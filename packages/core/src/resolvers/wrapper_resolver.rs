@@ -1,7 +1,5 @@
 use core::fmt;
 use std::sync::Arc;
-
-use async_trait::async_trait;
 use futures::lock::Mutex;
 
 use crate::{loader::Loader, uri::Uri, wrapper::Wrapper};

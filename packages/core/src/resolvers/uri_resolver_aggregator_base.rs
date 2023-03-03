@@ -1,14 +1,12 @@
 use std::sync::Arc;
 
 use crate::{loader::Loader, uri::Uri};
-use async_trait::async_trait;
 
 use super::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep},
     uri_resolver::UriResolver,
 };
 
-#[async_trait]
 pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
     fn get_resolver_name(&self) -> Option<String>;
     fn get_uri_resolvers(

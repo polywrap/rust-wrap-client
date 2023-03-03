@@ -6,8 +6,6 @@ use crate::uri::Uri;
 use crate::interface_implementation::InterfaceImplementations;
 use crate::resolvers::uri_resolver::{UriResolverHandler, UriResolver};
 use crate::env::{Envs};
-use async_trait::async_trait;
-
 
 #[derive(Clone,Debug)]
 pub struct UriRedirect {
@@ -27,7 +25,6 @@ pub struct ClientConfig {
   pub interfaces: Option<InterfaceImplementations>
 }
 
-#[async_trait(?Send)]
 pub trait Client: Send + Sync + Invoker + UriResolverHandler + Loader {
   fn get_config(&self) -> &ClientConfig;
 }

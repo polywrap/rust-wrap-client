@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use async_trait::async_trait;
+
 use polywrap_core::file_reader::FileReader;
 
 pub struct BaseFileReader {}

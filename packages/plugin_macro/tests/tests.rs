@@ -5,7 +5,7 @@ mod tests {
     use wrap_manifest_schemas::versions::WrapManifest;
     use polywrap_plugin_macro::{plugin_struct, plugin_impl};
     use polywrap_plugin::{error::PluginError};
-    use async_trait::async_trait;
+    
     use serde::{Serialize, Deserialize};
     use polywrap_core::invoke::Invoker;
     use serde_json::json;
