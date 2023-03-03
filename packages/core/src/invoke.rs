@@ -1,8 +1,7 @@
 use crate::{
     error::Error, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::{Env}, interface_implementation::InterfaceImplementations,
 };
-use std::{sync::Arc};
-use futures::lock::Mutex;
+use std::{sync::{Arc, Mutex}};
 
 pub trait Invoker: Send + Sync {
     fn invoke_wrapper_raw(

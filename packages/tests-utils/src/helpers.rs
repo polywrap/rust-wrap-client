@@ -1,6 +1,4 @@
-use std::{path::{Path,PathBuf},sync::{Arc}, fmt::{Debug, Formatter}};
-
-use futures::lock::Mutex;
+use std::{path::{Path,PathBuf},sync::{Arc, Mutex}, fmt::{Debug, Formatter}};
 
 use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoke::Invoker, uri::Uri, env::Env, resolvers::uri_resolution_context::UriResolutionContext, package::WrapPackage};
 use wrap_manifest_schemas::versions::WrapManifest;

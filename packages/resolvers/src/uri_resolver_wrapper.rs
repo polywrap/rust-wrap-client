@@ -1,6 +1,5 @@
 use core::fmt;
-use std::sync::Arc;
-
+use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
   resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
@@ -13,7 +12,6 @@ use polywrap_wasm::wasm_package::{WasmPackage};
 use serde::{Serialize,Deserialize};
 
 use polywrap_core::{resolvers::resolver_with_history::ResolverWithHistory, resolvers::helpers::UriResolverExtensionFileReader};
-use futures::lock::Mutex;
 
 pub struct UriResolverWrapper {
   pub implementation_uri: Uri
@@ -98,7 +96,7 @@ impl UriResolverWrapper {
           Err(Error::LoadWrapperError(error))
         },
         UriPackageOrWrapper::Package(_, package) => {
-          let wrapper = package.try_lock().unwrap()
+          let wrapper = package.lock().unwrap()
             .create_wrapper()
             .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
 

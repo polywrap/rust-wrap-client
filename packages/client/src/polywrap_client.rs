@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
     client::{Client, ClientConfig},
@@ -13,7 +13,6 @@ use polywrap_core::{
 };
 use polywrap_msgpack::{decode};
 use serde::de::DeserializeOwned;
-use futures::lock::Mutex;
 
 use crate::{wrapper_invoker::WrapperInvoker, wrapper_loader::WrapperLoader};
 

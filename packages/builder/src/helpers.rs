@@ -1,6 +1,5 @@
-use std::{sync::{Arc}, collections::HashMap};
+use std::{sync::{Arc, Mutex}, collections::HashMap};
 use fs_resolver_plugin::FileSystemResolverPlugin;
-use futures::lock::Mutex;
 
 use filesystem_plugin::FileSystemPlugin;
 use http_plugin::HttpPlugin;

@@ -1,7 +1,6 @@
-use std::{sync::Arc, fmt::Debug, any::Any};
+use std::{sync::{Arc, Mutex}, fmt::Debug, any::Any};
 
 use wrap_manifest_schemas::{versions::WrapManifest};
-use futures::lock::Mutex;
 
 use crate::{error::Error, wrapper::Wrapper};
 

@@ -29,8 +29,8 @@ struct Response {
     array: Vec<i32>,
 }
 
-#[tokio::test]
-async fn test_env() {
+#[test]
+fn test_env() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let env_wrapper= Uri::try_from(format!("fs/{}/env-type/01-main/implementations/as", path)).unwrap();

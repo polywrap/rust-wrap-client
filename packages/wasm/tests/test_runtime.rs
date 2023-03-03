@@ -11,10 +11,9 @@ use wrap_manifest_schemas::{
 };
 
 use polywrap_msgpack::msgpack;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::fs;
 use polywrap_tests_utils::helpers::get_tests_path;
-use futures::lock::Mutex;
 
 #[derive(Clone)]
 struct MockInvoker {
@@ -37,7 +36,7 @@ impl Invoker for MockInvoker {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>
     ) -> Result<Vec<u8>, Error> {
-        let result = wrapper.try_lock().unwrap().invoke(
+        let result = wrapper.lock().unwrap().invoke(
             Arc::new(self.clone()),
             uri,
             method,
@@ -95,8 +94,8 @@ impl Invoker for MockInvoker {
     }
 }
 
-#[tokio::test]
-async fn invoke_test() {
+#[test]
+fn invoke_test() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 

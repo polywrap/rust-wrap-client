@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
     error::Error,
@@ -8,7 +8,6 @@ use polywrap_core::{
     resolvers::uri_resolver::{UriResolver, UriResolverHandler},
     wrapper::Wrapper, env::{Envs, Env}, invoke::Invoker, interface_implementation::InterfaceImplementations,
 };
-use futures::lock::Mutex;
 
 use crate::wrapper_invoker::WrapperInvoker;
 
@@ -72,7 +71,7 @@ impl Loader for WrapperLoader {
             UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
             UriPackageOrWrapper::Package(_, package) => {
                 let wrapper = package
-                    .try_lock().unwrap()
+                    .lock().unwrap()
                     .create_wrapper().map_err(|e| Error::WrapperCreateError(e.to_string()))?;
                 Ok(wrapper)
             }

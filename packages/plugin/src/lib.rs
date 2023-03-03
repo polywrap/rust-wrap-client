@@ -1,4 +1,3 @@
-pub use futures::lock::Mutex;
 pub mod package;
 pub mod module;
 pub mod wrapper;

@@ -1,6 +1,5 @@
 use core::fmt;
-use std::sync::Arc;
-use futures::lock::Mutex;
+use std::sync::{Arc, Mutex};
 
 use crate::{uri::Uri, loader::Loader, package::WrapPackage};
 

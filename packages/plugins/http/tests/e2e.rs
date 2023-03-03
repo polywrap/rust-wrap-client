@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use http_plugin::HttpPlugin;
 use httpmock::{prelude::*, Method};
@@ -10,7 +10,6 @@ use polywrap_core::{
 use polywrap_plugin::package::PluginPackage;
 use polywrap_core::resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use serde_json::{Value, json};
-use futures::lock::Mutex;
 
 fn get_client() -> PolywrapClient {
     let http_plugin = HttpPlugin {
@@ -33,8 +32,8 @@ fn get_client() -> PolywrapClient {
     )
 }
 
-#[tokio::test]
-async fn get_method() {
+#[test]
+fn get_method() {
     let server = MockServer::start();
     let _mock = server.mock(|when, then| {
         when.method(Method::GET)

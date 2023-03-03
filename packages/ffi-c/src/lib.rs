@@ -1,9 +1,8 @@
-use std::{ffi::{CStr}, sync::Arc, collections::HashMap};
+use std::{ffi::{CStr}, sync::{Arc, Mutex}, collections::HashMap};
 use filesystem_plugin::FileSystemPlugin;
 use fs_resolver_plugin::FileSystemResolverPlugin;
 use http_plugin::HttpPlugin;
 use http_resolver_plugin::HttpResolverPlugin;
-use futures::executor::block_on;
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{
     invoke::{Invoker},
@@ -12,7 +11,6 @@ use polywrap_core::{
     interface_implementation::InterfaceImplementations,
     client::ClientConfig
 };
-use futures::lock::Mutex;
 use polywrap_plugin::package::PluginPackage;
 use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
 use serde_json::Value;
@@ -57,11 +55,10 @@ pub extern "C" fn invoke(
     let json_args: serde_json::Value = serde_json::from_str(&args_str).unwrap();
     let invoke_args = polywrap_msgpack::serialize(json_args).unwrap();
 
-    let mut invoke_result = block_on(async {
+    let mut invoke_result =
         client
             .invoke_raw(&uri_str.try_into().unwrap(), &method_str, Some(&invoke_args), None, None)
-            .unwrap()
-    }).into_boxed_slice();
+            .unwrap().into_boxed_slice();
 
     let buffer = Buffer {
         data: invoke_result.as_mut_ptr(),

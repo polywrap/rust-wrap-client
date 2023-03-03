@@ -1,5 +1,5 @@
 
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 
 use polywrap_client::polywrap_client::PolywrapClient;
@@ -10,7 +10,6 @@ use polywrap_msgpack::msgpack;
 use polywrap_plugin::{error::PluginError, module::{PluginModule, PluginWithEnv}, package::PluginPackage};
 use polywrap_plugin_macro::{plugin_struct, plugin_impl};
 use serde_json::{Value, from_value, json};
-use futures::lock::Mutex;
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 pub struct GetEnvArgs {
@@ -49,8 +48,8 @@ pub fn get_manifest() -> WrapManifest {
     }
 }
 
-#[tokio::test]
-async fn invoke_test() {
+#[test]
+fn invoke_test() {
     
     let plugin = PluginEnv { env: Value::Null };
     let package: PluginPackage = plugin.into();

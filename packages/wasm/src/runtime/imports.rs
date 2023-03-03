@@ -156,8 +156,8 @@ pub fn create_imports(
         let args_ptr = values[4].unwrap_i32() as u32;
         let args_len = values[5].unwrap_i32() as u32;
 
-        let async_context = Arc::new(futures::lock::Mutex::new(context));
-        let mut context = async_context.try_lock().unwrap();
+        let async_context = Arc::new(Mutex::new(context));
+        let mut context = async_context.lock().unwrap();
         let mutable_context = context.as_mut();
         let mut state = mutable_context.data().lock().unwrap();
 
@@ -321,10 +321,10 @@ pub fn create_imports(
         let args_ptr = values[6].unwrap_i32() as u32;
         let args_len = values[7].unwrap_i32() as u32;
 
-        let async_context = Arc::new(futures::lock::Mutex::new(context));
+        let async_context = Arc::new(Mutex::new(context));
 
         
-            let mut context = async_context.try_lock().unwrap();
+            let mut context = async_context.lock().unwrap();
             let mutable_context = context.as_mut();
             let mut state = mutable_context.data().lock().unwrap();
 
@@ -518,9 +518,9 @@ pub fn create_imports(
         let pointer = values[0].unwrap_i32() as u32;
         let length = values[1].unwrap_i32() as u32;
 
-        let async_context = Arc::new(futures::lock::Mutex::new(context));
+        let async_context = Arc::new(Mutex::new(context));
 
-        let mut context = async_context.try_lock().unwrap();
+        let mut context = async_context.lock().unwrap();
         let mutable_context = context.as_mut();
         let mut state = mutable_context.data().lock().unwrap();
 

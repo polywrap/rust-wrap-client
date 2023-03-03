@@ -1,7 +1,5 @@
-use std::{sync::Arc, fmt::{Formatter, Debug}};
+use std::{sync::{Arc, Mutex}, fmt::{Formatter, Debug}};
 
-
-use futures::lock::Mutex;
 use polywrap_core::{uri::Uri, invoke::Invoker, wrapper::{Wrapper, GetFileOptions}, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
 use serde_json::Value;
 
@@ -32,7 +30,7 @@ impl Wrapper for PluginWrapper {
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         if let Some(e) = env {
-            self.instance.try_lock().unwrap().set_env(e);
+            self.instance.lock().unwrap().set_env(e);
         };
 
         let args = match args {
@@ -42,7 +40,7 @@ impl Wrapper for PluginWrapper {
 
         let result = self
             .instance
-            .try_lock().unwrap()
+            .lock().unwrap()
             ._wrap_invoke(method, &args, invoker);
 
         match result {

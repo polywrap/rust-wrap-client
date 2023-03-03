@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::{sync::Arc};
 
-use futures::{executor::block_on};
 use jni::JNIEnv;
 use jni::sys::jstring;
 use jni::{sys::{jlong}, objects::{JClass, JString}};
@@ -104,11 +103,10 @@ pub extern "system" fn Java_com_example_polywrapmobile_NativeClient_nInvoke(
 
     let invoke_args = polywrap_msgpack::serialize(json_args).unwrap();
 
-    let invoke_result = block_on(async {
+    let invoke_result = 
         client
             .invoke_raw(&uri, &method, Some(&invoke_args), None, None)
-            .unwrap()
-    });
+            .unwrap();
 
     let output = env
     .new_string(format!("Result: {:#?}", invoke_result))

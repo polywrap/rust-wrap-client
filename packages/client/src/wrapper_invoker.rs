@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
     error::Error,
@@ -8,7 +8,6 @@ use polywrap_core::{
     wrapper::Wrapper, uri::Uri, env::{Env}, 
     interface_implementation::InterfaceImplementations
 };
-use futures::lock::Mutex;
 
 use crate::wrapper_loader::WrapperLoader;
 
@@ -36,7 +35,7 @@ impl Invoker for WrapperInvoker {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let result = wrapper
-            .try_lock().unwrap().invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
+            .lock().unwrap().invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
             .map_err(|e| Error::InvokeError(e.to_string()))?;
 
         Ok(result)

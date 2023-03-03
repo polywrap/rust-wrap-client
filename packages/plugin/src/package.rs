@@ -1,9 +1,8 @@
-use std::{sync::{Arc}, fmt::{Formatter,Debug}};
+use std::{sync::{Arc, Mutex}, fmt::{Formatter,Debug}};
 use wrap_manifest_schemas::{
     versions::WrapManifest,
 };
 use polywrap_core::{error::Error, package::{GetManifestOptions, WrapPackage}, wrapper::Wrapper};
-use futures::lock::Mutex;
 
 use crate::{module::PluginModule, wrapper::PluginWrapper};
 

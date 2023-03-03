@@ -1,4 +1,4 @@
-use std::{sync::Arc, fmt::{Formatter,Debug}};
+use std::{sync::{Arc, Mutex}, fmt::{Formatter,Debug}};
 
 use polywrap_core::{
     file_reader::FileReader,
@@ -9,8 +9,6 @@ use wrap_manifest_schemas::{
     deserialize::{deserialize_wrap_manifest, DeserializeManifestOptions},
     versions::WrapManifest,
 };
-
-use futures::lock::Mutex;
 
 use crate::wasm_wrapper::WasmWrapper;
 
