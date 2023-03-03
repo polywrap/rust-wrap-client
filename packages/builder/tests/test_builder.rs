@@ -89,7 +89,7 @@ fn test_interface_implementation_methods() {
 #[test]
 fn test_redirects() {
     let mut builder = BuilderConfig::new(None);
-    assert!(!builder.redirects.is_some());
+    assert!(builder.redirects.is_none());
 
     let redirects = vec![
         UriRedirect{
@@ -111,19 +111,19 @@ fn test_redirects() {
     assert_eq!(builder_redirects[1].to, "ens/g.eth".to_string().try_into().unwrap());
 
     let mut builder = BuilderConfig::new(None);
-    assert!(!builder.redirects.is_some());
+    assert!(builder.redirects.is_none());
 
     builder.add_redirect("ens/a.eth".to_string().try_into().unwrap(), "ens/b.eth".to_string().try_into().unwrap());
     assert!(builder.redirects.is_some());
 
     builder.remove_redirect("ens/a.eth".to_string().try_into().unwrap());
-    assert!(!builder.redirects.is_some());
+    assert!(builder.redirects.is_none());
 }
 
 #[test]
 fn test_packages() {
     let mut builder = BuilderConfig::new(None);
-    assert!(!builder.packages.is_some());
+    assert!(builder.packages.is_none());
 
     let uri_package_a = UriPackage{
         uri: String::from("wrap://package/a").try_into().unwrap(),
@@ -185,7 +185,7 @@ fn test_packages() {
 #[test]
 fn test_wrappers() {
     let mut builder = BuilderConfig::new(None);
-    assert!(!builder.wrappers.is_some());
+    assert!(builder.wrappers.is_none());
 
     let uri_wrapper_a = UriWrapper{
         uri: String::from("wrap://wrapper/a").try_into().unwrap(),

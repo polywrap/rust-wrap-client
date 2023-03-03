@@ -27,7 +27,7 @@ fn test_uri_resolver_wrapper() {
         Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap()
     );
     let result = uri_resolver_wrapper._try_resolve_uri(
-        &wrapper_uri.clone(), 
+        &wrapper_uri, 
         &client.loader, 
         &mut uri_resolution_context
     );
@@ -57,7 +57,7 @@ fn test_recursive_uri_resolver() {
 
     let mut uri_resolution_context = UriResolutionContext::new();
     let result = client.loader.resolver.try_resolve_uri(
-        &http_wrapper_uri.clone(), 
+        &http_wrapper_uri, 
         &client.loader, 
         &mut uri_resolution_context
     );
