@@ -20,9 +20,8 @@ pub struct ArgsGetFile {
     pub path: String,
 }
 
-#[async_trait]
 pub trait Module: PluginModule {
-  async fn try_resolve_uri(&mut self, args: &ArgsTryResolveUri, invoker: Arc<dyn Invoker>) -> Result<Option<MaybeUriOrManifest>, PluginError>;
+  fn try_resolve_uri(&mut self, args: &ArgsTryResolveUri, invoker: Arc<dyn Invoker>) -> Result<Option<MaybeUriOrManifest>, PluginError>;
 
-  async fn get_file(&mut self, args: &ArgsGetFile, invoker: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError>;
+  fn get_file(&mut self, args: &ArgsGetFile, invoker: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError>;
 }

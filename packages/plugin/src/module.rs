@@ -9,7 +9,6 @@ pub trait PluginWithEnv {
     fn get_env(&self, key: String) -> Option<&Env>;
 }
 
-#[async_trait]
 pub trait PluginModule: Send + Sync + PluginWithEnv {
     fn _wrap_invoke(
         &mut self,

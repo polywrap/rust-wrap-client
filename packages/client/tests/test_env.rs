@@ -76,7 +76,6 @@ async fn test_env() {
             None,
             None,
         )
-        .await
         .unwrap();
 
     let decoded_response = Response {

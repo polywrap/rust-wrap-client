@@ -1,6 +1,5 @@
 use std::{sync::Arc, path::Path};
 
-use async_trait::async_trait;
 use polywrap_core::{invoke::Invoker};
 use polywrap_plugin_macro::{plugin_struct, plugin_impl};
 use polywrap_plugin::error::PluginError;
@@ -16,9 +15,8 @@ pub struct FileSystemResolverPlugin {
 }
 
 #[plugin_impl]
-#[async_trait]
 impl Module for FileSystemResolverPlugin {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &mut self,
         args: &ArgsTryResolveUri,
         invoker: Arc<dyn Invoker>,
@@ -32,13 +30,13 @@ impl Module for FileSystemResolverPlugin {
         let manifest_exists_result = FileSystemModule::exists(
           &FileSystemModuleArgsExists {
             path: manifest_path.to_str().unwrap().to_string()
-          }, invoker.clone()).await;
+          }, invoker.clone());
           
         let manifest = if manifest_exists_result.is_ok() {
           let manifest_result = FileSystemModule::read_file(
             &FileSystemModuleArgsReadFile {
               path: manifest_path.to_str().unwrap().to_string()
-            }, invoker).await;
+            }, invoker);
 
             if let Ok(manifest) = manifest_result {
               Some(manifest)
@@ -55,7 +53,7 @@ impl Module for FileSystemResolverPlugin {
         }))
     }
 
-    async fn get_file(
+    fn get_file(
         &mut self,
         args: &ArgsGetFile,
         invoker: Arc<dyn Invoker>,
@@ -64,7 +62,7 @@ impl Module for FileSystemResolverPlugin {
             &FileSystemModuleArgsReadFile { path: args.path.clone() },
             invoker,
         )
-        .await;
+        ;
 
         let file_result = match resolve_result {
             Ok(r) => Some(r),

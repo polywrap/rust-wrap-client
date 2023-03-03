@@ -30,7 +30,7 @@ async fn test_uri_resolver_wrapper() {
         &wrapper_uri.clone(), 
         &client.loader, 
         &mut uri_resolution_context
-    ).await;
+    );
 
     if result.is_err() {
         panic!("Error in try resolver uri: {:?}", result.err());
@@ -60,7 +60,7 @@ async fn test_recursive_uri_resolver() {
         &http_wrapper_uri.clone(), 
         &client.loader, 
         &mut uri_resolution_context
-    ).await;
+    );
 
     if result.is_err() {
         panic!("Error in try resolver uri: {:?}", result.err());
@@ -90,7 +90,7 @@ async fn test_ipfs_uri_resolver_extension() {
     let client = PolywrapClient::new(config);
 
 
-    let result = client.try_resolve_uri(&wrapper_uri, None).await;
+    let result = client.try_resolve_uri(&wrapper_uri, None);
 
     if result.is_err() {
         panic!("Error in try_resolve_uri: {:?}", result.err());

@@ -21,7 +21,6 @@ impl PluginWrapper {
     }
 }
 
-#[async_trait]
 impl Wrapper for PluginWrapper {
     fn invoke(
         &mut self,

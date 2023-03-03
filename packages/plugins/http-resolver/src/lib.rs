@@ -15,10 +15,9 @@ pub mod wrap;
 pub struct HttpResolverPlugin {
 }
 
-#[async_trait]
 #[plugin_impl]
 impl Module for HttpResolverPlugin {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &mut self,
         args: &ArgsTryResolveUri,
         invoker: Arc<dyn Invoker>,
@@ -42,8 +41,7 @@ impl Module for HttpResolverPlugin {
                 }),
             },
             invoker,
-        )
-        .await;
+        );
 
         let manifest = match get_result {
             Ok(opt_response) => {
@@ -67,7 +65,7 @@ impl Module for HttpResolverPlugin {
         }))
     }
 
-    async fn get_file(
+    fn get_file(
         &mut self,
         args: &ArgsGetFile,
         invoker: Arc<dyn Invoker>,
@@ -85,8 +83,7 @@ impl Module for HttpResolverPlugin {
                 }),
             },
             invoker,
-        )
-        .await;
+        );
 
         let file = if let Ok(opt_result) = resolve_result {
             if let Some(result) = opt_result {

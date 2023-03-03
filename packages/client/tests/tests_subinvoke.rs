@@ -20,7 +20,6 @@ async fn subinvoke_test() {
 
     let invoke_result = client
         .invoke::<u32>(&invoke_uri, "addAndIncrement", Some(&msgpack!({"a": 1, "b": 1})), None, None)
-        .await
         .unwrap();
 
     assert_eq!(invoke_result, 3);

@@ -20,15 +20,13 @@ pub struct GetEnvArgs {
 #[plugin_struct]
 pub struct PluginEnv {}
 
-#[async_trait]
 pub trait Module: PluginModule {
-  async fn check_env_is_bar(&mut self, args: &GetEnvArgs, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
+  fn check_env_is_bar(&mut self, args: &GetEnvArgs, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
 }
 
-#[async_trait]
 #[plugin_impl]
 impl Module for PluginEnv {
-    async fn check_env_is_bar(
+    fn check_env_is_bar(
         &mut self,
         args: &GetEnvArgs,
         _: Arc<dyn Invoker>
@@ -88,7 +86,6 @@ async fn invoke_test() {
             None,
             None,
         )
-        .await
         .unwrap();
 
     assert_eq!(invoke_result, true);

@@ -1,7 +1,5 @@
 use std::{sync::Arc, fmt::Debug, any::Any};
 
-use async_trait::async_trait;
-
 use crate::{error::Error, invoke::{Invoker}, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
 pub enum Encoding {
     Base64,

@@ -98,7 +98,7 @@ impl HttpModule {
         HttpModule {}
     }
 
-    pub async fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
+    pub fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -110,7 +110,6 @@ impl HttpModule {
             None,
             None
         )
-        .await
         .map_err(|e| PluginError::SubinvocationError {
             uri: uri.to_string(),
             method: "get".to_string(),
@@ -121,7 +120,7 @@ impl HttpModule {
         Ok(Some(decode(result.as_slice())?))
     }
 
-    pub async fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
+    pub fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -133,7 +132,6 @@ impl HttpModule {
             None,
             None
         )
-        .await
         .map_err(|e| PluginError::SubinvocationError {
             uri: uri.to_string(),
             method: "post".to_string(),

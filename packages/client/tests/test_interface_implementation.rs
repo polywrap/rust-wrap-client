@@ -51,7 +51,6 @@ async fn test_interface_implementation() {
               }
           }
       )), None, None)
-        .await
         .unwrap();
     let mock_response = ModuleMethodResponse {
         uint8: 1,

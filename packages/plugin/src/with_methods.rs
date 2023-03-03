@@ -32,7 +32,6 @@ impl PluginModuleWithMethods {
   }
 }
 
-#[async_trait]
 impl PluginModule for PluginModuleWithMethods {
     fn _wrap_invoke(
         &mut self,
@@ -48,7 +47,6 @@ impl PluginModule for PluginModuleWithMethods {
     }
 }
 
-#[async_trait]
 impl PluginWithEnv for PluginModuleWithMethods {
     fn set_env(&mut self, env: Env) {
         self.env = env;
