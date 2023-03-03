@@ -41,7 +41,7 @@ impl WrapPackage for PluginPackage {
         &self,
         _: Option<GetManifestOptions>,
     ) -> Result<WrapManifest, Error> {
-        return Ok(self.manifest.clone());
+        Ok(self.manifest.clone())
     }
 
     fn create_wrapper(&self) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {

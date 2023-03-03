@@ -78,7 +78,7 @@ impl Invoker for WrapperInvoker {
 
     fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
         polywrap_core::resolvers::helpers::get_implementations(
-            uri.clone(),
+            uri,
             self.get_interfaces(),
             Box::new(self.loader.clone())
         )

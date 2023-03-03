@@ -46,7 +46,7 @@ impl UriResolverWrapper {
       )?;
 
       let mut env = None;
-      if let Some(e) = loader.get_env_by_uri(&uri.clone()) {
+      if let Some(e) = loader.get_env_by_uri(&uri) {
           let e = e.to_owned();
           env = Some(e);
       };
@@ -54,11 +54,11 @@ impl UriResolverWrapper {
       let invoker = loader.get_invoker()?;
       let result = invoker.invoke_wrapper_raw(
           wrapper, 
-          &implementation_uri.clone(), 
+          &implementation_uri, 
           "tryResolveUri", 
           Some(&msgpack!({
-            "authority": uri.clone().authority.as_str(),
-            "path": uri.clone().path.as_str(),
+            "authority": uri.authority.as_str(),
+            "path": uri.path.as_str(),
           })), 
           env, 
           Some(resolution_context)
@@ -91,8 +91,8 @@ impl UriResolverWrapper {
       UriPackageOrWrapper::Uri(uri) => {
           let error = format!(
             "While resolving {} with URI resolver extension {}, the extension could not be fully resolved. Last tried URI is {}", 
-            current_uri.clone().uri, 
-            resolver_extension_uri.clone().uri,
+            current_uri.uri, 
+            resolver_extension_uri.uri,
             uri.uri
           );
           Err(Error::LoadWrapperError(error))

@@ -78,7 +78,7 @@ impl WrapPackage for WasmPackage {
         let deserialized_manifest = deserialize_wrap_manifest(&encoded_manifest, opts)
             .map_err(|e| polywrap_core::error::Error::ManifestError(e.to_string()))?;
 
-        return Ok(deserialized_manifest);
+        Ok(deserialized_manifest)
     }
 
     fn create_wrapper(

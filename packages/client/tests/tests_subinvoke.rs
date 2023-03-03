@@ -14,7 +14,7 @@ async fn subinvoke_test() {
         .unwrap();
 
     let mut builder = BuilderConfig::new(None);
-    builder.add_redirect(Uri::try_from("ens/imported-subinvoke.eth").unwrap(), subinvoke_uri.clone());
+    builder.add_redirect(Uri::try_from("ens/imported-subinvoke.eth").unwrap(), subinvoke_uri);
     let config = builder.build();
     let client = PolywrapClient::new(config);
 

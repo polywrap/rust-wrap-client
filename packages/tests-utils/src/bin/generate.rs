@@ -43,13 +43,13 @@ async fn fetch_from_github(
     if response.status().is_success() {
         let file_content = response.bytes().await?.to_vec();
         fs::write(
-            source_folder.join("tmp").join("cases.zip").clone(),
-            &file_content,
+            source_folder.join("tmp").join("cases.zip"),
+            file_content,
         )?;
         Ok(())
     } else {
         Err(FetchError::FailedToFetchFile(
-            format!("Failed to fetch file from {}", url).into(),
+            format!("Failed to fetch file from {}", url),
         ))
     }
 }
@@ -64,12 +64,12 @@ fn unzip_folder(source: &Path) -> Result<(), UnzipError> {
     for i in 0..archive.len() {
         let mut file = archive.by_index(i)?;
         let out_path = source.join("cases").join(file.mangled_name());
-        if (&*file.name()).ends_with('/') {
+        if (*file.name()).ends_with('/') {
             fs::create_dir_all(&out_path)?;
         } else {
             if let Some(p) = out_path.parent() {
                 if !p.exists() {
-                    fs::create_dir_all(&p)?;
+                    fs::create_dir_all(p)?;
                 }
             }
             let mut out_file = fs::File::create(&out_path)?;

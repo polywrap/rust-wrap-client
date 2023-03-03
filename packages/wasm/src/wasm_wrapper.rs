@@ -93,7 +93,7 @@ impl Wrapper for WasmWrapper {
         };
 
         let env = match env {
-            Some(e) => polywrap_msgpack::serialize(&e)?,
+            Some(e) => polywrap_msgpack::serialize(e)?,
             None => vec![],
         };
 
@@ -157,7 +157,7 @@ impl Wrapper for WasmWrapper {
                     let data_string = String::from_utf8(data.clone()).unwrap();
 
                     match encoding {
-                        Encoding::Base64 => base64::decode(&data_string).unwrap(),
+                        Encoding::Base64 => base64::decode(data_string).unwrap(),
                         Encoding::UTF8 => data,
                     }
                 }

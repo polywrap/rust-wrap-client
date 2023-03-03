@@ -15,14 +15,14 @@ fn test_env_methods() {
     let mut builder = BuilderConfig::new(None);
     let uri = Uri::new("wrap://ens/wrapper.eth");
 
-    assert_eq!(builder.envs.is_none(), true);
+    assert!(builder.envs.is_none());
 
     builder.add_env(uri.clone(), json!({ "d": "d" }));
 
     let current_env = builder.envs.clone().unwrap();
     let env_from_builder = current_env.get(&uri.uri);
 
-    assert_eq!(env_from_builder.is_some(), true);
+    assert!(env_from_builder.is_some());
     assert_eq!(env_from_builder.unwrap(), &json!({ "d": "d" }));
 
     let mut envs = HashMap::new();
@@ -42,7 +42,7 @@ fn test_env_methods() {
 
     builder.remove_env(uri);
 
-    assert_eq!(builder.envs.is_none(), true);
+    assert!(builder.envs.is_none());
 }
 
 #[test]
@@ -53,7 +53,7 @@ fn test_interface_implementation_methods() {
     let implementation_a_uri = Uri::new("wrap://ens/implementation-a.eth");
     let implementation_b_uri = Uri::new("wrap://ens/implementation-b.eth");
 
-    assert_eq!(builder.interfaces.is_none(), true);
+    assert!(builder.interfaces.is_none());
 
     builder.add_interface_implementations(
         interface_uri.clone(), 
@@ -62,7 +62,7 @@ fn test_interface_implementation_methods() {
 
     let interfaces = builder.interfaces.clone().unwrap();
     let implementations = interfaces.get(&interface_uri.uri).unwrap();
-    assert_eq!(builder.interfaces.is_some(), true);
+    assert!(builder.interfaces.is_some());
     assert_eq!(implementations, &vec![implementation_a_uri.clone(), implementation_b_uri.clone()]);
 
     let implementation_c_uri = Uri::new("wrap://ens/implementation-c.eth");
@@ -89,7 +89,7 @@ fn test_interface_implementation_methods() {
 #[test]
 fn test_redirects() {
     let mut builder = BuilderConfig::new(None);
-    assert_eq!(builder.redirects.is_some(), false);
+    assert!(!builder.redirects.is_some());
 
     let redirects = vec![
         UriRedirect{
@@ -103,7 +103,7 @@ fn test_redirects() {
     ];
     builder.add_redirects(redirects);
 
-    assert_eq!(builder.redirects.is_some(), true);
+    assert!(builder.redirects.is_some());
     let builder_redirects = builder.redirects.unwrap();
     assert_eq!(builder_redirects[0].from, "ens/c.eth".to_string().try_into().unwrap());
     assert_eq!(builder_redirects[0].to, "ens/d.eth".to_string().try_into().unwrap());
@@ -111,19 +111,19 @@ fn test_redirects() {
     assert_eq!(builder_redirects[1].to, "ens/g.eth".to_string().try_into().unwrap());
 
     let mut builder = BuilderConfig::new(None);
-    assert_eq!(builder.redirects.is_some(), false);
+    assert!(!builder.redirects.is_some());
 
     builder.add_redirect("ens/a.eth".to_string().try_into().unwrap(), "ens/b.eth".to_string().try_into().unwrap());
-    assert_eq!(builder.redirects.is_some(), true);
+    assert!(builder.redirects.is_some());
 
     builder.remove_redirect("ens/a.eth".to_string().try_into().unwrap());
-    assert_eq!(builder.redirects.is_some(), false);
+    assert!(!builder.redirects.is_some());
 }
 
 #[tokio::test]
 async fn test_packages() {
     let mut builder = BuilderConfig::new(None);
-    assert_eq!(builder.packages.is_some(), false);
+    assert!(!builder.packages.is_some());
 
     let uri_package_a = UriPackage{
         uri: String::from("wrap://package/a").try_into().unwrap(),
@@ -141,7 +141,7 @@ async fn test_packages() {
     };
 
     builder.add_packages(vec![uri_package_a, uri_package_b, uri_package_c]);
-    assert_eq!(builder.packages.is_some(), true);
+    assert!(builder.packages.is_some());
     let builder_packages = builder.packages.unwrap();
     assert_eq!(builder_packages.len(), 3);
 
@@ -185,7 +185,7 @@ async fn test_packages() {
 #[tokio::test]
 async fn test_wrappers() {
     let mut builder = BuilderConfig::new(None);
-    assert_eq!(builder.wrappers.is_some(), false);
+    assert!(!builder.wrappers.is_some());
 
     let uri_wrapper_a = UriWrapper{
         uri: String::from("wrap://wrapper/a").try_into().unwrap(),
@@ -203,7 +203,7 @@ async fn test_wrappers() {
     };
 
     builder.add_wrappers(vec![uri_wrapper_a, uri_wrapper_b, uri_wrapper_c]);
-    assert_eq!(builder.wrappers.is_some(), true);
+    assert!(builder.wrappers.is_some());
     let builder_wrappers = builder.wrappers.unwrap();
     assert_eq!(builder_wrappers.len(), 3);
 

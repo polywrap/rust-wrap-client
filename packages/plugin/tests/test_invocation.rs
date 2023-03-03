@@ -88,5 +88,5 @@ async fn invoke_test() {
         )
         .unwrap();
 
-    assert_eq!(invoke_result, true);
+    assert!(invoke_result);
 }

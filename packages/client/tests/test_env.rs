@@ -62,7 +62,7 @@ async fn test_env() {
     let mut builder = BuilderConfig::new(None);
     builder.add_redirect(
         Uri::try_from("ens/external-env.polywrap.eth").unwrap(),
-        as_env_external_wrapper_path.clone()
+        as_env_external_wrapper_path
     );
     builder.add_envs(envs);
     let config = builder.build();

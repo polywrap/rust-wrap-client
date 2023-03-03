@@ -1,6 +1,6 @@
 use std::sync::{Mutex, Arc};
 
-use futures::{executor::block_on};
+
 use wasmer::{Imports, imports, Memory, FunctionEnvMut, Function, FunctionType, Value, Type, FunctionEnv, Store};
 
 use super::instance::State;
@@ -209,7 +209,7 @@ pub fn create_imports(
         let mutable_context = context.as_mut();
         let mutable_state = mutable_context.data().lock().unwrap();
 
-        if let None = &mutable_state.subinvoke.result {
+        if mutable_state.subinvoke.result.is_none() {
             (mutable_state.abort)(
                 "__wrap_subinvoke_result_len: subinvoke.result is not set".to_string(),
             );
@@ -262,7 +262,7 @@ pub fn create_imports(
         let mutable_context = context.as_mut();
         let mutable_state = mutable_context.data().lock().unwrap();
 
-        if let None = &mutable_state.subinvoke.error {
+        if mutable_state.subinvoke.error.is_none() {
             (mutable_state.abort)(
                 "__wrap_subinvoke_error_len: subinvoke.error is not set".to_string(),
             );
@@ -357,7 +357,7 @@ pub fn create_imports(
                     Ok(vec![Value::I32(1)])
                 }
                 Err(e) => {
-                    let error = format!("interface implementation subinvoke failed for uri: {} with error: {}", interface, e.to_string());
+                    let error = format!("interface implementation subinvoke failed for uri: {} with error: {}", interface, e);
                     state.subinvoke.error = Some(error);
                     Ok(vec![Value::I32(0)])
                 }
@@ -488,7 +488,7 @@ pub fn create_imports(
 
         if let Some (implementation) = &mutable_state.subinvoke_implementation {
             if let Some(r) = &implementation.error {
-                memory.view(&mutable_context).write(pointer.try_into().unwrap(), &r.as_bytes().to_vec()).unwrap();
+                memory.view(&mutable_context).write(pointer.try_into().unwrap(), r.as_bytes()).unwrap();
             } else {
                 (mutable_state.abort)(
                     "__wrap_subinvoke_implementation_error: subinvoke_implementation.error is not set".to_string(),
@@ -546,7 +546,7 @@ pub fn create_imports(
         if !state.get_implementations_result.as_ref().unwrap().is_empty() {
             return Ok(vec![Value::I32(1)]);
         }
-        return Ok(vec![Value::I32(0)]);
+        Ok(vec![Value::I32(0)])
     };
 
     let wrap_get_implementation = Function::new_with_env(
