@@ -35,27 +35,27 @@ pub fn add_default() -> BuilderConfig {
     interfaces.insert(
         "wrap://ens/uri-resolver.core.polywrap.eth".to_string(), 
         vec![
-            Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.0").unwrap(),
+            // Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.0").unwrap(),
             Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap(),
             Uri::try_from("wrap://ens/http-resolver.polywrap.eth").unwrap(),
         ]
     );
-    interfaces.insert(
-        "wrap://ens/wraps.eth:ipfs-http-client@1.0.0".to_string(),
-        vec![
-            Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0").unwrap(),
-        ]
-    );
+    // interfaces.insert(
+    //     "wrap://ens/wraps.eth:ipfs-http-client@1.0.0".to_string(),
+    //     vec![
+    //         Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0").unwrap(),
+    //     ]
+    // );
 
     let mut envs: Envs = HashMap::new();
-    envs.insert(
-        "ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.0".to_string(),
-        json!({
-            "provider": "https://ipfs.wrappers.io",
-            "fallbackProviders": ["https://ipfs.io"],
-            "retries": { "tryResolveUri": 2, "getFile": 2 },
-        })
-    );
+    // envs.insert(
+    //     "ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.0".to_string(),
+    //     json!({
+    //         "provider": "https://ipfs.wrappers.io",
+    //         "fallbackProviders": ["https://ipfs.io"],
+    //         "retries": { "tryResolveUri": 2, "getFile": 2 },
+    //     })
+    // );
 
     let mut redirects: Vec<UriRedirect> = Vec::new();
     redirects.push(UriRedirect {
@@ -90,18 +90,18 @@ pub fn get_default_plugins() -> Vec<UriPackage> {
     let http_resolver_plugin_package: PluginPackage = http_resolver.into();
     let http_resolver_package = Arc::new(Mutex::new(http_resolver_plugin_package));
 
-    let ipfs_http_client_package = Arc::new(Mutex::new(ipfsHttpClientPackage()));
-    let ipfs_resolver_package = Arc::new(Mutex::new(ipfsResolverPackage()));
+    // let ipfs_http_client_package = Arc::new(Mutex::new(ipfsHttpClientPackage()));
+    // let ipfs_resolver_package = Arc::new(Mutex::new(ipfsResolverPackage()));
 
     vec![
-        UriPackage {
-            uri: Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0").unwrap(),
-            package: ipfs_http_client_package
-        },
-        UriPackage {
-            uri: Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.0").unwrap(),
-            package: ipfs_resolver_package
-        },
+        // UriPackage {
+        //     uri: Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0").unwrap(),
+        //     package: ipfs_http_client_package
+        // },
+        // UriPackage {
+        //     uri: Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.0").unwrap(),
+        //     package: ipfs_resolver_package
+        // },
         UriPackage {
             uri: Uri::try_from("wrap://ens/fs.polywrap.eth").unwrap(),
             package: fs_package
