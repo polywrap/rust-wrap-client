@@ -6,8 +6,6 @@ description = "Todo"
 edition = "2021"
 
 [dependencies]
-rmp-serde = "1.1.1"
-rmpv = "1.0.0"
 serde = "1.0.145"
 thiserror = "1.0.37"
 base64 = "0.13.0"

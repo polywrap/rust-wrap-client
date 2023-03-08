@@ -11,7 +11,6 @@ polywrap_core = {path = "../core"}
 wrap_manifest_schemas = {path = "../manifest"}
 polywrap_msgpack = { path = "../msgpack" }
 serde_json = "1.0.87"
-rmp-serde = "1.1.1"
 polywrap_paste = "1.0.0"
 
 [dev-dependencies]

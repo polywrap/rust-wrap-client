@@ -1,11 +1,15 @@
 use std::collections::HashMap;
 
-use error::MsgpackError;
-pub use rmp_serde::Serializer;
+pub use rmp_serde;
 pub use rmpv;
+
+pub use rmp_serde::Serializer;
 pub use rmpv::{encode::write_value, Value};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+
 pub mod error;
+
+use error::MsgpackError;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 pub fn encode(value: &rmpv::Value) -> Result<Vec<u8>, MsgpackError> {
     let mut buf = Vec::new();

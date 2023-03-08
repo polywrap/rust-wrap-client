@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 thiserror = "1.0.37"
 rmp-serde = "1.1.1"
-rmpv = "1.0.0"
+rmpv = { version = "1.0.0", features = ["with-serde"] }
 serde = {version = "1.0.145", features = ["derive"]}

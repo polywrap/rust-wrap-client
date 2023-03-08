@@ -15,7 +15,6 @@ serde_json = "1.0.87"
 [dev-dependencies]
 polywrap_client_builder = {path = "../builder"}
 polywrap_resolvers = {path = "../resolvers"}
-rmp-serde = "1.1.1"
 polywrap_wasm = {path = "../wasm"}
 polywrap_tests_utils = {path = "../tests-utils"}
 wrap_manifest_schemas = {path = "../manifest"}
