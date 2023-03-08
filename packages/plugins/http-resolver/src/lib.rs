@@ -1,25 +1,23 @@
 use std::sync::Arc;
 
-use crate::wrap::types::HttpModuleArgsGet;
-use async_trait::async_trait;
+
 use polywrap_core::{invoke::Invoker};
 use polywrap_plugin_macro::{plugin_struct, plugin_impl};
 use polywrap_plugin::error::PluginError;
 use wrap::{
     module::{ArgsGetFile, ArgsTryResolveUri, Module},
-    types::{HttpModule, HttpRequest, MaybeUriOrManifest},
+    types::{HttpModule, HttpRequest, MaybeUriOrManifest, HttpModuleArgsGet},
+    wrap_info::get_manifest,
 };
 pub mod wrap;
-use crate::wrap::wrap_info::get_manifest;
 
 #[plugin_struct]
 pub struct HttpResolverPlugin {
 }
 
-#[async_trait]
 #[plugin_impl]
 impl Module for HttpResolverPlugin {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &mut self,
         args: &ArgsTryResolveUri,
         invoker: Arc<dyn Invoker>,
@@ -38,11 +36,12 @@ impl Module for HttpResolverPlugin {
                     headers: None,
                     body: None,
                     url_params: None,
+                    timeout: None,
+                    form_data: None,
                 }),
             },
             invoker,
-        )
-        .await;
+        );
 
         let manifest = match get_result {
             Ok(opt_response) => {
@@ -66,7 +65,7 @@ impl Module for HttpResolverPlugin {
         }))
     }
 
-    async fn get_file(
+    fn get_file(
         &mut self,
         args: &ArgsGetFile,
         invoker: Arc<dyn Invoker>,
@@ -79,19 +78,20 @@ impl Module for HttpResolverPlugin {
                     headers: None,
                     body: None,
                     url_params: None,
+                    timeout: None,
+                    form_data: None,
                 }),
             },
             invoker,
-        )
-        .await;
+        );
 
         let file = if let Ok(opt_result) = resolve_result {
             if let Some(result) = opt_result {
                 result.body.map(|body| {
-                  let b = base64::decode(body).unwrap();
+                  
 
                 //   println!("URI: {}\n\n{:?}", args.path.clone(), b);
-                  b
+                  base64::decode(body).unwrap()
                 })
             } else {
                 None

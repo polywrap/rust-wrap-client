@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use async_trait::async_trait;
 use mapping::{parse_request, parse_response};
 use polywrap_core::{invoke::Invoker};
 use polywrap_plugin::error::PluginError;
@@ -15,9 +14,8 @@ pub struct HttpPlugin {
 }
 
 #[plugin_impl]
-#[async_trait]
 impl Module for HttpPlugin {
-    async fn get(
+    fn get(
         &mut self,
         args: &ArgsGet,
         _: Arc<dyn Invoker>,
@@ -33,12 +31,12 @@ impl Module for HttpPlugin {
             ResponseType::TEXT
         };
 
-        let parsed_response = parse_response(response, response_type).await?;
+        let parsed_response = parse_response(response, response_type)?;
 
         Ok(Some(parsed_response))
     }
 
-    async fn post(
+    fn post(
         &mut self,
         args: &ArgsPost,
         _: Arc<dyn Invoker>,
@@ -58,7 +56,7 @@ impl Module for HttpPlugin {
             ResponseType::TEXT
         };
 
-        let parsed_response = parse_response(response, response_type).await?;
+        let parsed_response = parse_response(response, response_type)?;
 
         Ok(Some(parsed_response))
     }

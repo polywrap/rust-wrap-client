@@ -9,12 +9,11 @@ use polywrap_core::{
 use wrap_manifest_schemas::{
     deserialize::deserialize_wrap_manifest
 };
-use async_trait::async_trait;
+
 use polywrap_msgpack::msgpack;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::fs;
 use polywrap_tests_utils::helpers::get_tests_path;
-use futures::lock::Mutex;
 
 #[derive(Clone)]
 struct MockInvoker {
@@ -27,9 +26,8 @@ impl MockInvoker {
     }
 }
 
-#[async_trait]
 impl Invoker for MockInvoker {
-    async fn invoke_wrapper_raw(
+    fn invoke_wrapper_raw(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -38,14 +36,14 @@ impl Invoker for MockInvoker {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>
     ) -> Result<Vec<u8>, Error> {
-        let result = wrapper.lock().await.invoke(
+        let result = wrapper.lock().unwrap().invoke(
             Arc::new(self.clone()),
             uri,
             method,
             args,
             env,
             resolution_context
-        ).await;
+        );
 
         if result.is_err() {
             return Err(Error::InvokeError(format!(
@@ -59,7 +57,7 @@ impl Invoker for MockInvoker {
         Ok(result)    
     }
 
-    async fn invoke_raw(
+    fn invoke_raw(
         &self,
         uri: &Uri,
         method: &str,
@@ -74,7 +72,7 @@ impl Invoker for MockInvoker {
             args,
             env,
             resolution_context,
-        ).await;
+        );
 
         if invoke_result.is_err() {
             return Err(Error::InvokeError(format!(
@@ -86,7 +84,7 @@ impl Invoker for MockInvoker {
         Ok(invoke_result.unwrap())
     }
 
-    async fn get_implementations(&self, _uri: Uri) -> Result<Vec<Uri>, Error> {
+    fn get_implementations(&self, _uri: Uri) -> Result<Vec<Uri>, Error> {
         Ok(vec![])
     }
 
@@ -96,8 +94,8 @@ impl Invoker for MockInvoker {
     }
 }
 
-#[tokio::test]
-async fn invoke_test() {
+#[test]
+fn invoke_test() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
@@ -119,7 +117,7 @@ async fn invoke_test() {
         Some(&msgpack!({ "a": 1, "b": 1})), 
         None,
         None
-    ).await.unwrap();
+    ).unwrap();
     assert_eq!(result, [2])
 }
 

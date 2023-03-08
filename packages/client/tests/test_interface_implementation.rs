@@ -16,8 +16,8 @@ struct ModuleMethodResponse {
     str: String
 }
 
-#[tokio::test]
-async fn test_interface_implementation() {
+#[test]
+fn test_interface_implementation() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let implementation_uri = Uri::try_from(format!(
@@ -51,7 +51,6 @@ async fn test_interface_implementation() {
               }
           }
       )), None, None)
-        .await
         .unwrap();
     let mock_response = ModuleMethodResponse {
         uint8: 1,

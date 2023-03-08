@@ -1,8 +1,5 @@
 use core::fmt;
-use std::sync::Arc;
-
-use async_trait::async_trait;
-use futures::lock::Mutex;
+use std::sync::{Arc, Mutex};
 
 use crate::{loader::Loader, uri::Uri, wrapper::Wrapper};
 
@@ -18,13 +15,12 @@ pub struct WrapperResolver {
 
 impl WrapperResolver {}
 
-#[async_trait]
 impl ResolverWithHistory for WrapperResolver {
     fn get_step_description(&self, _: &crate::uri::Uri) -> String {
         format!("Wrapper ({})", self.uri)
     }
 
-    async fn _try_resolve_uri(
+    fn _try_resolve_uri(
         &self,
         uri: &Uri,
         _: &dyn Loader,

@@ -1,7 +1,6 @@
 use core::fmt;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
-use async_trait::async_trait;
 use polywrap_core::{
   resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
   uri::Uri,
@@ -13,7 +12,6 @@ use polywrap_wasm::wasm_package::{WasmPackage};
 use serde::{Serialize,Deserialize};
 
 use polywrap_core::{resolvers::resolver_with_history::ResolverWithHistory, resolvers::helpers::UriResolverExtensionFileReader};
-use futures::lock::Mutex;
 
 pub struct UriResolverWrapper {
   pub implementation_uri: Uri
@@ -30,7 +28,7 @@ impl UriResolverWrapper {
     UriResolverWrapper { implementation_uri }
   }
 
-  async fn try_resolve_uri_with_implementation(
+  fn try_resolve_uri_with_implementation(
     &self,
     uri: Uri,
     implementation_uri: Uri,
@@ -43,10 +41,10 @@ impl UriResolverWrapper {
         implementation_uri.clone(), 
         loader, 
         &mut sub_context
-      ).await?;
+      )?;
 
       let mut env = None;
-      if let Some(e) = loader.get_env_by_uri(&uri.clone()) {
+      if let Some(e) = loader.get_env_by_uri(&uri) {
           let e = e.to_owned();
           env = Some(e);
       };
@@ -54,15 +52,15 @@ impl UriResolverWrapper {
       let invoker = loader.get_invoker()?;
       let result = invoker.invoke_wrapper_raw(
           wrapper, 
-          &implementation_uri.clone(), 
+          &implementation_uri, 
           "tryResolveUri", 
           Some(&msgpack!({
-            "authority": uri.clone().authority.as_str(),
-            "path": uri.clone().path.as_str(),
+            "authority": uri.authority.as_str(),
+            "path": uri.path.as_str(),
           })), 
           env, 
           Some(resolution_context)
-      ).await?;
+      )?;
 
       if result.is_empty() {
         Ok(MaybeUriOrManifest {
@@ -74,7 +72,7 @@ impl UriResolverWrapper {
       }
   }
 
-  async fn load_extension(
+  fn load_extension(
     &self,
     current_uri: Uri,
     resolver_extension_uri: Uri,
@@ -85,22 +83,21 @@ impl UriResolverWrapper {
     let result = loader.try_resolve_uri(
       &resolver_extension_uri,
       Some(resolution_context)
-    ).await?;
+    )?;
 
     match result {
       UriPackageOrWrapper::Uri(uri) => {
           let error = format!(
             "While resolving {} with URI resolver extension {}, the extension could not be fully resolved. Last tried URI is {}", 
-            current_uri.clone().uri, 
-            resolver_extension_uri.clone().uri,
+            current_uri.uri, 
+            resolver_extension_uri.uri,
             uri.uri
           );
           Err(Error::LoadWrapperError(error))
         },
         UriPackageOrWrapper::Package(_, package) => {
-          let wrapper = package.lock().await
+          let wrapper = package.lock().unwrap()
             .create_wrapper()
-            .await
             .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
 
           Ok(wrapper)
@@ -112,9 +109,8 @@ impl UriResolverWrapper {
   }
 }
 
-#[async_trait]
 impl ResolverWithHistory for UriResolverWrapper {
-    async fn _try_resolve_uri(
+    fn _try_resolve_uri(
       &self, 
       uri: &Uri, 
       loader: &dyn Loader, 
@@ -125,7 +121,7 @@ impl ResolverWithHistory for UriResolverWrapper {
         self.implementation_uri.clone(), 
         loader, 
         resolution_context
-      ).await?;
+      )?;
       let invoker = loader.get_invoker()?;
       let file_reader = UriResolverExtensionFileReader::new(
         self.implementation_uri.clone(),
@@ -139,7 +135,7 @@ impl ResolverWithHistory for UriResolverWrapper {
             Some(manifest),
             None
           );
-          let wrapper = package.create_wrapper().await?;
+          let wrapper = package.create_wrapper()?;
           return Ok(UriPackageOrWrapper::Wrapper(uri.clone(), wrapper));
       }
 
@@ -147,7 +143,7 @@ impl ResolverWithHistory for UriResolverWrapper {
         Arc::new(file_reader), None, None
       );
 
-      if package.get_manifest(None).await.is_ok() {
+      if package.get_manifest(None).is_ok() {
         return Ok(
           UriPackageOrWrapper::Package(uri.clone(), 
           Arc::new(Mutex::new(package)))

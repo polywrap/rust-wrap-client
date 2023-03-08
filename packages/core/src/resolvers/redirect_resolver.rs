@@ -1,7 +1,5 @@
 use core::fmt;
 
-use async_trait::async_trait;
-
 use crate::{loader::Loader, uri::Uri};
 
 use super::{
@@ -16,7 +14,6 @@ pub struct RedirectResolver {
 
 impl RedirectResolver {}
 
-#[async_trait]
 impl ResolverWithHistory for RedirectResolver {
     fn get_step_description(&self, _: &crate::uri::Uri) -> String {
         format!(
@@ -26,7 +23,7 @@ impl ResolverWithHistory for RedirectResolver {
         )
     }
 
-    async fn _try_resolve_uri(
+    fn _try_resolve_uri(
         &self,
         uri: &Uri,
         _: &dyn Loader,

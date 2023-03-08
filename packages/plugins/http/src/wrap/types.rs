@@ -28,6 +28,16 @@ pub struct Request {
     pub url_params: Option<Map<String, String>>,
     pub response_type: ResponseType,
     pub body: Option<String>,
+    pub form_data: Option<Vec<FormDataEntry>>,
+    pub timeout: Option<u32>,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct FormDataEntry {
+    pub name: String,
+    pub value: Option<String>,
+    pub file_name: Option<String>,
+    #[serde(rename = "type")]
+    pub _type: Option<String>,
 }
 // Objects END //
 

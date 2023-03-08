@@ -1,11 +1,8 @@
-use std::{sync::{Arc}, fmt::{Formatter,Debug}};
-
-use async_trait::async_trait;
+use std::{sync::{Arc, Mutex}, fmt::{Formatter,Debug}};
 use wrap_manifest_schemas::{
     versions::WrapManifest,
 };
 use polywrap_core::{error::Error, package::{GetManifestOptions, WrapPackage}, wrapper::Wrapper};
-use futures::lock::Mutex;
 
 use crate::{module::PluginModule, wrapper::PluginWrapper};
 
@@ -38,16 +35,15 @@ impl Debug for PluginPackage {
     }
 }
 
-#[async_trait]
 impl WrapPackage for PluginPackage {
-    async fn get_manifest(
+    fn get_manifest(
         &self,
         _: Option<GetManifestOptions>,
     ) -> Result<WrapManifest, Error> {
-        return Ok(self.manifest.clone());
+        Ok(self.manifest.clone())
     }
 
-    async fn create_wrapper(&self) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
+    fn create_wrapper(&self) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
         Ok(Arc::new(Mutex::new(PluginWrapper::new(self.plugin_module.clone()))))
     }
 }

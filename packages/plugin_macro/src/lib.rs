@@ -109,7 +109,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                       let result = self.#ident(
                         &polywrap_msgpack::decode::<#args>(params.clone())?,
                         invoker,
-                      ).await?;
+                      )?;
 
                       if let Some(r) = result {
                         Ok(polywrap_msgpack::serialize(r)?)
@@ -124,7 +124,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                     let result = self.#ident(
                       &polywrap_msgpack::decode::<#args>(params.clone())?,
                       invoker,
-                    ).await?;
+                    )?;
     
                     Ok(polywrap_msgpack::serialize(result)?)
                   }
@@ -133,9 +133,8 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         });
 
     let module_impl = quote! {
-        #[async_trait]
         impl polywrap_plugin::module::PluginModule for #struct_ident {
-          async fn _wrap_invoke(
+          fn _wrap_invoke(
             &mut self,
             method_name: &str,
             params: &[u8],
@@ -153,14 +152,14 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
     let from_impls = quote! {
       impl From<#struct_ident> for polywrap_plugin::package::PluginPackage {
         fn from(plugin: #struct_ident) -> polywrap_plugin::package::PluginPackage {
-            let plugin_module = Arc::new(futures::lock::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
+            let plugin_module = Arc::new(std::sync::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
             polywrap_plugin::package::PluginPackage::new(plugin_module, get_manifest())
         }
       }
 
       impl From<#struct_ident> for polywrap_plugin::wrapper::PluginWrapper {
         fn from(plugin: #struct_ident) -> polywrap_plugin::wrapper::PluginWrapper {
-            let plugin_module = Arc::new(futures::lock::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
+            let plugin_module = Arc::new(std::sync::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
             polywrap_plugin::wrapper::PluginWrapper::new(plugin_module)
         }
       }

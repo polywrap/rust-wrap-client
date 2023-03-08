@@ -1,7 +1,5 @@
 use std::{sync::Arc, fmt::Debug, any::Any};
 
-use async_trait::async_trait;
-
 use crate::{error::Error, invoke::{Invoker}, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
 pub enum Encoding {
     Base64,
@@ -13,9 +11,8 @@ pub struct GetFileOptions {
     pub encoding: Option<Encoding>,
 }
 
-#[async_trait]
 pub trait Wrapper: Send + Sync + Debug + Any {
-    async fn invoke(
+    fn invoke(
         &mut self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
@@ -24,5 +21,5 @@ pub trait Wrapper: Send + Sync + Debug + Any {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
-    async fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error>;
+    fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error>;
 }

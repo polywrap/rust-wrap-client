@@ -1,7 +1,7 @@
 
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
-use async_trait::async_trait;
+
 use polywrap_client::polywrap_client::PolywrapClient;
 use polywrap_core::{invoke::{Invoker}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}, uri_resolution_context::UriPackage}, uri::Uri, client::ClientConfig};
 
@@ -10,7 +10,6 @@ use polywrap_msgpack::msgpack;
 use polywrap_plugin::{error::PluginError, module::{PluginModule, PluginWithEnv}, package::PluginPackage};
 use polywrap_plugin_macro::{plugin_struct, plugin_impl};
 use serde_json::{Value, from_value, json};
-use futures::lock::Mutex;
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 pub struct GetEnvArgs {
@@ -20,15 +19,13 @@ pub struct GetEnvArgs {
 #[plugin_struct]
 pub struct PluginEnv {}
 
-#[async_trait]
 pub trait Module: PluginModule {
-  async fn check_env_is_bar(&mut self, args: &GetEnvArgs, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
+  fn check_env_is_bar(&mut self, args: &GetEnvArgs, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
 }
 
-#[async_trait]
 #[plugin_impl]
 impl Module for PluginEnv {
-    async fn check_env_is_bar(
+    fn check_env_is_bar(
         &mut self,
         args: &GetEnvArgs,
         _: Arc<dyn Invoker>
@@ -51,8 +48,8 @@ pub fn get_manifest() -> WrapManifest {
     }
 }
 
-#[tokio::test]
-async fn invoke_test() {
+#[test]
+fn invoke_test() {
     
     let plugin = PluginEnv { env: Value::Null };
     let package: PluginPackage = plugin.into();
@@ -88,8 +85,7 @@ async fn invoke_test() {
             None,
             None,
         )
-        .await
         .unwrap();
 
-    assert_eq!(invoke_result, true);
+    assert!(invoke_result);
 }

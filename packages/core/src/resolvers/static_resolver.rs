@@ -1,7 +1,5 @@
 use core::fmt;
 use std::{collections::HashMap};
-
-use async_trait::async_trait;
 use crate::{
     client::UriRedirect,
     error::Error,
@@ -63,9 +61,8 @@ impl StaticResolver {
     }
 }
 
-#[async_trait]
 impl UriResolver for StaticResolver {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &self,
         uri: &Uri,
         _: &dyn Loader,

@@ -68,9 +68,9 @@ pub struct WasmInstance {
 }
 
 impl WasmInstance {
-    pub async fn new(wasm_module: &Vec<u8>, state: Arc<Mutex<State>>) -> Result<Self, WrapperError> {
+    pub fn new(wasm_module: &Vec<u8>, state: Arc<Mutex<State>>) -> Result<Self, WrapperError> {
         let mut store = Store::default();
-        let module = Module::new(&store, wasm_module.to_vec()).unwrap();
+        let module = Module::new(&store, wasm_module).unwrap();
         let memory = WasmInstance::create_memory(&mut store, wasm_module)?;
         let imports = create_imports(
             memory.clone(),
@@ -116,7 +116,7 @@ impl WasmInstance {
         Ok(memory)
     }
 
-    pub async fn call_export(
+    pub fn call_export(
         &mut self,
         name: &str,
         params: &[Value]

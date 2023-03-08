@@ -1,8 +1,5 @@
 use core::fmt;
 use std::{sync::Arc};
-
-use async_trait::async_trait;
-
 use crate::{error::Error, loader::Loader, uri::Uri};
 
 use super::{
@@ -46,20 +43,18 @@ impl From<Vec<UriResolverLike>> for UriResolverAggregator {
     }
 }
 
-#[async_trait]
 impl UriResolver for UriResolverAggregator {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &self,
         uri: &Uri,
         loader: &dyn Loader,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let resolver_result = self
-            .get_uri_resolvers(uri, loader, resolution_context)
-            .await;
+            .get_uri_resolvers(uri, loader, resolution_context);
 
         if let Ok(resolvers) = resolver_result {
-          self.try_resolve_uri_with_resolvers(uri, loader, resolvers, resolution_context).await
+          self.try_resolve_uri_with_resolvers(uri, loader, resolvers, resolution_context)
         } else {
           //TODO: verify this case.
           Err(Error::ResolutionError("Failed to get URI resolvers".to_string()))
@@ -67,13 +62,12 @@ impl UriResolver for UriResolverAggregator {
     }
 }
 
-#[async_trait]
 impl UriResolverAggregatorBase for UriResolverAggregator {
     fn get_resolver_name(&self) -> Option<String> {
         self.name.clone()
     }
 
-    async fn get_step_description(
+    fn get_step_description(
         &self,
         _: &Uri,
         _: &Result<UriPackageOrWrapper, Error>,
@@ -85,7 +79,7 @@ impl UriResolverAggregatorBase for UriResolverAggregator {
         }
     }
 
-    async fn get_uri_resolvers(
+    fn get_uri_resolvers(
         &self,
         _: &Uri,
         _: &dyn Loader,

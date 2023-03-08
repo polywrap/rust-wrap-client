@@ -1,6 +1,5 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
-use async_trait::async_trait;
 use polywrap_core::{
     error::Error,
     invoke::{Invoker},
@@ -9,7 +8,6 @@ use polywrap_core::{
     wrapper::Wrapper, uri::Uri, env::{Env}, 
     interface_implementation::InterfaceImplementations
 };
-use futures::lock::Mutex;
 
 use crate::wrapper_loader::WrapperLoader;
 
@@ -26,9 +24,8 @@ impl WrapperInvoker {
     }
 } 
 
-#[async_trait]
 impl Invoker for WrapperInvoker {
-    async fn invoke_wrapper_raw(
+    fn invoke_wrapper_raw(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -38,16 +35,13 @@ impl Invoker for WrapperInvoker {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let result = wrapper
-            .lock()
-            .await
-            .invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
-            .await
+            .lock().unwrap().invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
             .map_err(|e| Error::InvokeError(e.to_string()))?;
 
         Ok(result)
     }
 
-    async fn invoke_raw(
+    fn invoke_raw(
         &self,
         uri: &Uri,
         method: &str,
@@ -64,7 +58,6 @@ impl Invoker for WrapperInvoker {
         let wrapper = self
             .loader
             .load_wrapper(uri, Some(&mut resolution_context))
-            .await
             .map_err(|e| Error::LoadWrapperError(e.to_string()))?;
 
         let mut env = env;
@@ -77,18 +70,17 @@ impl Invoker for WrapperInvoker {
 
         let invoke_result = self
             .invoke_wrapper_raw(wrapper, uri, method, args, env, Some(resolution_context))
-            .await
             .map_err(|e| Error::InvokeError(e.to_string()))?;
 
         Ok(invoke_result)
     }
 
-    async fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
         polywrap_core::resolvers::helpers::get_implementations(
-            uri.clone(),
+            uri,
             self.get_interfaces(),
             Box::new(self.loader.clone())
-        ).await
+        )
     }
 
     fn get_interfaces(&self) -> Option<InterfaceImplementations> {

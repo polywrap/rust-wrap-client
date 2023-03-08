@@ -1,6 +1,5 @@
 use std::{fs, path::Path, sync::Arc};
 
-use async_trait::async_trait;
 use polywrap_core::{invoke::Invoker};
 use polywrap_plugin_macro::{plugin_struct, plugin_impl};
 use polywrap_plugin::{error::PluginError};
@@ -18,9 +17,8 @@ pub struct FileSystemPlugin {
 }
 
 #[plugin_impl]
-#[async_trait]
 impl Module for FileSystemPlugin {
-    async fn read_file(
+    fn read_file(
         &mut self,
         args: &ArgsReadFile,
         _: Arc<dyn Invoker>,
@@ -28,7 +26,7 @@ impl Module for FileSystemPlugin {
         fs::read(&args.path).map_err(|e| PluginError::ModuleError(e.to_string()))
     }
 
-    async fn read_file_as_string(
+    fn read_file_as_string(
         &mut self,
         args: &ArgsReadFileAsString,
         _: Arc<dyn Invoker>,
@@ -36,11 +34,11 @@ impl Module for FileSystemPlugin {
         fs::read_to_string(&args.path).map_err(|e| PluginError::ModuleError(e.to_string()))
     }
 
-    async fn exists(&mut self, args: &ArgsExists, _: Arc<dyn Invoker>) -> Result<bool, PluginError> {
+    fn exists(&mut self, args: &ArgsExists, _: Arc<dyn Invoker>) -> Result<bool, PluginError> {
         Ok(Path::new(&args.path).exists())
     }
 
-    async fn write_file(
+    fn write_file(
         &mut self,
         args: &ArgsWriteFile,
         _: Arc<dyn Invoker>,
@@ -54,7 +52,7 @@ impl Module for FileSystemPlugin {
         Ok(Some(true))
     }
 
-    async fn mkdir(
+    fn mkdir(
         &mut self,
         args: &ArgsMkdir,
         _: Arc<dyn Invoker>,
@@ -76,7 +74,7 @@ impl Module for FileSystemPlugin {
         Ok(Some(true))
     }
 
-    async fn rm(&mut self, args: &ArgsRm, _: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
+    fn rm(&mut self, args: &ArgsRm, _: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let recursive = if let Some(recursive) = args.recursive {
             recursive
         } else {
@@ -106,7 +104,7 @@ impl Module for FileSystemPlugin {
         Ok(Some(true))
     }
 
-    async fn rmdir(
+    fn rmdir(
         &mut self,
         args: &ArgsRmdir,
         _: Arc<dyn Invoker>,

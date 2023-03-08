@@ -38,6 +38,16 @@ pub struct HttpRequest {
     pub url_params: Option<Map<String, String>>,
     pub response_type: HttpResponseType,
     pub body: Option<String>,
+    pub form_data: Option<Vec<HttpFormDataEntry>>,
+    pub timeout: Option<u32>,
+}
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct HttpFormDataEntry {
+    pub name: String,
+    pub value: Option<String>,
+    pub file_name: Option<String>,
+    #[serde(rename = "type")]
+    pub _type: Option<String>,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpResponse {
@@ -88,7 +98,7 @@ impl HttpModule {
         HttpModule {}
     }
 
-    pub async fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
+    pub fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -100,7 +110,6 @@ impl HttpModule {
             None,
             None
         )
-        .await
         .map_err(|e| PluginError::SubinvocationError {
             uri: uri.to_string(),
             method: "get".to_string(),
@@ -111,7 +120,7 @@ impl HttpModule {
         Ok(Some(decode(result.as_slice())?))
     }
 
-    pub async fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
+    pub fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -123,7 +132,6 @@ impl HttpModule {
             None,
             None
         )
-        .await
         .map_err(|e| PluginError::SubinvocationError {
             uri: uri.to_string(),
             method: "post".to_string(),

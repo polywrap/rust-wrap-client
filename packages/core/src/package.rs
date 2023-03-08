@@ -1,8 +1,6 @@
-use std::{sync::Arc, fmt::Debug, any::Any};
+use std::{sync::{Arc, Mutex}, fmt::Debug, any::Any};
 
-use async_trait::async_trait;
 use wrap_manifest_schemas::{versions::WrapManifest};
-use futures::lock::Mutex;
 
 use crate::{error::Error, wrapper::Wrapper};
 
@@ -14,12 +12,11 @@ pub struct SerializeManifestOptions {
     pub no_validate: bool,
 }
 
-#[async_trait]
 pub trait WrapPackage: Send + Sync + Debug + Any {
-    async fn create_wrapper(
+    fn create_wrapper(
         &self,
     ) -> Result<Arc<Mutex<dyn Wrapper>>, Error>;
-    async fn get_manifest(
+    fn get_manifest(
         &self,
         options: Option<GetManifestOptions>,
     ) -> Result<WrapManifest, Error>;

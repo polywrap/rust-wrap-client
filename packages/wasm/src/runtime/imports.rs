@@ -1,6 +1,6 @@
 use std::sync::{Mutex, Arc};
 
-use futures::{executor::block_on};
+
 use wasmer::{Imports, imports, Memory, FunctionEnvMut, Function, FunctionType, Value, Type, FunctionEnv, Store};
 
 use super::instance::State;
@@ -156,44 +156,41 @@ pub fn create_imports(
         let args_ptr = values[4].unwrap_i32() as u32;
         let args_len = values[5].unwrap_i32() as u32;
 
-        let async_context = Arc::new(futures::lock::Mutex::new(context));
+        let async_context = Arc::new(Mutex::new(context));
+        let mut context = async_context.lock().unwrap();
+        let mutable_context = context.as_mut();
+        let mut state = mutable_context.data().lock().unwrap();
 
-        block_on(async move {
-            let mut context = async_context.lock().await;
-            let mutable_context = context.as_mut();
-            let mut state = mutable_context.data().lock().unwrap();
+        let memory = state.memory.as_ref().unwrap();
+        let mut uri_buffer: Vec<u8> = vec![0; uri_len as usize];
+        let mut method_buffer: Vec<u8> = vec![0; method_len as usize];
+        let mut args_buffer: Vec<u8> = vec![0; args_len as usize];
 
-            let memory = state.memory.as_ref().unwrap();
-            let mut uri_buffer: Vec<u8> = vec![0; uri_len as usize];
-            let mut method_buffer: Vec<u8> = vec![0; method_len as usize];
-            let mut args_buffer: Vec<u8> = vec![0; args_len as usize];
+        memory.view(&mutable_context).read(uri_ptr.try_into().unwrap(), &mut uri_buffer).unwrap();
+        memory.view(&mutable_context).read(method_ptr.try_into().unwrap(), &mut method_buffer).unwrap();
+        memory.view(&mutable_context).read(args_ptr.try_into().unwrap(), &mut args_buffer).unwrap();
 
-            memory.view(&mutable_context).read(uri_ptr.try_into().unwrap(), &mut uri_buffer).unwrap();
-            memory.view(&mutable_context).read(method_ptr.try_into().unwrap(), &mut method_buffer).unwrap();
-            memory.view(&mutable_context).read(args_ptr.try_into().unwrap(), &mut args_buffer).unwrap();
+        let uri = String::from_utf8(uri_buffer).unwrap().try_into().unwrap();
+        let method = String::from_utf8(method_buffer).unwrap();
 
-            let uri = String::from_utf8(uri_buffer).unwrap().try_into().unwrap();
-            let method = String::from_utf8(method_buffer).unwrap();
+        let result = state.invoker.invoke_raw(
+            &uri,
+            &method,
+            Some(&args_buffer),
+            None,
+            None
+        );
 
-            let result = state.invoker.invoke_raw(
-                &uri,
-                &method,
-                Some(&args_buffer),
-                None,
-                None
-            ).await;
-
-            match result {
-                Ok(res) => {
-                    state.subinvoke.result = Some(res);
-                    Ok(vec![Value::I32(1)])
-                }
-                Err(err) => {
-                    state.subinvoke.error = Some(err.to_string());
-                    Ok(vec![Value::I32(0)])
-                }
+        match result {
+            Ok(res) => {
+                state.subinvoke.result = Some(res);
+                Ok(vec![Value::I32(1)])
             }
-        })
+            Err(err) => {
+                state.subinvoke.error = Some(err.to_string());
+                Ok(vec![Value::I32(0)])
+            }
+        }
     };
 
     let wrap_subinvoke = Function::new_with_env(
@@ -212,7 +209,7 @@ pub fn create_imports(
         let mutable_context = context.as_mut();
         let mutable_state = mutable_context.data().lock().unwrap();
 
-        if let None = &mutable_state.subinvoke.result {
+        if mutable_state.subinvoke.result.is_none() {
             (mutable_state.abort)(
                 "__wrap_subinvoke_result_len: subinvoke.result is not set".to_string(),
             );
@@ -265,7 +262,7 @@ pub fn create_imports(
         let mutable_context = context.as_mut();
         let mutable_state = mutable_context.data().lock().unwrap();
 
-        if let None = &mutable_state.subinvoke.error {
+        if mutable_state.subinvoke.error.is_none() {
             (mutable_state.abort)(
                 "__wrap_subinvoke_error_len: subinvoke.error is not set".to_string(),
             );
@@ -324,10 +321,10 @@ pub fn create_imports(
         let args_ptr = values[6].unwrap_i32() as u32;
         let args_len = values[7].unwrap_i32() as u32;
 
-        let async_context = Arc::new(futures::lock::Mutex::new(context));
+        let async_context = Arc::new(Mutex::new(context));
 
-        block_on(async move {
-            let mut context = async_context.lock().await;
+        
+            let mut context = async_context.lock().unwrap();
             let mutable_context = context.as_mut();
             let mut state = mutable_context.data().lock().unwrap();
 
@@ -352,7 +349,7 @@ pub fn create_imports(
                 Some(&args_buffer),
                 None,
                 None
-            ).await;
+            );
     
             match result {
                 Ok(r) => {
@@ -360,12 +357,11 @@ pub fn create_imports(
                     Ok(vec![Value::I32(1)])
                 }
                 Err(e) => {
-                    let error = format!("interface implementation subinvoke failed for uri: {} with error: {}", interface, e.to_string());
+                    let error = format!("interface implementation subinvoke failed for uri: {} with error: {}", interface, e);
                     state.subinvoke.error = Some(error);
                     Ok(vec![Value::I32(0)])
                 }
             }
-        })
     };
 
     let wrap_subinvoke_implementation = Function::new_with_env(
@@ -492,7 +488,7 @@ pub fn create_imports(
 
         if let Some (implementation) = &mutable_state.subinvoke_implementation {
             if let Some(r) = &implementation.error {
-                memory.view(&mutable_context).write(pointer.try_into().unwrap(), &r.as_bytes().to_vec()).unwrap();
+                memory.view(&mutable_context).write(pointer.try_into().unwrap(), r.as_bytes()).unwrap();
             } else {
                 (mutable_state.abort)(
                     "__wrap_subinvoke_implementation_error: subinvoke_implementation.error is not set".to_string(),
@@ -522,34 +518,35 @@ pub fn create_imports(
         let pointer = values[0].unwrap_i32() as u32;
         let length = values[1].unwrap_i32() as u32;
 
-        let async_context = Arc::new(futures::lock::Mutex::new(context));
+        let async_context = Arc::new(Mutex::new(context));
 
-        block_on(async move {
-            let mut context = async_context.lock().await;
-            let mutable_context = context.as_mut();
-            let mut state = mutable_context.data().lock().unwrap();
+        let mut context = async_context.lock().unwrap();
+        let mutable_context = context.as_mut();
+        let mut state = mutable_context.data().lock().unwrap();
 
-            let memory = state.memory.as_ref().unwrap();
-            let mut uri_bytes = vec![0; length as usize];
-            memory.view(&mutable_context).read(pointer.try_into().unwrap(), &mut uri_bytes).unwrap();
-            let uri = String::from_utf8(uri_bytes).unwrap();
-            let result = state.invoker.get_implementations(uri.try_into().unwrap()).await;
+        let memory = state.memory.as_ref().unwrap();
+        let mut uri_bytes = vec![0; length as usize];
+        memory.view(&mutable_context).read(pointer.try_into().unwrap(), &mut uri_bytes).unwrap();
+        let uri = String::from_utf8(uri_bytes).unwrap();
+        println!("URI: {}", length);
+        let result = state.invoker.get_implementations(uri.try_into().unwrap());
 
-            if result.is_err() {
-                let result = result.as_ref().err().unwrap();
-                (state.abort)(result.to_string());
-                return Ok(vec![Value::I32(0)]);
-            }
-
-            let implementations = &result.unwrap();
-            let encoded_implementations = rmp_serde::encode::to_vec(implementations);                
-            state.get_implementations_result = Some(encoded_implementations.unwrap());
-
-            if !state.get_implementations_result.as_ref().unwrap().is_empty() {
-                return Ok(vec![Value::I32(1)]);
-            }
+        if result.is_err() {
+            let result = result.as_ref().err().unwrap();
+            (state.abort)(result.to_string());
             return Ok(vec![Value::I32(0)]);
-        })
+        }
+
+        let implementations = &result.unwrap().into_iter().map(|u| u.to_string()).collect::<Vec<String>>();
+        println!("IMPLS: {:#?}", implementations);
+        let encoded_implementations = rmp_serde::encode::to_vec(implementations);      
+        state.get_implementations_result = Some(encoded_implementations.unwrap());
+        println!("RESULT: {:#?}", state.get_implementations_result);
+
+        if !state.get_implementations_result.as_ref().unwrap().is_empty() {
+            return Ok(vec![Value::I32(1)]);
+        }
+        Ok(vec![Value::I32(0)])
     };
 
     let wrap_get_implementation = Function::new_with_env(
@@ -570,6 +567,7 @@ pub fn create_imports(
 
         if let Some(r) = &state.get_implementations_result {
             let length = r.len();
+            println!("POINTER LEN: {}", length);
             Ok(vec![Value::I32(length as i32)])
         } else {
             (state.abort)(
@@ -598,6 +596,8 @@ pub fn create_imports(
         let mutable_context = context.as_mut();
         let state = mutable_context.data().lock().unwrap();
         let memory = state.memory.as_ref().unwrap();
+
+        println!("POINTER: {}", pointer);
 
         if let Some(r) = &state.get_implementations_result {
             memory.view(&mutable_context).write(pointer.try_into().unwrap(), r).unwrap();

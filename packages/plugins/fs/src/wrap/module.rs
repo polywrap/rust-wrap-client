@@ -7,7 +7,6 @@ use polywrap_plugin::{error::PluginError};
 use polywrap_plugin::module::PluginModule;
 use serde::{Serialize, Deserialize};
 use super::types::*;
-use async_trait::async_trait;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsReadFile {
@@ -49,19 +48,18 @@ pub struct ArgsRmdir {
     pub path: String,
 }
 
-#[async_trait]
 pub trait Module: PluginModule {
-  async fn read_file(&mut self, args: &ArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError>;
+  fn read_file(&mut self, args: &ArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError>;
 
-  async fn read_file_as_string(&mut self, args: &ArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, PluginError>;
+  fn read_file_as_string(&mut self, args: &ArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, PluginError>;
 
-  async fn exists(&mut self, args: &ArgsExists, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
+  fn exists(&mut self, args: &ArgsExists, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
 
-  async fn write_file(&mut self, args: &ArgsWriteFile, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
+  fn write_file(&mut self, args: &ArgsWriteFile, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
 
-  async fn mkdir(&mut self, args: &ArgsMkdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
+  fn mkdir(&mut self, args: &ArgsMkdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
 
-  async fn rm(&mut self, args: &ArgsRm, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
+  fn rm(&mut self, args: &ArgsRm, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
 
-  async fn rmdir(&mut self, args: &ArgsRmdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
+  fn rmdir(&mut self, args: &ArgsRmdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
 }

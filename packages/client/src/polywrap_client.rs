@@ -1,6 +1,5 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
-use async_trait::async_trait;
 use polywrap_core::{
     client::{Client, ClientConfig},
     error::Error,
@@ -14,7 +13,6 @@ use polywrap_core::{
 };
 use polywrap_msgpack::{decode};
 use serde::de::DeserializeOwned;
-use futures::lock::Mutex;
 
 use crate::{wrapper_invoker::WrapperInvoker, wrapper_loader::WrapperLoader};
 
@@ -40,7 +38,7 @@ impl PolywrapClient {
         }
     }
 
-    pub async fn invoke_wrapper<T: DeserializeOwned>(
+    pub fn invoke_wrapper<T: DeserializeOwned>(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -50,13 +48,12 @@ impl PolywrapClient {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
         let result = self
-            .invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)
-            .await?;
+            .invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)?;
         decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
     }
 
-    pub async fn invoke<T: DeserializeOwned>(
+    pub fn invoke<T: DeserializeOwned>(
         &self,
         uri: &Uri,
         method: &str,
@@ -64,16 +61,15 @@ impl PolywrapClient {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
-        let result = self.invoke_raw(uri, method, args, env, resolution_context).await?;
+        let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
         
         decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
     }
 }
 
-#[async_trait]
 impl Invoker for PolywrapClient {
-    async fn invoke_raw(
+    fn invoke_raw(
         &self,
         uri: &Uri,
         method: &str,
@@ -87,10 +83,10 @@ impl Invoker for PolywrapClient {
                 self.loader.get_env_by_uri(uri).map(|env| env.to_owned())
             }
         };
-        self.invoker.invoke_raw(uri, method, args, env, resolution_context).await
+        self.invoker.invoke_raw(uri, method, args, env, resolution_context)
     }
 
-    async fn invoke_wrapper_raw(
+    fn invoke_wrapper_raw(
         &self,
         wrapper: Arc<Mutex<dyn Wrapper>>,
         uri: &Uri,
@@ -99,11 +95,11 @@ impl Invoker for PolywrapClient {
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        self.invoker.invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context).await
+        self.invoker.invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)
     }
 
-    async fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
-        self.invoker.get_implementations(uri).await
+    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+        self.invoker.get_implementations(uri)
     }
 
     fn get_interfaces(&self) -> Option<InterfaceImplementations> {
@@ -111,32 +107,29 @@ impl Invoker for PolywrapClient {
     }
 }
 
-#[async_trait(?Send)]
 impl Client for PolywrapClient {
     fn get_config(&self) -> &ClientConfig {
         todo!()
     }
 }
 
-#[async_trait]
 impl UriResolverHandler for PolywrapClient {
-    async fn try_resolve_uri(
+    fn try_resolve_uri(
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<polywrap_core::resolvers::uri_resolution_context::UriPackageOrWrapper, Error> {
-        self.loader.try_resolve_uri(uri, resolution_context).await
+        self.loader.try_resolve_uri(uri, resolution_context)
     }
 }
 
-#[async_trait]
 impl Loader for PolywrapClient {
-    async fn load_wrapper(
+    fn load_wrapper(
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
-        self.loader.load_wrapper(uri, resolution_context).await
+        self.loader.load_wrapper(uri, resolution_context)
     }
 
     fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {

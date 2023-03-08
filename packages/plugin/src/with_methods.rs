@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use async_trait::async_trait;
+
 use polywrap_core::env::{Env};
 use serde_json::Value;
 
@@ -32,9 +32,8 @@ impl PluginModuleWithMethods {
   }
 }
 
-#[async_trait]
 impl PluginModule for PluginModuleWithMethods {
-    async fn _wrap_invoke(
+    fn _wrap_invoke(
         &mut self,
         method_name: &str,
         params: &[u8],
@@ -48,7 +47,6 @@ impl PluginModule for PluginModuleWithMethods {
     }
 }
 
-#[async_trait]
 impl PluginWithEnv for PluginModuleWithMethods {
     fn set_env(&mut self, env: Env) {
         self.env = env;

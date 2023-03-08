@@ -5,7 +5,7 @@ mod tests {
     use wrap_manifest_schemas::versions::WrapManifest;
     use polywrap_plugin_macro::{plugin_struct, plugin_impl};
     use polywrap_plugin::{error::PluginError};
-    use async_trait::async_trait;
+    
     use serde::{Serialize, Deserialize};
     use polywrap_core::invoke::Invoker;
     use serde_json::json;
@@ -15,9 +15,8 @@ mod tests {
       boo: String
     }
 
-    #[async_trait]
     pub trait Module {
-      async fn foo_method(&mut self, args: &Args, a: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError>;
+      fn foo_method(&mut self, args: &Args, a: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError>;
     }
 
     fn get_manifest() -> WrapManifest {
@@ -55,10 +54,9 @@ mod tests {
             }
         }
 
-        #[async_trait]
         #[plugin_impl]
         impl Module for Foo {
-          async fn foo_method(&mut self, _arg: &Args, _s: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError> {
+          fn foo_method(&mut self, _arg: &Args, _s: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError> {
             Ok(vec![0])
           }
         }

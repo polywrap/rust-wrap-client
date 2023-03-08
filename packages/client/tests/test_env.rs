@@ -29,8 +29,8 @@ struct Response {
     array: Vec<i32>,
 }
 
-#[tokio::test]
-async fn test_env() {
+#[test]
+fn test_env() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let env_wrapper= Uri::try_from(format!("fs/{}/env-type/01-main/implementations/as", path)).unwrap();
@@ -62,7 +62,7 @@ async fn test_env() {
     let mut builder = BuilderConfig::new(None);
     builder.add_redirect(
         Uri::try_from("ens/external-env.polywrap.eth").unwrap(),
-        as_env_external_wrapper_path.clone()
+        as_env_external_wrapper_path
     );
     builder.add_envs(envs);
     let config = builder.build();
@@ -76,7 +76,6 @@ async fn test_env() {
             None,
             None,
         )
-        .await
         .unwrap();
 
     let decoded_response = Response {

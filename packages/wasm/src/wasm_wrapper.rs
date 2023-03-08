@@ -1,7 +1,7 @@
 use crate::error::WrapperError;
 use crate::runtime::instance::{State,WasmInstance};
 
-use async_trait::async_trait;
+
 use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
@@ -47,7 +47,7 @@ impl WasmWrapper {
         Ok(&self.manifest)
     }
 
-    pub async fn invoke_and_decode<T: DeserializeOwned>(
+    pub fn invoke_and_decode<T: DeserializeOwned>(
         &mut self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
@@ -57,8 +57,7 @@ impl WasmWrapper {
         env: Option<Env>,
     ) -> Result<T, Error> {
         let result = self
-            .invoke(invoker, uri, method, args, env, resolution_context)
-            .await?;
+            .invoke(invoker, uri, method, args, env, resolution_context)?;
 
         let result = decode(result.as_slice())?;
 
@@ -78,9 +77,8 @@ impl Debug for WasmWrapper {
     }
 }
 
-#[async_trait]
 impl Wrapper for WasmWrapper {
-    async fn invoke(
+    fn invoke(
         &mut self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
@@ -95,7 +93,7 @@ impl Wrapper for WasmWrapper {
         };
 
         let env = match env {
-            Some(e) => polywrap_msgpack::serialize(&e)?,
+            Some(e) => polywrap_msgpack::serialize(e)?,
             None => vec![],
         };
 
@@ -128,11 +126,10 @@ impl Wrapper for WasmWrapper {
         });
 
         let state = Arc::new(Mutex::new(State::new(invoker, abort.clone(), method, args, env)));
-        let mut wasm_instance = WasmInstance::new(&self.wasm_module, state.clone()).await.unwrap();
+        let mut wasm_instance = WasmInstance::new(&self.wasm_module, state.clone()).unwrap();
 
         let result = wasm_instance
             .call_export("_wrap_invoke", params)
-            .await
             .map_err(|e| Error::WrapperError(e.to_string()))?;
 
         let state = state.lock().unwrap();
@@ -153,14 +150,14 @@ impl Wrapper for WasmWrapper {
         }
     }
 
-    async fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
-        if let Ok(data) = self.file_reader.read_file(&options.path).await {
+    fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
+        if let Ok(data) = self.file_reader.read_file(&options.path) {
             let result = match &options.encoding {
                 Some(encoding) => {
                     let data_string = String::from_utf8(data.clone()).unwrap();
 
                     match encoding {
-                        Encoding::Base64 => base64::decode(&data_string).unwrap(),
+                        Encoding::Base64 => base64::decode(data_string).unwrap(),
                         Encoding::UTF8 => data,
                     }
                 }

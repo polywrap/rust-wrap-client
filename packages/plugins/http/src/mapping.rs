@@ -7,7 +7,7 @@ pub enum RequestMethod {
     POST,
 }
 
-pub async fn parse_response(
+pub fn parse_response(
     response: ureq::Response,
     encoding: ResponseType,
 ) -> Result<Response, PluginError> {

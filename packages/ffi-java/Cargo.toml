@@ -10,7 +10,6 @@ crate-type = ["dylib"]
 polywrap_client = {path = "../client"}
 polywrap_core = {path = "../core"}
 polywrap_resolvers = {path = "../resolvers"}
-futures = "0.3.24"
 polywrap_plugin = {path ="../plugin"}
 fs_resolver_plugin = {path = "../plugins/fs-resolver"}
 filesystem_plugin = {path = "../plugins/fs"}

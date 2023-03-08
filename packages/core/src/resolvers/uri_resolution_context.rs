@@ -1,7 +1,5 @@
-use futures::lock::Mutex;
-
 use crate::{package::WrapPackage, wrapper::Wrapper, error::Error};
-use std::{collections::HashMap, sync::Arc, vec};
+use std::{collections::HashMap, sync::Arc, sync::Mutex, vec};
 
 use crate::{uri::Uri};
 
