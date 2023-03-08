@@ -44,45 +44,25 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
 
     let struct_ident = item_impl.clone().self_ty;
 
-    let mut method_idents: Vec<(Ident, String, Ident, bool)> = vec![];
+    let mut method_idents: Vec<(Ident, String, bool)> = vec![];
 
     for item in item_impl.clone().items {
         match item {
             syn::ImplItem::Method(method) => {
-                match method.sig.clone().inputs.len() {
-                    3 => {
-                        let function_input = match &method.sig.inputs[1] {
-                            syn::FnArg::Typed(pat_type) => {
-                                if let syn::Type::Reference(type_reference) = &*pat_type.ty {
-                                    if let syn::Type::Path(type_path) = &*type_reference.elem {
-                                        Some(type_path.path.segments[0].ident.clone())
-                                    } else {
-                                        None
-                                    }
-                                } else {
-                                    None
-                                }
-                            }
-                            _ => panic!("Wrong argument type"),
-                        };
-                        let function_ident = &method.sig.ident;
-                        let function_ident_str =
-                            snake_case_to_camel_case(&function_ident.to_string());
+              let function_ident = &method.sig.ident;
+              let function_ident_str =
+                  snake_case_to_camel_case(&function_ident.to_string());
 
-                        let output_is_option = quote!{
-                            #method.sig.output
-                        }.to_string().contains("Option <");
+              let output_is_option = quote!{
+                  #method.sig.output
+              }.to_string().contains("Option <");
 
 
-                        method_idents.push((
-                            function_ident.clone(),
-                            function_ident_str.clone(),
-                            function_input.unwrap().clone(),
-                            output_is_option,
-                        ))
-                    }
-                    _ => panic!("Wrong number of arguments"),
-                };
+              method_idents.push((
+                  function_ident.clone(),
+                  function_ident_str.clone(),
+                  output_is_option,
+              ));
             }
             _ => panic!("Wrong function signature"),
         }
@@ -93,7 +73,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             .clone()
             .into_iter()
             .enumerate()
-            .map(|(_, (_, ident_str, _, _))| {
+            .map(|(_, (_, ident_str, _))| {
                 quote! {
                   #ident_str
                 }
@@ -102,12 +82,15 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
     let methods = method_idents
         .into_iter()
         .enumerate()
-        .map(|(_, (ident, ident_str, args, output_is_option))| {
+        .map(|(_, (ident, ident_str, output_is_option))| {
             if output_is_option {
                 quote! {
                     #ident_str => {
+                      let camel_cased_args = polywrap_msgpack::decode::<polywrap_msgpack::rmpv::Value>(params.clone())?;
+                      let snake_cased_args = polywrap_plugin::utils::convert_keys_to_snake_case(&camel_cased_args);
+                      let encoded_snake_cased_args = polywrap_msgpack::encode(&snake_cased_args)?;
                       let result = self.#ident(
-                        &polywrap_msgpack::decode::<#args>(params.clone())?,
+                        &polywrap_msgpack::decode(&encoded_snake_cased_args).unwrap(),
                         invoker,
                       )?;
 
@@ -121,8 +104,11 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             } else {
                 quote! {
                   #ident_str => {
+                    let camel_cased_args = polywrap_msgpack::decode::<polywrap_msgpack::rmpv::Value>(params.clone())?;
+                    let snake_cased_args = polywrap_plugin::utils::convert_keys_to_snake_case(&camel_cased_args);
+                    let encoded_snake_cased_args = polywrap_msgpack::encode(&snake_cased_args)?;
                     let result = self.#ident(
-                      &polywrap_msgpack::decode::<#args>(params.clone())?,
+                      &polywrap_msgpack::decode(&encoded_snake_cased_args).unwrap(),
                       invoker,
                     )?;
     

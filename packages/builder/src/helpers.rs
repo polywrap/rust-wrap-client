@@ -7,13 +7,10 @@ use http_resolver_plugin::HttpResolverPlugin;
 use polywrap_core::{resolvers::{uri_resolution_context::UriPackage, static_resolver::{StaticResolverLike, StaticResolver}, uri_resolver_like::UriResolverLike, recursive_resolver::RecursiveResolver, uri_resolver::UriResolver}, uri::Uri, client::ClientConfig};
 use polywrap_plugin::package::PluginPackage;
 use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
-use serde_json::{json, Value};
+use serde_json::{Value};
 use polywrap_core::client::UriRedirect;
 use polywrap_core::env::Envs;
-use crate::embeds::{
-    ipfs_http_client::wasm_package as ipfsHttpClientPackage,
-    ipfs_resolver::wasm_package as ipfsResolverPackage
-};
+
 
 use crate::types::BuilderConfig;
 
@@ -47,7 +44,7 @@ pub fn add_default() -> BuilderConfig {
     //     ]
     // );
 
-    let mut envs: Envs = HashMap::new();
+    let envs: Envs = HashMap::new();
     // envs.insert(
     //     "ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.0".to_string(),
     //     json!({
