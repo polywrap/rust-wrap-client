@@ -538,10 +538,8 @@ pub fn create_imports(
         }
 
         let implementations = &result.unwrap().into_iter().map(|u| u.to_string()).collect::<Vec<String>>();
-        println!("IMPLS: {:#?}", implementations);
-        let encoded_implementations = polywrap_msgpack::rmp_serde::encode::to_vec(implementations);      
+        let encoded_implementations = polywrap_msgpack::rmp_serde::encode::to_vec_named(implementations);      
         state.get_implementations_result = Some(encoded_implementations.unwrap());
-        println!("RESULT: {:#?}", state.get_implementations_result);
 
         if !state.get_implementations_result.as_ref().unwrap().is_empty() {
             return Ok(vec![Value::I32(1)]);

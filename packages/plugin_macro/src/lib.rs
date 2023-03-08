@@ -88,8 +88,9 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                     #ident_str => {
                       let camel_cased_args = polywrap_msgpack::decode::<polywrap_msgpack::rmpv::Value>(params.clone())?;
                       let snake_cased_args = polywrap_plugin::utils::convert_keys_to_snake_case(&camel_cased_args);
+                      let encoded_snake_cased_args = polywrap_msgpack::encode(&snake_cased_args)?;
                       let result = self.#ident(
-                        &polywrap_msgpack::rmpv::ext::from_value(snake_cased_args).unwrap(),
+                        &polywrap_msgpack::decode(&encoded_snake_cased_args).unwrap(),
                         invoker,
                       )?;
 
@@ -105,8 +106,9 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                   #ident_str => {
                     let camel_cased_args = polywrap_msgpack::decode::<polywrap_msgpack::rmpv::Value>(params.clone())?;
                     let snake_cased_args = polywrap_plugin::utils::convert_keys_to_snake_case(&camel_cased_args);
+                    let encoded_snake_cased_args = polywrap_msgpack::encode(&snake_cased_args)?;
                     let result = self.#ident(
-                      &polywrap_msgpack::rmpv::ext::from_value(snake_cased_args).unwrap(),
+                      &polywrap_msgpack::decode(&encoded_snake_cased_args).unwrap(),
                       invoker,
                     )?;
     
