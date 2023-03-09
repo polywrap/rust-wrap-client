@@ -108,7 +108,7 @@ fn invoke_test() {
     let manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
     let file_reader = SimpleFileReader::new();
 
-    let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader), manifest);
+    let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader));
 
     let mock_invoker = MockInvoker::new(wrapper);
     let result = mock_invoker.invoke_raw(

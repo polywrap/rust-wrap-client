@@ -83,12 +83,10 @@ impl WrapPackage for WasmPackage {
         &self
     ) -> Result<Arc<Mutex<dyn Wrapper>>, polywrap_core::error::Error> {
         let wasm_module = self.get_wasm_module()?;
-        let manifest = self.get_manifest(None)?;
 
         Ok(Arc::new(Mutex::new(WasmWrapper::new(
             wasm_module,
             self.file_reader.clone(),
-            manifest,
         ))))
     }
 }
