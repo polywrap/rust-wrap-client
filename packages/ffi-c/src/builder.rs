@@ -1,68 +1,189 @@
-use std::{collections::HashMap, ffi::CStr};
+use std::{ffi::c_char, sync::{Mutex, Arc}};
 
-use polywrap_core::{resolvers::{static_resolver::{StaticResolver, StaticResolverLike}, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike}, client::UriRedirect};
+use libc::c_void;
+use polywrap_client::{
+    builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
+    core::{
+        env::Env,
+        resolvers::{
+            uri_resolution_context::{UriPackage, UriWrapper},
+            uri_resolver_like::UriResolverLike,
+        },
+        uri::Uri,
+    },
+};
+use polywrap_plugin::{wrapper::PluginWrapper, package::PluginPackage};
+use polywrap_wasm::{wasm_wrapper::WasmWrapper, wasm_package::WasmPackage};
 
-pub struct ResolverBuilder {
-    statics: Vec<StaticResolverLike>,
-}
-
-impl ResolverBuilder {
-    pub fn new() -> ResolverBuilder {
-        ResolverBuilder { statics: vec![] }
-    }
-
-    pub fn add_static(&mut self, resolver: Box<StaticResolverLike>, _redirects: HashMap<String, String>) {
-        self.statics.push(*resolver);
-    }
-
-    pub fn build(self) -> RecursiveResolver {
-        let static_resolver = Box::new(
-            StaticResolver::from(self.statics)
-        );
-        RecursiveResolver::from(vec![
-            UriResolverLike::Resolver(static_resolver)
-        ])
-    }
-}
-
+use crate::utils::{
+    get_string_from_cstr_ptr, instantiate_from_ptr, instantiate_from_ptr_and_take_ownership,
+    into_raw_ptr_and_forget,
+};
 
 #[no_mangle]
-pub extern "C" fn create_builder() -> *const libc::c_char {
-    Box::into_raw(Box::new(ResolverBuilder::new())) as *const libc::c_char
+pub fn new_builder_config() -> *mut c_void {
+    let builder_config = BuilderConfig::new(None);
+
+    into_raw_ptr_and_forget(builder_config) as *mut c_void
 }
 
 #[no_mangle]
-pub extern "C" fn create_static_resolver(from: *const libc::c_char, to: *const libc::c_char) -> *const libc::c_char {
-    let from_c_str = unsafe { CStr::from_ptr(from) };
-    let from_str = match from_c_str.to_str() {
-        Ok(u) => u,
-        Err(_) => panic!("Couldn't get CStr for from")
+pub fn add_env(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, env: *const c_char) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+
+    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
+    let env: Env = serde_json::from_str(&get_string_from_cstr_ptr(env)).unwrap();
+
+    builder.add_env(uri, env);
+}
+
+#[no_mangle]
+pub fn remove_env(builder_config_ptr: *mut BuilderConfig, uri: *const c_char) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
+
+    builder.remove_env(uri);
+}
+
+#[no_mangle]
+pub fn set_env(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, env: *const c_char) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+
+    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
+    let env: Env = serde_json::from_str(&get_string_from_cstr_ptr(env)).unwrap();
+
+    builder.set_env(uri, env);
+}
+
+#[no_mangle]
+pub fn add_interface_implementation(
+    builder_config_ptr: *mut BuilderConfig,
+    interface_uri: *const c_char,
+    implementation_uri: *const c_char,
+) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+
+    let interface_uri: Uri = get_string_from_cstr_ptr(interface_uri).try_into().unwrap();
+    let implementation_uri: Uri = get_string_from_cstr_ptr(implementation_uri).try_into().unwrap();
+
+    builder.add_interface_implementation(interface_uri, implementation_uri);
+}
+
+#[no_mangle]
+pub fn remove_interface_implementation(
+    builder_config_ptr: *mut BuilderConfig,
+    interface_uri: *const c_char,
+    implementation_uri: *const c_char,
+) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+
+    let interface_uri: Uri = get_string_from_cstr_ptr(interface_uri).try_into().unwrap();
+    let implementation_uri: Uri = get_string_from_cstr_ptr(implementation_uri).try_into().unwrap();
+
+    builder.remove_interface_implementation(interface_uri, implementation_uri);
+}
+
+#[no_mangle]
+pub fn add_wasm_wrapper(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, wrapper: *mut WasmWrapper) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    let wrapper = Arc::new(Mutex::new(*instantiate_from_ptr(wrapper)));
+    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
+
+    let uri_wrapper = UriWrapper {
+      uri,
+      wrapper
     };
 
-    let to_c_str = unsafe { CStr::from_ptr(to) };
-    let to_str = match to_c_str.to_str() {
-        Ok(u) => u,
-        Err(_) => panic!("Couldn't get CStr for to")
-    };
-
-    let redirect = UriRedirect::new(from_str.try_into().unwrap(), to_str.try_into().unwrap());
-
-    let redirects_static_like = StaticResolverLike::Redirect(redirect);
-    let static_resolver = StaticResolver::from(vec![redirects_static_like]);
-    Box::into_raw(Box::new(static_resolver)) as *const libc::c_char
+    builder.add_wrapper(uri_wrapper);
 }
 
 #[no_mangle]
-pub extern "C" fn add_static_resolver(builder: *const libc::c_char, resolver: *const libc::c_char) {
-    let mut b: Box<ResolverBuilder> = unsafe { Box::from_raw(builder as *mut ResolverBuilder) };
-    let r: Box<StaticResolverLike> = unsafe { Box::from_raw(resolver as *mut StaticResolverLike) };
-    b.add_static(r, HashMap::new());
+pub fn add_plugin_wrapper(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, wrapper: *mut PluginWrapper) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    let wrapper = Arc::new(Mutex::new(*instantiate_from_ptr(wrapper)));
+    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
+
+    let uri_wrapper = UriWrapper {
+      uri,
+      wrapper
+    };
+
+    builder.add_wrapper(uri_wrapper);
 }
 
+#[no_mangle]
+pub fn remove_wrapper(builder_config_ptr: *mut BuilderConfig, uri: *const c_char) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
 
+    builder.remove_wrapper(uri);
+}
 
-// #[no_mangle]
-// pub extern "C" fn build_resolver(builder: *const libc::c_char) -> *const libc::c_char {
-//     let b: Box<ResolverBuilder> = unsafe { Box::from_raw(builder as *mut dyn Resolver) };
-//     Box::into_raw(Box::new(b.build())) as *const libc::c_char
-// }
+#[no_mangle]
+pub fn add_wasm_package(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, package: *mut WasmPackage) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    let package = Arc::new(Mutex::new(*instantiate_from_ptr(package)));
+    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
+    
+    let uri_package = UriPackage {
+      uri,
+      package
+    };
+
+    builder.add_package(uri_package);
+}
+
+#[no_mangle]
+pub fn add_plugin_package(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, package: *mut PluginPackage) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    let package = Arc::new(Mutex::new(*instantiate_from_ptr(package)));
+    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
+
+    let uri_package = UriPackage {
+      uri,
+      package
+    };
+
+    builder.add_package(uri_package);
+}
+
+#[no_mangle]
+pub fn remove_package(builder_config_ptr: *mut BuilderConfig, uri: *const c_char) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
+
+    builder.remove_package(uri);
+}
+
+#[no_mangle]
+pub fn add_redirect(builder_config_ptr: *mut BuilderConfig, from: *const c_char, to: *const c_char) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+
+    let from: Uri = get_string_from_cstr_ptr(from).try_into().unwrap();
+    let to: Uri = get_string_from_cstr_ptr(to).try_into().unwrap();
+
+    builder.add_redirect(from, to);
+}
+
+#[no_mangle]
+pub fn remove_redirect(builder_config_ptr: *mut BuilderConfig, from: *const c_char) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    let from: Uri = get_string_from_cstr_ptr(from).try_into().unwrap();
+
+    builder.remove_redirect(from);
+}
+
+#[no_mangle]
+pub fn add_resolver(builder_config_ptr: *mut BuilderConfig, resolver: UriResolverLike) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    builder.add_resolver(resolver);
+}
+
+// Destroys builder_config
+#[no_mangle]
+pub fn build_client(builder_config_ptr: *mut BuilderConfig) -> *const c_void {
+    let builder = instantiate_from_ptr_and_take_ownership(builder_config_ptr);
+    let config = builder.build();
+
+    into_raw_ptr_and_forget(config)
+}
