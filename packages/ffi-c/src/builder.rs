@@ -174,6 +174,24 @@ pub fn remove_redirect(builder_config_ptr: *mut BuilderConfig, from: *const c_ch
 }
 
 #[no_mangle]
+pub fn add_wrapper_resolver(builder_config_ptr: *mut BuilderConfig, resolver: UriResolverLike) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    builder.add_resolver(resolver);
+}
+
+#[no_mangle]
+pub fn add_redirect_resolver(builder_config_ptr: *mut BuilderConfig, resolver: UriResolverLike) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    builder.add_resolver(resolver);
+}
+
+#[no_mangle]
+pub fn add_package_resolver(builder_config_ptr: *mut BuilderConfig, resolver: UriResolverLike) {
+    let builder = instantiate_from_ptr(builder_config_ptr);
+    builder.add_resolver(resolver);
+}
+
+#[no_mangle]
 pub fn add_resolver(builder_config_ptr: *mut BuilderConfig, resolver: UriResolverLike) {
     let builder = instantiate_from_ptr(builder_config_ptr);
     builder.add_resolver(resolver);
