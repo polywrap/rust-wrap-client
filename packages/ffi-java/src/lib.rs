@@ -4,7 +4,7 @@ use std::{sync::Arc};
 use jni::JNIEnv;
 use jni::sys::jstring;
 use jni::{sys::{jlong}, objects::{JClass, JString}};
-pub use polywrap_client::polywrap_client::PolywrapClient;
+pub use polywrap_client::client::PolywrapClient;
 use polywrap_core::interface_implementation::InterfaceImplementations;
 use polywrap_core::resolvers::recursive_resolver::RecursiveResolver;
 pub use polywrap_core::resolvers::static_resolver::StaticResolver;

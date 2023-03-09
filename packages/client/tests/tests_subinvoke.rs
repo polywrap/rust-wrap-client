@@ -1,7 +1,7 @@
-use polywrap_client::polywrap_client::PolywrapClient;
-use polywrap_client_builder::types::{BuilderConfig, ClientConfigHandler, ClientBuilder};
-use polywrap_core::{uri::Uri};
-use polywrap_msgpack::msgpack;
+use polywrap_client::client::PolywrapClient;
+use polywrap_client::builder::types::{BuilderConfig, ClientConfigHandler, ClientBuilder};
+use polywrap_client::core::{uri::Uri};
+use polywrap_client::msgpack::msgpack;
 use polywrap_tests_utils::helpers::get_tests_path;
 
 #[test]

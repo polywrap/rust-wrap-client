@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use http_plugin::HttpPlugin;
 use httpmock::{prelude::*, Method};
-use polywrap_client::polywrap_client::PolywrapClient;
+use polywrap_client::client::PolywrapClient;
 use polywrap_core::resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use polywrap_core::{
     client::ClientConfig, invoke::Invoker, resolvers::uri_resolution_context::UriPackage, uri::Uri,

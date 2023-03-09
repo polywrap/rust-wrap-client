@@ -3,7 +3,7 @@ use filesystem_plugin::FileSystemPlugin;
 use fs_resolver_plugin::FileSystemResolverPlugin;
 use http_plugin::HttpPlugin;
 use http_resolver_plugin::HttpResolverPlugin;
-use polywrap_client::polywrap_client::PolywrapClient;
+use polywrap_client::client::PolywrapClient;
 use polywrap_core::{
     invoke::{Invoker},
     uri::Uri,

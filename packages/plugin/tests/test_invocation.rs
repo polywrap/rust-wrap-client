@@ -2,7 +2,7 @@
 use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 
-use polywrap_client::polywrap_client::PolywrapClient;
+use polywrap_client::client::PolywrapClient;
 use polywrap_core::{invoke::{Invoker}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}, uri_resolution_context::UriPackage}, uri::Uri, client::ClientConfig};
 
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};

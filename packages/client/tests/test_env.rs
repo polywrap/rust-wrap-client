@@ -1,10 +1,10 @@
-use polywrap_client::{polywrap_client::PolywrapClient};
-use polywrap_client_builder::types::{ClientBuilder, BuilderConfig, ClientConfigHandler};
-use polywrap_core::{
+use polywrap_client::{client::PolywrapClient};
+use polywrap_client::builder::types::{ClientBuilder, BuilderConfig, ClientConfigHandler};
+use polywrap_client::core::{
     env::Envs,
     uri::Uri,
 };
-use polywrap_msgpack::{msgpack};
+use polywrap_client::msgpack::{msgpack};
 
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Deserialize;
