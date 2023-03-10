@@ -1,4 +1,4 @@
-use std::ffi::{CStr, c_char};
+use std::ffi::{CStr, c_char, CString};
 
 pub fn get_string_from_cstr_ptr(str_ptr: *const c_char) -> String {
   let cstr = unsafe { CStr::from_ptr(str_ptr) };
@@ -9,9 +9,10 @@ pub fn get_string_from_cstr_ptr(str_ptr: *const c_char) -> String {
   }
 }
 
-pub fn instantiate_from_ptr<T>(ptr: *mut T) -> &'static mut T {
+pub fn instantiate_from_ptr<T>(ptr: *mut T) -> T {
   let data = unsafe {
-    Box::leak(Box::from_raw(ptr))
+    std::mem::forget(ptr);
+    std::ptr::read(ptr)
   };
   data
 }
@@ -25,4 +26,8 @@ pub fn into_raw_ptr_and_forget<T>(instance: T) -> *const std::ffi::c_void {
   let ptr = Box::into_raw(Box::new(instance)) as *const std::ffi::c_void;
   std::mem::forget(ptr);
   ptr
+}
+
+pub fn raw_ptr_from_str(str: &str) -> *const c_char {
+  CString::new(str).unwrap().into_raw()
 }
