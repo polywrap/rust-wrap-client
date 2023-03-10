@@ -1,38 +1,37 @@
-use std::ffi::CString;
+use std::{ffi::c_char, slice::from_raw_parts, sync::Arc};
 
-use polywrap_client::wrapper_invoker::WrapperInvoker;
-use polywrap_plugin::module::{PluginWithEnv, PluginModule};
+use polywrap_client::{
+    core::{env::Env, invoke::Invoker},
+    wrapper_invoker::WrapperInvoker,
+};
+use polywrap_plugin::module::{PluginModule, PluginWithEnv};
 
-use crate::utils::get_string_from_cstr_ptr;
+use crate::utils::{
+    get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str,
+};
 
 #[repr(C)]
-struct ExtPluginModule {
-  env: *mut std::ffi::c_char,
+pub struct ExtPluginModule {
+    env: Env,
 
-  _wrap_invoke: extern "C" fn(
-    method_name: *const std::ffi::c_char,
-    params_buffer: *const u8,
-    params_len: usize,
-    invoker: *mut WrapperInvoker,
-  ) -> (*const u8, usize)
+    _wrap_invoke: extern "C" fn(
+        method_name: *const i8,
+        params_buffer: *const u8,
+        params_len: usize,
+        invoker: *const WrapperInvoker,
+    ) -> (*const u8, usize),
 }
 
 impl PluginWithEnv for ExtPluginModule {
-    fn set_env(&mut self, env: polywrap_client::core::env::Env) {
-        let stringified_env = env.to_string();
-        let stringified_env = CString::new(stringified_env).unwrap();
-        let env_string_ptr = stringified_env.into_raw();
-        
-        self.env = env_string_ptr
+    fn set_env(&mut self, env: Env) {
+        self.env = env;
     }
 
-    fn get_env(&self, key: String) -> Option<&polywrap_client::core::env::Env> {
-        let env = get_string_from_cstr_ptr(self.env);
-        let env = serde_json::from_str::<serde_json::Value>(&env).unwrap();
-        if let Some(env) = env.get(&key) {
-          Some(env)
+    fn get_env(&self, key: String) -> Option<&Env> {
+        if let Some(env) = self.env.get(&key) {
+            Some(env)
         } else {
-          None
+            None
         }
     }
 }
@@ -42,16 +41,48 @@ impl PluginModule for ExtPluginModule {
         &mut self,
         method_name: &str,
         params: &[u8],
-        invoker: *mut WrapperInvoker,
+        invoker: Arc<(dyn Invoker + 'static)>,
     ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
         let method_name = method_name.to_string();
-        let method_name = CString::new(method_name).unwrap();
-        let method_name_ptr = method_name.into_raw();
+        let method_name_ptr = raw_ptr_from_str(&method_name);
 
-        let params_raw_parts = params.to_vec().into_raw_parts();
-        let params_buffer = params_raw_parts[0];
-        let params_len = params_raw_parts[1];
+        let mut params_vec = params.to_vec();
+        let invoker_ptr = into_raw_ptr_and_forget(invoker);
 
-        (self._wrap_invoke)(method_name_ptr, params_buffer, params_len, invoker)
+        let result = (self._wrap_invoke)(
+            method_name_ptr,
+            params_vec.as_mut_ptr(),
+            params_vec.len(),
+            invoker_ptr as *const WrapperInvoker,
+        );
+        let resulting_vec = unsafe { from_raw_parts(result.0, result.1).to_vec() };
+
+        Ok(resulting_vec)
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn set_plugin_env(plugin_ptr: *mut ExtPluginModule, env_json_str: *const c_char) {
+    let env_json_str = get_string_from_cstr_ptr(env_json_str);
+    let new_plugin_env: Env = serde_json::from_str(&env_json_str).unwrap();
+
+    let mut plugin = instantiate_from_ptr(plugin_ptr);
+    plugin.set_env(new_plugin_env);
+}
+
+//TODO: handle optional types
+#[no_mangle]
+pub extern "C" fn get_plugin_env(
+    plugin_ptr: *mut ExtPluginModule,
+    key: *const c_char,
+) -> Option<*const i8> {
+    let key_str = get_string_from_cstr_ptr(key);
+    let plugin = instantiate_from_ptr(plugin_ptr);
+
+    if let Some(value) = plugin.get_env(key_str) {
+        let value_string = value.to_string();
+        Some(raw_ptr_from_str(&value_string))
+    } else {
+        None
     }
 }
