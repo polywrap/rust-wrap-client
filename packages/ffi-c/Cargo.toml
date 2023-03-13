@@ -15,4 +15,3 @@ filesystem_plugin = {path = "../plugins/fs"}
 http_resolver_plugin = {path = "../plugins/http-resolver"}
 http_plugin = {path = "../plugins/http"}
 serde_json = "1.0.87"
-libc = "0.2"

@@ -1,6 +1,4 @@
-use std::{ffi::c_char, sync::{Mutex, Arc}};
-
-use libc::c_void;
+use std::{ffi::{c_char, c_void}, sync::{Mutex, Arc}};
 use polywrap_client::{
     builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
     core::{
