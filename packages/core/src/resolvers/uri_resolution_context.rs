@@ -20,6 +20,16 @@ pub enum UriPackageOrWrapper {
   Package(Uri, Arc<Mutex<dyn WrapPackage>>),
 }
 
+impl UriPackageOrWrapper {
+  pub fn uri(&self) -> Uri {
+    match self {
+        UriPackageOrWrapper::Uri(uri) => uri.clone(),
+        UriPackageOrWrapper::Wrapper(uri, _) => uri.clone(),
+        UriPackageOrWrapper::Package(uri, _) => uri.clone(),
+    }
+  }
+}
+
 #[derive(Clone)]
 pub struct UriResolutionStep {
     pub source_uri: Uri,
