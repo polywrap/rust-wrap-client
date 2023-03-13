@@ -3,24 +3,24 @@ use polywrap_client::core::resolvers::{uri_resolver::UriResolver, recursive_reso
 use crate::utils::instantiate_from_ptr;
 
 #[repr(C)]
-pub enum UriResolversType {
+pub enum SafeUriResolversType {
   Static,
   Recursive,
 }
 
 #[repr(C)]
-pub struct UriResolversVariant {
-  _type: UriResolversType,
+pub struct SafeUriResolversVariant {
+  _type: SafeUriResolversType,
   data: *const std::ffi::c_void
 }
 
-impl From<UriResolversVariant> for Box<dyn UriResolver> {
-    fn from(value: UriResolversVariant) -> Self {
+impl From<SafeUriResolversVariant> for Box<dyn UriResolver> {
+    fn from(value: SafeUriResolversVariant) -> Self {
         match value._type {
-          UriResolversType::Recursive => {
+          SafeUriResolversType::Recursive => {
             Box::new(instantiate_from_ptr(value.data as *mut RecursiveResolver))
           }
-          UriResolversType::Static => {
+          SafeUriResolversType::Static => {
             Box::new(instantiate_from_ptr(value.data as *mut StaticResolver))
           },
         }

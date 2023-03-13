@@ -7,7 +7,7 @@ use polywrap_client::{
 use polywrap_plugin::module::{PluginModule, PluginWithEnv};
 
 use crate::utils::{
-    get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str,
+    get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str, SafeOption,
 };
 
 #[repr(C)]
@@ -75,14 +75,14 @@ pub extern "C" fn set_plugin_env(plugin_ptr: *mut ExtPluginModule, env_json_str:
 pub extern "C" fn get_plugin_env(
     plugin_ptr: *mut ExtPluginModule,
     key: *const c_char,
-) -> Option<*const i8> {
+) -> SafeOption<*const i8> {
     let key_str = get_string_from_cstr_ptr(key);
     let plugin = instantiate_from_ptr(plugin_ptr);
 
     if let Some(value) = plugin.get_env(key_str) {
         let value_string = value.to_string();
-        Some(raw_ptr_from_str(&value_string))
+        SafeOption::Some(raw_ptr_from_str(&value_string))
     } else {
-        None
+        SafeOption::None
     }
 }

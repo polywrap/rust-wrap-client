@@ -7,7 +7,6 @@ use polywrap_client::{
         env::Env,
         resolvers::{
             uri_resolution_context::{UriPackage, UriWrapper},
-            uri_resolver_like::UriResolverLike,
         },
         uri::Uri,
     },
@@ -15,10 +14,10 @@ use polywrap_client::{
 use polywrap_plugin::{wrapper::PluginWrapper, package::PluginPackage};
 use polywrap_wasm::{wasm_wrapper::WasmWrapper, wasm_package::WasmPackage};
 
-use crate::utils::{
+use crate::{utils::{
     get_string_from_cstr_ptr, instantiate_from_ptr, instantiate_from_ptr_and_take_ownership,
     into_raw_ptr_and_forget,
-};
+}, resolvers::uri_resolver_like::SafeUriResolverLikeVariant};
 
 #[no_mangle]
 pub extern "C" fn new_builder_config() -> *mut c_void {
@@ -174,27 +173,27 @@ pub extern "C" fn remove_redirect(builder_config_ptr: *mut BuilderConfig, from: 
 }
 
 #[no_mangle]
-pub extern "C" fn add_wrapper_resolver(builder_config_ptr: *mut BuilderConfig, resolver: UriResolverLike) {
+pub extern "C" fn add_wrapper_resolver(builder_config_ptr: *mut BuilderConfig, resolver: SafeUriResolverLikeVariant) {
     let mut builder = instantiate_from_ptr(builder_config_ptr);
-    builder.add_resolver(resolver);
+    builder.add_resolver(resolver.into());
 }
 
 #[no_mangle]
-pub extern "C" fn add_redirect_resolver(builder_config_ptr: *mut BuilderConfig, resolver: UriResolverLike) {
+pub extern "C" fn add_redirect_resolver(builder_config_ptr: *mut BuilderConfig, resolver: SafeUriResolverLikeVariant) {
     let mut builder = instantiate_from_ptr(builder_config_ptr);
-    builder.add_resolver(resolver);
+    builder.add_resolver(resolver.into());
 }
 
 #[no_mangle]
-pub extern "C" fn add_package_resolver(builder_config_ptr: *mut BuilderConfig, resolver: UriResolverLike) {
+pub extern "C" fn add_package_resolver(builder_config_ptr: *mut BuilderConfig, resolver: SafeUriResolverLikeVariant) {
     let mut builder = instantiate_from_ptr(builder_config_ptr);
-    builder.add_resolver(resolver);
+    builder.add_resolver(resolver.into());
 }
 
 #[no_mangle]
-pub extern "C" fn add_resolver(builder_config_ptr: *mut BuilderConfig, resolver: UriResolverLike) {
+pub extern "C" fn add_resolver(builder_config_ptr: *mut BuilderConfig, resolver: SafeUriResolverLikeVariant) {
     let mut builder = instantiate_from_ptr(builder_config_ptr);
-    builder.add_resolver(resolver);
+    builder.add_resolver(resolver.into());
 }
 
 // Destroys builder_config

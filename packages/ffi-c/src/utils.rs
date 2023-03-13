@@ -31,3 +31,9 @@ pub fn into_raw_ptr_and_forget<T>(instance: T) -> *const std::ffi::c_void {
 pub fn raw_ptr_from_str(str: &str) -> *const c_char {
   CString::new(str).unwrap().into_raw()
 }
+
+#[repr(C)]
+pub enum SafeOption<T> {
+    None,
+    Some(T),
+}

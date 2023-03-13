@@ -6,7 +6,7 @@ use polywrap_wasm::{wasm_package::WasmPackage, wasm_wrapper::WasmWrapper};
 
 use crate::utils::{get_string_from_cstr_ptr, instantiate_from_ptr};
 
-use super::uri_resolver::UriResolversVariant;
+use super::uri_resolver::SafeUriResolversVariant;
 
 #[repr(C)]
 struct Redirect {
@@ -15,7 +15,7 @@ struct Redirect {
 }
 
 #[repr(C)]
-pub enum UriResolverLikeType {
+pub enum SafeUriResolverLikeType {
   Resolver,
   Redirect,
   WasmPackage,
@@ -25,50 +25,50 @@ pub enum UriResolverLikeType {
 }
 
 #[repr(C)]
-pub struct UriResolverLikeVariant {
-  _type: UriResolverLikeType,
+pub struct SafeUriResolverLikeVariant {
+  _type: SafeUriResolverLikeType,
   data: *mut std::ffi::c_void,
   uri: *const std::ffi::c_char
 }
 
-impl From<UriResolverLikeVariant> for UriResolverLike {
-    fn from(value: UriResolverLikeVariant) -> Self {
-      let data = instantiate_from_ptr(value.data as *mut UriResolverLikeVariant);
+impl From<SafeUriResolverLikeVariant> for UriResolverLike {
+    fn from(value: SafeUriResolverLikeVariant) -> Self {
+      let data = instantiate_from_ptr(value.data as *mut SafeUriResolverLikeVariant);
       let uri: Uri = get_string_from_cstr_ptr(data.uri).try_into().unwrap();
   
       match data._type {
-        UriResolverLikeType::Resolver => {
-          let uri_resolver_variant = instantiate_from_ptr(value.data as *mut UriResolversVariant);
+        SafeUriResolverLikeType::Resolver => {
+          let uri_resolver_variant = instantiate_from_ptr(value.data as *mut SafeUriResolversVariant);
           UriResolverLike::Resolver(uri_resolver_variant.into())
         },
-        UriResolverLikeType::Redirect => {
+        SafeUriResolverLikeType::Redirect => {
           let redirect = instantiate_from_ptr(value.data as *mut Redirect);
           let from = get_string_from_cstr_ptr(redirect.from).try_into().unwrap();
           let to = get_string_from_cstr_ptr(redirect.to).try_into().unwrap();
           UriResolverLike::Redirect(UriRedirect::new(from, to))
         },
-        UriResolverLikeType::WasmPackage => {
+        SafeUriResolverLikeType::WasmPackage => {
           let package = instantiate_from_ptr(value.data as *mut WasmPackage);
           UriResolverLike::Package(UriPackage {
             uri,
             package: Arc::new(Mutex::new(package))
           })
         },
-        UriResolverLikeType::PluginPackage => {
+        SafeUriResolverLikeType::PluginPackage => {
           let package = instantiate_from_ptr(value.data as *mut PluginPackage);
           UriResolverLike::Package(UriPackage {
             uri,
             package: Arc::new(Mutex::new(package))
           })
         },
-        UriResolverLikeType::WasmWrapper => {
+        SafeUriResolverLikeType::WasmWrapper => {
           let wrapper = instantiate_from_ptr(value.data as *mut WasmWrapper);
           UriResolverLike::Wrapper(UriWrapper {
             uri,
             wrapper: Arc::new(Mutex::new(wrapper))
           })
         },
-        UriResolverLikeType::PluginWrapper => {
+        SafeUriResolverLikeType::PluginWrapper => {
           let wrapper = instantiate_from_ptr(value.data as *mut PluginWrapper);
           UriResolverLike::Wrapper(UriWrapper {
             uri,

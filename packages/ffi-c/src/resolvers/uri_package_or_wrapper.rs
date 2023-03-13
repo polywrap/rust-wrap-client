@@ -7,7 +7,7 @@ use polywrap_wasm::{wasm_wrapper::WasmWrapper, wasm_package::WasmPackage};
 use crate::utils::{get_string_from_cstr_ptr, instantiate_from_ptr};
 
 #[repr(C)]
-pub enum UriPackageOrWrapperType {
+pub enum SafeUriPackageOrWrapperType {
   Uri,
   WasmWrapper,
   PluginWrapper,
@@ -16,31 +16,31 @@ pub enum UriPackageOrWrapperType {
 }
 
 #[repr(C)]
-pub struct UriPackageOrWrapperVariant {
+pub struct SafeUriPackageOrWrapper {
   uri: *const std::ffi::c_char,
-  data_type: UriPackageOrWrapperType,
+  data_type: SafeUriPackageOrWrapperType,
   data: *mut std::ffi::c_void
 }
 
-impl From<UriPackageOrWrapperVariant> for UriPackageOrWrapper {
-    fn from(value: UriPackageOrWrapperVariant) -> Self {
-      let entry = instantiate_from_ptr(value.data as *mut UriPackageOrWrapperVariant);
+impl From<SafeUriPackageOrWrapper> for UriPackageOrWrapper {
+    fn from(value: SafeUriPackageOrWrapper) -> Self {
+      let entry = instantiate_from_ptr(value.data as *mut SafeUriPackageOrWrapper);
       let entry_uri: Uri = get_string_from_cstr_ptr(entry.uri).try_into().unwrap();
       match entry.data_type {
-        UriPackageOrWrapperType::Uri => UriPackageOrWrapper::Uri(entry_uri.clone()),
-        UriPackageOrWrapperType::WasmWrapper => {
+        SafeUriPackageOrWrapperType::Uri => UriPackageOrWrapper::Uri(entry_uri.clone()),
+        SafeUriPackageOrWrapperType::WasmWrapper => {
           let wrapper = instantiate_from_ptr(entry.data as *mut WasmWrapper);
           UriPackageOrWrapper::Wrapper(entry_uri.clone(), Arc::new(Mutex::new(wrapper)))
         },
-        UriPackageOrWrapperType::PluginWrapper => {
+        SafeUriPackageOrWrapperType::PluginWrapper => {
           let wrapper = instantiate_from_ptr(entry.data as *mut PluginWrapper);
           UriPackageOrWrapper::Wrapper(entry_uri.clone(), Arc::new(Mutex::new(wrapper)))
         },
-        UriPackageOrWrapperType::WasmPackage => {
+        SafeUriPackageOrWrapperType::WasmPackage => {
           let package = instantiate_from_ptr(entry.data as *mut WasmPackage);
           UriPackageOrWrapper::Package(entry_uri.clone(), Arc::new(Mutex::new(package)))
         },
-        UriPackageOrWrapperType::PluginPackage => {
+        SafeUriPackageOrWrapperType::PluginPackage => {
           let package = instantiate_from_ptr(entry.data as *mut PluginPackage);
           UriPackageOrWrapper::Package(entry_uri.clone(), Arc::new(Mutex::new(package)))
         }
