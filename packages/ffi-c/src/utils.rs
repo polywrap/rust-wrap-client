@@ -37,3 +37,23 @@ pub enum SafeOption<T> {
     None,
     Some(T),
 }
+
+#[repr(C)]
+pub struct Buffer {
+  data: *mut u8,
+  len: usize
+}
+
+impl From<Buffer> for Vec<u8> {
+    fn from(value: Buffer) -> Self {
+      unsafe {
+        std::slice::from_raw_parts(value.data, value.len).to_vec()
+      }
+    }
+}
+
+impl From<Vec<u8>> for Buffer {
+  fn from(value: Vec<u8>) -> Self {
+    Buffer { data: value.as_ptr() as *mut _, len: value.len() }
+  }
+}

@@ -1,10 +1,10 @@
-use std::{slice::from_raw_parts, sync::{Arc, Mutex}};
+use std::{sync::{Arc, Mutex}};
 
 use polywrap_client::core::{file_reader::{SimpleFileReader, FileReader}};
 use polywrap_plugin::wrapper::PluginWrapper;
 use polywrap_wasm::wasm_wrapper::WasmWrapper;
 
-use crate::{utils::{into_raw_ptr_and_forget, instantiate_from_ptr_and_take_ownership, instantiate_from_ptr}, ext_plugin::ExtPluginModule};
+use crate::{utils::{into_raw_ptr_and_forget, instantiate_from_ptr_and_take_ownership, instantiate_from_ptr, Buffer}, ext_plugin::ExtPluginModule};
 
 pub fn create_simple_file_reader() -> *const SimpleFileReader {
   let reader = SimpleFileReader::new();
@@ -12,16 +12,12 @@ pub fn create_simple_file_reader() -> *const SimpleFileReader {
 }
 
 pub fn create_wasm_wrapper(
-  wasm_module_buffer: *const u8,
-  wams_module_len: usize,
+  wasm_module_buffer: *const Buffer,
   file_reader_ptr: *mut SimpleFileReader
 ) -> *mut WasmWrapper {
   let file_reader = Arc::from(instantiate_from_ptr_and_take_ownership(file_reader_ptr) as Box<dyn FileReader>);
-  let wasm_module = unsafe {
-      from_raw_parts(wasm_module_buffer, wams_module_len)
-  };
-  
-  let wasm_wrapper = WasmWrapper::new(wasm_module.to_vec(), file_reader);
+  let wasm_module: Vec<u8> = instantiate_from_ptr(wasm_module_buffer as *mut Buffer).into();
+  let wasm_wrapper = WasmWrapper::new(wasm_module, file_reader);
 
   into_raw_ptr_and_forget(wasm_wrapper) as *mut WasmWrapper
 }

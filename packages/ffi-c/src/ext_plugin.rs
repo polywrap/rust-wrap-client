@@ -1,4 +1,4 @@
-use std::{ffi::c_char, slice::from_raw_parts, sync::Arc};
+use std::{ffi::c_char, sync::Arc};
 
 use polywrap_client::{
     core::{env::Env, invoke::Invoker},
@@ -7,7 +7,7 @@ use polywrap_client::{
 use polywrap_plugin::module::{PluginModule, PluginWithEnv};
 
 use crate::utils::{
-    get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str, SafeOption,
+    get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str, SafeOption, Buffer,
 };
 
 #[repr(C)]
@@ -19,7 +19,7 @@ pub struct ExtPluginModule {
         params_buffer: *const u8,
         params_len: usize,
         invoker: *const WrapperInvoker,
-    ) -> (*const u8, usize),
+    ) -> Buffer,
 }
 
 impl PluginWithEnv for ExtPluginModule {
@@ -55,9 +55,8 @@ impl PluginModule for ExtPluginModule {
             params_vec.len(),
             invoker_ptr as *const WrapperInvoker,
         );
-        let resulting_vec = unsafe { from_raw_parts(result.0, result.1).to_vec() };
 
-        Ok(resulting_vec)
+        Ok(result.into())
     }
 }
 
