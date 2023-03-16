@@ -45,8 +45,6 @@ pub struct UriResolutionContext {
     history: Vec<UriResolutionStep>,
 }
 
-
-
 impl UriResolutionContext {
     pub fn new() -> Self {
         UriResolutionContext::default()
