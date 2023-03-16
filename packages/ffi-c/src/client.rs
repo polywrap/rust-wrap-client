@@ -24,9 +24,11 @@ pub extern "C" fn invoke_raw(
   let client = instantiate_from_ptr(client_ptr);
   let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
   let method = get_string_from_cstr_ptr(method);
+  let mut args_buffer: Option<Vec<u8>> = None;
   let args = if let SafeOption::Some(args) = args {
     let buffer: Vec<u8> = instantiate_from_ptr(args as *mut Buffer).into();
-    Some(buffer.as_slice())
+    args_buffer = Some(buffer);
+    args_buffer.as_ref().map(|buf| buf.as_slice())
   } else {
     None
   };

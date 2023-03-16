@@ -40,8 +40,8 @@ pub enum SafeOption<T> {
 
 #[repr(C)]
 pub struct Buffer {
-  data: *mut u8,
-  len: usize
+  pub data: *mut u8,
+  pub len: usize
 }
 
 impl From<Buffer> for Vec<u8> {
