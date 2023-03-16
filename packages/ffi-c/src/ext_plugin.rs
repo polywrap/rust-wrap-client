@@ -1,8 +1,7 @@
-use std::{ffi::c_char, sync::Arc};
+use std::{ffi::{c_char, c_void}, sync::Arc};
 
 use polywrap_client::{
     core::{env::Env, invoke::Invoker},
-    wrapper_invoker::WrapperInvoker,
 };
 use polywrap_plugin::module::{PluginModule, PluginWithEnv};
 
@@ -18,7 +17,7 @@ pub struct ExtPluginModule {
         method_name: *const i8,
         params_buffer: *const u8,
         params_len: usize,
-        invoker: *const WrapperInvoker,
+        invoker: *const c_void,
     ) -> Buffer,
 }
 
@@ -53,7 +52,7 @@ impl PluginModule for ExtPluginModule {
             method_name_ptr,
             params_vec.as_mut_ptr(),
             params_vec.len(),
-            invoker_ptr as *const WrapperInvoker,
+            invoker_ptr,
         );
 
         Ok(result.into())
