@@ -8,7 +8,7 @@ use super::uri_package_or_wrapper::SafeUriPackageOrWrapper;
 pub extern "C" fn create_static_resolver(entries: *const SafeUriPackageOrWrapper, len: usize) -> *mut StaticResolver {
   let mut uri_map: HashMap<String, UriPackageOrWrapper> = HashMap::new();
   for i in 0..len {
-    let entry_ptr = unsafe { entries.offset(i as isize) };
+    let entry_ptr = unsafe { entries.add(i) };
     let entry = instantiate_from_ptr(entry_ptr as *mut SafeUriPackageOrWrapper);
     let uri_package_or_wrapper: UriPackageOrWrapper = entry.into();
 

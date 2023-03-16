@@ -6,7 +6,7 @@ pub extern "C" fn create_recursive_resolver(entries: *const SafeUriResolverLikeV
   let mut uri_resolvers: Vec<UriResolverLike> = Vec::new();
   
   for i in 0..len {
-    let entry_ptr = unsafe { entries.offset(i as isize) };
+    let entry_ptr = unsafe { entries.add(i) };
     let entry = instantiate_from_ptr(entry_ptr as *mut SafeUriResolverLikeVariant);
 
     uri_resolvers.push(entry.into());

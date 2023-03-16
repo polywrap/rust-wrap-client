@@ -10,16 +10,16 @@ pub fn get_string_from_cstr_ptr(str_ptr: *const c_char) -> String {
 }
 
 pub fn instantiate_from_ptr<T>(ptr: *mut T) -> T {
-  let data = unsafe {
+  
+  unsafe {
     std::mem::forget(ptr);
     std::ptr::read(ptr)
-  };
-  data
+  }
 }
 
 pub fn instantiate_from_ptr_and_take_ownership<T>(ptr: *mut T) -> Box<T> {
-  let boxed_data = unsafe { Box::from_raw(ptr) };
-  boxed_data
+  
+  unsafe { Box::from_raw(ptr) }
 }
 
 pub fn into_raw_ptr_and_forget<T>(instance: T) -> *const std::ffi::c_void {

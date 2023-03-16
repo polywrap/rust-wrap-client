@@ -105,7 +105,7 @@ fn invoke_test() {
     let module_bytes = fs::read(Path::new(&module_path)).unwrap();
     let manifest_bytes = fs::read(Path::new(&manifest_path)).unwrap();
     
-    let manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
+    let _manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
     let file_reader = SimpleFileReader::new();
 
     let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader));

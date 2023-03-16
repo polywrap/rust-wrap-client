@@ -28,7 +28,7 @@ pub extern "C" fn invoke_raw(
   let args = if let SafeOption::Some(args) = args {
     let buffer: Vec<u8> = instantiate_from_ptr(args as *mut Buffer).into();
     args_buffer = Some(buffer);
-    args_buffer.as_ref().map(|buf| buf.as_slice())
+    args_buffer.as_deref()
   } else {
     None
   };

@@ -27,22 +27,22 @@ impl From<SafeUriPackageOrWrapper> for UriPackageOrWrapper {
       let entry = instantiate_from_ptr(value.data as *mut SafeUriPackageOrWrapper);
       let entry_uri: Uri = get_string_from_cstr_ptr(entry.uri).try_into().unwrap();
       match entry.data_type {
-        SafeUriPackageOrWrapperType::Uri => UriPackageOrWrapper::Uri(entry_uri.clone()),
+        SafeUriPackageOrWrapperType::Uri => UriPackageOrWrapper::Uri(entry_uri),
         SafeUriPackageOrWrapperType::WasmWrapper => {
           let wrapper = instantiate_from_ptr(entry.data as *mut WasmWrapper);
-          UriPackageOrWrapper::Wrapper(entry_uri.clone(), Arc::new(Mutex::new(wrapper)))
+          UriPackageOrWrapper::Wrapper(entry_uri, Arc::new(Mutex::new(wrapper)))
         },
         SafeUriPackageOrWrapperType::PluginWrapper => {
           let wrapper = instantiate_from_ptr(entry.data as *mut PluginWrapper);
-          UriPackageOrWrapper::Wrapper(entry_uri.clone(), Arc::new(Mutex::new(wrapper)))
+          UriPackageOrWrapper::Wrapper(entry_uri, Arc::new(Mutex::new(wrapper)))
         },
         SafeUriPackageOrWrapperType::WasmPackage => {
           let package = instantiate_from_ptr(entry.data as *mut WasmPackage);
-          UriPackageOrWrapper::Package(entry_uri.clone(), Arc::new(Mutex::new(package)))
+          UriPackageOrWrapper::Package(entry_uri, Arc::new(Mutex::new(package)))
         },
         SafeUriPackageOrWrapperType::PluginPackage => {
           let package = instantiate_from_ptr(entry.data as *mut PluginPackage);
-          UriPackageOrWrapper::Package(entry_uri.clone(), Arc::new(Mutex::new(package)))
+          UriPackageOrWrapper::Package(entry_uri, Arc::new(Mutex::new(package)))
         }
       }
     }
