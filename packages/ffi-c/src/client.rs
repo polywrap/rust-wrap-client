@@ -1,7 +1,7 @@
-use polywrap_client::{builder::types::{BuilderConfig, ClientConfigHandler}, client::PolywrapClient};
+use polywrap_client::{builder::types::{BuilderConfig, ClientConfigHandler}, client::PolywrapClient, core::invoke::Invoker};
 use crate::utils::{instantiate_from_ptr, into_raw_ptr_and_forget, Buffer};
 use std::ffi::c_char;
-use polywrap_client::{core::{invoke::Invoker, uri::Uri}};
+use polywrap_client::{core::{uri::Uri}};
 use crate::utils::{SafeOption, get_string_from_cstr_ptr};
 
 #[no_mangle]
