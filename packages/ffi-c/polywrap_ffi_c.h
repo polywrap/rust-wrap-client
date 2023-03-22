@@ -33,24 +33,7 @@ struct Buffer {
 };
 
 struct ExtPluginModule {
-  Buffer (*_wrap_invoke)(const int8_t *method_name, const uint8_t *params_buffer, uintptr_t params_len, void *invoker);
-};
-
-template<typename T>
-struct SafeOption {
-  enum class Tag {
-    None,
-    Some,
-  };
-
-  struct Some_Body {
-    T _0;
-  };
-
-  Tag tag;
-  union {
-    Some_Body some;
-  };
+  Buffer (*_wrap_invoke)(const int8_t *method_name, const uint8_t *params_buffer, uintptr_t params_len, PolywrapClient *invoker);
 };
 
 struct SafeUriPackageOrWrapper {
@@ -114,7 +97,7 @@ const void *build_client(BuilderConfig *builder_config_ptr);
 
 void set_plugin_env(ExtPluginModule *plugin_ptr, const char *env_json_str);
 
-SafeOption<const int8_t*> get_plugin_env(ExtPluginModule *plugin_ptr, const char *key);
+const int8_t* get_plugin_env(ExtPluginModule *plugin_ptr, const char *key);
 
 StaticResolver *create_static_resolver(const SafeUriPackageOrWrapper *entries, uintptr_t len);
 
@@ -125,8 +108,8 @@ PolywrapClient *create_client(BuilderConfig *builder_config_ptr);
 const Buffer *invoke_raw(PolywrapClient *client_ptr,
                          const char *uri,
                          const char *method,
-                         SafeOption<const Buffer*> args,
-                         SafeOption<const char*> env);
+                         const Buffer* args,
+                         const char* env);
 
 const Buffer *encode(const char *json_str);
 

@@ -33,12 +33,6 @@ pub fn raw_ptr_from_str(str: &str) -> *const c_char {
 }
 
 #[repr(C)]
-pub enum SafeOption<T> {
-    None,
-    Some(T),
-}
-
-#[repr(C)]
 pub struct Buffer {
   pub data: *mut u8,
   pub len: usize

@@ -1,4 +1,4 @@
-use std::{ffi::{c_char}, sync::Arc};
+use std::{ffi::{c_char}, sync::Arc, ptr::null};
 
 use polywrap_client::{
     core::{env::Env, invoke::Invoker}, client::PolywrapClient,
@@ -6,7 +6,7 @@ use polywrap_client::{
 use polywrap_plugin::module::{PluginModule, PluginWithEnv};
 
 use crate::utils::{
-    get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str, SafeOption, Buffer,
+    get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str, Buffer,
 };
 
 #[repr(C)]
@@ -73,14 +73,14 @@ pub extern "C" fn set_plugin_env(plugin_ptr: *mut ExtPluginModule, env_json_str:
 pub extern "C" fn get_plugin_env(
     plugin_ptr: *mut ExtPluginModule,
     key: *const c_char,
-) -> SafeOption<*const i8> {
+) -> *const i8 {
     let key_str = get_string_from_cstr_ptr(key);
     let plugin = instantiate_from_ptr(plugin_ptr);
 
     if let Some(value) = plugin.get_env(key_str) {
         let value_string = value.to_string();
-        SafeOption::Some(raw_ptr_from_str(&value_string))
+        raw_ptr_from_str(&value_string)
     } else {
-        SafeOption::None
+        null()
     }
 }
