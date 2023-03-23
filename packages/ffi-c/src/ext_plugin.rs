@@ -1,24 +1,35 @@
-use std::{ffi::{c_char}, sync::Arc, ptr::null};
+use std::{ffi::{c_char, c_void}, sync::Arc, ptr::null};
 
 use polywrap_client::{
     core::{env::Env, invoke::Invoker}, client::PolywrapClient,
 };
 use polywrap_plugin::module::{PluginModule, PluginWithEnv};
+use serde_json::json;
 
 use crate::utils::{
     get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str, Buffer,
 };
 
+// TODO: HACK. Find a better way to dynamically retrieve methods
+
+struct MethodsMap(*const c_void);
+
+unsafe impl Send for MethodsMap {}
+unsafe impl Sync for MethodsMap {}
+
+type ExtPluginWrapInvokeFn = extern "C" fn(
+  method_name: *const i8,
+  params_buffer: *const u8,
+  params_len: usize,
+  invoker: *mut PolywrapClient,
+  methods_map: *const c_void
+) -> Buffer;
+
 #[repr(C)]
 pub struct ExtPluginModule {
     env: Env,
-
-    _wrap_invoke: extern "C" fn(
-        method_name: *const i8,
-        params_buffer: *const u8,
-        params_len: usize,
-        invoker: *mut PolywrapClient,
-    ) -> Buffer,
+    methods_map: MethodsMap,
+    _wrap_invoke: Option<ExtPluginWrapInvokeFn>,
 }
 
 impl PluginWithEnv for ExtPluginModule {
@@ -47,15 +58,21 @@ impl PluginModule for ExtPluginModule {
 
         let mut params_vec = params.to_vec();
         let invoker_ptr = into_raw_ptr_and_forget(invoker);
+        let methods = self.methods_map.0;
 
-        let result = (self._wrap_invoke)(
+        if let Some(invoke_fn_ptr) = self._wrap_invoke {
+          let result = (invoke_fn_ptr)(
             method_name_ptr,
             params_vec.as_mut_ptr(),
             params_vec.len(),
             invoker_ptr as _,
-        );
+            methods
+          );
 
         Ok(result.into())
+      } else {
+        Err(polywrap_plugin::error::PluginError::ModuleError("_wrap_invoke fn pointer for ExtPlugin not set".to_owned()))
+      }
     }
 }
 
@@ -83,4 +100,21 @@ pub extern "C" fn get_plugin_env(
     } else {
         null()
     }
+}
+
+#[no_mangle]
+pub extern "C" fn set_plugin_wrap_invoke(plugin_ptr: *mut ExtPluginModule, fn_ptr: ExtPluginWrapInvokeFn) {
+    let mut plugin = instantiate_from_ptr(plugin_ptr);
+    plugin._wrap_invoke = Some(fn_ptr);
+}
+
+#[no_mangle]
+pub extern "C" fn create_plugin(method_map_ptr: *const c_void) -> *mut ExtPluginModule {
+  let plugin = ExtPluginModule {
+    env: json!({}),
+    methods_map: MethodsMap(method_map_ptr),
+    _wrap_invoke: None
+  };
+
+  into_raw_ptr_and_forget(plugin) as *mut _
 }
