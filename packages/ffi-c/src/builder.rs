@@ -9,13 +9,13 @@ use polywrap_client::{
         uri::Uri,
     },
 };
-use polywrap_plugin::{wrapper::PluginWrapper, package::PluginPackage};
+use polywrap_plugin::{wrapper::PluginWrapper, package::PluginPackage, module::PluginModule};
 use polywrap_wasm::{wasm_wrapper::WasmWrapper, wasm_package::WasmPackage};
 
 use crate::{utils::{
     get_string_from_cstr_ptr, instantiate_from_ptr, instantiate_from_ptr_and_take_ownership,
     into_raw_ptr_and_forget,
-}, resolvers::uri_resolver_like::SafeUriResolverLikeVariant};
+}, resolvers::uri_resolver_like::SafeUriResolverLikeVariant, ext_plugin::{ExtPluginModule, PluginInvokeFn}};
 
 #[no_mangle]
 pub extern "C" fn new_builder_config() -> *mut c_void {
@@ -95,14 +95,17 @@ pub extern "C" fn add_wasm_wrapper(builder_config_ptr: *mut BuilderConfig, uri: 
 }
 
 #[no_mangle]
-pub extern "C" fn add_plugin_wrapper(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, wrapper: *mut PluginWrapper) {
+pub extern "C" fn add_plugin_wrapper(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, plugin_ptr: *mut c_void, plugin_invoke_fn: PluginInvokeFn) {
     let mut builder = instantiate_from_ptr(builder_config_ptr);
-    let wrapper = Arc::new(Mutex::new(instantiate_from_ptr(wrapper)));
+    let ext_plugin = Box::new(ExtPluginModule::new(plugin_ptr, plugin_invoke_fn)) as Box<dyn PluginModule>;
+    let ext_plugin = Arc::new(Mutex::new(ext_plugin));
+    let ext_plugin_wrapper = PluginWrapper::new(ext_plugin);
+    
     let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
 
     let uri_wrapper = UriWrapper {
       uri,
-      wrapper
+      wrapper: Arc::new(Mutex::new(ext_plugin_wrapper))
     };
 
     builder.add_wrapper(uri_wrapper);
