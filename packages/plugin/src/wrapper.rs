@@ -7,6 +7,7 @@ use crate::module::{PluginModule};
 
 type PluginModuleInstance = Arc<Mutex<Box<dyn (PluginModule)>>>;
 
+#[derive(Debug)]
 pub struct PluginWrapper {
     instance: PluginModuleInstance,
 }
@@ -63,11 +64,5 @@ impl Wrapper for PluginWrapper {
 impl PartialEq for PluginWrapper {
     fn eq(&self, other: &Self) -> bool {
         self == other
-    }
-}
-
-impl Debug for PluginWrapper {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "PluginWrapper: {:?}", self)
     }
 }

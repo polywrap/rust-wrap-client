@@ -1,5 +1,6 @@
 use std::{sync::Arc};
 use polywrap_core::env::{Env};
+use std::fmt::Debug;
 
 use crate::error::PluginError;
 
@@ -8,7 +9,7 @@ pub trait PluginWithEnv {
     fn get_env(&self, key: String) -> Option<&Env>;
 }
 
-pub trait PluginModule: Send + Sync + PluginWithEnv {
+pub trait PluginModule: Send + Sync + PluginWithEnv + Debug {
     fn _wrap_invoke(
         &mut self,
         method_name: &str,

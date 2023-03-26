@@ -1,4 +1,4 @@
-use std::{ffi::{c_char, c_void}, sync::Arc, ptr::null};
+use std::{ffi::{c_char, c_void}, sync::Arc, ptr::null, fmt::{Debug, Formatter}};
 
 use polywrap_client::{
     core::{env::Env, invoke::Invoker}, client::PolywrapClient,
@@ -105,4 +105,10 @@ pub extern "C" fn get_plugin_env(
     } else {
         null()
     }
+}
+
+impl Debug for ExtPluginModule {
+  fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+    write!(f, "ExtPluginmodule")
+  }
 }

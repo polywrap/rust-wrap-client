@@ -19,6 +19,7 @@ impl UriRedirect {
   }
 }
 
+#[derive(Debug)]
 pub struct ClientConfig {
   pub resolver: Arc<dyn UriResolver>,
   pub envs: Option<Envs>,

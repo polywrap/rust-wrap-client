@@ -3,6 +3,7 @@ use std::{collections::HashMap, sync::Arc, sync::Mutex, vec};
 
 use crate::{uri::Uri};
 
+#[derive(Debug)]
 pub struct UriWrapper {
     pub uri: Uri,
     pub wrapper: Arc<Mutex<dyn Wrapper>>,
