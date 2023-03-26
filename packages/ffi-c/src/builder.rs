@@ -96,7 +96,7 @@ pub extern "C" fn add_wasm_wrapper(builder_config_ptr: *mut BuilderConfig, uri: 
 
 #[no_mangle]
 pub extern "C" fn add_plugin_wrapper(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, plugin_ptr: *mut c_void, plugin_invoke_fn: PluginInvokeFn) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     let ext_plugin = Box::new(ExtPluginModule::new(plugin_ptr, plugin_invoke_fn)) as Box<dyn PluginModule>;
     let ext_plugin = Arc::new(Mutex::new(ext_plugin));
     let ext_plugin_wrapper = PluginWrapper::new(ext_plugin);

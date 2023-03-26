@@ -1,6 +1,6 @@
 use polywrap_client::{builder::types::{BuilderConfig, ClientConfigHandler}, client::PolywrapClient, core::invoke::Invoker};
 use crate::utils::{instantiate_from_ptr, into_raw_ptr_and_forget, Buffer};
-use std::ffi::c_char;
+use std::{ffi::c_char, slice::from_raw_parts};
 use polywrap_client::{core::{uri::Uri}};
 use crate::utils::{get_string_from_cstr_ptr};
 
@@ -21,12 +21,13 @@ pub extern "C" fn invoke_raw(
   args: *const Buffer,
   env: *const c_char,
 ) -> *const Buffer {
-  let client = instantiate_from_ptr(client_ptr);
+  let client = unsafe { &*client_ptr };
   let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
   let method = get_string_from_cstr_ptr(method);
   let mut _args_buffer: Option<Vec<u8>> = None;
   let args = if !args.is_null() {
-    let buffer: Vec<u8> = instantiate_from_ptr(args as *mut Buffer).into();
+    let buffer: Vec<u8> = unsafe { from_raw_parts((*args).data, (*args).len).to_vec() };
+    println!("VEC: {:?}", buffer);
     _args_buffer = Some(buffer);
     _args_buffer.as_deref()
   } else {
