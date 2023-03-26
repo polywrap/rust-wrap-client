@@ -1,5 +1,6 @@
-use polywrap_client::{builder::types::{BuilderConfig, ClientConfigHandler}, client::PolywrapClient, core::invoke::Invoker};
-use crate::utils::{instantiate_from_ptr, into_raw_ptr_and_forget, Buffer};
+use polywrap_client::{builder::types::{BuilderConfig, ClientConfigHandler}, client::PolywrapClient, core::invoke::Invoker, msgpack::serialize};
+use serde_json::Value;
+use crate::utils::{instantiate_from_ptr, into_raw_ptr_and_forget, Buffer, raw_ptr_from_str};
 use std::{ffi::c_char, slice::from_raw_parts};
 use polywrap_client::{core::{uri::Uri}};
 use crate::utils::{get_string_from_cstr_ptr};
@@ -18,21 +19,13 @@ pub extern "C" fn invoke_raw(
   client_ptr: *mut PolywrapClient,
   uri: *const c_char,
   method: *const c_char,
-  args: *const Buffer,
+  args: *const c_char,
   env: *const c_char,
-) -> *const Buffer {
+) -> *const c_char {
   let client = unsafe { &*client_ptr };
   let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
   let method = get_string_from_cstr_ptr(method);
-  let mut _args_buffer: Option<Vec<u8>> = None;
-  let args = if !args.is_null() {
-    let buffer: Vec<u8> = unsafe { from_raw_parts((*args).data, (*args).len).to_vec() };
-    println!("VEC: {:?}", buffer);
-    _args_buffer = Some(buffer);
-    _args_buffer.as_deref()
-  } else {
-    None
-  };
+  let args = get_string_from_cstr_ptr(args);
 
   let env = if !env.is_null() {
     Some(serde_json::from_str(&get_string_from_cstr_ptr(env)).unwrap())
@@ -40,11 +33,12 @@ pub extern "C" fn invoke_raw(
     None
   };
 
-  let result = client.invoke_raw(&uri, &method, args, env, None).unwrap();
-  let result_buffer = Buffer {
-    data: result.as_ptr() as *mut u8,
-    len: result.len()
-  };
+  let args: Value = serde_json::from_str(&args).unwrap();
+  let args = serialize(args).unwrap();
 
-  into_raw_ptr_and_forget(result_buffer) as *const Buffer
+  let result = client.invoke_raw(&uri, &method, Some(&args), env, None).unwrap();
+  let result_json: serde_json::Value = polywrap_client::msgpack::decode(&result).unwrap();
+  let result_json = result_json.to_string();
+
+  raw_ptr_from_str(&result_json)
 }

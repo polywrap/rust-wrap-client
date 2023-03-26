@@ -4,7 +4,7 @@ use polywrap_client::{
     core::{env::Env, invoke::Invoker}, client::PolywrapClient,
 };
 use polywrap_plugin::module::{PluginModule, PluginWithEnv};
-use serde_json::json;
+use serde_json::{json, Value};
 
 use crate::utils::{
     get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str, Buffer,
@@ -18,10 +18,9 @@ unsafe impl Sync for PluginPtrHandle {}
 pub type PluginInvokeFn = extern "C" fn(
   plugin_ptr: *const c_void,
   method_name: *const i8,
-  params_buffer: *const u8,
-  params_len: usize,
+  params: *const i8,
   invoker: *mut PolywrapClient
-) -> *const Buffer;
+) -> *const i8;
 
 #[repr(C)]
 pub struct ExtPluginModule {
@@ -64,20 +63,24 @@ impl PluginModule for ExtPluginModule {
         let method_name = method_name.to_string();
         let method_name_ptr = raw_ptr_from_str(&method_name);
 
-        let mut params_vec = params.to_vec();
+        let params_vec = params.to_vec();
+        let params_json: serde_json::Value = polywrap_client::msgpack::decode(&params_vec).unwrap();
+        let params_json_string = params_json.to_string();
+        let params_ptr = raw_ptr_from_str(&params_json_string);
         let invoker_ptr = into_raw_ptr_and_forget(invoker);
 
-        let result_buffer = (self.plugin_invoke)(
+        let result_cstr = (self.plugin_invoke)(
           self.ptr_handle.0,
           method_name_ptr,
-          params_vec.as_mut_ptr(),
-          params_vec.len(),
+          params_ptr,
           invoker_ptr as _,
         );
-        
-        let result_buffer = instantiate_from_ptr(result_buffer as *mut Buffer);
 
-        Ok(result_buffer.into())
+        let result_string = get_string_from_cstr_ptr(result_cstr);
+        let result: Value = serde_json::from_str(&result_string).unwrap();
+        let result_buffer = polywrap_client::msgpack::serialize(result).unwrap();
+
+        Ok(result_buffer)
     }
 }
 
