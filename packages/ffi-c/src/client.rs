@@ -1,7 +1,7 @@
 use polywrap_client::{builder::types::{BuilderConfig, ClientConfigHandler}, client::PolywrapClient, core::invoke::Invoker, msgpack::serialize};
 use serde_json::Value;
-use crate::utils::{instantiate_from_ptr, into_raw_ptr_and_forget, Buffer, raw_ptr_from_str};
-use std::{ffi::c_char, slice::from_raw_parts};
+use crate::utils::{instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str};
+use std::{ffi::c_char};
 use polywrap_client::{core::{uri::Uri}};
 use crate::utils::{get_string_from_cstr_ptr};
 

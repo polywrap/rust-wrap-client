@@ -1,6 +1,6 @@
 use std::{ffi::{c_char, c_void}, sync::{Mutex, Arc}};
 use polywrap_client::{
-    builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
+    builder::types::{BuilderConfig, ClientBuilder},
     core::{
         env::Env,
         resolvers::{
@@ -13,7 +13,7 @@ use polywrap_plugin::{wrapper::PluginWrapper, package::PluginPackage, module::Pl
 use polywrap_wasm::{wasm_wrapper::WasmWrapper, wasm_package::WasmPackage};
 
 use crate::{utils::{
-    get_string_from_cstr_ptr, instantiate_from_ptr, instantiate_from_ptr_and_take_ownership,
+    get_string_from_cstr_ptr, instantiate_from_ptr,
     into_raw_ptr_and_forget,
 }, resolvers::uri_resolver_like::SafeUriResolverLikeVariant, ext_plugin::{ExtPluginModule, PluginInvokeFn}};
 
@@ -26,7 +26,7 @@ pub extern "C" fn new_builder_config() -> *mut c_void {
 
 #[no_mangle]
 pub extern "C" fn add_env(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, env: *const c_char) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
 
     let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
     let env: Env = serde_json::from_str(&get_string_from_cstr_ptr(env)).unwrap();
@@ -36,7 +36,7 @@ pub extern "C" fn add_env(builder_config_ptr: *mut BuilderConfig, uri: *const c_
 
 #[no_mangle]
 pub extern "C" fn remove_env(builder_config_ptr: *mut BuilderConfig, uri: *const c_char) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
 
     builder.remove_env(uri);
@@ -44,7 +44,7 @@ pub extern "C" fn remove_env(builder_config_ptr: *mut BuilderConfig, uri: *const
 
 #[no_mangle]
 pub extern "C" fn set_env(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, env: *const c_char) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
 
     let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
     let env: Env = serde_json::from_str(&get_string_from_cstr_ptr(env)).unwrap();
@@ -58,7 +58,7 @@ pub extern "C" fn add_interface_implementation(
     interface_uri: *const c_char,
     implementation_uri: *const c_char,
 ) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
 
     let interface_uri: Uri = get_string_from_cstr_ptr(interface_uri).try_into().unwrap();
     let implementation_uri: Uri = get_string_from_cstr_ptr(implementation_uri).try_into().unwrap();
@@ -72,7 +72,7 @@ pub extern "C" fn remove_interface_implementation(
     interface_uri: *const c_char,
     implementation_uri: *const c_char,
 ) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
 
     let interface_uri: Uri = get_string_from_cstr_ptr(interface_uri).try_into().unwrap();
     let implementation_uri: Uri = get_string_from_cstr_ptr(implementation_uri).try_into().unwrap();
@@ -82,7 +82,7 @@ pub extern "C" fn remove_interface_implementation(
 
 #[no_mangle]
 pub extern "C" fn add_wasm_wrapper(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, wrapper: *mut WasmWrapper) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     let wrapper = Arc::new(Mutex::new(instantiate_from_ptr(wrapper)));
     let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
 
@@ -113,7 +113,7 @@ pub extern "C" fn add_plugin_wrapper(builder_config_ptr: *mut BuilderConfig, uri
 
 #[no_mangle]
 pub extern "C" fn remove_wrapper(builder_config_ptr: *mut BuilderConfig, uri: *const c_char) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
 
     builder.remove_wrapper(uri);
@@ -121,7 +121,7 @@ pub extern "C" fn remove_wrapper(builder_config_ptr: *mut BuilderConfig, uri: *c
 
 #[no_mangle]
 pub extern "C" fn add_wasm_package(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, package: *mut WasmPackage) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     let package = Arc::new(Mutex::new(instantiate_from_ptr(package)));
     let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
     
@@ -135,7 +135,7 @@ pub extern "C" fn add_wasm_package(builder_config_ptr: *mut BuilderConfig, uri: 
 
 #[no_mangle]
 pub extern "C" fn add_plugin_package(builder_config_ptr: *mut BuilderConfig, uri: *const c_char, package: *mut PluginPackage) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     let package = Arc::new(Mutex::new(instantiate_from_ptr(package)));
     let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
 
@@ -149,7 +149,7 @@ pub extern "C" fn add_plugin_package(builder_config_ptr: *mut BuilderConfig, uri
 
 #[no_mangle]
 pub extern "C" fn remove_package(builder_config_ptr: *mut BuilderConfig, uri: *const c_char) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
 
     builder.remove_package(uri);
@@ -157,7 +157,7 @@ pub extern "C" fn remove_package(builder_config_ptr: *mut BuilderConfig, uri: *c
 
 #[no_mangle]
 pub extern "C" fn add_redirect(builder_config_ptr: *mut BuilderConfig, from: *const c_char, to: *const c_char) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
 
     let from: Uri = get_string_from_cstr_ptr(from).try_into().unwrap();
     let to: Uri = get_string_from_cstr_ptr(to).try_into().unwrap();
@@ -167,7 +167,7 @@ pub extern "C" fn add_redirect(builder_config_ptr: *mut BuilderConfig, from: *co
 
 #[no_mangle]
 pub extern "C" fn remove_redirect(builder_config_ptr: *mut BuilderConfig, from: *const c_char) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     let from: Uri = get_string_from_cstr_ptr(from).try_into().unwrap();
 
     builder.remove_redirect(from);
@@ -175,33 +175,24 @@ pub extern "C" fn remove_redirect(builder_config_ptr: *mut BuilderConfig, from: 
 
 #[no_mangle]
 pub extern "C" fn add_wrapper_resolver(builder_config_ptr: *mut BuilderConfig, resolver: SafeUriResolverLikeVariant) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     builder.add_resolver(resolver.into());
 }
 
 #[no_mangle]
 pub extern "C" fn add_redirect_resolver(builder_config_ptr: *mut BuilderConfig, resolver: SafeUriResolverLikeVariant) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     builder.add_resolver(resolver.into());
 }
 
 #[no_mangle]
 pub extern "C" fn add_package_resolver(builder_config_ptr: *mut BuilderConfig, resolver: SafeUriResolverLikeVariant) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     builder.add_resolver(resolver.into());
 }
 
 #[no_mangle]
 pub extern "C" fn add_resolver(builder_config_ptr: *mut BuilderConfig, resolver: SafeUriResolverLikeVariant) {
-    let mut builder = instantiate_from_ptr(builder_config_ptr);
+    let builder = unsafe { &mut *builder_config_ptr };
     builder.add_resolver(resolver.into());
-}
-
-// Destroys builder_config
-#[no_mangle]
-pub extern "C" fn build_client(builder_config_ptr: *mut BuilderConfig) -> *const c_void {
-    let builder = instantiate_from_ptr_and_take_ownership(builder_config_ptr);
-    let config = builder.build();
-
-    into_raw_ptr_and_forget(config)
 }

@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex}, fmt::{Formatter, Debug}};
+use std::{sync::{Arc, Mutex}, fmt::{Debug}};
 
 use polywrap_core::{uri::Uri, invoke::Invoker, wrapper::{Wrapper, GetFileOptions}, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
 use serde_json::Value;

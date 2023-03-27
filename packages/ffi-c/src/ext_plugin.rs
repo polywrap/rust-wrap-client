@@ -7,7 +7,7 @@ use polywrap_plugin::module::{PluginModule, PluginWithEnv};
 use serde_json::{json, Value};
 
 use crate::utils::{
-    get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str, Buffer,
+    get_string_from_cstr_ptr, instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str,
 };
 
 struct PluginPtrHandle(*const c_void);
