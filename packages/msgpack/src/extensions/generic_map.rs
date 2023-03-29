@@ -1,17 +1,17 @@
-use std::{collections::HashMap, marker::PhantomData, hash::Hash};
+use std::{collections::{BTreeMap}, marker::PhantomData};
 
 use rmp_serde::{to_vec, from_slice};
 use serde::{de::{Unexpected, DeserializeOwned}, Serialize};
 use serde_bytes::ByteBuf;
 
 #[derive(Debug, PartialEq)]
-pub struct GenericMap<K: Hash + Eq, V>(pub HashMap<K, V>);
+pub struct GenericMap<K, V>(pub BTreeMap<K, V>);
 
-struct GenericMapVisitor<K: Hash + Eq, V> {
+struct GenericMapVisitor<K: Ord, V> {
   marker: PhantomData<fn() -> GenericMap<K, V>>
 }
 
-impl<K: Hash + Eq, V> GenericMapVisitor<K, V> {
+impl<K: Ord, V> GenericMapVisitor<K, V> {
   fn new() -> Self {
     GenericMapVisitor {
           marker: PhantomData
@@ -19,7 +19,7 @@ impl<K: Hash + Eq, V> GenericMapVisitor<K, V> {
   }
 }
 
-impl<K: Hash + Eq, V> Serialize for GenericMap<K, V>
+impl<K: Ord, V> Serialize for GenericMap<K, V>
 where K: Serialize, V: Serialize, {
     fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
         where S: serde::ser::Serializer
@@ -36,7 +36,7 @@ where K: Serialize, V: Serialize, {
 }
 
 impl<'de, K, V> serde::de::Visitor<'de> for GenericMapVisitor<K, V> where
-K: DeserializeOwned + Hash + Eq,
+K: DeserializeOwned + Ord,
 V: DeserializeOwned, {
     type Value = GenericMap<K, V>;
 
@@ -58,10 +58,8 @@ V: DeserializeOwned, {
         let data: ByteBuf = seq.next_element()?
             .ok_or_else(|| serde::de::Error::invalid_length(1, &self))?;
 
-        let res: HashMap<K, V> = from_slice(&data).unwrap();
-
         if tag == 1 {
-            Ok(GenericMap(res))
+            Ok(GenericMap(from_slice(&data).unwrap()))
         } else {
             let unexp = Unexpected::Signed(tag as i64);
             Err(serde::de::Error::invalid_value(unexp, &self))
@@ -70,7 +68,7 @@ V: DeserializeOwned, {
 }
 
 impl<'de, K, V> serde::de::Deserialize<'de> for GenericMap<K, V> where
-K: DeserializeOwned + Hash + Eq,
+K: DeserializeOwned + Ord,
 V: DeserializeOwned, {
     fn deserialize<D>(deserializer: D) -> Result<GenericMap<K, V>, D::Error>
         where D: serde::Deserializer<'de>,
