@@ -100,7 +100,7 @@ pub fn convert_msgpack_to_json(value: rmpv::Value) -> serde_json::Value {
     rmpv::Value::Map(map) => {
       let mut new_map = serde_json::Map::new();
       for (key, value) in map.iter() {
-          new_map.insert(key.to_string(), convert_msgpack_to_json(value.clone()));
+          new_map.insert(key.as_str().unwrap().to_string(), convert_msgpack_to_json(value.clone()));
       }
       serde_json::Value::Object(new_map)
     },
