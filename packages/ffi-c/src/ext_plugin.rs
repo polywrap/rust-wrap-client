@@ -1,7 +1,7 @@
 use std::{ffi::{c_char, c_void}, sync::Arc, ptr::null, fmt::{Debug, Formatter}};
 
 use polywrap_client::{
-    core::{env::Env, invoke::Invoker}, client::PolywrapClient,
+    core::{env::Env, invoke::Invoker}, client::PolywrapClient, msgpack::extensions::generic_map::convert_msgpack_to_json,
 };
 use polywrap_plugin::module::{PluginModule, PluginWithEnv};
 use serde_json::{json, Value};
@@ -64,7 +64,8 @@ impl PluginModule for ExtPluginModule {
         let method_name_ptr = raw_ptr_from_str(&method_name);
 
         let params_vec = params.to_vec();
-        let params_json: serde_json::Value = polywrap_client::msgpack::decode(&params_vec).unwrap();
+        let params_msgpack: polywrap_client::msgpack::Value = polywrap_client::msgpack::decode(&params_vec).unwrap();
+        let params_json = convert_msgpack_to_json(params_msgpack);
         let params_json_string = params_json.to_string();
         let params_ptr = raw_ptr_from_str(&params_json_string);
         let invoker_ptr = into_raw_ptr_and_forget(invoker);
