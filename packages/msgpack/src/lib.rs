@@ -7,6 +7,7 @@ pub use rmp_serde::Serializer;
 pub use rmpv::{encode::write_value, Value};
 
 pub mod error;
+pub mod extensions;
 
 use error::MsgpackError;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};

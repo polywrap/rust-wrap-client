@@ -1,4 +1,5 @@
 use crate::wrap::types::{Request, Response, ResponseType};
+use polywrap_msgpack::extensions::generic_map::GenericMap;
 use polywrap_plugin::error::PluginError;
 use std::collections::BTreeMap;
 
@@ -21,6 +22,7 @@ pub fn parse_response(
             )
         })
         .collect::<BTreeMap<String, String>>();
+    let headers = GenericMap(headers);
 
     let status = response.status();
     let status_text = response.status_text().to_string();
@@ -54,17 +56,19 @@ pub fn parse_request(
 
     if let Some(request) = request {
         if let Some(url_params) = request.url_params {
-            for (key, value) in url_params.iter() {
+            for (key, value) in url_params.0.iter() {
                 request_builder = request_builder.query(key, value);
             }
         };
 
         if let Some(headers) = request.headers {
-            for (name, value) in headers.iter() {
+            for (name, value) in headers.0.iter() {
                 request_builder = request_builder.set(name, value)
             }
         }
     }
+
+    println!("BUILDER {:?}", request_builder);
 
     Ok(request_builder)
 }
