@@ -4,7 +4,7 @@ use rmp_serde::{to_vec, from_slice};
 use serde::{de::{Unexpected, DeserializeOwned}, Serialize};
 use serde_bytes::ByteBuf;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct GenericMap<K, V>(pub BTreeMap<K, V>);
 
 struct GenericMapVisitor<K: Ord, V> {
