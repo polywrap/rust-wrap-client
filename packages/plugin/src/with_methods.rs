@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, fmt::{Debug, Formatter}};
 
 
 use polywrap_core::env::{Env};
@@ -59,4 +59,10 @@ impl PluginWithEnv for PluginModuleWithMethods {
           None
         }
     }
+}
+
+impl Debug for PluginModuleWithMethods {
+  fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
+    write!(f, "PluginModuleWithMethods")
+  }
 }

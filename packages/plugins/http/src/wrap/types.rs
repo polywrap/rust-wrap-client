@@ -18,6 +18,7 @@ use serde_json as JSON;
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Response {
     pub status: i32,
+    #[serde(rename = "statusText")]
     pub status_text: String,
     pub headers: Option<GenericMap<String, String>>,
     pub body: Option<String>,
@@ -25,9 +26,12 @@ pub struct Response {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Request {
     pub headers: Option<GenericMap<String, String>>,
+    #[serde(rename = "urlParams")]
     pub url_params: Option<GenericMap<String, String>>,
+    #[serde(rename = "responseType")]
     pub response_type: ResponseType,
     pub body: Option<String>,
+    #[serde(rename = "formData")]
     pub form_data: Option<Vec<FormDataEntry>>,
     pub timeout: Option<u32>,
 }
@@ -35,6 +39,7 @@ pub struct Request {
 pub struct FormDataEntry {
     pub name: String,
     pub value: Option<String>,
+    #[serde(rename = "fileName")]
     pub file_name: Option<String>,
     #[serde(rename = "type")]
     pub _type: Option<String>,

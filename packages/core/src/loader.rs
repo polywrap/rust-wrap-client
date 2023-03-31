@@ -6,7 +6,7 @@ use crate::{
     resolvers::uri_resolver::UriResolverHandler, uri::Uri, wrapper::Wrapper,
 };
 
-pub trait Loader: UriResolverHandler + Send + Sync {
+pub trait Loader: UriResolverHandler {
     fn load_wrapper(
         &self,
         uri: &Uri,

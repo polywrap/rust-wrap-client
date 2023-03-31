@@ -23,7 +23,8 @@ pub fn parse_response(
         })
         .collect::<BTreeMap<String, String>>();
     let headers = GenericMap(headers);
-
+    print!("from parse response in http plugin:");
+    println!("{:?}", response);
     let status = response.status();
     let status_text = response.status_text().to_string();
 
