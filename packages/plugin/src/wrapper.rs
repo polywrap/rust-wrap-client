@@ -49,7 +49,7 @@ impl Wrapper for PluginWrapper {
                 uri: uri.to_string(),
                 method: method.to_string(),
                 // Decode the args from msgpack to JSON for better error logging
-                args: polywrap_msgpack::decode::<Value>(&args).unwrap().to_string(),
+                args: polywrap_msgpack::decode::<polywrap_msgpack::Value>(&args).unwrap().to_string(),
                 exception: e.to_string(),
             }
             .into()),
