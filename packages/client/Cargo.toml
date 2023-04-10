@@ -1,21 +1,22 @@
 [package]
 name = "polywrap_client"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
-edition = "2021"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
-thiserror = "1.0.37"
-polywrap_core = {path = "../core"}
-polywrap_msgpack = {path = "../msgpack"}
-polywrap_client_builder = {path = "../builder"}
-polywrap_resolvers = {path = "../resolvers"}
-serde = {version = "1.0.145", features = ["derive"]}
-serde_json = "1.0.87"
+thiserror.workspace = true
+polywrap_core.workspace = true
+polywrap_msgpack.workspace = true
+polywrap_client_builder.workspace = true
+polywrap_resolvers.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 
 [dev-dependencies]
-polywrap_resolvers = {path = "../resolvers"}
-polywrap_wasm = {path = "../wasm"}
-polywrap_tests_utils = {path = "../tests-utils"}
-wrap_manifest_schemas = {path = "../manifest"}
+polywrap_resolvers.workspace = true
+polywrap_wasm.workspace = true
+polywrap_tests_utils.workspace = true
+wrap_manifest_schemas.workspace = true

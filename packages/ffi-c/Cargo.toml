@@ -1,20 +1,26 @@
 [package]
 name = "polywrap_ffi_c"
-version = "0.1.0"
-edition = "2021"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-polywrap_client = {path = "../client"}
-polywrap_core = {path = "../core"}
-polywrap_resolvers = {path = "../resolvers"}
-polywrap_plugin = {path ="../plugin"}
+polywrap_client.workspace = true
+polywrap_core.workspace = true
+polywrap_resolvers.workspace = true
+polywrap_plugin.workspace = true
+polywrap_msgpack.workspace = true
+
+serde_json.workspace = true
+
 fs_resolver_plugin = {path = "../plugins/fs-resolver"}
 filesystem_plugin = {path = "../plugins/fs"}
 http_resolver_plugin = {path = "../plugins/http-resolver"}
 http_plugin = {path = "../plugins/http"}
-polywrap_msgpack = {path = "../msgpack"}
-serde_json = "1.0.87"
+
 libc = "0.2"

@@ -1,21 +1,26 @@
 [package]
 name = "polywrap_plugin"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
-edition = "2021"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
-thiserror = "1.0.37"
-polywrap_core = {path = "../core"}
-wrap_manifest_schemas = {path = "../manifest"}
-polywrap_msgpack = { path = "../msgpack" }
-serde_json = "1.0.87"
+thiserror.workspace = true
+polywrap_core.workspace = true
+wrap_manifest_schemas.workspace = true
+polywrap_msgpack.workspace = true
+serde_json.workspace = true
+
+convert_case = { version = "0.6.0", optional = true }
+syn = { workspace = true, optional = true }
+proc-macro2 = { workspace = true, optional = true }
+
 polywrap_paste = "1.0.0"
 Inflector = "0.11.4"
 
 [dev-dependencies]
-serde = {version = "1.0.145", features = ["derive"]}
-polywrap_client = { path = "../client" }
-filesystem_plugin = { path = "../plugins/fs" }
-polywrap_plugin_macro = {path = "../plugin_macro"}
+serde.workspace = true
+polywrap_client.workspace = true
+polywrap_plugin_macro.workspace = true

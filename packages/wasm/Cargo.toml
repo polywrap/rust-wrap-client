@@ -1,15 +1,16 @@
 [package]
 name = "polywrap_wasm"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
-edition = "2021"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
-serde = "1.0.145"
-thiserror = "1.0.37"
-base64 = "0.13.0"
-serde_json = "1.0.87"
+serde.workspace = true
+thiserror.workspace = true
+serde_json.workspace = true
+base64.workspace = true
 wasmer = "3.1.1"
 polywrap_core = {path = "../core"}
 wrap_manifest_schemas = {path = "../manifest"}
