@@ -1,5 +1,6 @@
 [package]
 name = "polywrap_msgpack"
+description = "Rust implementation of the WRAP msgpack encoding standard"
 
 version.workspace = true
 edition.workspace = true

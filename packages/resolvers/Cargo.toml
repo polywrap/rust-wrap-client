@@ -1,9 +1,11 @@
 [package]
 name = "polywrap_resolvers"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
-edition = "2021"
+description = "Uri resolvers to achieve uri resolution in Polywrap Client"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
 thiserror.workspace = true

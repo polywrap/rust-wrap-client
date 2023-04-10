@@ -1,5 +1,6 @@
 [package]
 name = "polywrap_core"
+description = "Core types of Polywrap client"
 
 version.workspace = true
 edition.workspace = true

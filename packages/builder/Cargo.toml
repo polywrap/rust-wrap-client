@@ -1,5 +1,6 @@
 [package]
 name = "polywrap_client_builder"
+description = "Configuration builder for Polywrap Client"
 
 version.workspace = true
 edition.workspace = true

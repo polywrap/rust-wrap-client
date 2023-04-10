@@ -1,5 +1,6 @@
 [package]
 name = "polywrap_client"
+description = "Polywrap Client implementation in rust"
 
 version.workspace = true
 edition.workspace = true

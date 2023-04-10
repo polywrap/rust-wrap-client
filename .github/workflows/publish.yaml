@@ -26,14 +26,10 @@ jobs:
           toolchain: nightly
           override: true
 
-      - name: Build RS crates
-        run: cargo build --release
-
-      - name: Verify & Generate RS Documentation
-        run: cargo doc --no-deps
-
-      - name: Upload Rust Crates To Crates.io
-        run: cargo publish --token ${{secrets.POLYWRAP_BUILD_BOT_CRATES_PAT}}
+      - name: Publish workspace packages to crates.io
+        run: ../scripts/publish.sh
+        env:
+          CRATES_IO_TOKEN: ${{secrets.POLYWRAP_BUILD_BOT_CRATES_PAT}}
 
       - uses: actions/github-script@0.8.0
         with:

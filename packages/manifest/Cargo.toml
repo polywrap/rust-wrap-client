@@ -1,5 +1,6 @@
 [package]
 name = "wrap_manifest_schemas"
+description = "WRAP Manifest rust typings"
 
 version.workspace = true
 edition.workspace = true
