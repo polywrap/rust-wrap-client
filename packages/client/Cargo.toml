@@ -21,3 +21,4 @@ polywrap_tests_utils = {path = "../tests-utils"}
 wrap_manifest_schemas = {path = "../manifest"}
 polywrap_plugin = {path ="../plugin"}
 num-bigint = { version = "0.4", default-features = false, features = ["serde"] }
+bigdecimal = { version = "0.3.0", default-features = false, features = ["serde"] }
