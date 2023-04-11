@@ -20,3 +20,4 @@ polywrap_wasm = {path = "../wasm"}
 polywrap_tests_utils = {path = "../tests-utils"}
 wrap_manifest_schemas = {path = "../manifest"}
 polywrap_plugin = {path ="../plugin"}
+num-bigint = { version = "0.4", default-features = false, features = ["serde"] }

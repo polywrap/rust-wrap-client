@@ -7,12 +7,13 @@ use polywrap_core::resolvers::uri_resolution_context::UriPackage;
 use polywrap_plugin::package::PluginPackage;
 use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_tests_utils::memory_storage_plugin::MemoryStoragePlugin;
+use num_bigint::BigInt;
 
 #[test]
 fn asyncify_test_case() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let asyncify_uri = Uri::try_from(format!("fs/{}/asyncify/implementations/rs", path)).unwrap();
+    let uri = Uri::try_from(format!("fs/{}/asyncify/implementations/rs", path)).unwrap();
 
     let memory_storage_plugin = MemoryStoragePlugin { env: serde_json::Value::Null, value: 0 };
     let memory_storage_plugin_package: PluginPackage = memory_storage_plugin.into();
@@ -29,7 +30,7 @@ fn asyncify_test_case() {
     let client = PolywrapClient::new(config);
 
     let subsequent_invokes = client.invoke::<Vec<String>>(
-        &asyncify_uri,
+        &uri,
         "subsequentInvokes",
         Some(&msgpack!({"numberOfTimes": 40})),
         None,
@@ -39,7 +40,7 @@ fn asyncify_test_case() {
     assert_eq!(subsequent_invokes, expected);
 
     let local_var_method = client.invoke::<bool>(
-        &asyncify_uri,
+        &uri,
         "localVarMethod",
         None,
         None,
@@ -48,7 +49,7 @@ fn asyncify_test_case() {
     assert_eq!(local_var_method, true);
 
     let global_var_method = client.invoke::<bool>(
-        &asyncify_uri,
+        &uri,
         "global_var_method",
         None,
         None,
@@ -58,7 +59,7 @@ fn asyncify_test_case() {
 
     let large_str = vec!["polywrap"; 10000].join("");
     let set_data_with_large_args = client.invoke::<String>(
-        &asyncify_uri,
+        &uri,
         "setDataWithLargeArgs",
         Some(&msgpack!({"value": large_str.clone()})),
         None,
@@ -67,7 +68,7 @@ fn asyncify_test_case() {
     assert_eq!(set_data_with_large_args, large_str);
 
     let set_data_with_many_args = client.invoke::<String>(
-        &asyncify_uri,
+        &uri,
         "setDataWithManyArgs",
         Some(&msgpack!({
             "valueA": "polywrap a",
@@ -107,7 +108,7 @@ fn asyncify_test_case() {
     };
 
     let set_data_with_many_structured_args = client.invoke::<bool>(
-        &asyncify_uri,
+        &uri,
         "setDataWithManyStructuredArgs",
         Some(&msgpack!({
             "valueA": create_obj(1),
@@ -127,4 +128,49 @@ fn asyncify_test_case() {
         None
     ).unwrap();
     assert_eq!(set_data_with_many_structured_args, true);
+}
+
+#[test]
+fn bigint_test_case() {
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
+    let uri = Uri::try_from(format!("fs/{}/bigint-type/implementations/rs", path)).unwrap();
+
+    let client = PolywrapClient::new(BuilderConfig::new(None).build());
+
+    let response_one = client.invoke::<String>(
+        &uri,
+        "method",
+        Some(&msgpack!({
+            "arg1": "123456789123456789",
+            "obj": {
+                "prop1": "987654321987654321",
+            },
+        })),
+        None,
+        None
+    ).unwrap();
+    let expected = "123456789123456789".parse::<BigInt>().unwrap() * "987654321987654321".parse::<BigInt>().unwrap();
+    assert_eq!(response_one, expected.to_string());
+
+    let response = client.invoke::<String>(
+        &uri,
+        "method",
+        Some(&msgpack!({
+            "arg1": "123456789123456789",
+            "arg2": "123456789123456789123456789123456789",
+            "obj": {
+                "prop1": "987654321987654321",
+                "prop2": "987654321987654321987654321987654321",
+            },
+        })),
+        None,
+        None
+    ).unwrap();
+
+    let expected = "123456789123456789".parse::<BigInt>().unwrap() *
+        "123456789123456789123456789123456789".parse::<BigInt>().unwrap() *
+        "987654321987654321".parse::<BigInt>().unwrap() *
+        "987654321987654321987654321987654321".parse::<BigInt>().unwrap();
+    assert_eq!(response, expected.to_string());
 }
