@@ -9,7 +9,7 @@ use bigdecimal::BigDecimal as BigNumber;
 use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 use std::sync::Arc;
-use polywrap_msgpack::{decode, serialize};
+use polywrap_msgpack::{decode, serialize, extensions::generic_map::GenericMap};
 use polywrap_core::{invoke::{Invoker}, uri::Uri};
 use polywrap_plugin::error::PluginError;
 
@@ -34,8 +34,8 @@ pub struct MaybeUriOrManifest {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpRequest {
-    pub headers: Option<Map<String, String>>,
-    pub url_params: Option<Map<String, String>>,
+    pub headers: Option<GenericMap<String, String>>,
+    pub url_params: Option<GenericMap<String, String>>,
     pub response_type: HttpResponseType,
     pub body: Option<String>,
     pub form_data: Option<Vec<HttpFormDataEntry>>,
@@ -53,7 +53,7 @@ pub struct HttpFormDataEntry {
 pub struct HttpResponse {
     pub status: i32,
     pub status_text: String,
-    pub headers: Option<Map<String, String>>,
+    pub headers: Option<GenericMap<String, String>>,
     pub body: Option<String>,
 }
 // Imported objects END //

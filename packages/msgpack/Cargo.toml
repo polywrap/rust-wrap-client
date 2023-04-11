@@ -10,7 +10,8 @@ license.workspace = true
 [dependencies]
 thiserror.workspace = true
 serde.workspace = true
+serde_json.workspace = true
+rmp-serde.workspace = true
 
 rmpv = { version = "1.0.0", features = ["with-serde"] }
-rmp-serde = "1.1.1"
 serde_bytes = "0.11.9"

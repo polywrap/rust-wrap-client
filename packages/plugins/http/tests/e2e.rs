@@ -71,7 +71,7 @@ fn post_method() {
             &Uri::try_from("wrap://ens/http.polywrap.eth").unwrap(),
             "post",
             Some(&msgpack!({
-                "url": "https://d3y5v.mocklab.io/json",
+                "url": "https://reqbin.com/echo/post/json",
                 "request": {
                     "responseType": "TEXT",
                     "body": "{\"id\": \"some\", \"value\": 123}"

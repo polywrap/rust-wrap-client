@@ -15,6 +15,7 @@ polywrap_client_builder.workspace = true
 polywrap_resolvers.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+rmp-serde.workspace = true
 
 [dev-dependencies]
 polywrap_resolvers.workspace = true

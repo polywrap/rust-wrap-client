@@ -1,8 +1,9 @@
-use std::{collections::{BTreeMap}, marker::PhantomData};
+use std::{collections::{BTreeMap, HashMap}, marker::PhantomData};
 
 use rmp_serde::{to_vec, from_slice};
 use serde::{de::{Unexpected, DeserializeOwned}, Serialize};
 use serde_bytes::ByteBuf;
+use serde_json::Map;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct GenericMap<K, V>(pub BTreeMap<K, V>);
@@ -76,4 +77,35 @@ V: DeserializeOwned, {
         let visitor = GenericMapVisitor::new();
         deserializer.deserialize_newtype_struct(rmpv::MSGPACK_EXT_STRUCT_NAME, visitor)
     }
+}
+
+
+// TODO: HACK to get around msgpack encoding in Swift
+pub fn convert_msgpack_to_json(value: rmpv::Value) -> serde_json::Value {
+  match value {
+    rmpv::Value::Nil => serde_json::Value::Null,
+    rmpv::Value::Boolean(v) => serde_json::Value::Bool(v),
+    rmpv::Value::Integer(v) => serde_json::from_str(&v.to_string()).unwrap(),
+    rmpv::Value::F32(v) => serde_json::from_str(&v.to_string()).unwrap(),
+    rmpv::Value::F64(v) => serde_json::from_str(&v.to_string()).unwrap(),
+    rmpv::Value::String(v) => serde_json::from_str(&v.to_string()).unwrap(),
+    rmpv::Value::Binary(v) => serde_json::Value::Array(v.into_iter().map(|v| serde_json::Value::Number(v.into())).collect()),
+    rmpv::Value::Array(arr) => {
+      let mut new_arr: Vec<serde_json::Value> = vec![];
+      for val in arr.iter() {
+        new_arr.push(convert_msgpack_to_json(val.clone()))
+      }
+      serde_json::Value::Array(new_arr)
+    },
+    rmpv::Value::Map(map) => {
+      let mut new_map = serde_json::Map::new();
+      for (key, value) in map.iter() {
+          new_map.insert(key.as_str().unwrap().to_string(), convert_msgpack_to_json(value.clone()));
+      }
+      serde_json::Value::Object(new_map)
+    },
+    rmpv::Value::Ext(tag, data) => {
+      rmp_serde::from_slice(&data).unwrap()
+    },
+}
 }
