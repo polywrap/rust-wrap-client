@@ -20,7 +20,7 @@ pub fn encode(value: &rmpv::Value) -> Result<Vec<u8>, MsgpackError> {
 
 pub fn serialize<T: Serialize>(val: T) -> Result<Vec<u8>, MsgpackError> {
     let mut buf = Vec::new();
-    val.serialize(&mut Serializer::new(&mut buf))?;
+    val.serialize(&mut Serializer::new(&mut buf).with_struct_map())?;
     Ok(buf)
 }
 

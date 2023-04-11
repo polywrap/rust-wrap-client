@@ -28,7 +28,7 @@ fn test_uri_resolver_wrapper() {
     );
     let result = uri_resolver_wrapper._try_resolve_uri(
         &wrapper_uri, 
-        &client.loader, 
+        &client, 
         &mut uri_resolution_context
     );
 
@@ -56,9 +56,9 @@ fn test_recursive_uri_resolver() {
     let client = PolywrapClient::new(config);
 
     let mut uri_resolution_context = UriResolutionContext::new();
-    let result = client.loader.resolver.try_resolve_uri(
+    let result = client.resolver.try_resolve_uri(
         &http_wrapper_uri, 
-        &client.loader, 
+        &client, 
         &mut uri_resolution_context
     );
 

@@ -12,7 +12,6 @@ use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
 use wasmer::Value;
-use wrap_manifest_schemas::versions::WrapManifest;
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
 use std::fmt::Formatter;
@@ -23,28 +22,21 @@ use std::{sync::Arc, fmt::Debug};
 pub struct WasmWrapper {
     wasm_module: Vec<u8>,
     file_reader: Arc<dyn FileReader>,
-    manifest: WrapManifest,
 }
 
 impl WasmWrapper {
     pub fn new(
         wasm_module: Vec<u8>,
         file_reader: Arc<dyn FileReader>,
-        manifest: WrapManifest,
     ) -> Self {
         Self {
             wasm_module,
             file_reader,
-            manifest,
         }
     }
 
     pub fn get_wasm_module(&self) -> Result<&[u8], WrapperError> {
         Ok(&self.wasm_module)
-    }
-
-    pub fn get_manifest(&self) -> Result<&WrapManifest, WrapperError> {
-        Ok(&self.manifest)
     }
 
     pub fn invoke_and_decode<T: DeserializeOwned>(
