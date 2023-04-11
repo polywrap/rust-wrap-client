@@ -40,6 +40,7 @@ fn asyncify_test_case() {
     let expected: Vec<String> = (0..40).map(|i| i.to_string()).collect();
     assert_eq!(subsequent_invokes, expected);
 
+    // TODO: panics when args is None
     let local_var_method = client.invoke::<bool>(
         &uri,
         "localVarMethod",
@@ -224,3 +225,85 @@ fn bignumber_test_case() {
     let result = arg1 * arg2 * prop1 * prop2;
     assert_eq!(response_two, result.to_string());
 }
+
+#[test]
+fn bytes_test_case() {
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
+    let uri = Uri::try_from(format!("fs/{}/bytes-type/implementations/rs", path)).unwrap();
+
+    let client = PolywrapClient::new(BuilderConfig::new(None).build());
+
+    // TODO: Panics with invalid return type
+    let response = client.invoke::<Vec<u8>>(
+        &uri,
+        "bytesMethod",
+        Some(&msgpack!({
+            "arg": {
+                "prop": "Argument Value".as_bytes().to_vec(),
+            },
+        })),
+        None,
+        None
+    ).unwrap();
+    let expected = "Argument Value Sanity!".as_bytes().to_vec();
+    assert_eq!(response, expected);
+}
+
+#[test]
+fn enum_test_case() {
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
+    let uri = Uri::try_from(format!("fs/{}/enum-type/implementations/rs", path)).unwrap();
+
+    let client = PolywrapClient::new(BuilderConfig::new(None).build());
+
+    // TODO: Panics instead of returning Result
+    let method1a_result = client.invoke::<i32>(
+        &uri,
+        "method1",
+        Some(&msgpack!({
+            "en": 5,
+        })),
+        None,
+        None
+    );
+    let method1a = method1a_result.unwrap_err();
+    assert!(method1a.to_string().contains("__wrap_abort: Invalid value for enum 'SanityEnum': 5"));
+
+    let method1b = client.invoke::<i32>(
+        &uri,
+        "method1",
+        Some(&msgpack!({
+            "en": 2,
+            "optEnum": 1,
+        })),
+        None,
+        None
+    ).unwrap();
+    assert_eq!(method1b, 2);
+
+    let method1c = client.invoke::<i32>(
+        &uri,
+        "method1",
+        Some(&msgpack!({
+            "en": 1,
+            "optEnum": "INVALID",
+        })),
+        None,
+        None
+    ).unwrap_err();
+    assert!(method1c.to_string().contains("__wrap_abort: Invalid key for enum 'SanityEnum': INVALID"));
+
+    let method2a = client.invoke::<Vec<i32>>(
+        &uri,
+        "method2",
+        Some(&msgpack!({
+            "enumArray": ["OPTION1", 0, "OPTION3"],
+        })),
+        None,
+        None
+    ).unwrap();
+    assert_eq!(method2a, vec![0, 0, 2]);
+}
+
