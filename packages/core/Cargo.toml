@@ -1,15 +1,17 @@
 [package]
 name = "polywrap_core"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
-edition = "2021"
+description = "Core types of Polywrap client"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
-thiserror = "1.0.37"
-regex = "1.6.0"
-wrap_manifest_schemas = { path = "../manifest" }
-polywrap_msgpack = { path = "../msgpack" }
-serde = "1.0.145"
-serde_json = "1.0.87"
-jsonschema = "0.16.1"
+thiserror.workspace = true
+regex.workspace = true
+wrap_manifest_schemas.workspace = true
+polywrap_msgpack.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+jsonschema.workspace = true

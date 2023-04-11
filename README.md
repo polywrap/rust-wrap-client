@@ -28,9 +28,11 @@ Implementation of a client compatible with the [WRAP Protocol](https://github.co
 
 ## Build & Test
 
-Before running tests, cases need to be generated, go to `packages/test-utils` and run `cargo run --bin generate`
-
-Now, go back to the root of repository and run tests from all packages:
+Before running tests, cases need to be generated. To do so, run:
+```bash
+cargo run --package polywrap_tests_utils --bin generate
 ```
+Now you will be able to run tests:
+```bash
 cargo test
 ```

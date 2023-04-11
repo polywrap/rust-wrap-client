@@ -1,17 +1,19 @@
 [package]
 name = "polywrap_tests_utils"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
-edition = "2021"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [lib]
 test = false
 
 [dependencies]
-polywrap_core = { path = "../core" }
-wrap_manifest_schemas = { path = "../manifest" }
+polywrap_core.workspace = true
+wrap_manifest_schemas.workspace = true
+thiserror.workspace = true
+
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1.23.0", features = ["full"] }
 zip = "0.6.4"
-thiserror = "1.0"

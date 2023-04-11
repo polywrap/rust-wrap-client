@@ -1,17 +1,20 @@
 [package]
 name = "wrap_manifest_schemas"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
-edition = "2021"
+description = "WRAP Manifest rust typings"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
-thiserror = "1.0.37"
-polywrap_msgpack = {path = "../msgpack"}
-serde = {version = "1.0.145", features = ["derive"]}
-serde_json = "1.0.87"
+thiserror.workspace = true
+polywrap_msgpack.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+jsonschema.workspace = true
+
 semver = "1.0.14"
-jsonschema = "0.16.1"
 polywrap_schemafy = "0.1.1"
 handlebars = "4.3.5"
 polywrap-jsonref = "0.1.0"
