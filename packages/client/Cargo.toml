@@ -22,6 +22,6 @@ polywrap_resolvers.workspace = true
 polywrap_wasm.workspace = true
 polywrap_tests_utils.workspace = true
 wrap_manifest_schemas.workspace = true
-polywrap_plugin = {path ="../plugin"}
+polywrap_plugin.workspace = true
 num-bigint = { version = "0.4", default-features = false, features = ["serde"] }
 bigdecimal = { version = "0.3.0", default-features = false, features = ["serde"] }
