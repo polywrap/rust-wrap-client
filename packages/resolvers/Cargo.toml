@@ -1,15 +1,18 @@
 [package]
 name = "polywrap_resolvers"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
-edition = "2021"
+description = "Uri resolvers to achieve uri resolution in Polywrap Client"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
-thiserror = "1.0.37"
-regex = "1.6.0"
+thiserror.workspace = true
+regex.workspace = true
+polywrap_core.workspace = true
+polywrap_wasm.workspace = true
+polywrap_msgpack.workspace = true
+serde.workspace = true
+
 pathdiff = "0.2.1"
-polywrap_core = {path = "../core"}
-polywrap_wasm = {path = "../wasm"}
-polywrap_msgpack = {path = "../msgpack"}
-serde = "1.0.145"

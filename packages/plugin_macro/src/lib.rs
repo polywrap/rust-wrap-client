@@ -31,7 +31,7 @@ pub fn plugin_struct(args: TokenStream, input: TokenStream) -> TokenStream {
     }
 
     quote! {
-        #[derive(polywrap_plugin_macro::Plugin)]
+        #[derive(polywrap_plugin_macro::Plugin, Debug)]
         #item_struct
     }
     .into()

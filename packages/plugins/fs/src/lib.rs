@@ -1,20 +1,17 @@
 use std::{fs, path::Path, sync::Arc};
 
-use polywrap_core::{invoke::Invoker};
-use polywrap_plugin_macro::{plugin_struct, plugin_impl};
-use polywrap_plugin::{error::PluginError};
-use wrap::{
-    module::{
-        ArgsExists, ArgsMkdir, ArgsReadFile, ArgsReadFileAsString, ArgsRm, ArgsRmdir,
-        ArgsWriteFile, Module,
-    },
+use polywrap_core::invoke::Invoker;
+use polywrap_plugin::error::PluginError;
+use polywrap_plugin_macro::{plugin_impl, plugin_struct};
+use wrap::module::{
+    ArgsExists, ArgsMkdir, ArgsReadFile, ArgsReadFileAsString, ArgsRm, ArgsRmdir, ArgsWriteFile,
+    Module,
 };
 pub mod wrap;
 use crate::wrap::wrap_info::get_manifest;
 
 #[plugin_struct]
-pub struct FileSystemPlugin {
-}
+pub struct FileSystemPlugin {}
 
 #[plugin_impl]
 impl Module for FileSystemPlugin {

@@ -1,7 +1,5 @@
 use core::fmt;
 use std::sync::Arc;
-
-
 use polywrap_core::{
     resolvers::{
         uri_resolution_context::{

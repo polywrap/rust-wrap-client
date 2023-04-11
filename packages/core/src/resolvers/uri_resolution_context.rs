@@ -3,6 +3,7 @@ use std::{collections::HashMap, sync::Arc, sync::Mutex, vec};
 
 use crate::{uri::Uri};
 
+#[derive(Debug)]
 pub struct UriWrapper {
     pub uri: Uri,
     pub wrapper: Arc<Mutex<dyn Wrapper>>,
@@ -20,6 +21,16 @@ pub enum UriPackageOrWrapper {
   Package(Uri, Arc<Mutex<dyn WrapPackage>>),
 }
 
+impl UriPackageOrWrapper {
+  pub fn uri(&self) -> Uri {
+    match self {
+        UriPackageOrWrapper::Uri(uri) => uri.clone(),
+        UriPackageOrWrapper::Wrapper(uri, _) => uri.clone(),
+        UriPackageOrWrapper::Package(uri, _) => uri.clone(),
+    }
+  }
+}
+
 #[derive(Clone)]
 pub struct UriResolutionStep {
     pub source_uri: Uri,
@@ -34,8 +45,6 @@ pub struct UriResolutionContext {
     resolution_path: Vec<String>,
     history: Vec<UriResolutionStep>,
 }
-
-
 
 impl UriResolutionContext {
     pub fn new() -> Self {

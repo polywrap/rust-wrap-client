@@ -19,12 +19,13 @@ impl UriRedirect {
   }
 }
 
+#[derive(Debug)]
 pub struct ClientConfig {
   pub resolver: Arc<dyn UriResolver>,
   pub envs: Option<Envs>,
   pub interfaces: Option<InterfaceImplementations>
 }
 
-pub trait Client: Send + Sync + Invoker + UriResolverHandler + Loader {
+pub trait Client: Invoker + UriResolverHandler + Loader {
   fn get_config(&self) -> &ClientConfig;
 }

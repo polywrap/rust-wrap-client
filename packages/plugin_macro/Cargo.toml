@@ -1,22 +1,25 @@
 [package]
 name = "polywrap_plugin_macro"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
-edition = "2021"
+description = "Macros to easily build plugins to interact with Polywrap Client"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
-proc-macro2 = "1.0"
-quote = "1.0"
-syn = { version = "1.0.105", features=["full", "extra-traits", "visit"] }
-polywrap_core = { path = "../core" }
-polywrap_plugin = { path = "../plugin" }
-serde = {version = "1.0.145", features = ["derive"]}
+polywrap_core.workspace = true
+serde.workspace = true
+
+proc-macro2.workspace = true
+quote.workspace = true
+syn.workspace = true
 
 [lib]
 proc-macro = true
 
 [dev-dependencies]
-serde_json = "1.0.87"
-polywrap_msgpack = { path = "../msgpack" }
-wrap_manifest_schemas = { path = "../manifest" }
+serde_json.workspace = true
+polywrap_msgpack.workspace = true
+wrap_manifest_schemas.workspace = true
+polywrap_plugin.workspace = true

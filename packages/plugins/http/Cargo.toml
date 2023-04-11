@@ -5,6 +5,9 @@ license = "MIT"
 description = "Todo"
 edition = "2021"
 
+[lib]
+test = false
+
 [dependencies]
 thiserror = "1.0.37"
 polywrap_msgpack = { path = "../../msgpack" }

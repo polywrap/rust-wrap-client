@@ -1,19 +1,23 @@
 [package]
 name = "polywrap_wasm"
-version = "0.0.1-alpha.1"
-license = "MIT"
-description = "Todo"
-edition = "2021"
+description = "Rust implementation of WASM runtime compliant with WRAP standard"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
-serde = "1.0.145"
-thiserror = "1.0.37"
-base64 = "0.13.0"
-serde_json = "1.0.87"
+polywrap_core.workspace = true
+wrap_manifest_schemas.workspace = true
+polywrap_msgpack.workspace = true
+
+serde.workspace = true
+thiserror.workspace = true
+serde_json.workspace = true
+base64.workspace = true
+
 wasmer = "3.1.1"
-polywrap_core = {path = "../core"}
-wrap_manifest_schemas = {path = "../manifest"}
-polywrap_msgpack = {path = "../msgpack"}
 
 [dev-dependencies]
-polywrap_tests_utils = {path = "../tests-utils"}
+polywrap_tests_utils.workspace = true
