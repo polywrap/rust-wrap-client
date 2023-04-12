@@ -375,103 +375,6 @@ fn invalid_test_case() {
     assert!(invalid_array_map_sent.to_string().contains("Property must be of type 'array'. Found 'map'."));
 }
 
-//     test(`json-type ${implementation}`, async () => {
-//       const uri = `fs/${GetPathToTestWrappers()}/json-type/implementations/${implementation}`;
-//       const client = new PolywrapClient();
-//       type Json = string;
-//       const value = JSON.stringify({ foo: "bar", bar: "bar" });
-//       const parseResponse = await client.invoke<Json>({
-//         uri,
-//         method: "parse",
-//         args: {
-//           value,
-//         },
-//       });
-//
-//       if (!parseResponse.ok) fail(parseResponse.error);
-//       expect(parseResponse.value).toEqual(value);
-//
-//       const values = [
-//         JSON.stringify({ bar: "foo" }),
-//         JSON.stringify({ baz: "fuz" }),
-//       ];
-//
-//       const stringifyResponse = await client.invoke<Json>({
-//         uri,
-//         method: "stringify",
-//         args: {
-//           values,
-//         },
-//       });
-//
-//       if (!stringifyResponse.ok) fail(stringifyResponse.error);
-//       expect(stringifyResponse.value).toEqual(values.join(""));
-//
-//       const object = {
-//         jsonA: JSON.stringify({ foo: "bar" }),
-//         jsonB: JSON.stringify({ fuz: "baz" }),
-//       };
-//
-//       const stringifyObjectResponse = await client.invoke<string>({
-//         uri,
-//         method: "stringifyObject",
-//         args: {
-//           object,
-//         },
-//       });
-//
-//       if (!stringifyObjectResponse.ok) fail(stringifyObjectResponse.error);
-//       expect(stringifyObjectResponse.value).toEqual(
-//         object.jsonA + object.jsonB
-//       );
-//
-//       const json = {
-//         valueA: 5,
-//         valueB: "foo",
-//         valueC: true,
-//       };
-//
-//       const methodJSONResponse = await client.invoke<Json>({
-//         uri,
-//         method: "methodJSON",
-//         args: json,
-//       });
-//
-//       if (!methodJSONResponse.ok) fail(methodJSONResponse.error);
-//       const methodJSONResult = JSON.stringify(json);
-//       expect(methodJSONResponse.value).toEqual(methodJSONResult);
-//
-//         const reserved = { const: "hello", if: true };
-//         const parseReservedResponse = await client.invoke<{
-//           const: string;
-//           if: boolean;
-//         }>({
-//           uri,
-//           method: "parseReserved",
-//           args: {
-//             json: JSON.stringify(reserved),
-//           },
-//         });
-//
-//         if (!parseReservedResponse.ok) fail(parseReservedResponse.error);
-//         expect(parseReservedResponse.value).toEqual(reserved);
-//
-//         const stringifyReservedResponse = await client.invoke<string>({
-//           uri,
-//           method: "stringifyReserved",
-//           args: {
-//             reserved,
-//           },
-//         });
-//
-//         if (!stringifyReservedResponse.ok)
-//           fail(stringifyReservedResponse.error);
-//         expect(stringifyReservedResponse.value).toEqual(
-//           JSON.stringify(reserved)
-//         );
-//       }
-//     });
-
 #[test]
 fn json_test_case() {
     let test_path = get_tests_path().unwrap();
@@ -500,22 +403,22 @@ fn json_test_case() {
 
     // TODO: how do I pass an [JSON!]!
     // stringify method
-    // let values = vec![
-    //     json!({ "bar": "foo" }).to_string(),
-    //     json!({ "baz": "fuz" }).to_string(),
-    // ];
-    //
-    // let stringify_response = client.invoke::<String>(
-    //     &uri,
-    //     "stringify",
-    //     Some(&msgpack!({
-    //         "values": values
-    //     })),
-    //     None,
-    //     None
-    // ).unwrap();
-    //
-    // assert_eq!(stringify_response, values.join(""));
+    let values = vec![
+        json!({ "bar": "foo" }).to_string(),
+        json!({ "baz": "fuz" }).to_string(),
+    ];
+
+    let stringify_response = client.invoke::<String>(
+        &uri,
+        "stringify",
+        Some(&msgpack!({
+            "values": values
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(stringify_response, values.join(""));
 
     // stringifyObject method
     let object = json!({
