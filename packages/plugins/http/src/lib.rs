@@ -32,7 +32,7 @@ impl Module for HttpPlugin {
         };
 
         let parsed_response = parse_response(response, response_type)?;
-
+        
         Ok(Some(parsed_response))
     }
 
