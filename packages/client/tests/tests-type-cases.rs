@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::builder::types::{BuilderConfig, ClientConfigHandler, ClientBuilder};
@@ -678,4 +679,275 @@ fn numbers_test_case() {
         None
     ).unwrap_err();
     assert!(u32_overflow.to_string().contains("unsigned integer overflow: value = 4294967296; bits = 32"));
+}
+
+#[test]
+fn object_test_case() {
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
+    let uri = Uri::try_from(format!("fs/{}/object-type/implementations/rs", path)).unwrap();
+
+    let client = PolywrapClient::new(BuilderConfig::new(None).build());
+
+    let method1a = client.invoke::<Vec<serde_json::Value>>(
+        &uri,
+        "method1",
+        Some(&msgpack!({
+            "arg1": {
+                "prop": "arg1 prop",
+                "nested": {
+                    "prop": "arg1 nested prop",
+                },
+            },
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(method1a, vec![
+        json!({
+            "prop": "arg1 prop",
+            "nested": {
+                "prop": "arg1 nested prop",
+            },
+        }),
+        json!({
+            "prop": "",
+            "nested": {
+                "prop": "",
+            },
+        }),
+    ]);
+
+    let method1b = client.invoke::<Vec<serde_json::Value>>(
+        &uri,
+        "method1",
+        Some(&msgpack!({
+            "arg1": {
+                "prop": "arg1 prop",
+                "nested": {
+                    "prop": "arg1 nested prop",
+                },
+            },
+            "arg2": {
+                "prop": "arg2 prop",
+                "circular": {
+                    "prop": "arg2 circular prop",
+                },
+            },
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(method1b, vec![
+        json!({
+            "prop": "arg1 prop",
+            "nested": {
+                "prop": "arg1 nested prop",
+            },
+        }),
+        json!({
+            "prop": "arg2 prop",
+            "nested": {
+                "prop": "arg2 circular prop",
+            },
+        }),
+    ]);
+
+    let method2a = client.invoke::<Option<serde_json::Value>>(
+        &uri,
+        "method2",
+        Some(&msgpack!({
+            "arg": {
+                "prop": "arg prop",
+                "nested": {
+                    "prop": "arg nested prop",
+                },
+            },
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(method2a.unwrap(), json!({
+        "prop": "arg prop",
+        "nested": {
+            "prop": "arg nested prop",
+        },
+    }));
+
+    let method2b = client.invoke::<Option<serde_json::Value>>(
+        &uri,
+        "method2",
+        Some(&msgpack!({
+            "arg": {
+                "prop": "null",
+                "nested": {
+                    "prop": "arg nested prop",
+                },
+            },
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(method2b, None);
+
+    let method3 = client.invoke::<Vec<serde_json::Value>>(
+        &uri,
+        "method3",
+        Some(&msgpack!({
+            "arg": {
+                "prop": "arg prop",
+                "nested": {
+                    "prop": "arg nested prop",
+                },
+            },
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(method3, vec![
+        serde_json::Value::Null,
+        json!({
+            "prop": "arg prop",
+            "nested": {
+                "prop": "arg nested prop",
+            },
+        }),
+    ]);
+
+    let method5 = client.invoke::<serde_json::Value>(
+        &uri,
+        "method5",
+        Some(&msgpack!({
+            "arg": {
+                "prop": [49, 50, 51, 52],
+            },
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(method5, json!({
+        "prop": "1234",
+        "nested": {
+            "prop": "nested prop",
+        },
+    }));
+}
+
+#[test]
+fn map_test_case() {
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
+    let uri = Uri::try_from(format!("fs/{}/map-type/implementations/rs", path)).unwrap();
+
+    let client = PolywrapClient::new(BuilderConfig::new(None).build());
+
+    // types
+    let mut map_class = HashMap::<String, i32>::new();
+    map_class.insert("Hello".to_string(), 1);
+    map_class.insert("Heyo".to_string(), 50);
+
+    let mut nested_map_class = HashMap::<String, HashMap<String, i32>>::new();
+    nested_map_class.insert("Nested".to_string(), map_class.clone());
+
+    // TODO: how to pass map as argument?
+    // tests
+    let return_map_response1 = client.invoke::<HashMap<String, i32>>(
+        &uri,
+        "returnMap",
+        Some(&msgpack!({
+            "map": map_class,
+        })),
+        None,
+        None
+    ).unwrap();
+    assert_eq!(return_map_response1, map_class);
+
+    let return_map_response2 = client.invoke::<HashMap<String, i32>>(
+        &uri,
+        "returnMap",
+        Some(&msgpack!({
+            "map": {
+                "Hello": 1,
+                "Heyo": 50,
+            }
+        })),
+        None,
+        None
+    ).unwrap();
+    assert_eq!(return_map_response2, map_class);
+
+    let get_key_response1 = client.invoke::<i32>(
+        &uri,
+        "getKey",
+        Some(&msgpack!({
+            "foo": {
+                "map": map_class.clone(),
+                "nestedMap": nested_map_class.clone(),
+            },
+            "key": "Hello",
+        })),
+        None,
+        None
+    ).unwrap();
+    assert_eq!(get_key_response1, map_class.get("Hello").unwrap().clone());
+
+    let get_key_response2 = client.invoke::<i32>(
+        &uri,
+        "getKey",
+        Some(&msgpack!({
+            "foo": {
+                "map": {
+                    "Hello": 1,
+                    "Heyo": 50,
+                },
+                "nestedMap": {
+                    "nested": {
+                        "Hello": 1,
+                        "Heyo": 50,
+                    }
+                },
+            },
+            "key": "Heyo",
+        })),
+        None,
+        None
+    ).unwrap();
+    assert_eq!(get_key_response2, 50);
+
+    let return_custom_map = client.invoke::<serde_json::Value>(
+        &uri,
+        "returnCustomMap",
+        Some(&msgpack!({
+            "foo": {
+                "map": {
+                    "Hello": 1,
+                    "Heyo": 50,
+                },
+                "nestedMap": nested_map_class.clone(),
+            }
+        })),
+        None,
+        None
+    ).unwrap();
+    assert_eq!(return_custom_map, json!({
+        "map": map_class.clone(),
+        "nestedMap": nested_map_class.clone(),
+    }));
+
+    let return_nested_map = client.invoke::<HashMap<String, HashMap<String, i32>>>(
+        &uri,
+        "returnNestedMap",
+        Some(&msgpack!({
+            "foo": nested_map_class.clone(),
+        })),
+        None,
+        None
+    ).unwrap();
+    assert_eq!(return_nested_map, nested_map_class);
 }
