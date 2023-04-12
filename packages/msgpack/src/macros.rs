@@ -263,8 +263,9 @@ mod tests {
 
     use rmp_serde::{to_vec, from_slice};
     use rmpv::Value;
+    use serde::{Serialize, Deserialize};
 
-    use crate::extensions::generic_map::GenericMap;
+    use crate::extensions::generic_map::{GenericMap};
 
     #[test]
     fn msgpack() {
@@ -316,24 +317,5 @@ mod tests {
                 115, 146, 165, 115, 101, 114, 100, 101, 167, 109, 115, 103, 112, 97, 99, 107
             ]
         )
-    }
-
-    #[test]
-    fn ext_type() {
-      let mut map = BTreeMap::new();
-      let mut map2 = BTreeMap::new();
-      map2.insert("foo".to_string(), "bar".to_string());
-
-      map.insert("key".to_string(), map2);
-      let gen = GenericMap(map);
-      
-      let d = to_vec(&gen).unwrap();
-      println!("VEC: {:?}", d);
-    }
-
-    #[test]
-    fn decode_ext_type() {
-      let value: GenericMap<String, BTreeMap<String, String>> = from_slice(&[199, 14, 1, 129, 163, 107, 101, 121, 129, 163, 102, 111, 111, 163, 98, 97, 114]).unwrap();
-      println!("VALUE: {:?}", value);
     }
 }
