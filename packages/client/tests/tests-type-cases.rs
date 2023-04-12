@@ -9,6 +9,7 @@ use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_tests_utils::memory_storage_plugin::MemoryStoragePlugin;
 use num_bigint::BigInt;
 use bigdecimal::BigDecimal as BigNumber;
+use serde_json::json;
 
 #[test]
 fn asyncify_test_case() {
@@ -372,3 +373,229 @@ fn invalid_test_case() {
     ).unwrap_err();
     assert!(invalid_array_map_sent.to_string().contains("Property must be of type 'array'. Found 'map'."));
 }
+
+//     test(`json-type ${implementation}`, async () => {
+//       const uri = `fs/${GetPathToTestWrappers()}/json-type/implementations/${implementation}`;
+//       const client = new PolywrapClient();
+//       type Json = string;
+//       const value = JSON.stringify({ foo: "bar", bar: "bar" });
+//       const parseResponse = await client.invoke<Json>({
+//         uri,
+//         method: "parse",
+//         args: {
+//           value,
+//         },
+//       });
+//
+//       if (!parseResponse.ok) fail(parseResponse.error);
+//       expect(parseResponse.value).toEqual(value);
+//
+//       const values = [
+//         JSON.stringify({ bar: "foo" }),
+//         JSON.stringify({ baz: "fuz" }),
+//       ];
+//
+//       const stringifyResponse = await client.invoke<Json>({
+//         uri,
+//         method: "stringify",
+//         args: {
+//           values,
+//         },
+//       });
+//
+//       if (!stringifyResponse.ok) fail(stringifyResponse.error);
+//       expect(stringifyResponse.value).toEqual(values.join(""));
+//
+//       const object = {
+//         jsonA: JSON.stringify({ foo: "bar" }),
+//         jsonB: JSON.stringify({ fuz: "baz" }),
+//       };
+//
+//       const stringifyObjectResponse = await client.invoke<string>({
+//         uri,
+//         method: "stringifyObject",
+//         args: {
+//           object,
+//         },
+//       });
+//
+//       if (!stringifyObjectResponse.ok) fail(stringifyObjectResponse.error);
+//       expect(stringifyObjectResponse.value).toEqual(
+//         object.jsonA + object.jsonB
+//       );
+//
+//       const json = {
+//         valueA: 5,
+//         valueB: "foo",
+//         valueC: true,
+//       };
+//
+//       const methodJSONResponse = await client.invoke<Json>({
+//         uri,
+//         method: "methodJSON",
+//         args: json,
+//       });
+//
+//       if (!methodJSONResponse.ok) fail(methodJSONResponse.error);
+//       const methodJSONResult = JSON.stringify(json);
+//       expect(methodJSONResponse.value).toEqual(methodJSONResult);
+//
+//         const reserved = { const: "hello", if: true };
+//         const parseReservedResponse = await client.invoke<{
+//           const: string;
+//           if: boolean;
+//         }>({
+//           uri,
+//           method: "parseReserved",
+//           args: {
+//             json: JSON.stringify(reserved),
+//           },
+//         });
+//
+//         if (!parseReservedResponse.ok) fail(parseReservedResponse.error);
+//         expect(parseReservedResponse.value).toEqual(reserved);
+//
+//         const stringifyReservedResponse = await client.invoke<string>({
+//           uri,
+//           method: "stringifyReserved",
+//           args: {
+//             reserved,
+//           },
+//         });
+//
+//         if (!stringifyReservedResponse.ok)
+//           fail(stringifyReservedResponse.error);
+//         expect(stringifyReservedResponse.value).toEqual(
+//           JSON.stringify(reserved)
+//         );
+//       }
+//     });
+
+#[test]
+fn json_test_case() {
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
+    let uri = Uri::try_from(format!("fs/{}/json-type/implementations/rs", path)).unwrap();
+
+    let client = PolywrapClient::new(BuilderConfig::new(None).build());
+
+    // parse method
+    let value = json!({
+        "foo": "bar",
+        "bar": "bar",
+    }).to_string();
+
+    let parse_response = client.invoke::<String>(
+        &uri,
+        "parse",
+        Some(&msgpack!({
+            "value": value.clone(),
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(parse_response, value);
+
+    // TODO: how do I pass an [JSON!]!
+    // stringify method
+    // let values = vec![
+    //     json!({ "bar": "foo" }).to_string(),
+    //     json!({ "baz": "fuz" }).to_string(),
+    // ];
+    //
+    // let stringify_response = client.invoke::<String>(
+    //     &uri,
+    //     "stringify",
+    //     Some(&msgpack!({
+    //         "values": values
+    //     })),
+    //     None,
+    //     None
+    // ).unwrap();
+    //
+    // assert_eq!(stringify_response, values.join(""));
+
+    // stringifyObject method
+    let object = json!({
+        "jsonA": json!({ "foo": "bar" }).to_string(),
+        "jsonB": json!({ "fuz": "baz" }).to_string(),
+    });
+
+    // TODO: how can i pass object directly?
+    let stringify_object_response = client.invoke::<String>(
+        &uri,
+        "stringifyObject",
+        Some(&msgpack!({
+            "object": {
+                "jsonA": json!({ "foo": "bar" }).to_string(),
+                "jsonB": json!({ "fuz": "baz" }).to_string(),
+            }
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(
+        stringify_object_response,
+        object["jsonA"].as_str().unwrap().to_string() + &object["jsonB"].as_str().unwrap().to_string()
+    );
+
+    // methodJSON method
+    let json = json!({
+        "valueA": 5,
+        "valueB": "foo",
+        "valueC": true,
+    });
+
+    let method_json_response = client.invoke::<String>(
+        &uri,
+        "methodJSON",
+        Some(&msgpack!({
+            "valueA": json["valueA"].as_i64().unwrap(),
+            "valueB": json["valueB"].as_str().unwrap(),
+            "valueC": json["valueC"].as_bool().unwrap(),
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(method_json_response, json.to_string());
+
+
+    // parseReserved method
+    let reserved = json!({
+            "const": "hello",
+            "if": true,
+        });
+
+    let parse_reserved_response = client.invoke::<serde_json::Value>(
+        &uri,
+        "parseReserved",
+        Some(&msgpack!({
+            "json": reserved.to_string(),
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(parse_reserved_response.to_string(), reserved.to_string());
+
+    // TODO: how can i pass reserved directly?
+    // stringifyReserved method
+    let stringify_reserved_response = client.invoke::<String>(
+        &uri,
+        "stringifyReserved",
+        Some(&msgpack!({
+            "reserved": {
+                "const": "hello",
+                "if": true,
+            },
+        })),
+        None,
+        None
+    ).unwrap();
+
+    assert_eq!(stringify_reserved_response, reserved.to_string());
+}
+
