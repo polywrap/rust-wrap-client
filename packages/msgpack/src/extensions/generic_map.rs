@@ -1,9 +1,9 @@
-use std::{collections::{BTreeMap, HashMap}, marker::PhantomData};
+use std::{collections::{BTreeMap}, marker::PhantomData};
 
 use rmp_serde::{to_vec, from_slice};
 use serde::{de::{Unexpected, DeserializeOwned}, Serialize};
 use serde_bytes::ByteBuf;
-use serde_json::Map;
+
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct GenericMap<K, V>(pub BTreeMap<K, V>);
@@ -104,7 +104,7 @@ pub fn convert_msgpack_to_json(value: rmpv::Value) -> serde_json::Value {
       }
       serde_json::Value::Object(new_map)
     },
-    rmpv::Value::Ext(tag, data) => {
+    rmpv::Value::Ext(_tag, data) => {
       rmp_serde::from_slice(&data).unwrap()
     },
 }

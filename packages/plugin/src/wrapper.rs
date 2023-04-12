@@ -2,7 +2,7 @@ use std::{sync::{Arc, Mutex}, fmt::{Debug}};
 
 use polywrap_core::{uri::Uri, invoke::Invoker, wrapper::{Wrapper, GetFileOptions}, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
 use polywrap_msgpack::extensions::generic_map::convert_msgpack_to_json;
-use serde_json::Value;
+
 
 use crate::module::{PluginModule};
 

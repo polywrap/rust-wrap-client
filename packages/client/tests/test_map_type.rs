@@ -1,10 +1,10 @@
 use std::collections::BTreeMap;
 
-use polywrap_client::builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler};
+use polywrap_client::builder::types::{BuilderConfig, ClientConfigHandler};
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
-use polywrap_msgpack::Value;
+
+
 use polywrap_msgpack::extensions::generic_map::GenericMap;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Serialize, Deserialize};
@@ -30,7 +30,7 @@ fn map_type_test() {
     let invoke_uri =
         Uri::try_from(format!("fs/{}/map-type/implementations/rs", path)).unwrap();
 
-    let mut builder = BuilderConfig::new(None);
+    let builder = BuilderConfig::new(None);
     let config = builder.build();
     let client = PolywrapClient::new(config);
 
@@ -52,10 +52,10 @@ fn map_type_test() {
 
     let getKeyArgs = ArgsGetKey {
       key: String::from("Hello"),
-      foo: foo,
+      foo,
     };
 
-    let args = polywrap_msgpack::serialize(&getKeyArgs).unwrap();
+    let args = polywrap_msgpack::serialize(getKeyArgs).unwrap();
     let invoke_result = client
         .invoke::<u32>(
             &invoke_uri,

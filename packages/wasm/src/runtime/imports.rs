@@ -176,7 +176,7 @@ pub fn create_imports(
         let uri: Uri = String::from_utf8(uri_buffer).unwrap().try_into().unwrap();
         let method = String::from_utf8(method_buffer).unwrap();
 
-        let env = if state.env.len() > 0 {
+        let env = if !state.env.is_empty() {
           Some(polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap())
         } else {
           None
@@ -351,7 +351,7 @@ pub fn create_imports(
             let interface = String::from_utf8(interface_buffer).unwrap();
             let uri = String::from_utf8(impl_uri_buffer).unwrap();
             let method = String::from_utf8(method_buffer).unwrap();
-            let env = if state.env.len() > 0 {
+            let env = if !state.env.is_empty() {
               Some(polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap())
             } else {
               None
