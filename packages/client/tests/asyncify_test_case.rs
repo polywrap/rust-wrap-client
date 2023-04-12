@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::builder::types::{BuilderConfig, ClientConfigHandler, ClientBuilder};
@@ -8,9 +7,6 @@ use polywrap_core::resolvers::uri_resolution_context::UriPackage;
 use polywrap_plugin::package::PluginPackage;
 use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_tests_utils::memory_storage_plugin::MemoryStoragePlugin;
-use num_bigint::BigInt;
-use bigdecimal::BigDecimal as BigNumber;
-use serde_json::json;
 
 #[test]
 fn asyncify_test_case() {
