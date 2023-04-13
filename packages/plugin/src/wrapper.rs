@@ -2,7 +2,7 @@ use std::{sync::{Arc, Mutex}, fmt::{Debug}};
 
 use polywrap_core::{uri::Uri, invoke::Invoker, wrapper::{Wrapper, GetFileOptions}, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
 use polywrap_msgpack::extensions::generic_map::convert_msgpack_to_json;
-use serde_json::Value;
+
 
 use crate::module::{PluginModule};
 
@@ -51,7 +51,7 @@ impl Wrapper for PluginWrapper {
                 uri: uri.to_string(),
                 method: method.to_string(),
                 // Decode the args from msgpack to JSON for better error logging
-                args: polywrap_msgpack::decode::<polywrap_msgpack::Value>(&args).unwrap().to_string(),
+                args: convert_msgpack_to_json(polywrap_msgpack::decode::<polywrap_msgpack::Value>(&args).unwrap()).to_string(),
                 exception: e.to_string(),
             }
             .into()),

@@ -259,7 +259,7 @@ macro_rules! msgpack_expect_expr_comma {
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::{HashMap, BTreeMap}, hash::Hash};
+    use std::{collections::{BTreeMap}};
 
     use rmp_serde::{to_vec, from_slice};
     use rmpv::Value;
@@ -333,7 +333,7 @@ mod tests {
 
     #[test]
     fn decode_ext_type() {
-      let value: GenericMap<String, BTreeMap<String, String>> = from_slice(&vec![199, 14, 1, 129, 163, 107, 101, 121, 129, 163, 102, 111, 111, 163, 98, 97, 114]).unwrap();
+      let value: GenericMap<String, BTreeMap<String, String>> = from_slice(&[199, 14, 1, 129, 163, 107, 101, 121, 129, 163, 102, 111, 111, 163, 98, 97, 114]).unwrap();
       println!("VALUE: {:?}", value);
     }
 }

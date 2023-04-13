@@ -1,6 +1,7 @@
 use std::sync::{Mutex, Arc};
 
 
+use polywrap_core::uri::Uri;
 use wasmer::{Imports, imports, Memory, FunctionEnvMut, Function, FunctionType, Value, Type, FunctionEnv, Store};
 
 use super::instance::State;
@@ -124,6 +125,8 @@ pub fn create_imports(
         memory_view.read(file_offset.try_into().unwrap(), &mut file_buffer).unwrap();
 
         let msg = String::from_utf8(msg_buffer).unwrap();
+        println!("aborting.....");
+        println!("abort with message: {}" , msg);
         let file = String::from_utf8(file_buffer).unwrap();
         (state.abort)(format!(
             "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]",
@@ -170,10 +173,10 @@ pub fn create_imports(
         memory.view(&mutable_context).read(method_ptr.try_into().unwrap(), &mut method_buffer).unwrap();
         memory.view(&mutable_context).read(args_ptr.try_into().unwrap(), &mut args_buffer).unwrap();
 
-        let uri = String::from_utf8(uri_buffer).unwrap().try_into().unwrap();
+        let uri: Uri = String::from_utf8(uri_buffer).unwrap().try_into().unwrap();
         let method = String::from_utf8(method_buffer).unwrap();
 
-        let env = if state.env.len() > 0 {
+        let env = if !state.env.is_empty() {
           Some(polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap())
         } else {
           None
@@ -348,7 +351,7 @@ pub fn create_imports(
             let interface = String::from_utf8(interface_buffer).unwrap();
             let uri = String::from_utf8(impl_uri_buffer).unwrap();
             let method = String::from_utf8(method_buffer).unwrap();
-            let env = if state.env.len() > 0 {
+            let env = if !state.env.is_empty() {
               Some(polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap())
             } else {
               None
