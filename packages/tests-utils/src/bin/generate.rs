@@ -82,7 +82,7 @@ fn unzip_folder(source: &Path) -> Result<(), UnzipError> {
 
 pub async fn fetch_wrappers() -> Result<(), ExecutionError> {
     let client = Client::new();
-    let tag = "0.0.1-pre.5";
+    let tag = "0.0.1-pre.9";
     let repo_name = "wrap-test-harness";
     let url = format!(
         "https://github.com/polywrap/{}/releases/download/{}/wrappers",
