@@ -7,7 +7,7 @@ mod tests {
     use polywrap_plugin::{error::PluginError};
     
     use serde::{Serialize, Deserialize};
-    use polywrap_core::invoke::Invoker;
+    use polywrap_core::{invoke::Invoker, env::Env};
     use serde_json::json;
 
     #[derive(Serialize, Deserialize)]
@@ -16,7 +16,7 @@ mod tests {
     }
 
     pub trait Module {
-      fn foo_method(&mut self, args: &Args, a: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError>;
+      fn foo_method(&mut self, args: &Args, e: Option<Env>, a: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError>;
     }
 
     fn get_manifest() -> WrapManifest {
@@ -26,21 +26,18 @@ mod tests {
     #[test]
     fn add_env_field() {
         
-
-        #[plugin_struct]
+        #[derive(Debug)]
         struct Foo {
             a: String
         }
 
         let bar = Foo {
-            env: json!({}),
             a: "sss".to_string()
         };
 
         impl Foo {
             pub fn new(_a: String) -> Self {
                 Self {
-                    env: json!({}),
                     a: "sss".to_string()
                 }
             }
@@ -48,19 +45,13 @@ mod tests {
             pub fn methoda(&self, b: i32) -> u32 {
                 b.try_into().unwrap()
             }
-
-            pub fn methodb(&mut self, _b: i32) {
-                self.env = json!({})
-            }
         }
 
         #[plugin_impl]
         impl Module for Foo {
-          fn foo_method(&mut self, _arg: &Args, _s: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError> {
-            Ok(vec![0])
+          fn foo_method(&mut self, _arg: &Args, _: Option<Env>, _s: Arc<dyn Invoker>) -> Result<Option<Vec<u8>>, PluginError> {
+            Ok(Some(vec![0]))
           }
         }
-
-        assert_eq!(bar.env, json!({}));
     }
 }

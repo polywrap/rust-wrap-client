@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::quote;
 use syn::parse::Parser;
-use syn::{parse, parse_macro_input, DeriveInput, ItemImpl, ItemStruct };
+use syn::{parse, parse_macro_input, ItemImpl, ItemStruct, ImplItem };
 
 fn snake_case_to_camel_case(s: &str) -> String {
     s.split('_')
@@ -20,18 +20,9 @@ fn snake_case_to_camel_case(s: &str) -> String {
 #[proc_macro_attribute]
 pub fn plugin_struct(args: TokenStream, input: TokenStream) -> TokenStream {
     let mut item_struct = parse_macro_input!(input as ItemStruct);
-    let _ = parse_macro_input!(args as parse::Nothing);
-
-    if let syn::Fields::Named(ref mut fields) = item_struct.fields {
-        fields.named.push(
-            syn::Field::parse_named
-                .parse2(quote! { pub env: polywrap_core::env::Env })
-                .unwrap(),
-        );
-    }
 
     quote! {
-        #[derive(polywrap_plugin_macro::Plugin, Debug)]
+        #[derive(Debug)]
         #item_struct
     }
     .into()
@@ -50,13 +41,14 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         match item {
             syn::ImplItem::Method(method) => {
               let function_ident = &method.sig.ident;
+              let output_type = match &method.sig.output {
+                syn::ReturnType::Default => quote! { () },
+                syn::ReturnType::Type(_, ty) => quote! { #ty },
+              };
+              let output_type = quote! { #output_type }.to_string();
               let function_ident_str =
                   snake_case_to_camel_case(&function_ident.to_string());
-
-              let output_is_option = quote!{
-                  #method.sig.output
-              }.to_string().contains("Option <");
-
+              let output_is_option = output_type.contains("Option <");
 
               method_idents.push((
                   function_ident.clone(),
@@ -88,6 +80,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                     #ident_str => {
                       let result = self.#ident(
                         &polywrap_msgpack::decode(&params).unwrap(),
+                        env,
                         invoker,
                       )?;
 
@@ -103,6 +96,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                   #ident_str => {
                     let result = self.#ident(
                       &polywrap_msgpack::decode(&params).unwrap(),
+                      env,
                       invoker,
                     )?;
     
@@ -118,6 +112,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             &mut self,
             method_name: &str,
             params: &[u8],
+            env: Option<Env>,
             invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,
         ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
                 let supported_methods = vec![#(#supported_methods),*];
@@ -153,29 +148,4 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         #from_impls
     }
     .into()
-}
-
-#[proc_macro_derive(Plugin)]
-pub fn derive_plugin(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-
-    let name = input.ident;
-
-    let expanded = quote! {
-        impl polywrap_plugin::module::PluginWithEnv for #name {
-            fn set_env(&mut self, env: polywrap_core::env::Env) {
-                self.env = env;
-            }
-
-            fn get_env(&self, key: String) -> Option<&polywrap_core::env::Env> {
-                if let Some(env) = self.env.get(&key) {
-                  Some(env)
-                } else {
-                  None
-                }
-            }
-        }
-    };
-
-    proc_macro::TokenStream::from(expanded)
 }
