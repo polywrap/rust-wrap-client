@@ -8,7 +8,7 @@ use polywrap_core::{
 };
 use polywrap_msgpack::{msgpack};
 use polywrap_plugin::package::PluginPackage;
-use serde_json::{json, Value};
+use serde_json::{json};
 
 fn get_client() -> PolywrapClient {
     let http_plugin = HttpPlugin { };
