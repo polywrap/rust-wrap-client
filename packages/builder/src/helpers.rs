@@ -71,19 +71,19 @@ pub fn add_default() -> BuilderConfig {
 }
 
 pub fn get_default_plugins() -> Vec<UriPackage> {
-    let fs = FileSystemPlugin { env: Value::Null };
+    let fs = FileSystemPlugin { };
     let fs_plugin_package: PluginPackage = fs.into();
     let fs_package = Arc::new(Mutex::new(fs_plugin_package));
 
-    let fs_resolver = FileSystemResolverPlugin { env: Value::Null };
+    let fs_resolver = FileSystemResolverPlugin { };
     let fs_resolver_plugin_package: PluginPackage = fs_resolver.into();
     let fs_resolver_package = Arc::new(Mutex::new(fs_resolver_plugin_package));
 
-    let http = HttpPlugin { env: Value::Null };
+    let http = HttpPlugin { };
     let http_plugin_package: PluginPackage = http.into();
     let http_package = Arc::new(Mutex::new(http_plugin_package));
 
-    let http_resolver = HttpResolverPlugin { env: Value::Null };
+    let http_resolver = HttpResolverPlugin { };
     let http_resolver_plugin_package: PluginPackage = http_resolver.into();
     let http_resolver_package = Arc::new(Mutex::new(http_resolver_plugin_package));
 

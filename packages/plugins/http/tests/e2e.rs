@@ -11,7 +11,7 @@ use polywrap_plugin::package::PluginPackage;
 use serde_json::{json, Value};
 
 fn get_client() -> PolywrapClient {
-    let http_plugin = HttpPlugin { env: Value::Null };
+    let http_plugin = HttpPlugin { };
     let plugin_pkg: PluginPackage = http_plugin.into();
     let package = Arc::new(Mutex::new(plugin_pkg));
 

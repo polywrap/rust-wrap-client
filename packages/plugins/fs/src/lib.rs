@@ -2,7 +2,7 @@ use std::{fs, path::Path, sync::Arc};
 
 use polywrap_core::invoke::Invoker;
 use polywrap_plugin::error::PluginError;
-use polywrap_plugin_macro::{plugin_impl, plugin_struct};
+use polywrap_plugin_macro::{plugin_impl};
 use wrap::module::{
     ArgsExists, ArgsMkdir, ArgsReadFile, ArgsReadFileAsString, ArgsRm, ArgsRmdir, ArgsWriteFile,
     Module,
@@ -11,7 +11,7 @@ pub mod wrap;
 use polywrap_core::env::Env;
 use crate::wrap::wrap_info::get_manifest;
 
-#[plugin_struct]
+#[derive(Debug)]
 pub struct FileSystemPlugin {}
 
 #[plugin_impl]
@@ -19,7 +19,7 @@ impl Module for FileSystemPlugin {
     fn read_file(
         &mut self,
         args: &ArgsReadFile,
-        env: Option<Env>,
+        _env: Option<Env>,
         _: Arc<dyn Invoker>,
     ) -> Result<Vec<u8>, PluginError> {
         fs::read(&args.path).map_err(|e| PluginError::ModuleError(e.to_string()))
@@ -28,7 +28,7 @@ impl Module for FileSystemPlugin {
     fn read_file_as_string(
         &mut self,
         args: &ArgsReadFileAsString,
-        env: Option<Env>,
+        _env: Option<Env>,
         _: Arc<dyn Invoker>,
     ) -> Result<String, PluginError> {
         fs::read_to_string(&args.path).map_err(|e| PluginError::ModuleError(e.to_string()))
@@ -37,7 +37,7 @@ impl Module for FileSystemPlugin {
     fn exists(
       &mut self,
       args: &ArgsExists,
-      env: Option<Env>,
+      _env: Option<Env>,
       _: Arc<dyn Invoker>) -> Result<bool, PluginError> {
         Ok(Path::new(&args.path).exists())
     }
@@ -45,7 +45,7 @@ impl Module for FileSystemPlugin {
     fn write_file(
         &mut self,
         args: &ArgsWriteFile,
-        env: Option<Env>,
+        _env: Option<Env>,
         _: Arc<dyn Invoker>,
     ) -> Result<Option<bool>, PluginError> {
         fs::write(
@@ -60,7 +60,7 @@ impl Module for FileSystemPlugin {
     fn mkdir(
         &mut self,
         args: &ArgsMkdir,
-        env: Option<Env>,
+        _env: Option<Env>,
         _: Arc<dyn Invoker>,
     ) -> Result<Option<bool>, PluginError> {
         let recursive = if let Some(recursive) = args.recursive {
@@ -83,7 +83,7 @@ impl Module for FileSystemPlugin {
     fn rm(
       &mut self,
       args: &ArgsRm,
-      env: Option<Env>,
+      _env: Option<Env>,
       _: Arc<dyn Invoker>
     ) -> Result<Option<bool>, PluginError> {
         let recursive = if let Some(recursive) = args.recursive {
@@ -118,7 +118,7 @@ impl Module for FileSystemPlugin {
     fn rmdir(
         &mut self,
         args: &ArgsRmdir,
-        env: Option<Env>,
+        _env: Option<Env>,
         _: Arc<dyn Invoker>,
     ) -> Result<Option<bool>, PluginError> {
         fs::remove_dir(&args.path).unwrap();

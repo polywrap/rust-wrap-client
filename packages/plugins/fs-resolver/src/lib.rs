@@ -2,7 +2,7 @@ use std::{path::Path, sync::Arc};
 
 use polywrap_core::invoke::Invoker;
 use polywrap_plugin::error::PluginError;
-use polywrap_plugin_macro::{plugin_impl, plugin_struct};
+use polywrap_plugin_macro::{plugin_impl};
 use wrap::{
     module::{ArgsGetFile, ArgsTryResolveUri, Module},
     types::{
@@ -14,7 +14,7 @@ pub mod wrap;
 use polywrap_core::env::Env;
 use crate::wrap::wrap_info::get_manifest;
 
-#[plugin_struct]
+#[derive(Debug)]
 pub struct FileSystemResolverPlugin {}
 
 #[plugin_impl]

@@ -3,13 +3,13 @@ use std::sync::Arc;
 use mapping::{parse_request, parse_response};
 use polywrap_core::{invoke::Invoker, env::Env};
 use polywrap_plugin::error::PluginError;
-use polywrap_plugin_macro::{plugin_struct, plugin_impl};
+use polywrap_plugin_macro::{plugin_impl};
 use wrap::{module::{Module, ArgsGet, ArgsPost}, types::ResponseType};
 pub mod mapping;
 pub mod wrap;
 use crate::wrap::wrap_info::get_manifest;
 
-#[plugin_struct]
+#[derive(Debug)]
 pub struct HttpPlugin {
 }
 

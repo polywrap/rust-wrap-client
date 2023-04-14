@@ -3,12 +3,12 @@ use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{invoke::{Invoker}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}, uri_resolution_context::UriPackage}, uri::Uri, client::ClientConfig};
+use polywrap_core::{invoke::{Invoker}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}, uri_resolution_context::UriPackage}, uri::Uri, client::ClientConfig, env::Env};
 
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
 use polywrap_msgpack::msgpack;
 use polywrap_plugin::{error::PluginError, module::{PluginModule}, package::PluginPackage};
-use polywrap_plugin_macro::{plugin_struct, plugin_impl};
+use polywrap_plugin_macro::{plugin_impl};
 use serde_json::{Value, from_value, json};
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
@@ -16,21 +16,21 @@ pub struct GetEnvArgs {
     key: String
 }
 
-#[plugin_struct]
+#[derive(Debug)]
 pub struct PluginEnv {}
 
 pub trait Module: PluginModule {
-  fn check_env_is_bar(&mut self, args: &GetEnvArgs, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
+  fn check_env_is_bar(&mut self, args: &GetEnvArgs, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
 }
 
 #[plugin_impl]
 impl Module for PluginEnv {
     fn check_env_is_bar(
         &mut self,
-        args: &GetEnvArgs,
+        _: &GetEnvArgs,
+        env: Option<Env>,
         _: Arc<dyn Invoker>
     ) -> Result<bool, PluginError> {
-        let env = self.get_env(args.key.clone());
         if let Some(e) = env {
             return Ok(e.eq(&Value::String("bar".to_string())));
         }
@@ -51,7 +51,7 @@ pub fn get_manifest() -> WrapManifest {
 #[test]
 fn invoke_test() {
     
-    let plugin = PluginEnv { env: Value::Null };
+    let plugin = PluginEnv { };
     let package: PluginPackage = plugin.into();
     let module = Arc::new(Mutex::new(package));
 
