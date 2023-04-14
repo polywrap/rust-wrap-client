@@ -1,8 +1,8 @@
 use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::quote;
-use syn::parse::Parser;
-use syn::{parse, parse_macro_input, ItemImpl, ItemStruct, ImplItem };
+
+use syn::{parse, parse_macro_input, ItemImpl };
 
 fn snake_case_to_camel_case(s: &str) -> String {
     s.split('_')
@@ -15,17 +15,6 @@ fn snake_case_to_camel_case(s: &str) -> String {
             }
         })
         .collect()
-}
-
-#[proc_macro_attribute]
-pub fn plugin_struct(args: TokenStream, input: TokenStream) -> TokenStream {
-    let mut item_struct = parse_macro_input!(input as ItemStruct);
-
-    quote! {
-        #[derive(Debug)]
-        #item_struct
-    }
-    .into()
 }
 
 #[proc_macro_attribute]

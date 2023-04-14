@@ -3,12 +3,12 @@ mod tests {
     use std::sync::Arc;
 
     use wrap_manifest_schemas::versions::WrapManifest;
-    use polywrap_plugin_macro::{plugin_struct, plugin_impl};
+    use polywrap_plugin_macro::{plugin_impl};
     use polywrap_plugin::{error::PluginError};
     
     use serde::{Serialize, Deserialize};
     use polywrap_core::{invoke::Invoker, env::Env};
-    use serde_json::json;
+    
 
     #[derive(Serialize, Deserialize)]
     pub struct Args {
@@ -31,7 +31,7 @@ mod tests {
             a: String
         }
 
-        let bar = Foo {
+        let _bar = Foo {
             a: "sss".to_string()
         };
 
