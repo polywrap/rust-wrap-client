@@ -11,6 +11,7 @@ use wrap::{
     },
 };
 pub mod wrap;
+use polywrap_core::env::Env;
 use crate::wrap::wrap_info::get_manifest;
 
 #[plugin_struct]
@@ -21,6 +22,7 @@ impl Module for FileSystemResolverPlugin {
     fn try_resolve_uri(
         &mut self,
         args: &ArgsTryResolveUri,
+        env: Option<Env>,
         invoker: Arc<dyn Invoker>,
     ) -> Result<Option<MaybeUriOrManifest>, PluginError> {
         if args.authority != "fs" && args.authority != "file" {
@@ -36,6 +38,7 @@ impl Module for FileSystemResolverPlugin {
             &FileSystemModuleArgsExists {
                 path: manifest_path.to_str().unwrap().to_string(),
             },
+            env.clone(),
             invoker.clone(),
         );
 
@@ -44,6 +47,7 @@ impl Module for FileSystemResolverPlugin {
                 &FileSystemModuleArgsReadFile {
                     path: manifest_path.to_str().unwrap().to_string(),
                 },
+                env,
                 invoker,
             );
 
@@ -65,12 +69,14 @@ impl Module for FileSystemResolverPlugin {
     fn get_file(
         &mut self,
         args: &ArgsGetFile,
+        env: Option<Env>,
         invoker: Arc<dyn Invoker>,
     ) -> Result<Option<Vec<u8>>, PluginError> {
         let resolve_result = FileSystemModule::read_file(
             &FileSystemModuleArgsReadFile {
                 path: args.path.clone(),
             },
+            env,
             invoker,
         );
 

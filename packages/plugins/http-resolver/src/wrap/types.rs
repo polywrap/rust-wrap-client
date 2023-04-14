@@ -10,7 +10,7 @@ use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 use std::sync::Arc;
 use polywrap_msgpack::{decode, serialize, extensions::generic_map::GenericMap};
-use polywrap_core::{invoke::{Invoker}, uri::Uri};
+use polywrap_core::{invoke::{Invoker}, uri::Uri, env::Env};
 use polywrap_plugin::error::PluginError;
 
 // Env START //
@@ -102,7 +102,7 @@ impl HttpModule {
         HttpModule {}
     }
 
-    pub fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
+    pub fn get(args: &HttpModuleArgsGet, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -111,7 +111,7 @@ impl HttpModule {
             &uri,
             "get",
             opt_args,
-            None,
+            env,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {
@@ -124,7 +124,7 @@ impl HttpModule {
         Ok(Some(decode(result.as_slice())?))
     }
 
-    pub fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
+    pub fn post(args: &HttpModuleArgsPost, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -133,7 +133,7 @@ impl HttpModule {
             &uri,
             "post",
             opt_args,
-            None,
+            env,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {

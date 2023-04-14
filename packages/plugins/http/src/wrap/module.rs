@@ -2,7 +2,7 @@
 ///       All modifications will be overwritten.
 
 use std::sync::Arc;
-use polywrap_core::invoke::Invoker;
+use polywrap_core::{invoke::Invoker, env::Env};
 use polywrap_plugin::error::PluginError;
 use polywrap_plugin::module::PluginModule;
 use serde::{Serialize, Deserialize};
@@ -22,7 +22,7 @@ pub struct ArgsPost {
 }
 
 pub trait Module: PluginModule {
-  fn get(&mut self, args: &ArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, PluginError>;
+  fn get(&mut self, args: &ArgsGet, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, PluginError>;
 
-  fn post(&mut self, args: &ArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, PluginError>;
+  fn post(&mut self, args: &ArgsPost, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, PluginError>;
 }

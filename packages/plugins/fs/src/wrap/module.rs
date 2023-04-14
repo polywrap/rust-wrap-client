@@ -2,6 +2,7 @@
 ///       All modifications will be overwritten.
 
 use std::sync::Arc;
+use polywrap_core::env::Env;
 use polywrap_core::invoke::Invoker;
 use polywrap_plugin::{error::PluginError};
 use polywrap_plugin::module::PluginModule;
@@ -49,17 +50,17 @@ pub struct ArgsRmdir {
 }
 
 pub trait Module: PluginModule {
-  fn read_file(&mut self, args: &ArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError>;
+  fn read_file(&mut self, args: &ArgsReadFile, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError>;
 
-  fn read_file_as_string(&mut self, args: &ArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, PluginError>;
+  fn read_file_as_string(&mut self, args: &ArgsReadFileAsString, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<String, PluginError>;
 
-  fn exists(&mut self, args: &ArgsExists, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
+  fn exists(&mut self, args: &ArgsExists, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
 
-  fn write_file(&mut self, args: &ArgsWriteFile, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
+  fn write_file(&mut self, args: &ArgsWriteFile, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
 
-  fn mkdir(&mut self, args: &ArgsMkdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
+  fn mkdir(&mut self, args: &ArgsMkdir, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
 
-  fn rm(&mut self, args: &ArgsRm, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
+  fn rm(&mut self, args: &ArgsRm, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
 
-  fn rmdir(&mut self, args: &ArgsRmdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
+  fn rmdir(&mut self, args: &ArgsRmdir, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
 }

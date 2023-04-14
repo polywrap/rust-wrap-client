@@ -10,7 +10,7 @@ use serde_json as JSON;
 use std::collections::BTreeMap as Map;
 use std::sync::Arc;
 use polywrap_msgpack::{decode, serialize};
-use polywrap_core::{invoke::{Invoker}, uri::Uri};
+use polywrap_core::{invoke::{Invoker}, uri::Uri, env::Env};
 use polywrap_plugin::error::PluginError;
 
 // Env START //
@@ -114,7 +114,7 @@ impl FileSystemModule {
         FileSystemModule {}
     }
 
-    pub fn read_file(args: &FileSystemModuleArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError> {
+    pub fn read_file(args: &FileSystemModuleArgsReadFile, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError> {
         let uri = FileSystemModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -123,7 +123,7 @@ impl FileSystemModule {
             &uri,
             "readFile",
             opt_args,
-            None,
+            env,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {
@@ -136,7 +136,7 @@ impl FileSystemModule {
         Ok(decode(result.as_slice())?)
     }
 
-    pub fn read_file_as_string(args: &FileSystemModuleArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, PluginError> {
+    pub fn read_file_as_string(args: &FileSystemModuleArgsReadFileAsString, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<String, PluginError> {
         let uri = FileSystemModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -145,7 +145,7 @@ impl FileSystemModule {
             &uri,
             "readFileAsString",
             opt_args,
-            None,
+            env,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {
@@ -158,7 +158,7 @@ impl FileSystemModule {
         Ok(decode(result.as_slice())?)
     }
 
-    pub fn exists(args: &FileSystemModuleArgsExists, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError> {
+    pub fn exists(args: &FileSystemModuleArgsExists, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError> {
         let uri = FileSystemModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -167,7 +167,7 @@ impl FileSystemModule {
             &uri,
             "exists",
             opt_args,
-            None,
+            env,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {
@@ -180,7 +180,7 @@ impl FileSystemModule {
         Ok(decode(result.as_slice())?)
     }
 
-    pub fn write_file(args: &FileSystemModuleArgsWriteFile, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
+    pub fn write_file(args: &FileSystemModuleArgsWriteFile, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -189,7 +189,7 @@ impl FileSystemModule {
             &uri,
             "writeFile",
             opt_args,
-            None,
+            env,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {
@@ -202,7 +202,7 @@ impl FileSystemModule {
         Ok(Some(decode(result.as_slice())?))
     }
 
-    pub fn mkdir(args: &FileSystemModuleArgsMkdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
+    pub fn mkdir(args: &FileSystemModuleArgsMkdir, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -211,7 +211,7 @@ impl FileSystemModule {
             &uri,
             "mkdir",
             opt_args,
-            None,
+            env,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {
@@ -224,7 +224,7 @@ impl FileSystemModule {
         Ok(Some(decode(result.as_slice())?))
     }
 
-    pub fn rm(args: &FileSystemModuleArgsRm, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
+    pub fn rm(args: &FileSystemModuleArgsRm, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -233,7 +233,7 @@ impl FileSystemModule {
             &uri,
             "rm",
             opt_args,
-            None,
+            env,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {
@@ -246,7 +246,7 @@ impl FileSystemModule {
         Ok(Some(decode(result.as_slice())?))
     }
 
-    pub fn rmdir(args: &FileSystemModuleArgsRmdir, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
+    pub fn rmdir(args: &FileSystemModuleArgsRmdir, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError> {
         let uri = FileSystemModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -255,7 +255,7 @@ impl FileSystemModule {
             &uri,
             "rmdir",
             opt_args,
-            None,
+            env,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {
