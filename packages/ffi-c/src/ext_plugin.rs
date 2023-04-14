@@ -3,7 +3,7 @@ use std::{ffi::{c_char, c_void}, sync::Arc, ptr::null, fmt::{Debug, Formatter}};
 use polywrap_client::{
     core::{env::Env, invoke::Invoker}, client::PolywrapClient, msgpack::extensions::generic_map::convert_msgpack_to_json,
 };
-use polywrap_plugin::module::{PluginModule, PluginWithEnv};
+use polywrap_plugin::module::{PluginModule};
 use serde_json::{json, Value};
 
 use crate::utils::{
@@ -36,20 +36,6 @@ impl ExtPluginModule {
         ptr_handle: PluginPtrHandle(plugin_ptr),
         plugin_invoke,
       }
-    }
-}
-
-impl PluginWithEnv for ExtPluginModule {
-    fn set_env(&mut self, env: Env) {
-        self.env = env;
-    }
-
-    fn get_env(&self, key: String) -> Option<&Env> {
-        if let Some(env) = self.env.get(&key) {
-            Some(env)
-        } else {
-            None
-        }
     }
 }
 

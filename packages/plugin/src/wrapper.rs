@@ -31,10 +31,6 @@ impl Wrapper for PluginWrapper {
         env: Option<Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
-        if let Some(e) = env {
-            self.instance.lock().unwrap().set_env(e);
-        };
-
         let args = match args {
             Some(args) => args.to_vec(),
             None => vec![],
@@ -43,7 +39,7 @@ impl Wrapper for PluginWrapper {
         let result = self
             .instance
             .lock().unwrap()
-            ._wrap_invoke(method, &args, invoker);
+            ._wrap_invoke(method, &args, env, invoker);
 
         match result {
             Ok(result) => Ok(result),
