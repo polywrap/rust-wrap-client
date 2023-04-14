@@ -18,7 +18,7 @@ pub struct ArgsGetKey {
 #[derive(Serialize,Deserialize)]
 pub struct CustomMap {
     pub map: GenericMap<String, u32>,
-    pub nestedMap: GenericMap<String, GenericMap<String, u32>>
+    pub nested_map: GenericMap<String, GenericMap<String, u32>>
 }
 
 
@@ -47,15 +47,15 @@ fn map_type_test() {
     myNestedMap.0.insert(String::from("Nested"), insideNestedMap);
     let foo = CustomMap {
         map: myMap,
-        nestedMap: myNestedMap
+        nested_map: myNestedMap
     };
 
-    let getKeyArgs = ArgsGetKey {
+    let get_key_args = ArgsGetKey {
       key: String::from("Hello"),
       foo,
     };
 
-    let args = polywrap_msgpack::serialize(getKeyArgs).unwrap();
+    let args = polywrap_msgpack::serialize(get_key_args).unwrap();
     let invoke_result = client
         .invoke::<u32>(
             &invoke_uri,
