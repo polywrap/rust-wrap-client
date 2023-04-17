@@ -152,7 +152,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
       impl From<#struct_ident> for polywrap_plugin::package::PluginPackage {
         fn from(plugin: #struct_ident) -> polywrap_plugin::package::PluginPackage {
             let plugin_module = Arc::new(std::sync::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
-            polywrap_plugin::package::PluginPackage::new(plugin_module, crate::wrap::wrap_info::get_manifest())
+            polywrap_plugin::package::PluginPackage::new(plugin_module, get_manifest())
         }
       }
 

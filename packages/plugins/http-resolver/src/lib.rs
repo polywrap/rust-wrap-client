@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
 
-use polywrap_core::{invoke::Invoker, env::Env};
+use polywrap_core::{invoke::Invoker};
 use polywrap_plugin_macro::{plugin_impl};
 use polywrap_plugin::error::PluginError;
 use wrap::{
     module::{ArgsGetFile, ArgsTryResolveUri, Module},
     types::{HttpModule, HttpRequest, MaybeUriOrManifest, HttpModuleArgsGet},
-    wrap_info::get_manifest,
 };
+use crate::wrap::wrap_info::get_manifest;
 pub mod wrap;
 
 #[derive(Debug)]
@@ -20,7 +20,6 @@ impl Module for HttpResolverPlugin {
     fn try_resolve_uri(
         &mut self,
         args: &ArgsTryResolveUri,
-        env: Option<Env>,
         invoker: Arc<dyn Invoker>,
     ) -> Result<Option<MaybeUriOrManifest>, PluginError> {
         if args.authority != "http" && args.authority != "https" {
@@ -41,7 +40,6 @@ impl Module for HttpResolverPlugin {
                     form_data: None,
                 }),
             },
-            env,
             invoker,
         );
 
@@ -70,7 +68,6 @@ impl Module for HttpResolverPlugin {
     fn get_file(
         &mut self,
         args: &ArgsGetFile,
-        env: Option<Env>,
         invoker: Arc<dyn Invoker>,
     ) -> Result<Option<Vec<u8>>, PluginError> {
         let resolve_result = HttpModule::get(
@@ -85,7 +82,6 @@ impl Module for HttpResolverPlugin {
                     form_data: None,
                 }),
             },
-            env,
             invoker,
         );
 

@@ -7,10 +7,10 @@ use serde::{Serialize, Deserialize};
 use num_bigint::BigInt;
 use bigdecimal::BigDecimal as BigNumber;
 use serde_json as JSON;
-use std::collections::BTreeMap as Map;
+use polywrap_msgpack::extensions::generic_map::GenericMap as Map;
 use std::sync::Arc;
-use polywrap_msgpack::{decode, serialize, extensions::generic_map::GenericMap};
-use polywrap_core::{invoke::{Invoker}, uri::Uri, env::Env};
+use polywrap_msgpack::{decode, serialize};
+use polywrap_core::{invoke::{Invoker}, uri::Uri};
 use polywrap_plugin::error::PluginError;
 
 // Env START //
@@ -34,13 +34,10 @@ pub struct MaybeUriOrManifest {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpRequest {
-    pub headers: Option<GenericMap<String, String>>,
-    #[serde(rename = "urlParams")]
-    pub url_params: Option<GenericMap<String, String>>,
-    #[serde(rename = "responseType")]
+    pub headers: Option<Map<String, String>>,
+    pub url_params: Option<Map<String, String>>,
     pub response_type: HttpResponseType,
     pub body: Option<String>,
-    #[serde(rename = "formData")]
     pub form_data: Option<Vec<HttpFormDataEntry>>,
     pub timeout: Option<u32>,
 }
@@ -55,9 +52,8 @@ pub struct HttpFormDataEntry {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpResponse {
     pub status: i32,
-    #[serde(rename = "statusText")]
     pub status_text: String,
-    pub headers: Option<GenericMap<String, String>>,
+    pub headers: Option<Map<String, String>>,
     pub body: Option<String>,
 }
 // Imported objects END //
@@ -102,7 +98,7 @@ impl HttpModule {
         HttpModule {}
     }
 
-    pub fn get(args: &HttpModuleArgsGet, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
+    pub fn get(args: &HttpModuleArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -111,7 +107,7 @@ impl HttpModule {
             &uri,
             "get",
             opt_args,
-            env,
+            None,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {
@@ -124,7 +120,7 @@ impl HttpModule {
         Ok(Some(decode(result.as_slice())?))
     }
 
-    pub fn post(args: &HttpModuleArgsPost, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
+    pub fn post(args: &HttpModuleArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<HttpResponse>, PluginError> {
         let uri = HttpModule::URI;
         let serialized_args = serialize(args.clone()).unwrap();
         let opt_args = Some(serialized_args.as_slice());
@@ -133,7 +129,7 @@ impl HttpModule {
             &uri,
             "post",
             opt_args,
-            env,
+            None,
             None
         )
         .map_err(|e| PluginError::SubinvocationError {
