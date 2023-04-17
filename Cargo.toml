@@ -21,6 +21,7 @@ members = [
     "packages/plugins/http-resolver",
     "packages/plugins/fs",
     "packages/plugins/fs-resolver",
+    "packages/plugins/test_env",
     "packages/plugin_macro",
     "packages/tests-utils"
 ]

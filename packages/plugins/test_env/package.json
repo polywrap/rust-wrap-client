@@ -1,0 +1,12 @@
+{
+  "name": "@polywrap/test_env-interface",
+  "description": "Polywrap Test Env Plugin",
+  "version": "0.10.0-pre.10",
+  "scripts": {
+    "build": "npx polywrap build --no-codegen",
+    "codegen": "npx polywrap codegen"
+  },
+  "devDependencies": {
+    "polywrap": "0.10.0-pre.10"
+  }
+}
