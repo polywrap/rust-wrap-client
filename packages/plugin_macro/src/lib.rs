@@ -24,12 +24,16 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
 
     let struct_ident = item_impl.clone().self_ty;
 
-    let mut method_idents: Vec<(Ident, String, bool)> = vec![];
+    let mut method_idents: Vec<(Ident, String, bool, bool)> = vec![];
 
     for item in item_impl.clone().items {
         match item {
             syn::ImplItem::Method(method) => {
               let function_ident = &method.sig.ident;
+              let env = &method.sig.inputs[2];
+              let env_str = quote! { #env }.to_string();
+              let env_is_option = env_str.contains("Option <");
+              
               let output_type = match &method.sig.output {
                 syn::ReturnType::Default => quote! { () },
                 syn::ReturnType::Type(_, ty) => quote! { #ty },
@@ -43,6 +47,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                   function_ident.clone(),
                   function_ident_str.clone(),
                   output_is_option,
+                  env_is_option
               ));
             }
             _ => panic!("Wrong function signature"),
@@ -54,7 +59,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             .clone()
             .into_iter()
             .enumerate()
-            .map(|(_, (_, ident_str, _))| {
+            .map(|(_, (_, ident_str, _, _))| {
                 quote! {
                   #ident_str
                 }
@@ -63,36 +68,50 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
     let methods = method_idents
         .into_iter()
         .enumerate()
-        .map(|(_, (ident, ident_str, output_is_option))| {
-            if output_is_option {
-                quote! {
-                    #ident_str => {
-                      let result = self.#ident(
-                        &polywrap_msgpack::decode(&params).unwrap(),
-                        env,
-                        invoker,
-                      )?;
-
-                      if let Some(r) = result {
-                        Ok(polywrap_msgpack::serialize(r)?)
-                      } else {
-                        Ok(vec![])
-                      }
-                    }
-                  }
-            } else {
-                quote! {
-                  #ident_str => {
-                    let result = self.#ident(
-                      &polywrap_msgpack::decode(&params).unwrap(),
-                      env,
-                      invoker,
-                    )?;
-    
-                    Ok(polywrap_msgpack::serialize(result)?)
-                  }
+        .map(|(_, (ident, ident_str, output_is_option, env_is_option))| {
+            let env = if env_is_option { 
+              quote! {
+                if let Some(e) = env {
+                  Some(serde_json::from_value(e).unwrap())
+                } else {
+                  None
                 }
-            }
+              }
+            } else {
+              quote! {
+                if let Some(e) = env {
+                  serde_json::from_value(e).unwrap()
+                } else {
+                  Err(PluginError(format!("Env must be defined for method '{}'", #ident)))
+                }
+              }
+            };
+
+            let output = if output_is_option {
+              quote! {
+                if let Some(r) = result {
+                  Ok(polywrap_msgpack::serialize(r)?)
+                } else {
+                  Ok(vec![])
+                }
+              }
+            } else {
+              quote! {
+                Ok(polywrap_msgpack::serialize(result)?)
+              }
+            };
+          
+            quote! {
+                #ident_str => {
+                  let result = self.#ident(
+                    &polywrap_msgpack::decode(&params).unwrap(),
+                    #env,
+                    invoker,
+                  )?;
+
+                  #output
+                }
+              }
         });
 
     let module_impl = quote! {
