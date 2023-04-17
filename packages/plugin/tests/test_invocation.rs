@@ -20,7 +20,7 @@ pub struct GetEnvArgs {
 pub struct PluginEnv {}
 
 pub trait Module: PluginModule {
-  fn check_env_is_bar(&mut self, args: &GetEnvArgs, env: Option<Env>, invoker: Arc<dyn Invoker>) -> Result<bool, PluginError>;
+  fn check_env_is_bar(&mut self, args: &GetEnvArgs, invoker: Arc<dyn Invoker>, env: Option<Env>) -> Result<bool, PluginError>;
 }
 
 #[plugin_impl]
@@ -28,8 +28,8 @@ impl Module for PluginEnv {
     fn check_env_is_bar(
         &mut self,
         args: &GetEnvArgs,
+        _: Arc<dyn Invoker>,
         env: Option<Env>,
-        _: Arc<dyn Invoker>
     ) -> Result<bool, PluginError> {
         if let Some(env) = env {
           if let Some(value) = env.get(args.key.clone()) {
