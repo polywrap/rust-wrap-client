@@ -24,15 +24,20 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
 
     let struct_ident = item_impl.clone().self_ty;
 
-    let mut method_idents: Vec<(Ident, String, bool, bool)> = vec![];
+    let mut method_idents: Vec<(Ident, String, bool, Option<bool>)> = vec![];
 
     for item in item_impl.clone().items {
         match item {
             syn::ImplItem::Method(method) => {
               let function_ident = &method.sig.ident;
-              let env = &method.sig.inputs[2];
-              let env_str = quote! { #env }.to_string();
-              let env_is_option = env_str.contains("Option <");
+              let env_is_option = if &method.sig.inputs.len() > &3 {
+                let env = &method.sig.inputs[3];
+                let env_str = quote! { #env }.to_string();
+                
+                Some(env_str.contains("Option <"))
+              } else {
+                None
+              };
               
               let output_type = match &method.sig.output {
                 syn::ReturnType::Default => quote! { () },
@@ -69,21 +74,34 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         .into_iter()
         .enumerate()
         .map(|(_, (ident, ident_str, output_is_option, env_is_option))| {
-            let env = if env_is_option { 
-              quote! {
-                if let Some(e) = env {
-                  Some(serde_json::from_value(e).unwrap())
-                } else {
-                  None
+            let args = if let Some(env_is_option) = env_is_option {
+              let env = if env_is_option { 
+                quote! {
+                  if let Some(e) = env {
+                    Some(serde_json::from_value(e).unwrap())
+                  } else {
+                    None
+                  }
                 }
+              } else {
+                quote! {
+                  if let Some(e) = env {
+                    serde_json::from_value(e).unwrap()
+                  } else {
+                    panic!("Env must be defined for method '{}'", #ident_str)
+                  }
+                }
+              };
+
+              quote! {
+                &polywrap_msgpack::decode(&params).unwrap(),
+                invoker,
+                #env
               }
             } else {
               quote! {
-                if let Some(e) = env {
-                  serde_json::from_value(e).unwrap()
-                } else {
-                  Err(PluginError(format!("Env must be defined for method '{}'", #ident)))
-                }
+                &polywrap_msgpack::decode(&params).unwrap(),
+                invoker
               }
             };
 
@@ -104,9 +122,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             quote! {
                 #ident_str => {
                   let result = self.#ident(
-                    &polywrap_msgpack::decode(&params).unwrap(),
-                    #env,
-                    invoker,
+                    #args
                   )?;
 
                   #output
@@ -120,7 +136,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             &mut self,
             method_name: &str,
             params: &[u8],
-            env: Option<Env>,
+            env: Option<serde_json::Value>,
             invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,
         ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
                 let supported_methods = vec![#(#supported_methods),*];
@@ -136,7 +152,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
       impl From<#struct_ident> for polywrap_plugin::package::PluginPackage {
         fn from(plugin: #struct_ident) -> polywrap_plugin::package::PluginPackage {
             let plugin_module = Arc::new(std::sync::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
-            polywrap_plugin::package::PluginPackage::new(plugin_module, get_manifest())
+            polywrap_plugin::package::PluginPackage::new(plugin_module, crate::wrap::wrap_info::get_manifest())
         }
       }
 
