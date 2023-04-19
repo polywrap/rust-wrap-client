@@ -27,7 +27,7 @@ jobs:
           override: true
 
       - name: Publish workspace packages to crates.io
-        run: ../scripts/publish.sh
+        run: ../scripts/release.sh
         env:
           CRATES_IO_TOKEN: ${{secrets.POLYWRAP_BUILD_BOT_CRATES_PAT}}
 
