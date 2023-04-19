@@ -8,8 +8,6 @@ repository = "https://github.com/polywrap/rust-client"
 [workspace]
 members = [
     "packages/client",
-    "packages/ffi-java",
-    "packages/ffi-c",
     "packages/core",
     "packages/wasm",
     "packages/resolvers",
@@ -23,7 +21,8 @@ members = [
     "packages/plugins/fs-resolver",
     "packages/plugins/test_env",
     "packages/plugin_macro",
-    "packages/tests-utils"
+    "packages/tests-utils",
+    "packages/default-config"
 ]
 
 [workspace.dependencies]
@@ -37,6 +36,7 @@ polywrap_msgpack = { version = "0.1.1", path = "packages/msgpack" }
 polywrap_tests_utils = { version = "0.1.1", path = "packages/tests-utils" }
 polywrap_plugin = { version = "0.1.1", path = "packages/plugin" }
 polywrap_plugin_macro = { version = "0.1.1", path = "packages/plugin_macro" }
+polywrap_client_default_config = { version = "0.1.1", path = "packages/default-config" }
 
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"
