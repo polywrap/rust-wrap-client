@@ -11,6 +11,11 @@ use polywrap_msgpack::extensions::generic_map::GenericMap as Map;
 
 // Env START //
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Env {
+    pub foo: String,
+    pub bar: Option<Vec<u8>>,
+}
 // Env END //
 
 // Objects START //
@@ -19,19 +24,6 @@ use polywrap_msgpack::extensions::generic_map::GenericMap as Map;
 
 // Enums START //
 
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
-pub enum Encoding {
-    ASCII,
-    UTF8,
-    UTF16LE,
-    UCS2,
-    BASE64,
-    BASE64URL,
-    LATIN1,
-    BINARY,
-    HEX,
-    _MAX_
-}
 // Enums END //
 
 // Imported objects START //

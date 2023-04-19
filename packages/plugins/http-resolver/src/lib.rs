@@ -2,16 +2,16 @@ use std::sync::Arc;
 
 
 use polywrap_core::{invoke::Invoker};
-use polywrap_plugin_macro::{plugin_struct, plugin_impl};
+use polywrap_plugin_macro::{plugin_impl};
 use polywrap_plugin::error::PluginError;
 use wrap::{
     module::{ArgsGetFile, ArgsTryResolveUri, Module},
     types::{HttpModule, HttpRequest, MaybeUriOrManifest, HttpModuleArgsGet},
-    wrap_info::get_manifest,
 };
+use crate::wrap::wrap_info::get_manifest;
 pub mod wrap;
 
-#[plugin_struct]
+#[derive(Debug)]
 pub struct HttpResolverPlugin {
 }
 

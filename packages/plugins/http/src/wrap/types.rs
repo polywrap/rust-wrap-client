@@ -1,13 +1,13 @@
 #![allow(unused_imports)]
 #![allow(non_camel_case_types)]
 
-use polywrap_msgpack::extensions::generic_map::GenericMap;
 // NOTE: This is an auto-generated file.
 //       All modifications will be overwritten.
 use serde::{Serialize, Deserialize};
 use num_bigint::BigInt;
 use bigdecimal::BigDecimal as BigNumber;
 use serde_json as JSON;
+use polywrap_msgpack::extensions::generic_map::GenericMap as Map;
 
 // Env START //
 
@@ -20,14 +20,14 @@ pub struct Response {
     pub status: i32,
     #[serde(rename = "statusText")]
     pub status_text: String,
-    pub headers: Option<GenericMap<String, String>>,
+    pub headers: Option<Map<String, String>>,
     pub body: Option<String>,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Request {
-    pub headers: Option<GenericMap<String, String>>,
+    pub headers: Option<Map<String, String>>,
     #[serde(rename = "urlParams")]
-    pub url_params: Option<GenericMap<String, String>>,
+    pub url_params: Option<Map<String, String>>,
     #[serde(rename = "responseType")]
     pub response_type: ResponseType,
     pub body: Option<String>,

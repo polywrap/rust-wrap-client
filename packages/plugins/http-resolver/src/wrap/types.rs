@@ -7,9 +7,9 @@ use serde::{Serialize, Deserialize};
 use num_bigint::BigInt;
 use bigdecimal::BigDecimal as BigNumber;
 use serde_json as JSON;
-use std::collections::BTreeMap as Map;
+use polywrap_msgpack::extensions::generic_map::GenericMap as Map;
 use std::sync::Arc;
-use polywrap_msgpack::{decode, serialize, extensions::generic_map::GenericMap};
+use polywrap_msgpack::{decode, serialize};
 use polywrap_core::{invoke::{Invoker}, uri::Uri};
 use polywrap_plugin::error::PluginError;
 
@@ -34,9 +34,9 @@ pub struct MaybeUriOrManifest {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpRequest {
-    pub headers: Option<GenericMap<String, String>>,
+    pub headers: Option<Map<String, String>>,
     #[serde(rename = "urlParams")]
-    pub url_params: Option<GenericMap<String, String>>,
+    pub url_params: Option<Map<String, String>>,
     #[serde(rename = "responseType")]
     pub response_type: HttpResponseType,
     pub body: Option<String>,
@@ -48,6 +48,7 @@ pub struct HttpRequest {
 pub struct HttpFormDataEntry {
     pub name: String,
     pub value: Option<String>,
+    #[serde(rename = "fileName")]
     pub file_name: Option<String>,
     #[serde(rename = "type")]
     pub _type: Option<String>,
@@ -57,7 +58,7 @@ pub struct HttpResponse {
     pub status: i32,
     #[serde(rename = "statusText")]
     pub status_text: String,
-    pub headers: Option<GenericMap<String, String>>,
+    pub headers: Option<Map<String, String>>,
     pub body: Option<String>,
 }
 // Imported objects END //

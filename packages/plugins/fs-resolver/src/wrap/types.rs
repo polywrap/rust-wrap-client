@@ -7,7 +7,7 @@ use serde::{Serialize, Deserialize};
 use num_bigint::BigInt;
 use bigdecimal::BigDecimal as BigNumber;
 use serde_json as JSON;
-use std::collections::BTreeMap as Map;
+use polywrap_msgpack::extensions::generic_map::GenericMap as Map;
 use std::sync::Arc;
 use polywrap_msgpack::{decode, serialize};
 use polywrap_core::{invoke::{Invoker}, uri::Uri};

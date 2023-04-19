@@ -2,12 +2,11 @@
 ///       All modifications will be overwritten.
 
 use std::sync::Arc;
-use polywrap_core::invoke::Invoker;
+use polywrap_core::{invoke::Invoker};
 use polywrap_plugin::error::PluginError;
 use polywrap_plugin::module::PluginModule;
 use serde::{Serialize, Deserialize};
 use super::types::*;
-
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsTryResolveUri {
