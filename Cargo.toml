@@ -8,8 +8,7 @@ repository = "https://github.com/polywrap/rust-client"
 [workspace]
 members = [
     "packages/client",
-    "packages/ffi-java",
-    "packages/ffi-c",
+    "packages/native",
     "packages/core",
     "packages/wasm",
     "packages/resolvers",
