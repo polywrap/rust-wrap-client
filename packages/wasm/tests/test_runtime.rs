@@ -29,7 +29,7 @@ impl MockInvoker {
 impl Invoker for MockInvoker {
     fn invoke_wrapper_raw(
         &self,
-        wrapper: Arc<Mutex<dyn Wrapper>>,
+        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
@@ -66,7 +66,7 @@ impl Invoker for MockInvoker {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let invoke_result = self.invoke_wrapper_raw(
-            Arc::new(Mutex::new(self.wrapper.clone())),
+            Arc::new(Mutex::new(Box::new(self.wrapper.clone()))),
             uri,
             method,
             args,

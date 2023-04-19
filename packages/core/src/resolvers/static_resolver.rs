@@ -13,8 +13,8 @@ use crate::{
 
 pub enum StaticResolverLike {
     Redirect(UriRedirect),
-    Wrapper(Uri, Arc<Mutex<dyn Wrapper>>),
-    Package(Uri, Arc<Mutex<dyn WrapPackage>>),
+    Wrapper(Uri, Arc<Mutex<Box<dyn Wrapper>>>),
+    Package(Uri, Arc<Mutex<Box<dyn WrapPackage>>>),
     StaticResolverLike(Vec<StaticResolverLike>),
 }
 

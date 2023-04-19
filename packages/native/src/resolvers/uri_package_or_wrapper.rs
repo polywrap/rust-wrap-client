@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use polywrap_client::core::{resolvers::uri_resolution_context::UriPackageOrWrapper, uri::Uri};
+use polywrap_client::core::{resolvers::uri_resolution_context::UriPackageOrWrapper, uri::Uri, wrapper::Wrapper, package::WrapPackage};
 use polywrap_plugin::{wrapper::PluginWrapper, package::PluginPackage};
 use polywrap_wasm::{wasm_wrapper::WasmWrapper, wasm_package::WasmPackage};
 
@@ -30,19 +30,19 @@ impl From<SafeUriPackageOrWrapper> for UriPackageOrWrapper {
         SafeUriPackageOrWrapperType::Uri => UriPackageOrWrapper::Uri(entry_uri),
         SafeUriPackageOrWrapperType::WasmWrapper => {
           let wrapper = instantiate_from_ptr(entry.data as *mut WasmWrapper);
-          UriPackageOrWrapper::Wrapper(entry_uri, Arc::new(Mutex::new(wrapper)))
+          UriPackageOrWrapper::Wrapper(entry_uri, Arc::new(Mutex::new(Box::new(wrapper) as Box<dyn Wrapper>)))
         },
         SafeUriPackageOrWrapperType::PluginWrapper => {
           let wrapper = instantiate_from_ptr(entry.data as *mut PluginWrapper);
-          UriPackageOrWrapper::Wrapper(entry_uri, Arc::new(Mutex::new(wrapper)))
+          UriPackageOrWrapper::Wrapper(entry_uri, Arc::new(Mutex::new(Box::new(wrapper) as Box<dyn Wrapper>)))
         },
         SafeUriPackageOrWrapperType::WasmPackage => {
           let package = instantiate_from_ptr(entry.data as *mut WasmPackage);
-          UriPackageOrWrapper::Package(entry_uri, Arc::new(Mutex::new(package)))
+          UriPackageOrWrapper::Package(entry_uri, Arc::new(Mutex::new(Box::new(package) as Box<dyn WrapPackage>)))
         },
         SafeUriPackageOrWrapperType::PluginPackage => {
           let package = instantiate_from_ptr(entry.data as *mut PluginPackage);
-          UriPackageOrWrapper::Package(entry_uri, Arc::new(Mutex::new(package)))
+          UriPackageOrWrapper::Package(entry_uri, Arc::new(Mutex::new(Box::new(package) as Box<dyn WrapPackage>)))
         }
       }
     }

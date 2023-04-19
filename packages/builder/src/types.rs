@@ -11,8 +11,8 @@ use polywrap_core::{
 pub struct BuilderConfig {
     pub interfaces: Option<InterfaceImplementations>,
     pub envs: Option<Envs>,
-    pub wrappers: Option<Vec<(Uri, Arc<Mutex<dyn Wrapper>>)>>,
-    pub packages: Option<Vec<(Uri, Arc<Mutex<dyn WrapPackage>>)>>,
+    pub wrappers: Option<Vec<(Uri, Arc<Mutex<Box<dyn Wrapper>>>)>>,
+    pub packages: Option<Vec<(Uri, Arc<Mutex<Box<dyn WrapPackage>>>)>>,
     pub redirects: Option<Vec<UriRedirect>>,
     pub resolvers: Option<Vec<UriResolverLike>>,
 }
@@ -38,11 +38,11 @@ pub trait ClientBuilder {
         interface_uri: Uri,
         implementation_uri: Uri
     ) -> &mut Self;
-    fn add_wrapper(&mut self, uri: Uri, wrapper: Arc<Mutex<dyn Wrapper>>) -> &mut Self;
-    fn add_wrappers(&mut self, wrappers: Vec<(Uri, Arc<Mutex<dyn Wrapper>>)>) -> &mut Self;
+    fn add_wrapper(&mut self, uri: Uri, wrapper: Arc<Mutex<Box<dyn Wrapper>>>) -> &mut Self;
+    fn add_wrappers(&mut self, wrappers: Vec<(Uri, Arc<Mutex<Box<dyn Wrapper>>>)>) -> &mut Self;
     fn remove_wrapper(&mut self, uri: Uri) -> &mut Self;
-    fn add_package(&mut self, uri: Uri, package: Arc<Mutex<dyn WrapPackage>>) -> &mut Self;
-    fn add_packages(&mut self, packages: Vec<(Uri, Arc<Mutex<dyn WrapPackage>>)>) -> &mut Self;
+    fn add_package(&mut self, uri: Uri, package: Arc<Mutex<Box<dyn WrapPackage>>>) -> &mut Self;
+    fn add_packages(&mut self, packages: Vec<(Uri, Arc<Mutex<Box<dyn WrapPackage>>>)>) -> &mut Self;
     fn remove_package(&mut self, uri: Uri) -> &mut Self;
     fn add_redirect(&mut self, from: Uri, to: Uri) -> &mut Self;
     fn add_redirects(&mut self, redirects: Vec<UriRedirect>) -> &mut Self;

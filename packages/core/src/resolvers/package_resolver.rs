@@ -7,7 +7,7 @@ use super::{resolver_with_history::ResolverWithHistory, uri_resolution_context::
 
 pub struct PackageResolver {
   pub uri: Uri,
-  pub package: Arc<Mutex<dyn WrapPackage>>
+  pub package: Arc<Mutex<Box<dyn WrapPackage>>>
 }
 
 impl PackageResolver {}

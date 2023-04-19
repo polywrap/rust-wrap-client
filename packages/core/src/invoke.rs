@@ -6,7 +6,7 @@ use std::{sync::{Arc, Mutex}};
 pub trait Invoker: Send + Sync {
     fn invoke_wrapper_raw(
         &self,
-        wrapper: Arc<Mutex<dyn Wrapper>>,
+        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,

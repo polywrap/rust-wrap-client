@@ -49,19 +49,19 @@ impl From<SafeUriResolverLikeVariant> for UriResolverLike {
         },
         SafeUriResolverLikeType::WasmPackage => {
           let package = instantiate_from_ptr(value.data as *mut WasmPackage);
-          UriResolverLike::Package(uri, Arc::new(Mutex::new(package)))
+          UriResolverLike::Package(uri, Arc::new(Mutex::new(Box::new(package))))
         },
         SafeUriResolverLikeType::PluginPackage => {
           let package = instantiate_from_ptr(value.data as *mut PluginPackage);
-          UriResolverLike::Package(uri, Arc::new(Mutex::new(package)))
+          UriResolverLike::Package(uri, Arc::new(Mutex::new(Box::new(package))))
         },
         SafeUriResolverLikeType::WasmWrapper => {
           let wrapper = instantiate_from_ptr(value.data as *mut WasmWrapper);
-          UriResolverLike::Wrapper(uri, Arc::new(Mutex::new(wrapper)))
+          UriResolverLike::Wrapper(uri, Arc::new(Mutex::new(Box::new(wrapper))))
         },
         SafeUriResolverLikeType::PluginWrapper => {
           let wrapper = instantiate_from_ptr(value.data as *mut PluginWrapper);
-          UriResolverLike::Wrapper(uri, Arc::new(Mutex::new(wrapper)))
+          UriResolverLike::Wrapper(uri, Arc::new(Mutex::new(Box::new(wrapper))))
         }
       }
     }

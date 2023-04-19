@@ -78,7 +78,7 @@ impl UriResolverWrapper {
     resolver_extension_uri: Uri,
     loader: &dyn Loader,
     resolution_context: &mut UriResolutionContext
-  ) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
+  ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error> {
 
     let result = loader.try_resolve_uri(
       &resolver_extension_uri,
@@ -146,7 +146,7 @@ impl ResolverWithHistory for UriResolverWrapper {
       if package.get_manifest(None).is_ok() {
         return Ok(
           UriPackageOrWrapper::Package(uri.clone(), 
-          Arc::new(Mutex::new(package)))
+          Arc::new(Mutex::new(Box::new(package))))
         );
       }
 

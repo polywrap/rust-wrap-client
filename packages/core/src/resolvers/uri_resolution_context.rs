@@ -6,8 +6,8 @@ use crate::{uri::Uri};
 #[derive(Clone)]
 pub enum UriPackageOrWrapper {
   Uri(Uri),
-  Wrapper(Uri, Arc<Mutex<dyn Wrapper>>),
-  Package(Uri, Arc<Mutex<dyn WrapPackage>>),
+  Wrapper(Uri, Arc<Mutex<Box<dyn Wrapper>>>),
+  Package(Uri, Arc<Mutex<Box<dyn WrapPackage>>>),
 }
 
 impl UriPackageOrWrapper {

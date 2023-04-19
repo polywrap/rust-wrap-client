@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex};
 use http_plugin::HttpPlugin;
 use httpmock::{prelude::*, Method};
 use polywrap_client::client::PolywrapClient;
+use polywrap_core::package::WrapPackage;
 use polywrap_core::resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use polywrap_core::{
     client::ClientConfig, invoke::Invoker, uri::Uri,
@@ -13,7 +14,7 @@ use serde_json::{json};
 fn get_client() -> PolywrapClient {
     let http_plugin = HttpPlugin { };
     let plugin_pkg: PluginPackage = http_plugin.into();
-    let package = Arc::new(Mutex::new(plugin_pkg));
+    let package = Arc::new(Mutex::new(Box::new(plugin_pkg) as Box<dyn WrapPackage>));
 
     let resolver = StaticResolver::from(vec![StaticResolverLike::Package(
         Uri::try_from("wrap://ens/http.polywrap.eth").unwrap(),

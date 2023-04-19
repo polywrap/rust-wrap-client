@@ -191,11 +191,11 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_wrapper(&mut self, uri: Uri, wrapper: Arc<Mutex<dyn Wrapper>>) -> &mut Self {
+    fn add_wrapper(&mut self, uri: Uri, wrapper: Arc<Mutex<Box<dyn Wrapper>>>) -> &mut Self {
         if let Some(wrappers) = self.wrappers.as_mut() {
             let existing_wrapper = wrappers
             .iter_mut()
-            .find(|i: &&mut (Uri, Arc<Mutex<dyn Wrapper>>)| i.0 == uri);
+            .find(|i: &&mut (Uri, Arc<Mutex<Box<dyn Wrapper>>>)| i.0 == uri);
             
             if let Some(p) = existing_wrapper {
                 p.1 = wrapper;
@@ -208,7 +208,7 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_wrappers(&mut self, wrappers: Vec<(Uri, Arc<Mutex<dyn Wrapper>>)>) -> &mut Self {
+    fn add_wrappers(&mut self, wrappers: Vec<(Uri, Arc<Mutex<Box<dyn Wrapper>>>)>) -> &mut Self {
         for (uri, wrapper) in wrappers.into_iter() {
             self.add_wrapper(uri, wrapper);
         }
@@ -224,7 +224,7 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_package(&mut self, uri: Uri, package: Arc<Mutex<dyn WrapPackage>>) -> &mut Self {
+    fn add_package(&mut self, uri: Uri, package: Arc<Mutex<Box<dyn WrapPackage>>>) -> &mut Self {
         if let Some(packages) = self.packages.as_mut() {
             let existing_package = packages
             .iter_mut()
@@ -241,7 +241,7 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_packages(&mut self, packages: Vec<(Uri, Arc<Mutex<dyn WrapPackage>>)>) -> &mut Self {
+    fn add_packages(&mut self, packages: Vec<(Uri, Arc<Mutex<Box<dyn WrapPackage>>>)>) -> &mut Self {
         for (uri, package) in packages.into_iter() {
             self.add_package(uri, package);
         }

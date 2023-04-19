@@ -10,7 +10,7 @@ use super::{
 
 pub struct WrapperResolver {
     pub uri: Uri,
-    pub wrapper: Arc<Mutex<dyn Wrapper>>,
+    pub wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
 }
 
 impl WrapperResolver {}
