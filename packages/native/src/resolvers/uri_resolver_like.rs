@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use polywrap_client::core::{resolvers::{uri_resolver_like::UriResolverLike, uri_resolution_context::{UriPackage, UriWrapper}}, client::UriRedirect, uri::Uri};
+use polywrap_client::core::{resolvers::{uri_resolver_like::UriResolverLike}, client::UriRedirect, uri::Uri};
 use polywrap_plugin::{package::PluginPackage, wrapper::PluginWrapper};
 use polywrap_wasm::{wasm_package::WasmPackage, wasm_wrapper::WasmWrapper};
 
@@ -49,31 +49,19 @@ impl From<SafeUriResolverLikeVariant> for UriResolverLike {
         },
         SafeUriResolverLikeType::WasmPackage => {
           let package = instantiate_from_ptr(value.data as *mut WasmPackage);
-          UriResolverLike::Package(UriPackage {
-            uri,
-            package: Arc::new(Mutex::new(package))
-          })
+          UriResolverLike::Package(uri, Arc::new(Mutex::new(package)))
         },
         SafeUriResolverLikeType::PluginPackage => {
           let package = instantiate_from_ptr(value.data as *mut PluginPackage);
-          UriResolverLike::Package(UriPackage {
-            uri,
-            package: Arc::new(Mutex::new(package))
-          })
+          UriResolverLike::Package(uri, Arc::new(Mutex::new(package)))
         },
         SafeUriResolverLikeType::WasmWrapper => {
           let wrapper = instantiate_from_ptr(value.data as *mut WasmWrapper);
-          UriResolverLike::Wrapper(UriWrapper {
-            uri,
-            wrapper: Arc::new(Mutex::new(wrapper))
-          })
+          UriResolverLike::Wrapper(uri, Arc::new(Mutex::new(wrapper)))
         },
         SafeUriResolverLikeType::PluginWrapper => {
           let wrapper = instantiate_from_ptr(value.data as *mut PluginWrapper);
-          UriResolverLike::Wrapper(UriWrapper {
-            uri,
-            wrapper: Arc::new(Mutex::new(wrapper))
-          })
+          UriResolverLike::Wrapper(uri, Arc::new(Mutex::new(wrapper)))
         }
       }
     }

@@ -48,16 +48,16 @@ impl From<UriResolverLike> for Arc<dyn UriResolver> {
               to: redirect.to
             })
           },
-          UriResolverLike::Package(pkg) => {
+          UriResolverLike::Package(uri, package) => {
             Arc::new(PackageResolver {
-              uri: pkg.uri.clone(),
-              package: pkg.package.clone(),
+              uri,
+              package,
             })
           },
-          UriResolverLike::Wrapper(wrapper) => {
+          UriResolverLike::Wrapper(uri, wrapper) => {
             Arc::new(WrapperResolver {
-              uri: wrapper.uri.clone(),
-              wrapper: wrapper.wrapper.clone(),
+              uri,
+              wrapper,
             })
           },
         }

@@ -4,7 +4,7 @@ use httpmock::{prelude::*, Method};
 use polywrap_client::client::PolywrapClient;
 use polywrap_core::resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use polywrap_core::{
-    client::ClientConfig, invoke::Invoker, resolvers::uri_resolution_context::UriPackage, uri::Uri,
+    client::ClientConfig, invoke::Invoker, uri::Uri,
 };
 use polywrap_msgpack::{msgpack};
 use polywrap_plugin::package::PluginPackage;
@@ -15,10 +15,10 @@ fn get_client() -> PolywrapClient {
     let plugin_pkg: PluginPackage = http_plugin.into();
     let package = Arc::new(Mutex::new(plugin_pkg));
 
-    let resolver = StaticResolver::from(vec![StaticResolverLike::Package(UriPackage {
-        uri: Uri::try_from("wrap://ens/http.polywrap.eth").unwrap(),
-        package,
-    })]);
+    let resolver = StaticResolver::from(vec![StaticResolverLike::Package(
+        Uri::try_from("wrap://ens/http.polywrap.eth").unwrap(),
+        package
+      )]);
 
     PolywrapClient::new(ClientConfig {
         resolver: Arc::new(resolver),

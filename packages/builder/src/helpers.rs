@@ -4,7 +4,7 @@ use fs_resolver_plugin::FileSystemResolverPlugin;
 use filesystem_plugin::FileSystemPlugin;
 use http_plugin::HttpPlugin;
 use http_resolver_plugin::HttpResolverPlugin;
-use polywrap_core::{resolvers::{uri_resolution_context::UriPackage, static_resolver::{StaticResolverLike, StaticResolver}, uri_resolver_like::UriResolverLike, recursive_resolver::RecursiveResolver, uri_resolver::UriResolver}, uri::Uri, client::ClientConfig};
+use polywrap_core::{resolvers::{static_resolver::{StaticResolverLike, StaticResolver}, uri_resolver_like::UriResolverLike, recursive_resolver::RecursiveResolver, uri_resolver::UriResolver}, uri::Uri, client::ClientConfig, package::WrapPackage};
 use polywrap_plugin::package::PluginPackage;
 use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
 use serde_json::{Value};
@@ -70,7 +70,7 @@ pub fn add_default() -> BuilderConfig {
     }
 }
 
-pub fn get_default_plugins() -> Vec<UriPackage> {
+pub fn get_default_plugins() -> Vec<(Uri, Arc<Mutex<dyn WrapPackage>>)> {
     let fs = FileSystemPlugin { };
     let fs_plugin_package: PluginPackage = fs.into();
     let fs_package = Arc::new(Mutex::new(fs_plugin_package));
@@ -87,34 +87,11 @@ pub fn get_default_plugins() -> Vec<UriPackage> {
     let http_resolver_plugin_package: PluginPackage = http_resolver.into();
     let http_resolver_package = Arc::new(Mutex::new(http_resolver_plugin_package));
 
-    // let ipfs_http_client_package = Arc::new(Mutex::new(ipfsHttpClientPackage()));
-    // let ipfs_resolver_package = Arc::new(Mutex::new(ipfsResolverPackage()));
-
     vec![
-        // UriPackage {
-        //     uri: Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0").unwrap(),
-        //     package: ipfs_http_client_package
-        // },
-        // UriPackage {
-        //     uri: Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.0").unwrap(),
-        //     package: ipfs_resolver_package
-        // },
-        UriPackage {
-            uri: Uri::try_from("wrap://ens/fs.polywrap.eth").unwrap(),
-            package: fs_package
-        },
-        UriPackage {
-            uri: Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap(),
-            package: fs_resolver_package
-        },
-        UriPackage {
-            uri: Uri::try_from("wrap://ens/http.polywrap.eth").unwrap(),
-            package: http_package
-        },
-        UriPackage {
-            uri: Uri::try_from("wrap://ens/http-resolver.polywrap.eth").unwrap(),
-            package: http_resolver_package
-        },
+        (Uri::try_from("wrap://ens/fs.polywrap.eth").unwrap(), fs_package),
+        (Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap(), fs_resolver_package),
+        (Uri::try_from("wrap://ens/http.polywrap.eth").unwrap(), http_package),
+        (Uri::try_from("wrap://ens/http-resolver.polywrap.eth").unwrap(), http_resolver_package)
     ]
 }
 
@@ -122,14 +99,14 @@ pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
     let mut static_resolvers: Vec<StaticResolverLike> = vec![];
 
     if let Some(wrappers) = builder.wrappers {
-        for w in wrappers {
-            static_resolvers.push(StaticResolverLike::Wrapper(w));
+        for (uri, wrapper) in wrappers {
+            static_resolvers.push(StaticResolverLike::Wrapper(uri, wrapper));
         };
     }
 
     if let Some(packages) = builder.packages {
-        for p in packages {
-            static_resolvers.push(StaticResolverLike::Package(p));
+        for (uri, package) in packages {
+            static_resolvers.push(StaticResolverLike::Package(uri, package));
         };
     }
 

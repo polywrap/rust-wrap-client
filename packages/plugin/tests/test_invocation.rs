@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{invoke::{Invoker}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}, uri_resolution_context::UriPackage}, uri::Uri, client::ClientConfig, env::Env};
+use polywrap_core::{invoke::{Invoker}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}}, uri::Uri, client::ClientConfig, env::Env};
 
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
 use polywrap_msgpack::msgpack;
@@ -58,12 +58,7 @@ fn invoke_test() {
     let package: PluginPackage = plugin.into();
     let module = Arc::new(Mutex::new(package));
 
-    let uri_package = UriPackage {
-        package: module,
-        uri: Uri::try_from("ens/env-plugin.eth").unwrap()
-    };
-    let plugin_static_like = StaticResolverLike::Package(uri_package);
-
+    let plugin_static_like = StaticResolverLike::Package(Uri::try_from("ens/env-plugin.eth").unwrap(), module);
     let static_resolver = StaticResolver::from(vec![
         plugin_static_like
     ]);

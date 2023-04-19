@@ -1,10 +1,10 @@
-use std::{collections::HashMap};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 
 use polywrap_core::{
     client::{ClientConfig, UriRedirect},
     env::{Env,Envs},
-    resolvers::{uri_resolution_context::{UriWrapper, UriPackage}, uri_resolver_like::UriResolverLike}, 
-    uri::Uri
+    resolvers::{uri_resolver_like::UriResolverLike}, 
+    uri::Uri, wrapper::Wrapper, package::WrapPackage
 };
 
 use crate::{helpers::{merge, add_default, build_resolver}, types::{BuilderConfig, ClientBuilder, ClientConfigHandler}};
@@ -191,66 +191,66 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_wrapper(&mut self, wrapper: UriWrapper) -> &mut Self {
+    fn add_wrapper(&mut self, uri: Uri, wrapper: Arc<Mutex<dyn Wrapper>>) -> &mut Self {
         if let Some(wrappers) = self.wrappers.as_mut() {
             let existing_wrapper = wrappers
             .iter_mut()
-            .find(|i| i.uri == wrapper.uri);
+            .find(|i: &&mut (Uri, Arc<Mutex<dyn Wrapper>>)| i.0 == uri);
             
             if let Some(p) = existing_wrapper {
-                p.wrapper = wrapper.wrapper;
+                p.1 = wrapper;
             } else {
-                wrappers.push(wrapper);
+                wrappers.push((uri, wrapper));
             }
         } else {
-            self.wrappers = Some(vec![wrapper]);
+            self.wrappers = Some(vec![(uri, wrapper)]);
         }
         self
     }
 
-    fn add_wrappers(&mut self, wrappers: Vec<UriWrapper>) -> &mut Self {
-        for wrapper in wrappers.into_iter() {
-            self.add_wrapper(wrapper);
+    fn add_wrappers(&mut self, wrappers: Vec<(Uri, Arc<Mutex<dyn Wrapper>>)>) -> &mut Self {
+        for (uri, wrapper) in wrappers.into_iter() {
+            self.add_wrapper(uri, wrapper);
         }
         self
     }
 
     fn remove_wrapper(&mut self, uri: Uri) -> &mut Self {
         if let Some(wrappers) = self.wrappers.as_mut() {
-            if let Some(index) = wrappers.iter().position(|wrapper| wrapper.uri == uri) {
+            if let Some(index) = wrappers.iter().position(|(current_uri, _)| current_uri == &uri) {
                 wrappers.remove(index);
             }
         }
         self
     }
 
-    fn add_package(&mut self, package: UriPackage) -> &mut Self {
+    fn add_package(&mut self, uri: Uri, package: Arc<Mutex<dyn WrapPackage>>) -> &mut Self {
         if let Some(packages) = self.packages.as_mut() {
             let existing_package = packages
             .iter_mut()
-            .find(|i| i.uri == package.uri);
+            .find(|i| i.0 == uri);
             
             if let Some(p) = existing_package {
-                p.package = package.package;
+                p.1 = package;
             } else {
-                packages.push(package);
+                packages.push((uri, package));
             }
         } else {
-            self.packages = Some(vec![package]);
+            self.packages = Some(vec![(uri, package)]);
         }
         self
     }
 
-    fn add_packages(&mut self, packages: Vec<UriPackage>) -> &mut Self {
-        for package in packages.into_iter() {
-            self.add_package(package);
+    fn add_packages(&mut self, packages: Vec<(Uri, Arc<Mutex<dyn WrapPackage>>)>) -> &mut Self {
+        for (uri, package) in packages.into_iter() {
+            self.add_package(uri, package);
         }
         self
     }
 
     fn remove_package(&mut self, uri: Uri) -> &mut Self {
         if let Some(packages) = self.packages.as_mut() {
-            if let Some(index) = packages.iter().position(|package| package.uri == uri) {
+            if let Some(index) = packages.iter().position(|(current_uri, _)| current_uri == &uri) {
                 packages.remove(index);
             }
         }

@@ -5,7 +5,7 @@ use std::{collections::HashMap};
 use polywrap_client_builder::types::{BuilderConfig, ClientBuilder};
 use polywrap_core::{
     uri::Uri,
-    client::UriRedirect, resolvers::uri_resolution_context::{UriPackage, UriWrapper}
+    client::UriRedirect
 };
 use polywrap_tests_utils::helpers::{get_mock_package, MockPackage, MockWrapper, get_mock_wrapper};
 use serde_json::json;
@@ -125,20 +125,20 @@ fn test_packages() {
     let mut builder = BuilderConfig::new(None);
     assert!(builder.packages.is_none());
 
-    let uri_package_a = UriPackage{
-        uri: String::from("wrap://package/a").try_into().unwrap(),
-        package: get_mock_package(Some(String::from("a")))
-    };
+    let uri_package_a = (
+      String::from("wrap://package/a").try_into().unwrap(),
+      get_mock_package(Some(String::from("a")))
+    );
 
-    let uri_package_b = UriPackage{
-        uri: String::from("wrap://package/b").try_into().unwrap(),
-        package: get_mock_package(Some(String::from("b")))
-    };
+    let uri_package_b = (
+        String::from("wrap://package/b").try_into().unwrap(),
+        get_mock_package(Some(String::from("b")))
+    );
 
-    let uri_package_c = UriPackage{
-        uri: String::from("wrap://package/c").try_into().unwrap(),
-        package: get_mock_package(Some(String::from("c")))
-    };
+    let uri_package_c = (
+        String::from("wrap://package/c").try_into().unwrap(),
+        get_mock_package(Some(String::from("c")))
+    );
 
     builder.add_packages(vec![uri_package_a, uri_package_b, uri_package_c]);
     assert!(builder.packages.is_some());
@@ -146,7 +146,7 @@ fn test_packages() {
     assert_eq!(builder_packages.len(), 3);
 
     {
-        let package_from_builder = &*(builder_packages[1].package.lock().unwrap()) as &dyn std::any::Any;
+        let package_from_builder = &*(builder_packages[1].1.lock().unwrap()) as &dyn std::any::Any;
         let received_package = package_from_builder.downcast_ref::<MockPackage>().unwrap();
         
         let mock_package = get_mock_package(Some(String::from("b")));
@@ -159,20 +159,20 @@ fn test_packages() {
     // the ownership is given, not allowing us to call the builder again
     let mut builder = BuilderConfig::new(None);
 
-    let modified_uri_package_b = UriPackage {
-        uri: String::from("wrap://package/b").try_into().unwrap(),
-        package: get_mock_package(Some(String::from("b-modified")))
-    };
+    let modified_uri_package_b = (
+        String::from("wrap://package/b").try_into().unwrap(),
+        get_mock_package(Some(String::from("b-modified")))
+    );
 
     builder.add_packages(builder_packages);
-    builder.add_package(modified_uri_package_b);
+    builder.add_package(modified_uri_package_b.0, modified_uri_package_b.1);
     builder.remove_package(String::from("wrap://package/c").try_into().unwrap());
 
     let builder_packages = builder.packages.unwrap();
     assert_eq!(builder_packages.len(), 2);
 
-    let b_package = builder_packages.into_iter().find(|package| package.uri == String::from("wrap://package/b").try_into().unwrap()).unwrap();
-    let package_from_builder = &*(b_package.package.lock().unwrap()) as &dyn std::any::Any;
+    let b_package = builder_packages.into_iter().find(|(uri, _)| uri == &String::from("wrap://package/b").try_into().unwrap()).unwrap();
+    let package_from_builder = &*(b_package.1.lock().unwrap()) as &dyn std::any::Any;
     let received_package = package_from_builder.downcast_ref::<MockPackage>().unwrap();
 
     let mock_package = get_mock_package(Some(String::from("b-modified")));
@@ -187,20 +187,20 @@ fn test_wrappers() {
     let mut builder = BuilderConfig::new(None);
     assert!(builder.wrappers.is_none());
 
-    let uri_wrapper_a = UriWrapper{
-        uri: String::from("wrap://wrapper/a").try_into().unwrap(),
-        wrapper: get_mock_wrapper(Some(String::from("a")))
-    };
+    let uri_wrapper_a = (
+        String::from("wrap://wrapper/a").try_into().unwrap(),
+        get_mock_wrapper(Some(String::from("a")))
+    );
 
-    let uri_wrapper_b = UriWrapper{
-        uri: String::from("wrap://wrapper/b").try_into().unwrap(),
-        wrapper: get_mock_wrapper(Some(String::from("b")))
-    };
+    let uri_wrapper_b = (
+        String::from("wrap://wrapper/b").try_into().unwrap(),
+        get_mock_wrapper(Some(String::from("b")))
+    );
 
-    let uri_wrapper_c = UriWrapper{
-        uri: String::from("wrap://wrapper/c").try_into().unwrap(),
-        wrapper: get_mock_wrapper(Some(String::from("c")))
-    };
+    let uri_wrapper_c = (
+        String::from("wrap://wrapper/c").try_into().unwrap(),
+        get_mock_wrapper(Some(String::from("c")))
+    );
 
     builder.add_wrappers(vec![uri_wrapper_a, uri_wrapper_b, uri_wrapper_c]);
     assert!(builder.wrappers.is_some());
@@ -208,7 +208,7 @@ fn test_wrappers() {
     assert_eq!(builder_wrappers.len(), 3);
 
     {
-        let wrapper_from_builder = &*(builder_wrappers[1].wrapper.lock().unwrap()) as &dyn std::any::Any;
+        let wrapper_from_builder = &*(builder_wrappers[1].1.lock().unwrap()) as &dyn std::any::Any;
         let received_wrapper = wrapper_from_builder.downcast_ref::<MockWrapper>().unwrap();
         
         let mock_wrapper = get_mock_wrapper(Some(String::from("b")));
@@ -221,20 +221,20 @@ fn test_wrappers() {
     // the ownership is given, not allowing us to call the builder again
     let mut builder = BuilderConfig::new(None);
 
-    let modified_uri_wrapper_b = UriWrapper {
-        uri: String::from("wrap://wrapper/b").try_into().unwrap(),
-        wrapper: get_mock_wrapper(Some(String::from("b-modified")))
-    };
+    let modified_uri_wrapper_b = (
+        String::from("wrap://wrapper/b").try_into().unwrap(),
+        get_mock_wrapper(Some(String::from("b-modified")))
+    );
 
     builder.add_wrappers(builder_wrappers);
-    builder.add_wrapper(modified_uri_wrapper_b);
+    builder.add_wrapper(modified_uri_wrapper_b.0, modified_uri_wrapper_b.1);
     builder.remove_wrapper(String::from("wrap://wrapper/c").try_into().unwrap());
 
     let builder_wrappers = builder.wrappers.unwrap();
     assert_eq!(builder_wrappers.len(), 2);
 
-    let b_wrapper = builder_wrappers.into_iter().find(|wrapper| wrapper.uri == String::from("wrap://wrapper/b").try_into().unwrap()).unwrap();
-    let wrapper_from_builder = &*(b_wrapper.wrapper.lock().unwrap()) as &dyn std::any::Any;
+    let b_wrapper = builder_wrappers.into_iter().find(|(uri, _)| uri == &String::from("wrap://wrapper/b").try_into().unwrap()).unwrap();
+    let wrapper_from_builder = &*(b_wrapper.1.lock().unwrap()) as &dyn std::any::Any;
     let received_wrapper = wrapper_from_builder.downcast_ref::<MockWrapper>().unwrap();
 
     let mock_wrapper = get_mock_wrapper(Some(String::from("b-modified")));
