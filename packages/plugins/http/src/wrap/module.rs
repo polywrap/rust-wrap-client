@@ -22,5 +22,6 @@ pub struct ArgsPost {
 
 pub trait Module: PluginModule {
   fn get(&mut self, args: &ArgsGet, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, PluginError>;
+
   fn post(&mut self, args: &ArgsPost, invoker: Arc<dyn Invoker>) -> Result<Option<Response>, PluginError>;
 }

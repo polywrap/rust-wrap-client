@@ -35,9 +35,12 @@ pub struct MaybeUriOrManifest {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpRequest {
     pub headers: Option<Map<String, String>>,
+    #[serde(rename = "urlParams")]
     pub url_params: Option<Map<String, String>>,
+    #[serde(rename = "responseType")]
     pub response_type: HttpResponseType,
     pub body: Option<String>,
+    #[serde(rename = "formData")]
     pub form_data: Option<Vec<HttpFormDataEntry>>,
     pub timeout: Option<u32>,
 }
@@ -45,6 +48,7 @@ pub struct HttpRequest {
 pub struct HttpFormDataEntry {
     pub name: String,
     pub value: Option<String>,
+    #[serde(rename = "fileName")]
     pub file_name: Option<String>,
     #[serde(rename = "type")]
     pub _type: Option<String>,
@@ -52,6 +56,7 @@ pub struct HttpFormDataEntry {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct HttpResponse {
     pub status: i32,
+    #[serde(rename = "statusText")]
     pub status_text: String,
     pub headers: Option<Map<String, String>>,
     pub body: Option<String>,

@@ -25,6 +25,8 @@ pub struct ArgsNoEnv {
 
 pub trait Module: PluginModule {
   fn required_env(&mut self, args: &ArgsRequiredEnv, invoker: Arc<dyn Invoker>, env: Env) -> Result<Option<bool>, PluginError>;
+
   fn opt_env(&mut self, args: &ArgsOptEnv, invoker: Arc<dyn Invoker>, env: Option<Env>) -> Result<Option<bool>, PluginError>;
+
   fn no_env(&mut self, args: &ArgsNoEnv, invoker: Arc<dyn Invoker>) -> Result<Option<bool>, PluginError>;
 }
