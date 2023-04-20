@@ -8,6 +8,7 @@ use polywrap_core::{
     client::{UriRedirect, ClientConfig}, package::WrapPackage, wrapper::Wrapper
 };
 
+#[derive(Clone)]
 pub struct BuilderConfig {
     pub interfaces: Option<InterfaceImplementations>,
     pub envs: Option<Envs>,

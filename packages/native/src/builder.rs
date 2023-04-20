@@ -1,13 +1,9 @@
 use polywrap_client::{
     builder::types::{BuilderConfig as InnerBuilderConfig, ClientBuilder},
-    core::{package::WrapPackage, wrapper::Wrapper, resolvers::uri_resolver_like::UriResolverLike},
+    core::{package::WrapPackage, wrapper::Wrapper, resolvers::{uri_resolver_like::UriResolverLike, uri_resolver::UriResolver}},
 };
 use std::{
     sync::{Arc, Mutex},
-};
-
-use crate::{
-    resolvers::uri_resolver_like::SafeUriResolverLikeVariant
 };
 
 pub struct BuilderConfigContainer {
@@ -20,10 +16,6 @@ impl BuilderConfigContainer {
             inner_builder: Mutex::new(InnerBuilderConfig::new(None)),
         }
     }
-}
-
-pub struct SafeUriResolverLikeVariantContainer {
-    pub inner_resolver: SafeUriResolverLikeVariant
 }
 
 pub fn new_builder_config() -> BuilderConfigContainer {
@@ -120,6 +112,6 @@ pub fn remove_redirect(builder: Arc<BuilderConfigContainer>, from: &str) {
   builder.inner_builder.lock().unwrap().remove_redirect(from.to_string().try_into().unwrap());
 }
 
-pub fn add_uri_resolver_like_variant(builder: Arc<BuilderConfigContainer>, resolver: Arc<UriResolverLike>) {
-  builder.inner_builder.lock().unwrap().add_resolver((*resolver).clone());
+pub fn add_resolver(builder: Arc<BuilderConfigContainer>, resolver: Box<dyn UriResolver>) {
+  builder.inner_builder.lock().unwrap().add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
 }

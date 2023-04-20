@@ -9,7 +9,7 @@ struct PolywrapClient {
 
 impl PolywrapClient {
   pub fn new(config_builder: Arc<BuilderConfigContainer>) -> PolywrapClient {
-    let config = config_builder.inner_builder.lock().unwrap().build();
+    let config = config_builder.inner_builder.lock().unwrap().clone().build();
     PolywrapClient { 
       inner_client: InnerPolywrapClient::new(config)
     }
