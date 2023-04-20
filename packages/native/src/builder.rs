@@ -1,22 +1,13 @@
 use polywrap_client::{
     builder::types::{BuilderConfig as InnerBuilderConfig, ClientBuilder},
-    core::{
-        resolvers::uri_resolution_context::{UriPackage, UriWrapper},
-        uri::Uri,
-        wrapper::Wrapper,
-    },
+    core::{package::WrapPackage, wrapper::Wrapper, resolvers::uri_resolver_like::UriResolverLike},
 };
-use polywrap_plugin::{module::PluginModule, package::PluginPackage, wrapper::PluginWrapper};
-use polywrap_wasm::{wasm_package::WasmPackage, wasm_wrapper::WasmWrapper};
 use std::{
-    ffi::{c_char, c_void},
     sync::{Arc, Mutex},
 };
 
 use crate::{
-    ext_plugin::{ExtPluginModule, PluginInvokeFn},
-    resolvers::uri_resolver_like::SafeUriResolverLikeVariant,
-    utils::{get_string_from_cstr_ptr, instantiate_from_ptr},
+    resolvers::uri_resolver_like::SafeUriResolverLikeVariant
 };
 
 pub struct BuilderConfigContainer {
@@ -29,6 +20,10 @@ impl BuilderConfigContainer {
             inner_builder: Mutex::new(InnerBuilderConfig::new(None)),
         }
     }
+}
+
+pub struct SafeUriResolverLikeVariantContainer {
+    pub inner_resolver: SafeUriResolverLikeVariant
 }
 
 pub fn new_builder_config() -> BuilderConfigContainer {
@@ -88,152 +83,43 @@ pub fn remove_interface_implementation(
 }
 
 pub fn add_wrapper(builder: Arc<BuilderConfigContainer>, uri: &str, wrapper: Box<dyn Wrapper>) {
-    let uri_wrapper = UriWrapper {
-        uri: uri.to_string().try_into().unwrap(),
-        wrapper: Arc::new(Mutex::new(wrapper.type_id())),
-    };
-
-    builder.inner_builder.lock().unwrap().add_wrapper(wrapper)
+    builder.inner_builder.lock().unwrap().add_wrapper(
+        uri.to_string().try_into().unwrap(),
+        Arc::new(Mutex::new(wrapper)),
+    );
 }
 
-#[no_mangle]
-pub extern "C" fn add_wasm_wrapper(
-    builder_config_ptr: *mut BuilderConfig,
-    uri: *const c_char,
-    wrapper: *mut WasmWrapper,
-) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    let wrapper = Arc::new(Mutex::new(instantiate_from_ptr(wrapper)));
-    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
-
-    let uri_wrapper = UriWrapper { uri, wrapper };
-
-    builder.add_wrapper(uri_wrapper);
+pub fn remove_wrapper(builder: Arc<BuilderConfigContainer>, uri: &str) {
+    builder
+        .inner_builder
+        .lock()
+        .unwrap()
+        .remove_wrapper(uri.try_into().unwrap());
 }
 
-#[no_mangle]
-pub extern "C" fn add_plugin_wrapper(
-    builder_config_ptr: *mut BuilderConfig,
-    uri: *const c_char,
-    plugin_ptr: *mut c_void,
-    plugin_invoke_fn: PluginInvokeFn,
-) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    let ext_plugin =
-        Box::new(ExtPluginModule::new(plugin_ptr, plugin_invoke_fn)) as Box<dyn PluginModule>;
-    let ext_plugin = Arc::new(Mutex::new(ext_plugin));
-    let ext_plugin_wrapper = PluginWrapper::new(ext_plugin);
-
-    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
-
-    let uri_wrapper = UriWrapper {
-        uri,
-        wrapper: Arc::new(Mutex::new(ext_plugin_wrapper)),
-    };
-
-    builder.add_wrapper(uri_wrapper);
+pub fn add_package(builder: Arc<BuilderConfigContainer>, uri: &str, package: Box<dyn WrapPackage>) {
+    builder
+        .inner_builder
+        .lock()
+        .unwrap()
+        .add_package(uri.try_into().unwrap(), Arc::new(Mutex::new(package)));
 }
 
-#[no_mangle]
-pub extern "C" fn remove_wrapper(builder_config_ptr: *mut BuilderConfig, uri: *const c_char) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
-
-    builder.remove_wrapper(uri);
+pub fn remove_package(builder: Arc<BuilderConfigContainer>, uri: &str) {
+    builder.inner_builder.lock().unwrap().remove_package(uri.try_into().unwrap());
 }
 
-#[no_mangle]
-pub extern "C" fn add_wasm_package(
-    builder_config_ptr: *mut BuilderConfig,
-    uri: *const c_char,
-    package: *mut WasmPackage,
-) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    let package = Arc::new(Mutex::new(instantiate_from_ptr(package)));
-    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
-
-    let uri_package = UriPackage { uri, package };
-
-    builder.add_package(uri_package);
+pub fn add_redirect(builder: Arc<BuilderConfigContainer>, from: &str, to: &str) {
+  builder.inner_builder.lock().unwrap().add_redirect(
+    from.to_string().try_into().unwrap(),
+    to.to_string().try_into().unwrap()
+  );
 }
 
-#[no_mangle]
-pub extern "C" fn add_plugin_package(
-    builder_config_ptr: *mut BuilderConfig,
-    uri: *const c_char,
-    package: *mut PluginPackage,
-) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    let package = Arc::new(Mutex::new(instantiate_from_ptr(package)));
-    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
-
-    let uri_package = UriPackage { uri, package };
-
-    builder.add_package(uri_package);
+pub fn remove_redirect(builder: Arc<BuilderConfigContainer>, from: &str) {
+  builder.inner_builder.lock().unwrap().remove_redirect(from.to_string().try_into().unwrap());
 }
 
-#[no_mangle]
-pub extern "C" fn remove_package(builder_config_ptr: *mut BuilderConfig, uri: *const c_char) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
-
-    builder.remove_package(uri);
-}
-
-#[no_mangle]
-pub extern "C" fn add_redirect(
-    builder_config_ptr: *mut BuilderConfig,
-    from: *const c_char,
-    to: *const c_char,
-) {
-    let builder = unsafe { &mut *builder_config_ptr };
-
-    let from: Uri = get_string_from_cstr_ptr(from).try_into().unwrap();
-    let to: Uri = get_string_from_cstr_ptr(to).try_into().unwrap();
-
-    builder.add_redirect(from, to);
-}
-
-#[no_mangle]
-pub extern "C" fn remove_redirect(builder_config_ptr: *mut BuilderConfig, from: *const c_char) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    let from: Uri = get_string_from_cstr_ptr(from).try_into().unwrap();
-
-    builder.remove_redirect(from);
-}
-
-#[no_mangle]
-pub extern "C" fn add_wrapper_resolver(
-    builder_config_ptr: *mut BuilderConfig,
-    resolver: SafeUriResolverLikeVariant,
-) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    builder.add_resolver(resolver.into());
-}
-
-#[no_mangle]
-pub extern "C" fn add_redirect_resolver(
-    builder_config_ptr: *mut BuilderConfig,
-    resolver: SafeUriResolverLikeVariant,
-) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    builder.add_resolver(resolver.into());
-}
-
-#[no_mangle]
-pub extern "C" fn add_package_resolver(
-    builder_config_ptr: *mut BuilderConfig,
-    resolver: SafeUriResolverLikeVariant,
-) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    builder.add_resolver(resolver.into());
-}
-
-#[no_mangle]
-pub extern "C" fn add_resolver(
-    builder_config_ptr: *mut BuilderConfig,
-    resolver: SafeUriResolverLikeVariant,
-) {
-    let builder = unsafe { &mut *builder_config_ptr };
-    builder.add_resolver(resolver.into());
+pub fn add_uri_resolver_like_variant(builder: Arc<BuilderConfigContainer>, resolver: Arc<UriResolverLike>) {
+  builder.inner_builder.lock().unwrap().add_resolver((*resolver).clone());
 }

@@ -119,8 +119,8 @@ pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
     let extendable_resolver = ExtendableUriResolver::new(None);
     
     let resolvers = vec![
-        UriResolverLike::Resolver(Box::new(static_resolver)),
-        UriResolverLike::Resolver(Box::new(extendable_resolver)),
+        UriResolverLike::Resolver(Arc::new(static_resolver)),
+        UriResolverLike::Resolver(Arc::new(extendable_resolver)),
     ];
     
     ClientConfig {
