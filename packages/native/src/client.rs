@@ -3,7 +3,7 @@ use serde_json::Value;
 use std::sync::Arc;
 use crate::builder::BuilderConfigContainer;
 
-struct PolywrapClient {
+pub struct PolywrapClient {
   pub inner_client: InnerPolywrapClient
 }
 
@@ -15,13 +15,7 @@ impl PolywrapClient {
     }
   }
 
-  pub fn invoke_raw(&self, uri: &str, method: &str, args: Option<Vec<u8>>, env: Option<&str>) -> Vec<u8> {
-    let args = if let Some(args) = args {
-      Some(args.as_slice())
-    } else {
-      None
-    };
-
+  pub fn invoke_raw(&self, uri: &str, method: &str, args: Option<&[u8]>, env: Option<&str>) -> Vec<u8> {
     let env = if let Some(env) = env {
       Some(serde_json::from_str::<Value>(env).unwrap())
     } else {

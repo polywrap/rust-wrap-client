@@ -1,10 +1,12 @@
 use polywrap_client::{
     builder::types::{BuilderConfig as InnerBuilderConfig, ClientBuilder},
-    core::{package::WrapPackage, wrapper::Wrapper, resolvers::{uri_resolver_like::UriResolverLike, uri_resolver::UriResolver}},
+    core::{
+        package::WrapPackage,
+        resolvers::{uri_resolver::UriResolver, uri_resolver_like::UriResolverLike},
+        wrapper::Wrapper,
+    },
 };
-use std::{
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 pub struct BuilderConfigContainer {
     pub inner_builder: Mutex<InnerBuilderConfig>,
@@ -98,20 +100,32 @@ pub fn add_package(builder: Arc<BuilderConfigContainer>, uri: &str, package: Box
 }
 
 pub fn remove_package(builder: Arc<BuilderConfigContainer>, uri: &str) {
-    builder.inner_builder.lock().unwrap().remove_package(uri.try_into().unwrap());
+    builder
+        .inner_builder
+        .lock()
+        .unwrap()
+        .remove_package(uri.try_into().unwrap());
 }
 
 pub fn add_redirect(builder: Arc<BuilderConfigContainer>, from: &str, to: &str) {
-  builder.inner_builder.lock().unwrap().add_redirect(
-    from.to_string().try_into().unwrap(),
-    to.to_string().try_into().unwrap()
-  );
+    builder.inner_builder.lock().unwrap().add_redirect(
+        from.to_string().try_into().unwrap(),
+        to.to_string().try_into().unwrap(),
+    );
 }
 
 pub fn remove_redirect(builder: Arc<BuilderConfigContainer>, from: &str) {
-  builder.inner_builder.lock().unwrap().remove_redirect(from.to_string().try_into().unwrap());
+    builder
+        .inner_builder
+        .lock()
+        .unwrap()
+        .remove_redirect(from.to_string().try_into().unwrap());
 }
 
 pub fn add_resolver(builder: Arc<BuilderConfigContainer>, resolver: Box<dyn UriResolver>) {
-  builder.inner_builder.lock().unwrap().add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
+    builder
+        .inner_builder
+        .lock()
+        .unwrap()
+        .add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
 }
