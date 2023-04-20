@@ -1,49 +1,32 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    sync::{Arc, Mutex},
+};
 
-use polywrap_client::core::{resolvers::uri_resolution_context::UriPackageOrWrapper, uri::Uri, wrapper::Wrapper, package::WrapPackage};
-use polywrap_plugin::{wrapper::PluginWrapper, package::PluginPackage};
-use polywrap_wasm::{wasm_wrapper::WasmWrapper, wasm_package::WasmPackage};
+use polywrap_client::core::{
+    package::WrapPackage,
+    resolvers::{uri_resolution_context::UriPackageOrWrapper as InnerUriPackageOrWrapper},
+    wrapper::Wrapper,
+};
 
-use crate::utils::{get_string_from_cstr_ptr, instantiate_from_ptr};
-
-#[repr(C)]
-pub enum SafeUriPackageOrWrapperType {
-  Uri,
-  WasmWrapper,
-  PluginWrapper,
-  WasmPackage,
-  PluginPackage
+pub enum UriPackageOrWrapper {
+    Uri(String),
+    Wrapper(String, Box<dyn Wrapper>),
+    Package(String, Box<dyn WrapPackage>),
 }
 
-#[repr(C)]
-pub struct SafeUriPackageOrWrapper {
-  uri: *const std::ffi::c_char,
-  data_type: SafeUriPackageOrWrapperType,
-  data: *mut std::ffi::c_void
-}
-
-impl From<SafeUriPackageOrWrapper> for UriPackageOrWrapper {
-    fn from(value: SafeUriPackageOrWrapper) -> Self {
-      let entry = instantiate_from_ptr(value.data as *mut SafeUriPackageOrWrapper);
-      let entry_uri: Uri = get_string_from_cstr_ptr(entry.uri).try_into().unwrap();
-      match entry.data_type {
-        SafeUriPackageOrWrapperType::Uri => UriPackageOrWrapper::Uri(entry_uri),
-        SafeUriPackageOrWrapperType::WasmWrapper => {
-          let wrapper = instantiate_from_ptr(entry.data as *mut WasmWrapper);
-          UriPackageOrWrapper::Wrapper(entry_uri, Arc::new(Mutex::new(Box::new(wrapper) as Box<dyn Wrapper>)))
-        },
-        SafeUriPackageOrWrapperType::PluginWrapper => {
-          let wrapper = instantiate_from_ptr(entry.data as *mut PluginWrapper);
-          UriPackageOrWrapper::Wrapper(entry_uri, Arc::new(Mutex::new(Box::new(wrapper) as Box<dyn Wrapper>)))
-        },
-        SafeUriPackageOrWrapperType::WasmPackage => {
-          let package = instantiate_from_ptr(entry.data as *mut WasmPackage);
-          UriPackageOrWrapper::Package(entry_uri, Arc::new(Mutex::new(Box::new(package) as Box<dyn WrapPackage>)))
-        },
-        SafeUriPackageOrWrapperType::PluginPackage => {
-          let package = instantiate_from_ptr(entry.data as *mut PluginPackage);
-          UriPackageOrWrapper::Package(entry_uri, Arc::new(Mutex::new(Box::new(package) as Box<dyn WrapPackage>)))
+impl From<UriPackageOrWrapper> for InnerUriPackageOrWrapper {
+    fn from(value: UriPackageOrWrapper) -> Self {
+        match value {
+            UriPackageOrWrapper::Uri(uri) => {
+                InnerUriPackageOrWrapper::Uri(uri.try_into().unwrap())
+            }
+            UriPackageOrWrapper::Wrapper(uri, wrapper) => {
+              InnerUriPackageOrWrapper::Wrapper(uri.try_into().unwrap(), Arc::new(Mutex::new(wrapper)))
+            }
+            UriPackageOrWrapper::Package(uri, package) => {
+              InnerUriPackageOrWrapper::Package(uri.try_into().unwrap(), Arc::new(Mutex::new(package)))
+            }
         }
-      }
     }
 }
+

@@ -1,68 +1,49 @@
 use std::sync::{Arc, Mutex};
 
-use polywrap_client::core::{resolvers::{uri_resolver_like::UriResolverLike}, client::UriRedirect, uri::Uri};
-use polywrap_plugin::{package::PluginPackage, wrapper::PluginWrapper};
-use polywrap_wasm::{wasm_package::WasmPackage, wasm_wrapper::WasmWrapper};
+use polywrap_client::core::{
+    client::UriRedirect,
+    package::WrapPackage,
+    resolvers::{
+        uri_resolver::UriResolver,
+        uri_resolver_like::UriResolverLike as InnerUriResolverLike,
+    },
+    wrapper::Wrapper,
+};
 
-use crate::utils::{get_string_from_cstr_ptr, instantiate_from_ptr};
-
-use super::uri_resolver::SafeUriResolversVariant;
-
-#[repr(C)]
-struct Redirect {
-  from: *const std::ffi::c_char,
-  to: *const std::ffi::c_char
+pub enum UriResolverLike {
+    Resolver(Box<dyn UriResolver>),
+    Redirect(UriRedirect),
+    Package(String, Box<dyn WrapPackage>),
+    Wrapper(String, Box<dyn Wrapper>),
+    ResolverLike(Vec<UriResolverLike>),
 }
 
-#[repr(C)]
-pub enum SafeUriResolverLikeType {
-  Resolver,
-  Redirect,
-  WasmPackage,
-  PluginPackage,
-  WasmWrapper,
-  PluginWrapper,
-}
-
-#[repr(C)]
-pub struct SafeUriResolverLikeVariant {
-  _type: SafeUriResolverLikeType,
-  data: *mut std::ffi::c_void,
-  uri: *const std::ffi::c_char
-}
-
-impl From<SafeUriResolverLikeVariant> for UriResolverLike {
-    fn from(value: SafeUriResolverLikeVariant) -> Self {
-      let data = instantiate_from_ptr(value.data as *mut SafeUriResolverLikeVariant);
-      let uri: Uri = get_string_from_cstr_ptr(data.uri).try_into().unwrap();
-  
-      match data._type {
-        SafeUriResolverLikeType::Resolver => {
-          let uri_resolver_variant = instantiate_from_ptr(value.data as *mut SafeUriResolversVariant);
-          UriResolverLike::Resolver(uri_resolver_variant.into())
-        },
-        SafeUriResolverLikeType::Redirect => {
-          let redirect = instantiate_from_ptr(value.data as *mut Redirect);
-          let from = get_string_from_cstr_ptr(redirect.from).try_into().unwrap();
-          let to = get_string_from_cstr_ptr(redirect.to).try_into().unwrap();
-          UriResolverLike::Redirect(UriRedirect::new(from, to))
-        },
-        SafeUriResolverLikeType::WasmPackage => {
-          let package = instantiate_from_ptr(value.data as *mut WasmPackage);
-          UriResolverLike::Package(uri, Arc::new(Mutex::new(Box::new(package))))
-        },
-        SafeUriResolverLikeType::PluginPackage => {
-          let package = instantiate_from_ptr(value.data as *mut PluginPackage);
-          UriResolverLike::Package(uri, Arc::new(Mutex::new(Box::new(package))))
-        },
-        SafeUriResolverLikeType::WasmWrapper => {
-          let wrapper = instantiate_from_ptr(value.data as *mut WasmWrapper);
-          UriResolverLike::Wrapper(uri, Arc::new(Mutex::new(Box::new(wrapper))))
-        },
-        SafeUriResolverLikeType::PluginWrapper => {
-          let wrapper = instantiate_from_ptr(value.data as *mut PluginWrapper);
-          UriResolverLike::Wrapper(uri, Arc::new(Mutex::new(Box::new(wrapper))))
+impl From<UriResolverLike> for InnerUriResolverLike {
+    fn from(value: UriResolverLike) -> Self {
+        match value {
+            UriResolverLike::Resolver(resolver) => {
+                InnerUriResolverLike::Resolver(Arc::from(resolver))
+            }
+            UriResolverLike::Redirect(redirect) => {
+                InnerUriResolverLike::Redirect(redirect)
+            }
+            UriResolverLike::Package(uri, package) => InnerUriResolverLike::Package(
+                uri.try_into().unwrap(),
+                Arc::new(Mutex::new(package)),
+            ),
+            UriResolverLike::Wrapper(uri, wrapper) => InnerUriResolverLike::Wrapper(
+                uri.try_into().unwrap(),
+                Arc::new(Mutex::new(wrapper)),
+            ),
+            UriResolverLike::ResolverLike(resolver_likes) => {
+                InnerUriResolverLike::ResolverLike(
+                    resolver_likes
+                        .into_iter()
+                        .map(|resolver_like| resolver_like.into())
+                        .collect(),
+                )
+            }
         }
-      }
     }
 }
+
