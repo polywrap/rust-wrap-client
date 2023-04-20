@@ -1,44 +1,39 @@
-use polywrap_client::{builder::types::{BuilderConfig, ClientConfigHandler}, client::PolywrapClient, core::invoke::Invoker, msgpack::serialize};
+use polywrap_client::{client::PolywrapClient as InnerPolywrapClient, core::invoke::Invoker, builder::types::ClientConfigHandler};
 use serde_json::Value;
-use crate::utils::{instantiate_from_ptr, into_raw_ptr_and_forget, raw_ptr_from_str};
-use std::{ffi::c_char};
-use polywrap_client::{core::{uri::Uri}};
-use crate::utils::{get_string_from_cstr_ptr};
+use std::sync::Arc;
+use crate::builder::BuilderConfigContainer;
 
-#[no_mangle]
-pub extern "C" fn create_client(builder_config_ptr: *mut BuilderConfig) -> *mut PolywrapClient {
-  let builder = instantiate_from_ptr(builder_config_ptr);
-  let config = builder.build();
-
-  let client = PolywrapClient::new(config);
-  into_raw_ptr_and_forget(client) as *mut PolywrapClient
+struct PolywrapClient {
+  pub inner_client: InnerPolywrapClient
 }
 
-#[no_mangle]
-pub extern "C" fn invoke_raw(
-  client_ptr: *mut PolywrapClient,
-  uri: *const c_char,
-  method: *const c_char,
-  args: *const c_char,
-  env: *const c_char,
-) -> *const c_char {
-  let client = unsafe { &*client_ptr };
-  let uri: Uri = get_string_from_cstr_ptr(uri).try_into().unwrap();
-  let method = get_string_from_cstr_ptr(method);
-  let args = get_string_from_cstr_ptr(args);
+impl PolywrapClient {
+  pub fn new(config_builder: Arc<BuilderConfigContainer>) -> PolywrapClient {
+    let config = config_builder.inner_builder.lock().unwrap().build();
+    PolywrapClient { 
+      inner_client: InnerPolywrapClient::new(config)
+    }
+  }
 
-  let env = if !env.is_null() {
-    Some(serde_json::from_str(&get_string_from_cstr_ptr(env)).unwrap())
-  } else {
-    None
-  };
+  pub fn invoke_raw(&self, uri: &str, method: &str, args: Option<Vec<u8>>, env: Option<&str>) -> Vec<u8> {
+    let args = if let Some(args) = args {
+      Some(args.as_slice())
+    } else {
+      None
+    };
 
-  let args: Value = serde_json::from_str(&args).unwrap();
-  let args = serialize(args).unwrap();
+    let env = if let Some(env) = env {
+      Some(serde_json::from_str::<Value>(env).unwrap())
+    } else {
+      None
+    };
 
-  let result = client.invoke_raw(&uri, &method, Some(&args), env, None).unwrap();
-  let result_json: serde_json::Value = polywrap_client::msgpack::decode(&result).unwrap();
-  let result_json = result_json.to_string();
-
-  raw_ptr_from_str(&result_json)
+    self.inner_client.invoke_raw(
+      &uri.to_string().try_into().unwrap(),
+      method,
+      args,
+      env,
+      None
+    ).unwrap()
+  }
 }
