@@ -9,21 +9,21 @@ use polywrap_client::core::{
 };
 
 pub enum UriPackageOrWrapper {
-    Uri(String),
-    Wrapper(String, Box<dyn Wrapper>),
-    Package(String, Box<dyn WrapPackage>),
+    Uri { uri: String },
+    Wrapper { uri: String, wrapper: Box<dyn Wrapper> },
+    Package { uri: String, package: Box<dyn WrapPackage> },
 }
 
 impl From<UriPackageOrWrapper> for InnerUriPackageOrWrapper {
     fn from(value: UriPackageOrWrapper) -> Self {
         match value {
-            UriPackageOrWrapper::Uri(uri) => {
+            UriPackageOrWrapper::Uri { uri } => {
                 InnerUriPackageOrWrapper::Uri(uri.try_into().unwrap())
             }
-            UriPackageOrWrapper::Wrapper(uri, wrapper) => {
+            UriPackageOrWrapper::Wrapper { uri, wrapper } => {
               InnerUriPackageOrWrapper::Wrapper(uri.try_into().unwrap(), Arc::new(Mutex::new(wrapper)))
             }
-            UriPackageOrWrapper::Package(uri, package) => {
+            UriPackageOrWrapper::Package { uri, package } => {
               InnerUriPackageOrWrapper::Package(uri.try_into().unwrap(), Arc::new(Mutex::new(package)))
             }
         }

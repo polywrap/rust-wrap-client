@@ -33,9 +33,3 @@ pub fn create_static_resolver(
 
     StaticResolver::new(uri_map)
 }
-
-pub enum CoreResolver {
-  Extendable(ExtendableUriResolver),
-  Recursive(RecursiveResolver),
-  Static(StaticResolver)
-}
