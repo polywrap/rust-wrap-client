@@ -10,6 +10,7 @@ packages=(
   "resolvers"
   "client"
   "builder"
+  "plugin/creator"
   "plugin"
 )
 
