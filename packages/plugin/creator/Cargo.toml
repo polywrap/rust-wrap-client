@@ -1,5 +1,5 @@
 [package]
-name = "polywrap_plugin_macro"
+name = "polywrap_plugin_creator"
 description = "Macros to easily build plugins to interact with Polywrap Client"
 
 version.workspace = true

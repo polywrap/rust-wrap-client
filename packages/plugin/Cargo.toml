@@ -21,7 +21,13 @@ proc-macro2 = { workspace = true, optional = true }
 polywrap_paste = "1.0.0"
 Inflector = "0.11.4"
 
+polywrap_plugin_creator = { workspace = true, optional = true }
+
 [dev-dependencies]
 serde.workspace = true
 polywrap_client.workspace = true
-polywrap_plugin_macro.workspace = true
+
+[features]
+default = ["creator"]
+
+creator = ["polywrap_plugin_creator"]

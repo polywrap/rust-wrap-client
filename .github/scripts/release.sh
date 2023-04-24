@@ -11,7 +11,6 @@ packages=(
   "client"
   "builder"
   "plugin"
-  "plugin_macro"
 )
 
 # Iterate through the packages and publish them one by one

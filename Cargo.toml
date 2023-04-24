@@ -15,14 +15,19 @@ members = [
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
-    "packages/plugins/http",
-    "packages/plugins/http-resolver",
-    "packages/plugins/fs",
-    "packages/plugins/fs-resolver",
-    "packages/plugins/test_env",
-    "packages/plugin_macro",
     "packages/tests-utils",
-    "packages/default-config"
+]
+
+# Do not include test utils crates in default members
+default-members = [
+    "packages/client",
+    "packages/core",
+    "packages/wasm",
+    "packages/resolvers",
+    "packages/msgpack",
+    "packages/manifest",
+    "packages/builder",
+    "packages/plugin",
 ]
 
 [workspace.dependencies]
@@ -35,8 +40,8 @@ polywrap_resolvers = { version = "0.1.2", path = "packages/resolvers" }
 polywrap_msgpack = { version = "0.1.2", path = "packages/msgpack" }
 polywrap_tests_utils = { version = "0.1.2", path = "packages/tests-utils" }
 polywrap_plugin = { version = "0.1.2", path = "packages/plugin" }
-polywrap_plugin_macro = { version = "0.1.2", path = "packages/plugin_macro" }
-polywrap_client_default_config = { version = "0.1.2", path = "packages/default-config" }
+
+polywrap_plugin_creator = { version = "0.1.2", path = "packages/plugin/creator" }
 
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"

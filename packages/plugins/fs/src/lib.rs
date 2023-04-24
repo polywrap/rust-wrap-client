@@ -2,7 +2,7 @@ use std::{fs, path::Path, sync::Arc};
 
 use polywrap_core::invoke::Invoker;
 use polywrap_plugin::error::PluginError;
-use polywrap_plugin_macro::{plugin_impl};
+use polywrap_plugin::creator::plugin_impl;
 use wrap::module::{
     ArgsExists, ArgsMkdir, ArgsReadFile, ArgsReadFileAsString, ArgsRm, ArgsRmdir, ArgsWriteFile,
     Module,

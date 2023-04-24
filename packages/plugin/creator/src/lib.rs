@@ -4,6 +4,7 @@ use quote::quote;
 
 use syn::{parse, parse_macro_input, ItemImpl };
 
+
 fn snake_case_to_camel_case(s: &str) -> String {
     s.split('_')
         .enumerate()
