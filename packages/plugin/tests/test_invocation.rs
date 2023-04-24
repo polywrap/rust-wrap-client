@@ -7,8 +7,7 @@ use polywrap_core::{invoke::{Invoker}, resolvers::{static_resolver::{StaticResol
 
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
 use polywrap_msgpack::msgpack;
-use polywrap_plugin::{error::PluginError, module::{PluginModule}, package::PluginPackage};
-use polywrap_plugin_creator::{plugin_impl};
+use polywrap_plugin::{implementor::{plugin_impl}, error::PluginError, module::{PluginModule}, package::PluginPackage};
 use serde_json::{Value, from_value, json};
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]

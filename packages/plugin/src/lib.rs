@@ -6,4 +6,4 @@ pub mod with_methods;
 pub mod error;
 pub mod utils;
 
-pub use polywrap_plugin_creator as creator;
+pub use polywrap_plugin_implementor as implementor;

@@ -8,9 +8,9 @@ packages=(
   "tests-utils"
   "wasm"
   "resolvers"
-  "client"
   "builder"
-  "plugin/creator"
+  "client"
+  "plugin/implementor"
   "plugin"
 )
 

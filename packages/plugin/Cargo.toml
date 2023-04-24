@@ -16,13 +16,16 @@ serde_json.workspace = true
 
 Inflector = "0.11.4"
 
-polywrap_plugin_creator = { workspace = true, optional = true }
+polywrap_plugin_implementor = { workspace = true, optional = true }
+
+serde.workspace = true
+num-bigint = "0.4.3"
+bigdecimal = "0.3.0"
 
 [dev-dependencies]
-serde.workspace = true
 polywrap_client.workspace = true
 
 [features]
-default = ["creator"]
+default = ["implementor"]
 
-creator = ["polywrap_plugin_creator"]
+implementor = ["polywrap_plugin_implementor"]
