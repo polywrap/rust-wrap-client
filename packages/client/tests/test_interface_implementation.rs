@@ -41,10 +41,9 @@ fn test_interface_implementation() {
 
     let file_reader = SimpleFileReader::new();
     let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
-    let mut resolvers = HashMap::new();
     let base_resolver = BaseResolver::new(
         Box::new(fs_resolver),
-        Box::new(StaticResolver::new(resolvers)),
+        Box::new(StaticResolver::new(HashMap::new())),
     );
     let client = PolywrapClient::new(ClientConfig {
         envs: None,
