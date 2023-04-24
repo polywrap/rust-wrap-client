@@ -22,4 +22,3 @@ proc-macro = true
 serde_json.workspace = true
 polywrap_msgpack.workspace = true
 wrap_manifest_schemas.workspace = true
-polywrap_plugin.workspace = true
