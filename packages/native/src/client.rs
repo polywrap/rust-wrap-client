@@ -1,14 +1,15 @@
-use polywrap_client::{client::PolywrapClient, builder::types::ClientConfigHandler, core::invoke::Invoker};
+use polywrap_client::{client::PolywrapClient, core::invoke::Invoker, builder::types::ClientConfigHandler};
 use serde_json::Value;
 use std::sync::Arc;
-use crate::builder::BuilderConfig;
+
+use crate::builder::FFIBuilderConfig;
 
 pub struct FFIPolywrapClient {
   pub inner_client: Arc<dyn Invoker>
 }
 
 impl FFIPolywrapClient {
-  pub fn new(config_builder: Arc<BuilderConfig>) -> FFIPolywrapClient {
+  pub fn new(config_builder: Arc<FFIBuilderConfig>) -> FFIPolywrapClient {
     let config = config_builder.inner_builder.lock().unwrap().clone().build();
     FFIPolywrapClient { 
       inner_client: Arc::new(PolywrapClient::new(config))

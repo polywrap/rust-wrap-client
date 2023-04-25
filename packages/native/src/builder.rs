@@ -1,5 +1,5 @@
 use polywrap_client::{
-    builder::types::{BuilderConfig as InnerBuilderConfig, ClientBuilder},
+    builder::types::{BuilderConfig, ClientBuilder},
     core::{
         package::WrapPackage,
         resolvers::{uri_resolver::UriResolver, uri_resolver_like::UriResolverLike}
@@ -9,14 +9,14 @@ use std::sync::{Arc, Mutex};
 
 use crate::{plugin_wrapper::FFIPluginWrapper, wasm_wrapper::FFIWasmWrapper};
 
-pub struct BuilderConfig {
-    pub inner_builder: Mutex<InnerBuilderConfig>,
+pub struct FFIBuilderConfig {
+    pub inner_builder: Mutex<BuilderConfig>,
 }
 
-impl BuilderConfig {
-    pub fn new() -> BuilderConfig {
-        BuilderConfig {
-            inner_builder: Mutex::new(InnerBuilderConfig::new(None)),
+impl FFIBuilderConfig {
+    pub fn new() -> FFIBuilderConfig {
+        FFIBuilderConfig {
+            inner_builder: Mutex::new(BuilderConfig::new(None)),
         }
     }
 
