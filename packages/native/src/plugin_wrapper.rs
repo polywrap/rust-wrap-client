@@ -5,7 +5,7 @@ use polywrap_client::core::wrapper::Wrapper;
 use polywrap_plugin::module::PluginModule;
 use polywrap_plugin::wrapper::PluginWrapper;
 
-use crate::client::FFIPolywrapClient;
+use crate::invoker::FFIInvoker;
 
 pub trait FFIPluginModule: Send + Sync + Debug {
     fn invoke(
@@ -13,7 +13,7 @@ pub trait FFIPluginModule: Send + Sync + Debug {
         method_name: &str,
         params: &[u8],
         env: Option<String>,
-        invoker: FFIPolywrapClient,
+        invoker: FFIInvoker,
     ) -> Vec<u8>;
 }
 

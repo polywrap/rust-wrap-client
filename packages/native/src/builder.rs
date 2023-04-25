@@ -1,6 +1,6 @@
 use polywrap_client::{
-    builder::types::{BuilderConfig, ClientBuilder},
-    core::{package::WrapPackage, resolvers::uri_resolver_like::UriResolverLike},
+    builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
+    core::{package::WrapPackage, resolvers::uri_resolver_like::UriResolverLike}, client::PolywrapClient,
 };
 use std::sync::{Arc, Mutex};
 
@@ -12,7 +12,7 @@ use crate::{
         ffi_resolver::{FFIUriResolver, FFIUriResolverWrapper},
         recursive::FFIRecursiveUriResolver,
     },
-    wasm_wrapper::FFIWasmWrapper,
+    wasm_wrapper::FFIWasmWrapper, client::FFIClient,
 };
 
 pub struct FFIBuilderConfig {
@@ -143,5 +143,11 @@ impl FFIBuilderConfig {
             .lock()
             .unwrap()
             .add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
+    }
+
+    pub fn build(&self) -> FFIClient {
+      let config = self.inner_builder.lock().unwrap().clone().build();
+      let client = PolywrapClient::new(config);
+      FFIClient::new(client)
     }
 }
