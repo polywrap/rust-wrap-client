@@ -41,7 +41,7 @@ impl From<UriResolverLike> for Arc<dyn UriResolver> {
               resolvers
             ))
           },
-          UriResolverLike::Resolver(resolver) => Arc::from(resolver),
+          UriResolverLike::Resolver(resolver) => resolver,
           UriResolverLike::Redirect(redirect) => {
             Arc::new(RedirectResolver {
               from: redirect.from,

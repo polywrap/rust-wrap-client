@@ -25,11 +25,7 @@ impl PluginModule for Box<dyn FFIPluginModule> {
         env: Option<polywrap_client::core::env::Env>,
         invoker: Arc<dyn polywrap_client::core::invoke::Invoker>,
     ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
-        let env = if let Some(env) = env {
-            Some(env.to_string())
-        } else {
-            None
-        };
+        let env = env.map(|env| env.to_string());
 
         Ok(self.invoke(method_name, params, env, invoker.into()))
     }

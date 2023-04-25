@@ -17,17 +17,9 @@ impl FFIPolywrapClient {
   }
 
   pub fn invoke_raw(&self, uri: &str, method: &str, args: Option<Vec<u8>>, env: Option<String>) -> Vec<u8> {
-    let args = if let Some(args) = &args {
-      Some(args.as_slice())
-    } else {
-      None
-    };
+    let args = args.as_deref();
     
-    let env = if let Some(env) = env {
-      Some(serde_json::from_str::<Value>(&env).unwrap())
-    } else {
-      None
-    };
+    let env = env.map(|env| serde_json::from_str::<Value>(&env).unwrap());
 
     self.inner_client.invoke_raw(
       &uri.to_string().try_into().unwrap(),
