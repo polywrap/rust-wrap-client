@@ -1,5 +1,6 @@
 #![feature(trait_upcasting)]
 use std::any::TypeId;
+use std::sync::Arc;
 
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::builder::types::{BuilderConfig, ClientConfigHandler, ClientBuilder};
@@ -28,7 +29,7 @@ fn test_uri_resolver_wrapper() {
     );
     let result = uri_resolver_wrapper._try_resolve_uri(
         &wrapper_uri, 
-        &client, 
+        Arc::new(client), 
         &mut uri_resolution_context
     );
 
@@ -54,11 +55,12 @@ fn test_recursive_uri_resolver() {
     let builder = BuilderConfig::new(None);
     let config = builder.build();
     let client = PolywrapClient::new(config);
+    let client = Arc::new(client);
 
     let mut uri_resolution_context = UriResolutionContext::new();
-    let result = client.resolver.try_resolve_uri(
+    let result = client.clone().resolver.try_resolve_uri(
         &http_wrapper_uri, 
-        &client, 
+        client, 
         &mut uri_resolution_context
     );
 
