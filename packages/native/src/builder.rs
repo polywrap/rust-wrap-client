@@ -1,13 +1,19 @@
 use polywrap_client::{
     builder::types::{BuilderConfig, ClientBuilder},
-    core::{
-        package::WrapPackage,
-        resolvers::{uri_resolver::UriResolver, uri_resolver_like::UriResolverLike}
-    },
+    core::{package::WrapPackage, resolvers::uri_resolver_like::UriResolverLike},
 };
 use std::sync::{Arc, Mutex};
 
-use crate::{plugin_wrapper::FFIPluginWrapper, wasm_wrapper::FFIWasmWrapper};
+use crate::{
+    plugin_wrapper::FFIPluginWrapper,
+    resolvers::{
+        _static::FFIStaticUriResolver,
+        extendable::FFIExtendableUriResolver,
+        ffi_resolver::{FFIUriResolver, FFIUriResolverWrapper},
+        recursive::FFIRecursiveUriResolver,
+    },
+    wasm_wrapper::FFIWasmWrapper,
+};
 
 pub struct FFIBuilderConfig {
     pub inner_builder: Mutex<BuilderConfig>,
@@ -69,10 +75,10 @@ impl FFIBuilderConfig {
     }
 
     pub fn add_plugin_wrapper(&self, uri: &str, wrapper: Arc<FFIPluginWrapper>) {
-      self.inner_builder.lock().unwrap().add_wrapper(
-          uri.to_string().try_into().unwrap(),
-          wrapper.inner_plugin.clone(),
-      );
+        self.inner_builder.lock().unwrap().add_wrapper(
+            uri.to_string().try_into().unwrap(),
+            wrapper.inner_plugin.clone(),
+        );
     }
 
     pub fn remove_wrapper(&self, uri: &str) {
@@ -110,7 +116,29 @@ impl FFIBuilderConfig {
             .remove_redirect(from.to_string().try_into().unwrap());
     }
 
-    pub fn add_resolver(&self, resolver: Box<dyn UriResolver>) {
+    pub fn add_resolver(&self, resolver: Box<dyn FFIUriResolver>) {
+        let resolver: FFIUriResolverWrapper = resolver.into();
+        self.inner_builder
+            .lock()
+            .unwrap()
+            .add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
+    }
+
+    pub fn add_static_resolver(&self, resolver: FFIStaticUriResolver) {
+        self.inner_builder
+            .lock()
+            .unwrap()
+            .add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
+    }
+
+    pub fn add_extendable_resolver(&self, resolver: FFIExtendableUriResolver) {
+        self.inner_builder
+            .lock()
+            .unwrap()
+            .add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
+    }
+
+    pub fn add_recursive_resolver(&self, resolver: FFIRecursiveUriResolver) {
         self.inner_builder
             .lock()
             .unwrap()

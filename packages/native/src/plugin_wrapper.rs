@@ -17,7 +17,10 @@ pub trait FFIPluginModule: Send + Sync + Debug {
     ) -> Vec<u8>;
 }
 
-impl PluginModule for Box<dyn FFIPluginModule> {
+#[derive(Debug)]
+pub struct FFIPluginModuleWrapper(Box<dyn FFIPluginModule>);
+
+impl PluginModule for FFIPluginModuleWrapper {
     fn _wrap_invoke(
         &mut self,
         method_name: &str,
@@ -27,7 +30,7 @@ impl PluginModule for Box<dyn FFIPluginModule> {
     ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
         let env = env.map(|env| env.to_string());
 
-        Ok(self.invoke(method_name, params, env, invoker.into()))
+        Ok(self.0.invoke(method_name, params, env, invoker.into()))
     }
 }
 
@@ -36,15 +39,12 @@ pub struct FFIPluginWrapper {
 }
 
 impl FFIPluginWrapper {
-    pub fn new(plugin_module: Box<dyn FFIPluginModule>) -> FFIPluginWrapper {
-        let plugin_wrapper = PluginWrapper::new(
-          Arc::new(
-            Mutex::new(
-              // TODO: additional level of indirection necessary?
-              Box::new(plugin_module) as Box<dyn PluginModule>
-            )
-          )
-        );
+    pub fn new(plugin_module_wrapper: FFIPluginModuleWrapper) -> FFIPluginWrapper {
+        let plugin_module = Arc::new(Mutex::new(
+            Box::new(plugin_module_wrapper) as Box<dyn PluginModule>
+        ));
+
+        let plugin_wrapper = PluginWrapper::new(plugin_module);
 
         FFIPluginWrapper {
             inner_plugin: Arc::new(Mutex::new(Box::new(plugin_wrapper) as Box<dyn Wrapper>)),
