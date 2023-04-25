@@ -1,0 +1,51 @@
+interface PolywrapClient {
+  constructor(BuilderConfig config_builder);
+  sequence<u8> invoke_raw([ByRef] string uri, [ByRef] string method, sequence<u8>? args, string? env);
+}
+
+callback interface UriResolver {
+};
+
+callback interface Wrapper {
+};
+
+callback interface WrapPackage {
+};
+
+interface BuilderConfig {
+  constructor();
+  void add_env([ByRef] string uri, [ByRef] string env);
+  void remove_env([ByRef] string uri);
+  void set_env([ByRef] string uri, [ByRef] string env);
+  void add_interface_implementation([ByRef] string interface_uri, [ByRef] string implementation_uri);
+  void remove_interface_implementation([ByRef] string interface_uri, [ByRef] string implementation_uri);
+  void add_wrapper([ByRef] string uri, Wrapper wrapper);
+  void remove_wrapper([ByRef] string uri);
+  void add_package([ByRef] string uri, WrapPackage package);
+  void remove_package([ByRef] string uri);
+  void add_redirect([ByRef] string from, [ByRef] string to);
+  void remove_redirect([ByRef] string from);
+  void add_resolver(UriResolver resolver);
+};
+
+[Enum]
+interface UriPackageOrWrapper {
+  Uri(string uri);
+  Wrapper(string uri, Wrapper wrapper);
+  Package(string uri, WrapPackage package);
+};
+
+[Enum]
+interface UriResolverLike {
+  Resolver(string resolver);
+  Redirect(string redirect);
+  Package(string uri, WrapPackage package);
+  Wrapper(string uri, Wrapper wrapper);
+  ResolverLike(sequence<UriResolverLike> resolvers);
+};
+
+namespace main {
+  ExtendableUriResolver create_extendable_uri_resolver(string? name);
+  RecursiveResolver create_recursive_resolver(UriResolverLike uri_resolver_like);
+  StaticResolver create_static_resolver(record<DOMString, UriPackageOrWrapper> uri_map);
+};
