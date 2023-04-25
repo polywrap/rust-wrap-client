@@ -1,0 +1,28 @@
+use polywrap_client::{core::resolvers::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike}};
+use super::{uri_resolver_like::FFIUriResolverLike};
+
+#[derive(Debug)]
+pub struct FFIRecursiveUriResolver {
+  inner_resolver: RecursiveResolver
+}
+
+impl FFIRecursiveUriResolver {
+  pub fn new(uri_resolver_like: FFIUriResolverLike) -> FFIRecursiveUriResolver {
+    let uri_resolver_like: UriResolverLike = uri_resolver_like.into();
+    
+    FFIRecursiveUriResolver {
+      inner_resolver: RecursiveResolver::from(uri_resolver_like)
+    }
+  }
+}
+
+impl UriResolver for FFIRecursiveUriResolver {
+    fn try_resolve_uri(
+        &self,
+        uri: &polywrap_client::core::uri::Uri,
+        loader: std::sync::Arc<dyn polywrap_client::core::loader::Loader>,
+        resolution_context: &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
+    ) -> Result<UriPackageOrWrapper, polywrap_client::core::error::Error> {
+        self.inner_resolver.try_resolve_uri(uri, loader, resolution_context)
+    }
+}

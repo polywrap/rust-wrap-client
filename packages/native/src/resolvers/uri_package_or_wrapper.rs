@@ -4,27 +4,27 @@ use std::{
 
 use polywrap_client::core::{
     package::WrapPackage,
-    resolvers::{uri_resolution_context::UriPackageOrWrapper as InnerUriPackageOrWrapper},
+    resolvers::{uri_resolution_context::UriPackageOrWrapper},
     wrapper::Wrapper,
 };
 
-pub enum UriPackageOrWrapper {
+pub enum FFIUriPackageOrWrapper {
     Uri { uri: String },
     Wrapper { uri: String, wrapper: Box<dyn Wrapper> },
     Package { uri: String, package: Box<dyn WrapPackage> },
 }
 
-impl From<UriPackageOrWrapper> for InnerUriPackageOrWrapper {
-    fn from(value: UriPackageOrWrapper) -> Self {
+impl From<FFIUriPackageOrWrapper> for UriPackageOrWrapper {
+    fn from(value: FFIUriPackageOrWrapper) -> Self {
         match value {
-            UriPackageOrWrapper::Uri { uri } => {
-                InnerUriPackageOrWrapper::Uri(uri.try_into().unwrap())
+          FFIUriPackageOrWrapper::Uri { uri } => {
+                UriPackageOrWrapper::Uri(uri.try_into().unwrap())
             }
-            UriPackageOrWrapper::Wrapper { uri, wrapper } => {
-              InnerUriPackageOrWrapper::Wrapper(uri.try_into().unwrap(), Arc::new(Mutex::new(wrapper)))
+            FFIUriPackageOrWrapper::Wrapper { uri, wrapper } => {
+              UriPackageOrWrapper::Wrapper(uri.try_into().unwrap(), Arc::new(Mutex::new(wrapper)))
             }
-            UriPackageOrWrapper::Package { uri, package } => {
-              InnerUriPackageOrWrapper::Package(uri.try_into().unwrap(), Arc::new(Mutex::new(package)))
+            FFIUriPackageOrWrapper::Package { uri, package } => {
+              UriPackageOrWrapper::Package(uri.try_into().unwrap(), Arc::new(Mutex::new(package)))
             }
         }
     }

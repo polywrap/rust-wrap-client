@@ -3,7 +3,7 @@ use polywrap_client::core::{
     package::WrapPackage,
     resolvers::{
         uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver,
-        uri_resolver_like::UriResolverLike as InnerUriResolverLike,
+        uri_resolver_like::UriResolverLike,
     },
     wrapper::Wrapper,
 };
@@ -28,7 +28,7 @@ impl UriResolver for Box<dyn FFIUriResolver> {
     }
 }
 
-pub enum UriResolverLike {
+pub enum FFIUriResolverLike {
     Resolver {
         resolver: Box<dyn UriResolver>,
     },
@@ -45,29 +45,29 @@ pub enum UriResolverLike {
         wrapper: Box<dyn Wrapper>,
     },
     ResolverLike {
-        resolvers: Vec<UriResolverLike>,
+        resolvers: Vec<FFIUriResolverLike>,
     },
 }
 
-impl From<UriResolverLike> for InnerUriResolverLike {
-    fn from(value: UriResolverLike) -> Self {
+impl From<FFIUriResolverLike> for UriResolverLike {
+    fn from(value: FFIUriResolverLike) -> Self {
         match value {
-            UriResolverLike::Resolver { resolver } => {
-                InnerUriResolverLike::Resolver(Arc::from(resolver))
+            FFIUriResolverLike::Resolver { resolver } => {
+                UriResolverLike::Resolver(Arc::from(resolver))
             }
-            UriResolverLike::Redirect { from, to } => InnerUriResolverLike::Redirect(UriRedirect {
+            FFIUriResolverLike::Redirect { from, to } => UriResolverLike::Redirect(UriRedirect {
                 from: from.try_into().unwrap(),
                 to: to.try_into().unwrap(),
             }),
-            UriResolverLike::Package { uri, package } => InnerUriResolverLike::Package(
+            FFIUriResolverLike::Package { uri, package } => UriResolverLike::Package(
                 uri.try_into().unwrap(),
                 Arc::new(Mutex::new(package)),
             ),
-            UriResolverLike::Wrapper { uri, wrapper } => InnerUriResolverLike::Wrapper(
+            FFIUriResolverLike::Wrapper { uri, wrapper } => UriResolverLike::Wrapper(
                 uri.try_into().unwrap(),
                 Arc::new(Mutex::new(wrapper)),
             ),
-            UriResolverLike::ResolverLike { resolvers } => InnerUriResolverLike::ResolverLike(
+            FFIUriResolverLike::ResolverLike { resolvers } => UriResolverLike::ResolverLike(
                 resolvers
                     .into_iter()
                     .map(|resolver_like| resolver_like.into())
