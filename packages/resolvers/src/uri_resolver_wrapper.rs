@@ -32,14 +32,14 @@ impl UriResolverWrapper {
     &self,
     uri: Uri,
     implementation_uri: Uri,
-    loader: &dyn Loader,
+    loader: Arc<dyn Loader>,
     resolution_context: &mut UriResolutionContext
   ) -> Result<MaybeUriOrManifest, Error> {
       let mut sub_context = resolution_context.create_sub_context();
       let wrapper = self.load_extension(
         uri.clone(), 
         implementation_uri.clone(), 
-        loader, 
+        loader.clone(), 
         &mut sub_context
       )?;
 
@@ -76,7 +76,7 @@ impl UriResolverWrapper {
     &self,
     current_uri: Uri,
     resolver_extension_uri: Uri,
-    loader: &dyn Loader,
+    loader: Arc<dyn Loader>,
     resolution_context: &mut UriResolutionContext
   ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error> {
 
@@ -113,13 +113,13 @@ impl ResolverWithHistory for UriResolverWrapper {
     fn _try_resolve_uri(
       &self, 
       uri: &Uri, 
-      loader: &dyn Loader, 
+      loader: Arc<dyn Loader>, 
       resolution_context: &mut UriResolutionContext
     ) ->  Result<UriPackageOrWrapper, Error> {
       let result = self.try_resolve_uri_with_implementation(
         uri.clone(), 
         self.implementation_uri.clone(), 
-        loader, 
+        loader.clone(), 
         resolution_context
       )?;
       let invoker = loader.get_invoker()?;

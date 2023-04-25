@@ -23,7 +23,7 @@ pub trait UriResolver: Send + Sync + Debug {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        loader: &dyn Loader,
+        loader: Arc<dyn Loader>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error>;
 }

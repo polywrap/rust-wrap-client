@@ -18,7 +18,7 @@ impl From<UriResolverLike> for ResolverWithLoopGuard {
 }
 
 impl UriResolver for ResolverWithLoopGuard {
-    fn try_resolve_uri(&self, uri: &crate::uri::Uri, loader: &dyn Loader, resolution_context: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error> {
+    fn try_resolve_uri(&self, uri: &crate::uri::Uri, loader: Arc<dyn Loader>, resolution_context: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error> {
         if resolution_context.is_resolving(uri) {
           //TODO handle this error
           Err(Error::ResolverError("Infinite Loop".to_string()))

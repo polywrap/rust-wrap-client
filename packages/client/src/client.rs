@@ -163,7 +163,7 @@ impl UriResolverHandler for PolywrapClient {
             None => &mut uri_resolver_context,
         };
 
-        uri_resolver.try_resolve_uri(uri, self, resolution_context)
+        uri_resolver.try_resolve_uri(uri, Arc::new(self.clone()), resolution_context)
     }
 }
 
