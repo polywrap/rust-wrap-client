@@ -1,5 +1,5 @@
 [workspace.package]
-version = "0.1.1"
+version = "0.1.6-beta.1"
 license = "MIT"
 edition = "2021"
 rust-version = "1.67"
@@ -8,8 +8,6 @@ repository = "https://github.com/polywrap/rust-client"
 [workspace]
 members = [
     "packages/client",
-    "packages/ffi-java",
-    "packages/ffi-c",
     "packages/core",
     "packages/wasm",
     "packages/resolvers",
@@ -17,26 +15,34 @@ members = [
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
-    "packages/plugins/http",
-    "packages/plugins/http-resolver",
-    "packages/plugins/fs",
-    "packages/plugins/fs-resolver",
-    "packages/plugins/test_env",
-    "packages/plugin_macro",
-    "packages/tests-utils"
+    "packages/tests-utils",
+    "packages/default-config"
+]
+
+# Do not include test utils & default config crates in default members
+default-members = [
+    "packages/client",
+    "packages/core",
+    "packages/wasm",
+    "packages/resolvers",
+    "packages/msgpack",
+    "packages/manifest",
+    "packages/builder",
+    "packages/plugin",
 ]
 
 [workspace.dependencies]
-polywrap_client = { version = "0.1.1", path = "packages/client" } 
-polywrap_wasm = { version = "0.1.1", path = "packages/wasm" }
-polywrap_client_builder = { version = "0.1.1", path = "packages/builder" }
-polywrap_core = { version = "0.1.1", path = "packages/core" }
-wrap_manifest_schemas = { version = "0.1.1", path = "packages/manifest" }
-polywrap_resolvers = { version = "0.1.1", path = "packages/resolvers" }
-polywrap_msgpack = { version = "0.1.1", path = "packages/msgpack" }
-polywrap_tests_utils = { version = "0.1.1", path = "packages/tests-utils" }
-polywrap_plugin = { version = "0.1.1", path = "packages/plugin" }
-polywrap_plugin_macro = { version = "0.1.1", path = "packages/plugin_macro" }
+polywrap_client = { version = "0.1.6-beta.1", path = "packages/client" } 
+polywrap_wasm = { version = "0.1.6-beta.1", path = "packages/wasm" }
+polywrap_client_builder = { version = "0.1.6-beta.1", path = "packages/builder" }
+polywrap_core = { version = "0.1.6-beta.1", path = "packages/core" }
+wrap_manifest_schemas = { version = "0.1.6-beta.1", path = "packages/manifest" }
+polywrap_resolvers = { version = "0.1.6-beta.1", path = "packages/resolvers" }
+polywrap_msgpack = { version = "0.1.6-beta.1", path = "packages/msgpack" }
+polywrap_tests_utils = { version = "0.1.6-beta.1", path = "packages/tests-utils" }
+polywrap_plugin = { version = "0.1.6-beta.1", path = "packages/plugin" }
+
+polywrap_plugin_implementor = { version = "0.1.6-beta.1", path = "packages/plugin/implementor" }
 
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"

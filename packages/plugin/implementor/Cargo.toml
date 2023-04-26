@@ -1,0 +1,24 @@
+[package]
+name = "polywrap_plugin_implementor"
+description = "Macros to easily build plugins to interact with Polywrap Client"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+polywrap_core.workspace = true
+serde.workspace = true
+
+proc-macro2.workspace = true
+quote.workspace = true
+syn.workspace = true
+
+[lib]
+proc-macro = true
+
+[dev-dependencies]
+serde_json.workspace = true
+polywrap_msgpack.workspace = true
+wrap_manifest_schemas.workspace = true
