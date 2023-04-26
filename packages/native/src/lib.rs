@@ -7,3 +7,5 @@ pub mod loader;
 pub mod client;
 pub mod wrapper;
 pub mod package;
+
+uniffi::include_scaffolding!("main");

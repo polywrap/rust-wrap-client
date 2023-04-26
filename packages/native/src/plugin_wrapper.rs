@@ -8,7 +8,7 @@ use polywrap_plugin::wrapper::PluginWrapper;
 use crate::invoker::FFIInvoker;
 
 pub trait FFIPluginModule: Send + Sync + Debug {
-    fn __wrap_invoke(
+    fn wrap_invoke(
         &self,
         method_name: &str,
         params: &[u8],
@@ -30,7 +30,7 @@ impl PluginModule for FFIPluginModuleWrapper {
     ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
         let env = env.map(|env| env.to_string());
 
-        Ok(self.0.__wrap_invoke(method_name, params, env, invoker.into()))
+        Ok(self.0.wrap_invoke(method_name, params, env, invoker.into()))
     }
 }
 
