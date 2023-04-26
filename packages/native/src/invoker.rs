@@ -14,17 +14,9 @@ impl FFIInvoker {
         args: Option<Vec<u8>>,
         env: Option<String>,
     ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
-        let args = if let Some(args) = &args {
-            Some(args.as_slice())
-        } else {
-            None
-        };
+        let args = args.as_deref();
 
-        let env = if let Some(env) = env {
-            Some(serde_json::from_str::<Value>(&env).unwrap())
-        } else {
-            None
-        };
+        let env = env.map(|env| serde_json::from_str::<Value>(&env).unwrap());
 
         self.inner_invoker
             .invoke_raw(

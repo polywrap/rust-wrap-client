@@ -15,11 +15,7 @@ impl FFILoader {
     }
 
     pub fn get_env_by_uri(&self, uri: Arc<Uri>) -> Option<String> {
-        if let Some(env) = self.inner_loader.get_env_by_uri(uri.as_ref()) {
-            Some(serde_json::to_string(env).unwrap())
-        } else {
-            None
-        }
+        self.inner_loader.get_env_by_uri(uri.as_ref()).map(|env| serde_json::to_string(env).unwrap())
     }
 
     pub fn load_wrapper(
