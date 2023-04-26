@@ -12,4 +12,3 @@ pub use bigdecimal::BigDecimal as BigNumber;
 pub use num_bigint::BigInt;
 pub use serde_json as JSON;
 pub use polywrap_msgpack::extensions::generic_map::GenericMap as Map;
-pub use serde::{Deserialize,Serialize};

@@ -79,7 +79,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
               let env = if env_is_option { 
                 quote! {
                   if let Some(e) = env {
-                    Some(serde_json::from_value(e).unwrap())
+                    Some(JSON::from_value(e).unwrap())
                   } else {
                     None
                   }
@@ -87,7 +87,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
               } else {
                 quote! {
                   if let Some(e) = env {
-                    serde_json::from_value(e).unwrap()
+                    JSON::from_value(e).unwrap()
                   } else {
                     panic!("Env must be defined for method '{}'", #ident_str)
                   }
@@ -137,7 +137,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             &mut self,
             method_name: &str,
             params: &[u8],
-            env: Option<serde_json::Value>,
+            env: Option<JSON::Value>,
             invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,
         ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
                 let supported_methods = vec![#(#supported_methods),*];
