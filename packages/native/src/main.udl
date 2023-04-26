@@ -149,7 +149,7 @@ interface FFIClient {
   FFIWrapper load_wrapper(Uri uri);
 };
 
-interface BuilderConfig {
+interface FFIBuilderConfig {
   constructor();
   void add_env(Uri uri, [ByRef] string env);
   void remove_env(Uri uri);
