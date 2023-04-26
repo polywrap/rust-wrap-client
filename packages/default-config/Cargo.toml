@@ -12,11 +12,6 @@ serde_json.workspace = true
 serde.workspace = true
 base64.workspace = true
 
-polywrap_wasm = { version = "0.1.4-alpha.2" }
-polywrap_resolvers = { version = "0.1.4-alpha.2" }
-polywrap_client_builder = { version = "0.1.4-alpha.2" }
-polywrap_core = { version = "0.1.4-alpha.2" }
-polywrap_plugin = { version = "0.1.4-alpha.4", features = ["implementor"] }
-
-fs_plugin_rs = { version  = "0.0.1-beta.1" }
-http_plugin_rs = { version  = "0.0.1-beta.1" }
+polywrap_client = { version = "0.1.6-beta.1" }
+fs_plugin_rs = { version  = "0.0.1-beta.2" }
+http_plugin_rs = { version  = "0.0.1-beta.2" }
