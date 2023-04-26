@@ -9,9 +9,9 @@ packages=(
   "wasm"
   "resolvers"
   "builder"
-  "client"
   "plugin/implementor"
   "plugin"
+  "client"
 )
 
 # Iterate through the packages and publish them one by one
