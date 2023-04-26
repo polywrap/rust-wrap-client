@@ -5,3 +5,4 @@ pub mod wasm_wrapper;
 pub mod plugin_wrapper;
 pub mod loader;
 pub mod client;
+pub mod wrapper;
