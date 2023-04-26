@@ -1,5 +1,7 @@
-use polywrap_client::core::{loader::Loader, resolvers::uri_resolver::UriResolverHandler};
+use polywrap_client::core::{loader::Loader, uri::Uri};
 use std::sync::Arc;
+
+use crate::wrapper::FFIWrapper;
 
 pub struct FFILoader {
     inner_loader: Arc<dyn Loader>,
@@ -11,49 +13,21 @@ impl FFILoader {
             inner_loader: loader,
         }
     }
-}
 
-impl Loader for FFILoader {
-    fn load_wrapper(
-        &self,
-        uri: &polywrap_client::core::uri::Uri,
-        resolution_context: Option<
-            &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
-        >,
-    ) -> Result<
-        Arc<std::sync::Mutex<Box<dyn polywrap_client::core::wrapper::Wrapper>>>,
-        polywrap_client::core::error::Error,
-    > {
-        self.inner_loader.load_wrapper(uri, resolution_context)
+    pub fn get_env_by_uri(&self, uri: Arc<Uri>) -> Option<String> {
+        if let Some(env) = self.inner_loader.get_env_by_uri(uri.as_ref()) {
+            Some(serde_json::to_string(env).unwrap())
+        } else {
+            None
+        }
     }
 
-    fn get_env_by_uri(
+    pub fn load_wrapper(
         &self,
-        uri: &polywrap_client::core::uri::Uri,
-    ) -> Option<&polywrap_client::core::env::Env> {
-        self.inner_loader.get_env_by_uri(uri)
-    }
-
-    fn get_invoker(
-        &self,
-    ) -> Result<Arc<dyn polywrap_client::core::invoke::Invoker>, polywrap_client::core::error::Error>
-    {
-        self.inner_loader.get_invoker()
-    }
-}
-
-impl UriResolverHandler for FFILoader {
-    fn try_resolve_uri(
-        &self,
-        uri: &polywrap_client::core::uri::Uri,
-        resolution_context: Option<
-            &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
-        >,
-    ) -> Result<
-        polywrap_client::core::resolvers::uri_resolution_context::UriPackageOrWrapper,
-        polywrap_client::core::error::Error,
-    > {
-        self.inner_loader.try_resolve_uri(uri, resolution_context)
+        uri: Arc<Uri>,
+    ) -> Result<FFIWrapper, polywrap_client::core::error::Error> {
+        let wrapper = self.inner_loader.load_wrapper(uri.as_ref(), None)?;
+        Ok(FFIWrapper::new(wrapper))
     }
 }
 
