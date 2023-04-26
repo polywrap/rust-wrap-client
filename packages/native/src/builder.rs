@@ -1,6 +1,6 @@
 use polywrap_client::{
     builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
-    core::{package::WrapPackage, resolvers::uri_resolver_like::UriResolverLike, uri::Uri}, client::PolywrapClient,
+    core::{resolvers::uri_resolver_like::UriResolverLike, uri::Uri}, client::PolywrapClient,
 };
 use std::sync::{Arc, Mutex};
 
@@ -86,20 +86,6 @@ impl FFIBuilderConfig {
             .lock()
             .unwrap()
             .remove_wrapper(uri.as_ref().clone());
-    }
-
-    pub fn add_package(&self, uri: Arc<Uri>, package: Box<dyn WrapPackage>) {
-        self.inner_builder
-            .lock()
-            .unwrap()
-            .add_package(uri.as_ref().clone(), Arc::new(Mutex::new(package)));
-    }
-
-    pub fn remove_package(&self, uri: Arc<Uri>) {
-        self.inner_builder
-            .lock()
-            .unwrap()
-            .remove_package(uri.as_ref().clone());
     }
 
     pub fn add_redirect(&self, from: Arc<Uri>, to: Arc<Uri>) {

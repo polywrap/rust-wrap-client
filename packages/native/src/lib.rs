@@ -6,3 +6,4 @@ pub mod plugin_wrapper;
 pub mod loader;
 pub mod client;
 pub mod wrapper;
+pub mod package;
