@@ -1,20 +1,26 @@
-use polywrap_client::core::resolvers::uri_resolver::UriResolver;
+use polywrap_client::core::{resolvers::uri_resolver::UriResolver, uri::Uri};
 
 use crate::loader::FFILoader;
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::Arc};
 
 use super::uri_package_or_wrapper::FFIUriPackageOrWrapper;
 
 pub trait FFIUriResolver: Send + Sync + Debug {
-    fn ffi_try_resolve_uri(
+    fn _try_resolve_uri(
       &self,
-      uri: &str,
+      uri: Arc<Uri>,
       loader: FFILoader
     ) -> FFIUriPackageOrWrapper;
 }
 
 #[derive(Debug)]
 pub struct FFIUriResolverWrapper(Box<dyn FFIUriResolver>);
+
+impl FFIUriResolverWrapper {
+  pub fn new(uri_resolver: Box<dyn FFIUriResolver>) -> Self {
+    FFIUriResolverWrapper(uri_resolver)
+  }
+}
 
 impl UriResolver for FFIUriResolverWrapper {
     fn try_resolve_uri(
