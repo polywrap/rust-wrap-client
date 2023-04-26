@@ -1,51 +1,89 @@
-interface PolywrapClient {
-  constructor(BuilderConfig config_builder);
-  sequence<u8> invoke_raw([ByRef] string uri, [ByRef] string method, sequence<u8>? args, string? env);
+interface Uri {
+  constructor([ByRef] string uri);
+
+  [Throws=Error]
+  from_string([ByRef] string uri);
+};
+
+interface FFILoader {
+  string? get_env_by_uri(Uri uri);
+  
+  [Throws=Error]
+  FFIWrapper load_wrapper(Uri uri);
+};
+
+interface FFIWasmWrapper {
+  constructor(sequence<u8> wasm_module);
+};
+
+interface FFIInvoker {
+  [Throws=Error]
+  sequence<u8> invoke_raw(Uri uri, [ByRef] string method, sequence<u8>? args, string? env);
+
+  [Throws=Error]
+  sequence<Uri> get_implementations(Uri uri);
+
+  [Throws=Error]
+  record<DOMString, sequence<Uri>> get_interfaces();
 }
 
-callback interface UriResolver {
+callback interface FFIPluginModule {
+  sequence<u8> __wrap_invoke([ByRef] string method_name, [ByRef] sequence<u8> params, string? env, FFIInvoker invoker);
+} 
+
+interface FFIPluginWrapper {
+  constructor(FFIPluginModule plugin_module);
+}
+
+callback interface FFIUriResolver {
+  FFIUriPackageOrWrapper _try_resolve_uri(Uri uri, FFILoader loader);
 };
 
-callback interface Wrapper {
+[Enum]
+interface FFIUriPackageOrWrapper {
+  Uri(Uri uri);
+  Wrapper(Uri uri, FFIWrapper wrapper);
+  Package(Uri uri, FFIWrapPackage package);
 };
 
-callback interface WrapPackage {
+[Enum]
+interface FFIUriResolverLike {
+  Resolver(FFIUriResolver resolver);
+  Redirect(Uri from, Uri to);
+  Package(Uri uri, FFIWrapPackage package);
+  Wrapper(Uri uri, FFIWrapper wrapper);
+  ResolverLike(sequence<FFIUriResolverLike> resolvers);
 };
+
+interface FFIStaticUriResolver {
+  constructor(record<DOMString, FFIUriPackageOrWrapper> uri_map);
+}
+
+interface FFIExtendableUriResolver {
+  constructor(string? name);
+}
+
+interface FFIRecursiveUriResolver {
+  constructor(FFIUriResolverLike uri_resolver_like);
+}
 
 interface BuilderConfig {
   constructor();
-  void add_env([ByRef] string uri, [ByRef] string env);
-  void remove_env([ByRef] string uri);
-  void set_env([ByRef] string uri, [ByRef] string env);
-  void add_interface_implementation([ByRef] string interface_uri, [ByRef] string implementation_uri);
-  void remove_interface_implementation([ByRef] string interface_uri, [ByRef] string implementation_uri);
-  void add_wrapper([ByRef] string uri, Wrapper wrapper);
-  void remove_wrapper([ByRef] string uri);
-  void add_package([ByRef] string uri, WrapPackage package);
-  void remove_package([ByRef] string uri);
-  void add_redirect([ByRef] string from, [ByRef] string to);
-  void remove_redirect([ByRef] string from);
+  void add_env(Uri uri, [ByRef] string env);
+  void remove_env(Uri uri);
+  void set_env(Uri uri, [ByRef] string env);
+  void add_interface_implementation(Uri interface_uri, Uri implementation_uri);
+  void remove_interface_implementation(Uri interface_uri, Uri implementation_uri);
+  void add_wasm_wrapper(Uri uri, FFIWasmWrapper wrapper);
+  void add_plugin_wrapper(Uri uri, FFIPluginWrapper wrapper);
+  void remove_wrapper(Uri uri);
+  void add_redirect(Uri from, Uri to);
+  void remove_redirect(Uri from);
   void add_resolver(UriResolver resolver);
+  void add_static_resolver(FFIStaticUriResolver resolver);
+  void add_extendable_resolver(FFIExtendableUriResolver resolver);
+  void add_recursive_resolver(FFIRecursiveUriResolver resolver);
+  FFIClient build();
 };
 
-[Enum]
-interface UriPackageOrWrapper {
-  Uri(string uri);
-  Wrapper(string uri, Wrapper wrapper);
-  Package(string uri, WrapPackage package);
-};
-
-[Enum]
-interface UriResolverLike {
-  Resolver(string resolver);
-  Redirect(string redirect);
-  Package(string uri, WrapPackage package);
-  Wrapper(string uri, Wrapper wrapper);
-  ResolverLike(sequence<UriResolverLike> resolvers);
-};
-
-namespace main {
-  ExtendableUriResolver create_extendable_uri_resolver(string? name);
-  RecursiveResolver create_recursive_resolver(UriResolverLike uri_resolver_like);
-  StaticResolver create_static_resolver(record<DOMString, UriPackageOrWrapper> uri_map);
-};
+namespace main { };

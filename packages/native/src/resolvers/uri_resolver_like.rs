@@ -1,29 +1,31 @@
 use polywrap_client::core::{
     client::UriRedirect,
-    package::WrapPackage,
     resolvers::{
         uri_resolver::UriResolver,
         uri_resolver_like::UriResolverLike,
-    },
-    wrapper::Wrapper,
+    }, uri::Uri,
 };
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
+
+use crate::{package::FFIWrapPackage, wrapper::FFIWrapper};
+
+use super::ffi_resolver::{FFIUriResolver, FFIUriResolverWrapper};
 
 pub enum FFIUriResolverLike {
     Resolver {
-        resolver: Box<dyn UriResolver>,
+        resolver: Box<dyn FFIUriResolver>,
     },
     Redirect {
-        from: String,
-        to: String,
+        from: Arc<Uri>,
+        to: Arc<Uri>,
     },
     Package {
-        uri: String,
-        package: Box<dyn WrapPackage>,
+        uri: Arc<Uri>,
+        package: Arc<FFIWrapPackage>,
     },
     Wrapper {
-        uri: String,
-        wrapper: Box<dyn Wrapper>,
+        uri: Arc<Uri>,
+        wrapper: Arc<FFIWrapper>,
     },
     ResolverLike {
         resolvers: Vec<FFIUriResolverLike>,
@@ -34,19 +36,20 @@ impl From<FFIUriResolverLike> for UriResolverLike {
     fn from(value: FFIUriResolverLike) -> Self {
         match value {
             FFIUriResolverLike::Resolver { resolver } => {
-                UriResolverLike::Resolver(Arc::from(resolver))
+                let ffi_uri_resolver_wrapper = Arc::new(FFIUriResolverWrapper::new(resolver)) as Arc<dyn UriResolver>;
+                UriResolverLike::Resolver(ffi_uri_resolver_wrapper)
             }
             FFIUriResolverLike::Redirect { from, to } => UriResolverLike::Redirect(UriRedirect {
-                from: from.try_into().unwrap(),
-                to: to.try_into().unwrap(),
+                from: from.as_ref().clone(),
+                to: to.as_ref().clone(),
             }),
             FFIUriResolverLike::Package { uri, package } => UriResolverLike::Package(
-                uri.try_into().unwrap(),
-                Arc::new(Mutex::new(package)),
+                uri.as_ref().clone(),
+                package.0.clone(),
             ),
             FFIUriResolverLike::Wrapper { uri, wrapper } => UriResolverLike::Wrapper(
-                uri.try_into().unwrap(),
-                Arc::new(Mutex::new(wrapper)),
+                uri.as_ref().clone(),
+                wrapper.0.clone(),
             ),
             FFIUriResolverLike::ResolverLike { resolvers } => UriResolverLike::ResolverLike(
                 resolvers

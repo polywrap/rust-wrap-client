@@ -39,9 +39,9 @@ pub struct FFIPluginWrapper {
 }
 
 impl FFIPluginWrapper {
-    pub fn new(plugin_module_wrapper: FFIPluginModuleWrapper) -> FFIPluginWrapper {
+    pub fn new(plugin_module: Box<dyn FFIPluginModule>) -> FFIPluginWrapper {
         let plugin_module = Arc::new(Mutex::new(
-            Box::new(plugin_module_wrapper) as Box<dyn PluginModule>
+            Box::new(FFIPluginModuleWrapper(plugin_module_wrapper)) as Box<dyn PluginModule>
         ));
 
         let plugin_wrapper = PluginWrapper::new(plugin_module);

@@ -5,7 +5,7 @@ use serde_json::Value;
 
 use crate::invoker::FFIInvoker;
 
-pub struct FFIWrapper(Arc<Mutex<Box<dyn Wrapper>>>);
+pub struct FFIWrapper(pub Arc<Mutex<Box<dyn Wrapper>>>);
 
 impl FFIWrapper {
   pub fn new(wrapper: Arc<Mutex<Box<dyn Wrapper>>>) -> FFIWrapper {

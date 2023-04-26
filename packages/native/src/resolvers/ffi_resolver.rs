@@ -24,7 +24,7 @@ impl UriResolver for FFIUriResolverWrapper {
         _: &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
     ) -> Result<polywrap_client::core::resolvers::uri_resolution_context::UriPackageOrWrapper, polywrap_client::core::error::Error> {
         let loader = FFILoader::new(loader);
-        Ok(self.0.ffi_try_resolve_uri(&uri.to_string(), loader).into())
+        Ok(self.0._try_resolve_uri(Arc::new(uri.clone()), loader).into())
     }
 }
 
