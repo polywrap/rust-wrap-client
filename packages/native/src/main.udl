@@ -43,23 +43,82 @@ interface FFIPluginWrapper {
 };
 
 callback interface FFIUriResolver {
-  FFIUriPackageOrWrapper _try_resolve_uri(Uri uri, FFILoader loader);
+  FFIUriPackageOrWrapper wrap_try_resolve_uri(Uri uri, FFILoader loader);
 };
 
-[Enum]
+interface FFIUriPackageOrWrapperUriVariant {
+  constructor(Uri uri);
+  Uri get_uri();
+};
+
+interface FFIUriPackageOrWrapperWrapperVariant {
+  constructor(Uri uri, FFIWrapper wrapper);
+  Uri get_uri();
+  FFIWrapper get_wrapper();
+};
+
+interface FFIUriPackageOrWrapperPackageVariant {
+  constructor(Uri uri, FFIWrapPackage package);
+  Uri get_uri();
+  FFIWrapPackage get_package();
+};
+
+enum FFIUriPackageOrWrapperKind {
+  "_Uri",
+  "_Wrapper",
+  "_Package",
+};
+
 interface FFIUriPackageOrWrapper {
-  Uri(Uri uri);
-  Wrapper(Uri uri, FFIWrapper wrapper);
-  Package(Uri uri, FFIWrapPackage package);
+  FFIUriPackageOrWrapper new_uri(Uri uri);
+  FFIUriPackageOrWrapper new_wrapper(Uri uri, FFIWrapper wrapper);
+  FFIUriPackageOrWrapper new_package(Uri uri, FFIWrapPackage package);
+  FFIUriPackageOrWrapperKind get_kind();
+  FFIUriPackageOrWrapperUriVariant? get_uri();
+  FFIUriPackageOrWrapperWrapperVariant? get_wrapper();
+  FFIUriPackageOrWrapperPackageVariant? get_package();
 };
 
-[Enum]
+interface FFIUriResolverLikeRedirectVariant {
+  constructor(Uri from, Uri to);
+};
+
+interface FFIUriResolverLikePackageVariant {
+  constructor(Uri uri, FFIWrapPackage package);
+};
+
+interface FFIUriResolverLikeWrapperVariant {
+  constructor(Uri uri, FFIWrapper wrapper);
+};
+
+interface FFIUriResolverLikeResolverVariant {
+  constructor(FFIUriResolver resolver);
+};
+
+interface FFIUriResolverLikeResolverLikeVariant {
+  constructor(sequence<FFIUriResolverLike> resolver_like);
+};
+
 interface FFIUriResolverLike {
-  Resolver(FFIUriResolver resolver);
-  Redirect(Uri from, Uri to);
-  Package(Uri uri, FFIWrapPackage package);
-  Wrapper(Uri uri, FFIWrapper wrapper);
-  ResolverLike(sequence<FFIUriResolverLike> resolvers);
+  FFIUriResolverLike new_resolver(FFIUriResolverLikeResolverVariant resolver);
+  FFIUriResolverLike new_redirect(FFIUriResolverLikeRedirectVariant redirect);
+  FFIUriResolverLike new_wrapper(FFIUriResolverLikeWrapperVariant wrapper);
+  FFIUriResolverLike new_package(FFIUriResolverLikePackageVariant package);
+  FFIUriResolverLike new_resolver_like(FFIUriResolverLikeResolverLikeVariant resolver_like);
+  FFIUriResolverLikeKind get_kind();
+  FFIUriResolverLikeResolverVariant? get_resolver();
+  FFIUriResolverLikeRedirectVariant? get_redirect();
+  FFIUriResolverLikeWrapperVariant? get_wrapper();
+  FFIUriResolverLikePackageVariant? get_package();
+  FFIUriResolverLikeResolverLikeVariant? get_resolver_like();
+};
+
+enum FFIUriResolverLikeKind {
+  "_Resolver",
+  "_Redirect",
+  "_Package",
+  "_Wrapper",
+  "_ResolverLike",
 };
 
 interface FFIStaticUriResolver {
@@ -102,7 +161,7 @@ interface BuilderConfig {
   void remove_wrapper(Uri uri);
   void add_redirect(Uri from, Uri to);
   void remove_redirect(Uri from);
-  void add_resolver(UriResolver resolver);
+  void add_resolver(FFIUriResolver resolver);
   void add_static_resolver(FFIStaticUriResolver resolver);
   void add_extendable_resolver(FFIExtendableUriResolver resolver);
   void add_recursive_resolver(FFIRecursiveUriResolver resolver);

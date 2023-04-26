@@ -6,18 +6,18 @@ use crate::{package::FFIWrapPackage, wrapper::FFIWrapper};
 
 #[derive(Clone)]
 pub enum FFIUriPackageOrWrapperKind {
-    Uri,
-    Wrapper,
-    Package,
+    _Uri,
+    _Wrapper,
+    _Package,
 }
 
-pub struct UriVariant {
+pub struct FFIUriPackageOrWrapperUriVariant {
     uri: Arc<Uri>,
 }
 
-impl UriVariant {
-    pub fn new(uri: Arc<Uri>) -> UriVariant {
-        UriVariant { uri }
+impl FFIUriPackageOrWrapperUriVariant {
+    pub fn new(uri: Arc<Uri>) -> FFIUriPackageOrWrapperUriVariant {
+        FFIUriPackageOrWrapperUriVariant { uri }
     }
 
     pub fn get_uri(&self) -> Arc<Uri> {
@@ -25,14 +25,14 @@ impl UriVariant {
     }
 }
 
-pub struct WrapperVariant {
+pub struct FFIUriPackageOrWrapperWrapperVariant {
     uri: Arc<Uri>,
     wrapper: Arc<FFIWrapper>,
 }
 
-impl WrapperVariant {
-    pub fn new(uri: Arc<Uri>, wrapper: Arc<FFIWrapper>) -> WrapperVariant {
-        WrapperVariant { uri, wrapper }
+impl FFIUriPackageOrWrapperWrapperVariant {
+    pub fn new(uri: Arc<Uri>, wrapper: Arc<FFIWrapper>) -> FFIUriPackageOrWrapperWrapperVariant {
+        FFIUriPackageOrWrapperWrapperVariant { uri, wrapper }
     }
 
     pub fn get_uri(&self) -> Arc<Uri> {
@@ -44,14 +44,14 @@ impl WrapperVariant {
     }
 }
 
-pub struct PackageVariant {
+pub struct FFIUriPackageOrWrapperPackageVariant {
     uri: Arc<Uri>,
     package: Arc<FFIWrapPackage>,
 }
 
-impl PackageVariant {
-    pub fn new(uri: Arc<Uri>, package: Arc<FFIWrapPackage>) -> PackageVariant {
-        PackageVariant { uri, package }
+impl FFIUriPackageOrWrapperPackageVariant {
+    pub fn new(uri: Arc<Uri>, package: Arc<FFIWrapPackage>) -> FFIUriPackageOrWrapperPackageVariant {
+        FFIUriPackageOrWrapperPackageVariant { uri, package }
     }
 
     pub fn get_uri(&self) -> Arc<Uri> {
@@ -65,16 +65,16 @@ impl PackageVariant {
 
 pub struct FFIUriPackageOrWrapper {
     kind: FFIUriPackageOrWrapperKind,
-    uri: Option<Arc<UriVariant>>,
-    wrapper: Option<Arc<WrapperVariant>>,
-    package: Option<Arc<PackageVariant>>,
+    uri: Option<Arc<FFIUriPackageOrWrapperUriVariant>>,
+    wrapper: Option<Arc<FFIUriPackageOrWrapperWrapperVariant>>,
+    package: Option<Arc<FFIUriPackageOrWrapperPackageVariant>>,
 }
 
 impl FFIUriPackageOrWrapper {
     pub fn new_uri(uri: Arc<Uri>) -> FFIUriPackageOrWrapper {
         Self {
             kind: FFIUriPackageOrWrapperKind::Uri,
-            uri: Some(Arc::new(UriVariant::new(uri))),
+            uri: Some(Arc::new(FFIUriPackageOrWrapperUriVariant::new(uri))),
             wrapper: None,
             package: None,
         }
@@ -84,7 +84,7 @@ impl FFIUriPackageOrWrapper {
         Self {
             kind: FFIUriPackageOrWrapperKind::Wrapper,
             uri: None,
-            wrapper: Some(Arc::new(WrapperVariant::new(uri, wrapper))),
+            wrapper: Some(Arc::new(FFIUriPackageOrWrapperWrapperVariant::new(uri, wrapper))),
             package: None,
         }
     }
@@ -94,7 +94,7 @@ impl FFIUriPackageOrWrapper {
             kind: FFIUriPackageOrWrapperKind::Package,
             uri: None,
             wrapper: None,
-            package: Some(Arc::new(PackageVariant::new(uri, package))),
+            package: Some(Arc::new(FFIUriPackageOrWrapperPackageVariant::new(uri, package))),
         }
     }
 
@@ -102,15 +102,15 @@ impl FFIUriPackageOrWrapper {
         self.kind.clone()
     }
 
-    pub fn get_uri(&self) -> Option<Arc<UriVariant>> {
+    pub fn get_uri(&self) -> Option<Arc<FFIUriPackageOrWrapperUriVariant>> {
         self.uri.clone()
     }
 
-    pub fn get_wrapper(&self) -> Option<Arc<WrapperVariant>> {
+    pub fn get_wrapper(&self) -> Option<Arc<FFIUriPackageOrWrapperWrapperVariant>> {
         self.wrapper.clone()
     }
 
-    pub fn get_package(&self) -> Option<Arc<PackageVariant>> {
+    pub fn get_package(&self) -> Option<Arc<FFIUriPackageOrWrapperPackageVariant>> {
         self.package.clone()
     }
 }

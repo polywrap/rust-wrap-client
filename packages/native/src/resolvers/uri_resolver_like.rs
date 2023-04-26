@@ -9,69 +9,69 @@ use crate::{package::FFIWrapPackage, wrapper::FFIWrapper};
 
 use super::ffi_resolver::{FFIUriResolver, FFIUriResolverWrapper};
 
-pub struct RedirectVariant {
+pub struct FFIUriResolverLikeRedirectVariant {
     from: Arc<Uri>,
     to: Arc<Uri>,
 }
 
-impl RedirectVariant {
-    pub fn new(from: Arc<Uri>, to: Arc<Uri>) -> RedirectVariant {
-        RedirectVariant { from, to }
+impl FFIUriResolverLikeRedirectVariant {
+    pub fn new(from: Arc<Uri>, to: Arc<Uri>) -> FFIUriResolverLikeRedirectVariant {
+        FFIUriResolverLikeRedirectVariant { from, to }
     }
 }
 
-pub struct PackageVariant {
+pub struct FFIUriResolverLikePackageVariant {
     uri: Arc<Uri>,
     package: Arc<FFIWrapPackage>,
 }
 
-impl PackageVariant {
-    pub fn new(uri: Arc<Uri>, package: Arc<FFIWrapPackage>) -> PackageVariant {
-        PackageVariant { uri, package }
+impl FFIUriResolverLikePackageVariant {
+    pub fn new(uri: Arc<Uri>, package: Arc<FFIWrapPackage>) -> FFIUriResolverLikePackageVariant {
+        FFIUriResolverLikePackageVariant { uri, package }
     }
 }
 
-pub struct WrapperVariant {
+pub struct FFIUriResolverLikeWrapperVariant {
     uri: Arc<Uri>,
     wrapper: Arc<FFIWrapper>,
 }
 
-impl WrapperVariant {
-    pub fn new(uri: Arc<Uri>, wrapper: Arc<FFIWrapper>) -> WrapperVariant {
-        WrapperVariant { uri, wrapper }
+impl FFIUriResolverLikeWrapperVariant {
+    pub fn new(uri: Arc<Uri>, wrapper: Arc<FFIWrapper>) -> FFIUriResolverLikeWrapperVariant {
+        FFIUriResolverLikeWrapperVariant { uri, wrapper }
     }
 }
 
-pub struct ResolverVariant {
+pub struct FFIUriResolverLikeResolverVariant {
     resolver: Arc<dyn FFIUriResolver>,
 }
 
-impl ResolverVariant {
-    pub fn new(resolver: Box<dyn FFIUriResolver>) -> ResolverVariant {
-        ResolverVariant {
+impl FFIUriResolverLikeResolverVariant {
+    pub fn new(resolver: Box<dyn FFIUriResolver>) -> FFIUriResolverLikeResolverVariant {
+        FFIUriResolverLikeResolverVariant {
             resolver: Arc::from(resolver),
         }
     }
 }
 
-pub struct ResolverLikeVariant {
+pub struct FFIUriResolverLikeResolverLikeVariant {
     resolver_like: Vec<FFIUriResolverLike>,
 }
 
-impl ResolverLikeVariant {
-    pub fn new(resolver_like: Vec<FFIUriResolverLike>) -> ResolverLikeVariant {
-        ResolverLikeVariant { resolver_like }
+impl FFIUriResolverLikeResolverLikeVariant {
+    pub fn new(resolver_like: Vec<FFIUriResolverLike>) -> FFIUriResolverLikeResolverLikeVariant {
+        FFIUriResolverLikeResolverLikeVariant { resolver_like }
     }
 }
 
 #[derive(Clone)]
 pub struct FFIUriResolverLike {
     kind: FFIUriResolverLikeKind,
-    resolver: Option<Arc<ResolverVariant>>,
-    redirect: Option<Arc<RedirectVariant>>,
-    wrapper: Option<Arc<WrapperVariant>>,
-    package: Option<Arc<PackageVariant>>,
-    resolver_like: Option<Arc<ResolverLikeVariant>>,
+    resolver: Option<Arc<FFIUriResolverLikeResolverVariant>>,
+    redirect: Option<Arc<FFIUriResolverLikeRedirectVariant>>,
+    wrapper: Option<Arc<FFIUriResolverLikeWrapperVariant>>,
+    package: Option<Arc<FFIUriResolverLikePackageVariant>>,
+    resolver_like: Option<Arc<FFIUriResolverLikeResolverLikeVariant>>,
 }
 
 impl FFIUriResolverLike {
@@ -79,7 +79,7 @@ impl FFIUriResolverLike {
         self.kind.clone()
     }
 
-    pub fn new_resolver(resolver: Arc<ResolverVariant>) -> FFIUriResolverLike {
+    pub fn new_resolver(resolver: Arc<FFIUriResolverLikeResolverVariant>) -> FFIUriResolverLike {
         FFIUriResolverLike {
             kind: FFIUriResolverLikeKind::Resolver,
             resolver: Some(resolver),
@@ -89,7 +89,7 @@ impl FFIUriResolverLike {
             resolver_like: None,
         }
     }
-    pub fn new_redirect(redirect: Arc<RedirectVariant>) -> FFIUriResolverLike {
+    pub fn new_redirect(redirect: Arc<FFIUriResolverLikeRedirectVariant>) -> FFIUriResolverLike {
         FFIUriResolverLike {
             kind: FFIUriResolverLikeKind::Redirect,
             resolver: None,
@@ -99,7 +99,7 @@ impl FFIUriResolverLike {
             resolver_like: None,
         }
     }
-    pub fn new_wrapper(wrapper: Arc<WrapperVariant>) -> FFIUriResolverLike {
+    pub fn new_wrapper(wrapper: Arc<FFIUriResolverLikeWrapperVariant>) -> FFIUriResolverLike {
         FFIUriResolverLike {
             kind: FFIUriResolverLikeKind::Wrapper,
             resolver: None,
@@ -109,7 +109,7 @@ impl FFIUriResolverLike {
             resolver_like: None,
         }
     }
-    pub fn new_package(package: Arc<PackageVariant>) -> FFIUriResolverLike {
+    pub fn new_package(package: Arc<FFIUriResolverLikePackageVariant>) -> FFIUriResolverLike {
         FFIUriResolverLike {
             kind: FFIUriResolverLikeKind::Package,
             resolver: None,
@@ -119,7 +119,7 @@ impl FFIUriResolverLike {
             resolver_like: None,
         }
     }
-    pub fn new_resolver_like(resolver_like: Arc<ResolverLikeVariant>) -> FFIUriResolverLike {
+    pub fn new_resolver_like(resolver_like: Arc<FFIUriResolverLikeResolverLikeVariant>) -> FFIUriResolverLike {
         FFIUriResolverLike {
             kind: FFIUriResolverLikeKind::ResolverLike,
             resolver: None,
@@ -130,30 +130,30 @@ impl FFIUriResolverLike {
         }
     }
 
-    pub fn get_resolver(&self) -> Option<Arc<ResolverVariant>> {
+    pub fn get_resolver(&self) -> Option<Arc<FFIUriResolverLikeResolverVariant>> {
         self.resolver.clone()
     }
-    pub fn get_redirect(&self) -> Option<Arc<RedirectVariant>> {
+    pub fn get_redirect(&self) -> Option<Arc<FFIUriResolverLikeRedirectVariant>> {
         self.redirect.clone()
     }
-    pub fn get_wrapper(&self) -> Option<Arc<WrapperVariant>> {
+    pub fn get_wrapper(&self) -> Option<Arc<FFIUriResolverLikeWrapperVariant>> {
         self.wrapper.clone()
     }
-    pub fn get_package(&self) -> Option<Arc<PackageVariant>> {
+    pub fn get_package(&self) -> Option<Arc<FFIUriResolverLikePackageVariant>> {
         self.package.clone()
     }
-    pub fn get_resolver_like(&self) -> Option<Arc<ResolverLikeVariant>> {
+    pub fn get_resolver_like(&self) -> Option<Arc<FFIUriResolverLikeResolverLikeVariant>> {
         self.resolver_like.clone()
     }
 }
 
 #[derive(Clone)]
 pub enum FFIUriResolverLikeKind {
-    Resolver,
-    Redirect,
-    Package,
-    Wrapper,
-    ResolverLike,
+    _Resolver,
+    _Redirect,
+    _Package,
+    _Wrapper,
+    _ResolverLike,
 }
 
 impl From<FFIUriResolverLike> for UriResolverLike {
