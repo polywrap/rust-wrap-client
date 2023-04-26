@@ -73,7 +73,7 @@ pub struct FFIUriPackageOrWrapper {
 impl FFIUriPackageOrWrapper {
     pub fn new_uri(uri: Arc<Uri>) -> FFIUriPackageOrWrapper {
         Self {
-            kind: FFIUriPackageOrWrapperKind::Uri,
+            kind: FFIUriPackageOrWrapperKind::_Uri,
             uri: Some(Arc::new(FFIUriPackageOrWrapperUriVariant::new(uri))),
             wrapper: None,
             package: None,
@@ -82,7 +82,7 @@ impl FFIUriPackageOrWrapper {
 
     pub fn new_wrapper(uri: Arc<Uri>, wrapper: Arc<FFIWrapper>) -> FFIUriPackageOrWrapper {
         Self {
-            kind: FFIUriPackageOrWrapperKind::Wrapper,
+            kind: FFIUriPackageOrWrapperKind::_Wrapper,
             uri: None,
             wrapper: Some(Arc::new(FFIUriPackageOrWrapperWrapperVariant::new(uri, wrapper))),
             package: None,
@@ -91,7 +91,7 @@ impl FFIUriPackageOrWrapper {
 
     pub fn new_package(uri: Arc<Uri>, package: Arc<FFIWrapPackage>) -> FFIUriPackageOrWrapper {
         Self {
-            kind: FFIUriPackageOrWrapperKind::Package,
+            kind: FFIUriPackageOrWrapperKind::_Package,
             uri: None,
             wrapper: None,
             package: Some(Arc::new(FFIUriPackageOrWrapperPackageVariant::new(uri, package))),
@@ -118,18 +118,18 @@ impl FFIUriPackageOrWrapper {
 impl From<FFIUriPackageOrWrapper> for UriPackageOrWrapper {
     fn from(value: FFIUriPackageOrWrapper) -> Self {
         match value.get_kind() {
-            FFIUriPackageOrWrapperKind::Uri => {
+            FFIUriPackageOrWrapperKind::_Uri => {
                 let variant = value.get_uri().unwrap();
                 UriPackageOrWrapper::Uri(variant.get_uri().as_ref().clone())
             }
-            FFIUriPackageOrWrapperKind::Wrapper => {
+            FFIUriPackageOrWrapperKind::_Wrapper => {
                 let variant = value.get_wrapper().unwrap();
                 UriPackageOrWrapper::Wrapper(
                     variant.get_uri().as_ref().clone(),
                     variant.get_wrapper().0.clone(),
                 )
             }
-            FFIUriPackageOrWrapperKind::Package => {
+            FFIUriPackageOrWrapperKind::_Package => {
                 let variant = value.get_package().unwrap();
                 UriPackageOrWrapper::Package(
                     variant.get_uri().as_ref().clone(),

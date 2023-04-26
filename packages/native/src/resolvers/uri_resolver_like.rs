@@ -81,7 +81,7 @@ impl FFIUriResolverLike {
 
     pub fn new_resolver(resolver: Arc<FFIUriResolverLikeResolverVariant>) -> FFIUriResolverLike {
         FFIUriResolverLike {
-            kind: FFIUriResolverLikeKind::Resolver,
+            kind: FFIUriResolverLikeKind::_Resolver,
             resolver: Some(resolver),
             redirect: None,
             wrapper: None,
@@ -91,7 +91,7 @@ impl FFIUriResolverLike {
     }
     pub fn new_redirect(redirect: Arc<FFIUriResolverLikeRedirectVariant>) -> FFIUriResolverLike {
         FFIUriResolverLike {
-            kind: FFIUriResolverLikeKind::Redirect,
+            kind: FFIUriResolverLikeKind::_Redirect,
             resolver: None,
             redirect: Some(redirect),
             wrapper: None,
@@ -101,7 +101,7 @@ impl FFIUriResolverLike {
     }
     pub fn new_wrapper(wrapper: Arc<FFIUriResolverLikeWrapperVariant>) -> FFIUriResolverLike {
         FFIUriResolverLike {
-            kind: FFIUriResolverLikeKind::Wrapper,
+            kind: FFIUriResolverLikeKind::_Wrapper,
             resolver: None,
             redirect: None,
             wrapper: Some(wrapper),
@@ -111,7 +111,7 @@ impl FFIUriResolverLike {
     }
     pub fn new_package(package: Arc<FFIUriResolverLikePackageVariant>) -> FFIUriResolverLike {
         FFIUriResolverLike {
-            kind: FFIUriResolverLikeKind::Package,
+            kind: FFIUriResolverLikeKind::_Package,
             resolver: None,
             redirect: None,
             wrapper: None,
@@ -121,7 +121,7 @@ impl FFIUriResolverLike {
     }
     pub fn new_resolver_like(resolver_like: Arc<FFIUriResolverLikeResolverLikeVariant>) -> FFIUriResolverLike {
         FFIUriResolverLike {
-            kind: FFIUriResolverLikeKind::ResolverLike,
+            kind: FFIUriResolverLikeKind::_ResolverLike,
             resolver: None,
             redirect: None,
             wrapper: None,
@@ -159,28 +159,28 @@ pub enum FFIUriResolverLikeKind {
 impl From<FFIUriResolverLike> for UriResolverLike {
     fn from(value: FFIUriResolverLike) -> Self {
         match value.get_kind() {
-            FFIUriResolverLikeKind::Resolver => {
+            FFIUriResolverLikeKind::_Resolver => {
                 let inner_resolver = value.get_resolver().unwrap().resolver.clone();
                 let resolver =
                     Arc::new(FFIUriResolverWrapper::new(inner_resolver)) as Arc<dyn UriResolver>;
                 UriResolverLike::Resolver(resolver)
             }
-            FFIUriResolverLikeKind::Redirect => {
+            FFIUriResolverLikeKind::_Redirect => {
                 let redirect = value.get_redirect().unwrap();
                 UriResolverLike::Redirect(UriRedirect {
                     from: redirect.from.as_ref().clone(),
                     to: redirect.to.as_ref().clone(),
                 })
             }
-            FFIUriResolverLikeKind::Package => {
+            FFIUriResolverLikeKind::_Package => {
                 let package = value.get_package().unwrap();
                 UriResolverLike::Package(package.uri.as_ref().clone(), package.package.0.clone())
             }
-            FFIUriResolverLikeKind::Wrapper => {
+            FFIUriResolverLikeKind::_Wrapper => {
                 let wrapper = value.get_wrapper().unwrap();
                 UriResolverLike::Wrapper(wrapper.uri.as_ref().clone(), wrapper.wrapper.0.clone())
             }
-            FFIUriResolverLikeKind::ResolverLike => UriResolverLike::ResolverLike(
+            FFIUriResolverLikeKind::_ResolverLike => UriResolverLike::ResolverLike(
                 value
                     .get_resolver_like()
                     .unwrap()

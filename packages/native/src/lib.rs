@@ -32,7 +32,7 @@ use crate::resolvers::uri_resolver_like::FFIUriResolverLikeKind;
 use crate::resolvers::uri_resolver_like::FFIUriResolverLikePackageVariant;
 use crate::resolvers::uri_resolver_like::FFIUriResolverLikeResolverLikeVariant;
 use crate::resolvers::uri_resolver_like::FFIUriResolverLike;
-use crate::builder::FFIBuilderConfig;
 use polywrap_client::core::uri::Uri;
+use crate::builder::FFIBuilderConfig;
 
 uniffi::include_scaffolding!("main");
