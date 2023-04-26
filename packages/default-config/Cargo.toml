@@ -8,16 +8,15 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-polywrap_core.workspace = true
-polywrap_resolvers.workspace = true
 serde_json.workspace = true
 serde.workspace = true
-polywrap_client_builder.workspace = true
-polywrap_plugin.workspace = true
-polywrap_wasm.workspace = true
 base64.workspace = true
 
-fs_resolver_plugin = {path = "../plugins/fs-resolver"}
-filesystem_plugin = {path = "../plugins/fs"}
-http_resolver_plugin = {path = "../plugins/http-resolver"}
-http_plugin = {path = "../plugins/http"}
+polywrap_wasm = { version = "0.1.4-alpha.2" }
+polywrap_resolvers = { version = "0.1.4-alpha.2" }
+polywrap_client_builder = { version = "0.1.4-alpha.2" }
+polywrap_core = { version = "0.1.4-alpha.2" }
+polywrap_plugin = { version = "0.1.4-alpha.4", features = ["implementor"] }
+
+fs_plugin_rs = { version  = "0.0.1-beta.1" }
+http_plugin_rs = { version  = "0.0.1-beta.1" }
