@@ -1,10 +1,17 @@
-use std::{sync::{Arc, Mutex}, fmt::{Debug}};
+use std::{
+    fmt::Debug,
+    sync::{Arc, Mutex},
+};
 
-use polywrap_core::{uri::Uri, invoke::Invoker, wrapper::{Wrapper, GetFileOptions}, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
-use polywrap_msgpack::extensions::generic_map::convert_msgpack_to_json;
+use polywrap_core::{
+    env::Env,
+    invoke::Invoker,
+    resolvers::uri_resolution_context::UriResolutionContext,
+    uri::Uri,
+    wrapper::{GetFileOptions, Wrapper},
+};
 
-
-use crate::module::{PluginModule};
+use crate::module::PluginModule;
 
 type PluginModuleInstance = Arc<Mutex<Box<dyn (PluginModule)>>>;
 
@@ -14,9 +21,7 @@ pub struct PluginWrapper {
 }
 
 impl PluginWrapper {
-    pub fn new(
-        instance: PluginModuleInstance,
-    ) -> Self {
+    pub fn new(instance: PluginModuleInstance) -> Self {
         Self { instance }
     }
 }
@@ -38,7 +43,8 @@ impl Wrapper for PluginWrapper {
 
         let result = self
             .instance
-            .lock().unwrap()
+            .lock()
+            .unwrap()
             ._wrap_invoke(method, &args, env, invoker);
 
         match result {
@@ -46,8 +52,10 @@ impl Wrapper for PluginWrapper {
             Err(e) => Err(crate::error::PluginError::InvocationError {
                 uri: uri.to_string(),
                 method: method.to_string(),
-                // Decode the args from msgpack to JSON for better error logging
-                args: convert_msgpack_to_json(polywrap_msgpack::decode::<polywrap_msgpack::Value>(&args).unwrap()).to_string(),
+                // TODO: Add helper to decode the args from msgpack to JSON for better error logging
+                args: polywrap_msgpack::decode::<polywrap_msgpack::Value>(&args)
+                    .unwrap()
+                    .to_string(),
                 exception: e.to_string(),
             }
             .into()),

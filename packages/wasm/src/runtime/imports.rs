@@ -125,8 +125,6 @@ pub fn create_imports(
         memory_view.read(file_offset.try_into().unwrap(), &mut file_buffer).unwrap();
 
         let msg = String::from_utf8(msg_buffer).unwrap();
-        println!("aborting.....");
-        println!("abort with message: {}" , msg);
         let file = String::from_utf8(file_buffer).unwrap();
         (state.abort)(format!(
             "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]",
