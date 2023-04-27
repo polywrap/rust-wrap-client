@@ -14,7 +14,7 @@ impl FFIWrapper {
 
   pub fn invoke(
     &self,
-    invoker: FFIInvoker,
+    invoker: Arc<FFIInvoker>,
     uri: Arc<Uri>,
     method: &str,
     args: Option<Vec<u8>>,
@@ -24,6 +24,6 @@ impl FFIWrapper {
 
     let env = env.map(|env| serde_json::from_str::<Value>(&env).unwrap());
 
-    self.0.lock().unwrap().invoke(invoker.inner_invoker, uri.as_ref(), method, args, env, None)
+    self.0.lock().unwrap().invoke(invoker.inner_invoker.clone(), uri.as_ref(), method, args, env, None)
   }
 }

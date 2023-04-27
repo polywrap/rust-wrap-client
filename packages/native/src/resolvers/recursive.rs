@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use polywrap_client::{core::resolvers::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike}};
 use super::{uri_resolver_like::FFIUriResolverLike};
 
@@ -7,8 +9,8 @@ pub struct FFIRecursiveUriResolver {
 }
 
 impl FFIRecursiveUriResolver {
-  pub fn new(uri_resolver_like: FFIUriResolverLike) -> FFIRecursiveUriResolver {
-    let uri_resolver_like: UriResolverLike = uri_resolver_like.into();
+  pub fn new(uri_resolver_like: Arc<FFIUriResolverLike>) -> FFIRecursiveUriResolver {
+    let uri_resolver_like: UriResolverLike = uri_resolver_like.as_ref().clone().into();
     
     FFIRecursiveUriResolver {
       inner_resolver: RecursiveResolver::from(uri_resolver_like)

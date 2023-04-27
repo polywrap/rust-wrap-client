@@ -110,30 +110,56 @@ impl FFIBuilderConfig {
             .add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
     }
 
-    pub fn add_static_resolver(&self, resolver: FFIStaticUriResolver) {
+    pub fn add_static_resolver(&self, resolver: Arc<FFIStaticUriResolver>) {
         self.inner_builder
             .lock()
             .unwrap()
-            .add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
+            .add_resolver(UriResolverLike::Resolver(resolver));
     }
 
-    pub fn add_extendable_resolver(&self, resolver: FFIExtendableUriResolver) {
+    pub fn add_extendable_resolver(&self, resolver: Arc<FFIExtendableUriResolver>) {
         self.inner_builder
             .lock()
             .unwrap()
-            .add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
+            .add_resolver(UriResolverLike::Resolver(resolver));
     }
 
-    pub fn add_recursive_resolver(&self, resolver: FFIRecursiveUriResolver) {
+    pub fn add_recursive_resolver(&self, resolver: Arc<FFIRecursiveUriResolver>) {
         self.inner_builder
             .lock()
             .unwrap()
-            .add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
+            .add_resolver(UriResolverLike::Resolver(resolver));
     }
 
-    pub fn build(&self) -> FFIClient {
+    pub fn build(&self) -> Arc<FFIClient> {
       let config = self.inner_builder.lock().unwrap().clone().build();
       let client = PolywrapClient::new(config);
-      FFIClient::new(client)
+      Arc::new(FFIClient::new(client))
+    }
+}
+
+#[cfg(test)]
+mod builder_tests {
+    use std::sync::Arc;
+
+    use polywrap_client::core::uri::Uri;
+    use serde_json::json;
+
+    use super::FFIBuilderConfig;
+
+    #[test]
+    fn it_adds_env() {
+        let builder = FFIBuilderConfig::new();
+        let uri = Arc::new(Uri::new("wrap:://ens/some.eth"));
+        let env = json!({
+          "foo": "bar"
+        }).to_string();
+
+        builder.add_env(uri.clone(), &env);
+
+        let ffi_client = builder.build();
+        let found_env = ffi_client.get_env_by_uri(uri);
+
+        assert_eq!(found_env.unwrap(), env);
     }
 }

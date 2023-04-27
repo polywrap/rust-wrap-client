@@ -1,6 +1,6 @@
 use polywrap_client::core::{invoke::Invoker, uri::Uri};
 use serde_json::Value;
-use std::{sync::Arc};
+use std::{sync::Arc, collections::HashMap};
 
 pub struct FFIInvoker {
     pub inner_invoker: Arc<dyn Invoker>,
@@ -31,14 +31,29 @@ impl FFIInvoker {
     pub fn get_implementations(
       &self,
       uri: Arc<Uri>,
-    ) -> Result<Vec<Uri>, polywrap_client::core::error::Error> {
-        self.inner_invoker.get_implementations(uri.as_ref().clone())
+    ) -> Result<Vec<Arc<Uri>>, polywrap_client::core::error::Error> {
+        Ok(
+          self.inner_invoker
+          .get_implementations(uri.as_ref().clone())?
+          .into_iter()
+          .map(|uri| uri.into())
+          .collect()
+        )
     }
 
     pub fn get_interfaces(
         &self,
-    ) -> Option<polywrap_client::core::interface_implementation::InterfaceImplementations> {
-        self.inner_invoker.get_interfaces()
+    ) -> Option<HashMap<String, Vec<Arc<Uri>>>> {
+        if let Some(interfaces) = self.inner_invoker.get_interfaces() {
+          let interfaces = interfaces.into_iter().map(|(key, uris)| {
+            let uris = uris.into_iter().map(|uri| uri.into()).collect();
+            (key, uris)
+          }).collect();
+
+          Some(interfaces)
+        } else {
+          None
+        }
     }
 }
 

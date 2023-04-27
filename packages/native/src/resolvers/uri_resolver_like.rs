@@ -55,11 +55,11 @@ impl FFIUriResolverLikeResolverVariant {
 }
 
 pub struct FFIUriResolverLikeResolverLikeVariant {
-    resolver_like: Vec<FFIUriResolverLike>,
+    resolver_like: Vec<Arc<FFIUriResolverLike>>,
 }
 
 impl FFIUriResolverLikeResolverLikeVariant {
-    pub fn new(resolver_like: Vec<FFIUriResolverLike>) -> FFIUriResolverLikeResolverLikeVariant {
+    pub fn new(resolver_like: Vec<Arc<FFIUriResolverLike>>) -> FFIUriResolverLikeResolverLikeVariant {
         FFIUriResolverLikeResolverLikeVariant { resolver_like }
     }
 }
@@ -187,7 +187,7 @@ impl From<FFIUriResolverLike> for UriResolverLike {
                     .resolver_like
                     .clone()
                     .into_iter()
-                    .map(|resolver_like| resolver_like.into())
+                    .map(|resolver_like| resolver_like.as_ref().clone().into())
                     .collect(),
             ),
         }

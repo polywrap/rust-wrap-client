@@ -10,10 +10,10 @@ use crate::invoker::FFIInvoker;
 pub trait FFIPluginModule: Send + Sync + Debug {
     fn wrap_invoke(
         &self,
-        method_name: &str,
-        params: &[u8],
+        method_name: String,
+        params: Vec<u8>,
         env: Option<String>,
-        invoker: FFIInvoker,
+        invoker: Arc<FFIInvoker>,
     ) -> Vec<u8>;
 }
 
@@ -30,7 +30,12 @@ impl PluginModule for FFIPluginModuleWrapper {
     ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
         let env = env.map(|env| env.to_string());
 
-        Ok(self.0.wrap_invoke(method_name, params, env, invoker.into()))
+        Ok(self.0.wrap_invoke(
+          method_name.to_string(),
+          params.to_vec(),
+          env,
+          Arc::new(invoker.into())
+        ))
     }
 }
 

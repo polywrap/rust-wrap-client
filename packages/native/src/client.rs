@@ -1,4 +1,4 @@
-use std::{sync::Arc};
+use std::{sync::Arc, collections::HashMap};
 
 use polywrap_client::{
     client::PolywrapClient,
@@ -32,11 +32,11 @@ impl FFIClient {
         self.inner_invoker.invoke_raw(uri, method, args, env)
     }
 
-    pub fn get_implementations(&self, uri: Arc<Uri>) -> Result<Vec<Uri>, polywrap_client::core::error::Error> {
+    pub fn get_implementations(&self, uri: Arc<Uri>) -> Result<Vec<Arc<Uri>>, polywrap_client::core::error::Error> {
         self.inner_invoker.get_implementations(uri)
     }
 
-    pub fn get_interfaces(&self) -> Option<polywrap_client::core::interface_implementation::InterfaceImplementations> {
+    pub fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<Uri>>>> {
       self.inner_invoker.get_interfaces()
     }
 
@@ -50,7 +50,9 @@ impl FFIClient {
     pub fn load_wrapper(
       &self,
       uri: Arc<Uri>
-    ) -> Result<FFIWrapper, polywrap_client::core::error::Error> {
-      self.inner_loader.load_wrapper(uri)
+    ) -> Result<Arc<FFIWrapper>, polywrap_client::core::error::Error> {
+      let loader = self.inner_loader.load_wrapper(uri)?;
+
+      Ok(loader)
     }
 }

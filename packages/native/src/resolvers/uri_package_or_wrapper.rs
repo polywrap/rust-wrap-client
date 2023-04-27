@@ -44,6 +44,7 @@ impl FFIUriPackageOrWrapperWrapperVariant {
     }
 }
 
+#[derive(Clone)]
 pub struct FFIUriPackageOrWrapperPackageVariant {
     uri: Arc<Uri>,
     package: Arc<FFIWrapPackage>,
@@ -63,6 +64,7 @@ impl FFIUriPackageOrWrapperPackageVariant {
     }
 }
 
+#[derive(Clone)]
 pub struct FFIUriPackageOrWrapper {
     kind: FFIUriPackageOrWrapperKind,
     uri: Option<Arc<FFIUriPackageOrWrapperUriVariant>>,

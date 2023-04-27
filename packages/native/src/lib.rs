@@ -8,6 +8,8 @@ pub mod client;
 pub mod wrapper;
 pub mod package;
 
+use std::sync::Arc;
+
 use crate::resolvers::ffi_resolver::FFIUriResolver;
 use crate::resolvers::uri_package_or_wrapper::FFIUriPackageOrWrapper;
 use crate::loader::FFILoader;
@@ -33,6 +35,11 @@ use crate::resolvers::uri_resolver_like::FFIUriResolverLikePackageVariant;
 use crate::resolvers::uri_resolver_like::FFIUriResolverLikeResolverLikeVariant;
 use crate::resolvers::uri_resolver_like::FFIUriResolverLike;
 use polywrap_client::core::uri::Uri;
+use polywrap_client::core::error::Error;
 use crate::builder::FFIBuilderConfig;
+
+pub fn uri_from_string(uri: &str) -> Result<Arc<Uri>, Error> {
+  Ok(Arc::new(uri.to_string().try_into()?))
+}
 
 uniffi::include_scaffolding!("main");

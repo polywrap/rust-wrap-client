@@ -21,9 +21,9 @@ impl FFILoader {
     pub fn load_wrapper(
         &self,
         uri: Arc<Uri>,
-    ) -> Result<FFIWrapper, polywrap_client::core::error::Error> {
+    ) -> Result<Arc<FFIWrapper>, polywrap_client::core::error::Error> {
         let wrapper = self.inner_loader.load_wrapper(uri.as_ref(), None)?;
-        Ok(FFIWrapper::new(wrapper))
+        Ok(Arc::new(FFIWrapper::new(wrapper)))
     }
 }
 

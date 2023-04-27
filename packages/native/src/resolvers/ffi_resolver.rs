@@ -9,8 +9,8 @@ pub trait FFIUriResolver: Send + Sync + Debug {
     fn wrap_try_resolve_uri(
       &self,
       uri: Arc<Uri>,
-      loader: FFILoader
-    ) -> FFIUriPackageOrWrapper;
+      loader: Arc<FFILoader>
+    ) -> Arc<FFIUriPackageOrWrapper>;
 }
 
 #[derive(Debug)]
@@ -30,7 +30,8 @@ impl UriResolver for FFIUriResolverWrapper {
         _: &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
     ) -> Result<polywrap_client::core::resolvers::uri_resolution_context::UriPackageOrWrapper, polywrap_client::core::error::Error> {
         let loader = FFILoader::new(loader);
-        Ok(self.0.wrap_try_resolve_uri(Arc::new(uri.clone()), loader).into())
+        let result = self.0.wrap_try_resolve_uri(Arc::new(uri.clone()), Arc::new(loader));
+        Ok(result.as_ref().clone().into())
     }
 }
 
