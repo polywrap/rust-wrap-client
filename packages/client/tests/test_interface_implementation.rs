@@ -36,7 +36,7 @@ fn test_interface_implementation() {
     let mut interfaces: InterfaceImplementations = HashMap::new();
     interfaces.insert(
         "wrap://ens/interface.eth".to_string(),
-        vec![implementation_uri.clone()],
+        vec![implementation_uri],
     );
 
     let file_reader = SimpleFileReader::new();

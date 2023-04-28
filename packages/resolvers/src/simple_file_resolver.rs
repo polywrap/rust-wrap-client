@@ -51,12 +51,12 @@ impl UriResolver for FilesystemResolver {
                 uri.clone(),
                 Arc::new(Mutex::new(wasm_wrapper)),
             );
-            return Ok(uri_package_or_wrapper);
+            Ok(uri_package_or_wrapper)
         } else {
-            return Err(Error::ResolutionError(format!(
+            Err(Error::ResolutionError(format!(
                 "Failed to find manifest file: {}",
                 manifest_search_pattern
-            )));
+            )))
         }
     }
 }
