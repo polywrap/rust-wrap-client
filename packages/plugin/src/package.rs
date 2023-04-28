@@ -31,7 +31,12 @@ impl PartialEq for PluginPackage {
 
 impl Debug for PluginPackage {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "PluginPackage: {:?}", self)
+      write!(f, r#"
+      Plugin Package
+      
+      -Plugin Module: {:?}
+      -Manifest: {:?}
+      "#, self.plugin_module, self.manifest)
     }
 }
 

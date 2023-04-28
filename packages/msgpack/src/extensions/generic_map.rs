@@ -164,7 +164,7 @@ mod tests {
     fn from_json_to_msgpack() {
         let json_str = "{\"key\":{\"foo\":\"bar\"}}";
         let map: BTreeMap<String, BTreeMap<String, String>> =
-            serde_json::from_str(&json_str).unwrap();
+            serde_json::from_str(json_str).unwrap();
         let map: GenericMap<String, BTreeMap<String, String>> = GenericMap(map);
 
         let actual = to_vec(&map).unwrap();

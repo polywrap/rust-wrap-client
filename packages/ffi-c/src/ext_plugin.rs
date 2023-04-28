@@ -23,6 +23,7 @@ pub type PluginInvokeFn = extern "C" fn(
   invoker: *mut PolywrapClient
 ) -> *const i8;
 
+#[derive(Debug)]
 #[repr(C)]
 pub struct ExtPluginModule {
     env: Env,
@@ -72,10 +73,4 @@ impl PluginModule for ExtPluginModule {
 
         Ok(result_buffer)
     }
-}
-
-impl Debug for ExtPluginModule {
-  fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-    write!(f, "ExtPluginmodule")
-  }
 }

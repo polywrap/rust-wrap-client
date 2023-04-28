@@ -65,7 +65,11 @@ impl PartialEq for WasmWrapper {
 
 impl Debug for WasmWrapper {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "WasmWrapper: {:?}", self)
+      write!(f, r#"
+      WasmModule
+      
+      -Wasm Module: {:?}
+      "#, self.wasm_module)
     }
 }
 

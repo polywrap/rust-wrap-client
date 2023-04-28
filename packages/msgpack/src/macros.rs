@@ -259,13 +259,13 @@ macro_rules! msgpack_expect_expr_comma {
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::{BTreeMap}};
+    
 
-    use rmp_serde::{to_vec, from_slice};
+    
     use rmpv::Value;
-    use serde::{Serialize, Deserialize};
+    
 
-    use crate::extensions::generic_map::{GenericMap};
+    
 
     #[test]
     fn msgpack() {
