@@ -45,6 +45,10 @@ impl PluginModule for PluginModuleWithMethods {
 
 impl Debug for PluginModuleWithMethods {
   fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-    write!(f, "PluginModuleWithMethods")
+    write!(f, r#"
+      Plugin With Methods
+      
+      -Methods: {:?}
+      "#, self.methods_map.keys())
   }
 }

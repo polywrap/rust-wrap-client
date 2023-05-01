@@ -55,7 +55,12 @@ impl PartialEq for WasmPackage {
 
 impl Debug for WasmPackage {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "WasmPackage: {:?}", self)
+        write!(f, r#"
+        WasmPackage
+        
+        -Wasm Module: {:?}
+        -Manifest: {:?}
+        "#, self.wasm_module, self.manifest)
     }
 }
 

@@ -16,10 +16,6 @@ polywrap_wasm.workspace = true
 
 serde_json.workspace = true
 
-fs_resolver_plugin = {path = "../plugins/fs-resolver"}
-filesystem_plugin = {path = "../plugins/fs"}
-http_resolver_plugin = {path = "../plugins/http-resolver"}
-http_plugin = {path = "../plugins/http"}
 uniffi = { version = "0.23.0", features = [ "cli" ] }
 
 [build-dependencies]
