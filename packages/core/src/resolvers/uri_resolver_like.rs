@@ -1,11 +1,14 @@
-use crate::client::UriRedirect;
+use std::sync::{Mutex, Arc};
 
-use super::{uri_resolver::UriResolver, uri_resolution_context::{UriWrapper, UriPackage}};
+use crate::{client::UriRedirect, wrapper::Wrapper, package::WrapPackage, uri::Uri};
 
+use super::{uri_resolver::UriResolver};
+
+#[derive(Clone)]
 pub enum UriResolverLike {
-  Resolver(Box<dyn UriResolver>),
+  Resolver(Arc<dyn UriResolver>),
   Redirect(UriRedirect),
-  Package(UriPackage),
-  Wrapper(UriWrapper),
+  Package(Uri, Arc<Mutex<Box<dyn WrapPackage>>>),
+  Wrapper(Uri, Arc<Mutex<Box<dyn Wrapper>>>),
   ResolverLike(Vec<UriResolverLike>),
 }

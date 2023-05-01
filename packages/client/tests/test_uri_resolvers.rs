@@ -51,7 +51,7 @@ fn test_uri_resolver_wrapper() {
         UriResolverWrapper::new(Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap());
     let client = PolywrapClient::new(config);
     let result =
-        uri_resolver_wrapper._try_resolve_uri(&wrapper_uri, &client, &mut uri_resolution_context);
+        uri_resolver_wrapper._try_resolve_uri(&wrapper_uri, Arc::new(client), &mut uri_resolution_context);
 
     if result.is_err() {
         panic!("Error in try resolver uri: {:?}", result.err());

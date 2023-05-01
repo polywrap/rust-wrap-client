@@ -6,12 +6,12 @@ use crate::{
     resolvers::uri_resolver::UriResolverHandler, uri::Uri, wrapper::Wrapper,
 };
 
-pub trait Loader: UriResolverHandler {
+pub trait Loader: UriResolverHandler + Send + Sync {
     fn load_wrapper(
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<Arc<Mutex<dyn Wrapper>>, Error>;
+    ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error>;
     fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env>;
     fn get_invoker(&self) -> Result<Arc<dyn Invoker>, Error>;
 }

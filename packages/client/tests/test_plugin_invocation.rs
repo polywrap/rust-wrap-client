@@ -4,16 +4,7 @@ use std::{
 };
 
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{
-    client::ClientConfig,
-    env::Env,
-    invoke::Invoker,
-    resolvers::{
-        static_resolver::{StaticResolver, StaticResolverLike},
-        uri_resolution_context::UriPackage,
-    },
-    uri::Uri,
-};
+use polywrap_core::{invoke::{Invoker}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}}, uri::Uri, client::ClientConfig, env::Env, package::WrapPackage};
 
 use polywrap_msgpack::msgpack;
 use polywrap_plugin::{
@@ -71,15 +62,12 @@ pub fn get_manifest() -> WrapManifest {
 fn invoke_test() {
     let plugin = PluginEnv {};
     let package: PluginPackage = plugin.into();
-    let module = Arc::new(Mutex::new(package));
+    let module = Arc::new(Mutex::new(Box::new(package) as Box<dyn WrapPackage>));
 
-    let uri_package = UriPackage {
-        package: module,
-        uri: Uri::try_from("ens/env-plugin.eth").unwrap(),
-    };
-    let plugin_static_like = StaticResolverLike::Package(uri_package);
-
-    let static_resolver = StaticResolver::from(vec![plugin_static_like]);
+    let plugin_static_like = StaticResolverLike::Package(Uri::try_from("ens/env-plugin.eth").unwrap(), module);
+    let static_resolver = StaticResolver::from(vec![
+        plugin_static_like
+    ]);
 
     let foo = json!({"foo": "bar"});
     let envs = HashMap::from([(Uri::try_from("ens/env-plugin.eth").unwrap().uri, foo)]);

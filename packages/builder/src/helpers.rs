@@ -31,14 +31,14 @@ pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
     let mut static_resolvers: Vec<StaticResolverLike> = vec![];
 
     if let Some(wrappers) = builder.wrappers {
-        for w in wrappers {
-            static_resolvers.push(StaticResolverLike::Wrapper(w));
+        for (uri, w) in wrappers {
+            static_resolvers.push(StaticResolverLike::Wrapper(uri, w));
         }
     }
 
     if let Some(packages) = builder.packages {
-        for p in packages {
-            static_resolvers.push(StaticResolverLike::Package(p));
+        for (uri, p) in packages {
+            static_resolvers.push(StaticResolverLike::Package(uri, p));
         }
     }
 
@@ -51,8 +51,8 @@ pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
     let extendable_resolver = ExtendableUriResolver::new(None);
 
     let resolvers = vec![
-        UriResolverLike::Resolver(Box::new(static_resolver)),
-        UriResolverLike::Resolver(Box::new(extendable_resolver)),
+        UriResolverLike::Resolver(Arc::new(static_resolver)),
+        UriResolverLike::Resolver(Arc::new(extendable_resolver)),
     ];
 
     ClientConfig {

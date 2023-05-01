@@ -39,7 +39,7 @@ impl PolywrapClient {
 
     pub fn invoke_wrapper<T: DeserializeOwned>(
         &self,
-        wrapper: Arc<Mutex<dyn Wrapper>>,
+        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
@@ -70,7 +70,7 @@ impl PolywrapClient {
 impl Invoker for PolywrapClient {
     fn invoke_wrapper_raw(
         &self,
-        wrapper: Arc<Mutex<dyn Wrapper>>,
+        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
@@ -163,7 +163,7 @@ impl UriResolverHandler for PolywrapClient {
             None => &mut uri_resolver_context,
         };
 
-        uri_resolver.try_resolve_uri(uri, self, resolution_context)
+        uri_resolver.try_resolve_uri(uri, Arc::new(self.clone()), resolution_context)
     }
 }
 
@@ -172,7 +172,7 @@ impl Loader for PolywrapClient {
         &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<Arc<Mutex<dyn Wrapper>>, Error> {
+    ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error> {
         let mut empty_res_context = UriResolutionContext::new();
         let mut resolution_ctx = match resolution_context {
             Some(ctx) => ctx,

@@ -91,7 +91,7 @@ where
     }
 }
 
-impl<'de, K, V> From<BTreeMap<K, V>> for GenericMap<K, V>
+impl<K, V> From<BTreeMap<K, V>> for GenericMap<K, V>
 where
     K: DeserializeOwned + Ord,
     V: DeserializeOwned,
@@ -101,7 +101,7 @@ where
     }
 }
 
-impl<'de, K, V> From<GenericMap<K, V>> for BTreeMap<K, V>
+impl<K, V> From<GenericMap<K, V>> for BTreeMap<K, V>
 where
     K: DeserializeOwned + Ord,
     V: DeserializeOwned,

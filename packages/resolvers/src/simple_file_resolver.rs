@@ -26,7 +26,7 @@ impl UriResolver for FilesystemResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        _: &dyn Loader,
+        _: Arc<dyn Loader>,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority != "fs" && uri.authority != "file" {
@@ -49,7 +49,7 @@ impl UriResolver for FilesystemResolver {
             );
             let uri_package_or_wrapper = UriPackageOrWrapper::Package(
                 uri.clone(),
-                Arc::new(Mutex::new(wasm_wrapper)),
+                Arc::new(Mutex::new(Box::new(wasm_wrapper))),
             );
             Ok(uri_package_or_wrapper)
         } else {

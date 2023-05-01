@@ -15,7 +15,7 @@ pub struct SerializeManifestOptions {
 pub trait WrapPackage: Send + Sync + Debug + Any {
     fn create_wrapper(
         &self,
-    ) -> Result<Arc<Mutex<dyn Wrapper>>, Error>;
+    ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error>;
     fn get_manifest(
         &self,
         options: Option<GetManifestOptions>,

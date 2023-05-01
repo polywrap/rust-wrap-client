@@ -52,7 +52,7 @@ impl RecursiveResolver {
         &self,
         result: Result<UriPackageOrWrapper, Error>,
         uri: &Uri,
-        loader: &dyn Loader,
+        loader: Arc<dyn Loader>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if let Ok(value) = &result {
@@ -76,7 +76,7 @@ impl UriResolver for RecursiveResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        loader: &dyn Loader,
+        loader: Arc<dyn Loader>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if resolution_context.is_resolving(uri) {
@@ -86,7 +86,7 @@ impl UriResolver for RecursiveResolver {
             resolution_context.start_resolving(uri);
             let resolver_result = self
                 .resolver
-                .try_resolve_uri(uri, loader, resolution_context);
+                .try_resolve_uri(uri, loader.clone(), resolution_context);
 
             let result = self
                 .try_resolve_again_if_redirect(resolver_result, uri, loader, resolution_context);
