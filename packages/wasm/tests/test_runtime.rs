@@ -99,8 +99,8 @@ fn invoke_test() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    let module_path = format!("{}/subinvoke/00-subinvoke/implementations/as/wrap.wasm", path);
-    let manifest_path = format!("{}/subinvoke/00-subinvoke/implementations/as/wrap.info", path);
+    let module_path = format!("{path}/subinvoke/00-subinvoke/implementations/as/wrap.wasm");
+    let manifest_path = format!("{path}/subinvoke/00-subinvoke/implementations/as/wrap.info");
 
     let module_bytes = fs::read(Path::new(&module_path)).unwrap();
     let manifest_bytes = fs::read(Path::new(&manifest_path)).unwrap();

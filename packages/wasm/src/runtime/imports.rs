@@ -127,11 +127,7 @@ pub fn create_imports(
         let msg = String::from_utf8(msg_buffer).unwrap();
         let file = String::from_utf8(file_buffer).unwrap();
         (state.abort)(format!(
-            "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]",
-            msg = msg,
-            file = file,
-            line = line,
-            column = column
+            "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]"
         ));
 
         Ok(vec![])
@@ -369,7 +365,7 @@ pub fn create_imports(
                     Ok(vec![Value::I32(1)])
                 }
                 Err(e) => {
-                    let error = format!("interface implementation subinvoke failed for uri: {} with error: {}", interface, e);
+                    let error = format!("interface implementation subinvoke failed for uri: {interface} with error: {e}");
                     state.subinvoke.error = Some(error);
                     Ok(vec![Value::I32(0)])
                 }
@@ -540,7 +536,7 @@ pub fn create_imports(
         let mut uri_bytes = vec![0; length as usize];
         memory.view(&mutable_context).read(pointer.try_into().unwrap(), &mut uri_bytes).unwrap();
         let uri = String::from_utf8(uri_bytes).unwrap();
-        println!("URI: {}", length);
+        println!("URI: {length}");
         let result = state.invoker.get_implementations(uri.try_into().unwrap());
 
         if result.is_err() {
@@ -577,7 +573,7 @@ pub fn create_imports(
 
         if let Some(r) = &state.get_implementations_result {
             let length = r.len();
-            println!("POINTER LEN: {}", length);
+            println!("POINTER LEN: {length}");
             Ok(vec![Value::I32(length as i32)])
         } else {
             (state.abort)(
@@ -607,7 +603,7 @@ pub fn create_imports(
         let state = mutable_context.data().lock().unwrap();
         let memory = state.memory.as_ref().unwrap();
 
-        println!("POINTER: {}", pointer);
+        println!("POINTER: {pointer}");
 
         if let Some(r) = &state.get_implementations_result {
             memory.view(&mutable_context).write(pointer.try_into().unwrap(), r).unwrap();

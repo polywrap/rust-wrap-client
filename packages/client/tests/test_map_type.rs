@@ -30,7 +30,7 @@ fn map_type_test() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    let invoke_uri = Uri::try_from(format!("fs/{}/map-type/implementations/rs", path)).unwrap();
+    let invoke_uri = Uri::try_from(format!("fs/{path}/map-type/implementations/rs")).unwrap();
 
     let file_reader = SimpleFileReader::new();
     let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));

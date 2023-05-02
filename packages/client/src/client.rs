@@ -48,7 +48,7 @@ impl PolywrapClient {
         let result =
             self.invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)?;
         decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
+            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
     }
 
     pub fn invoke<T: DeserializeOwned>(
@@ -62,7 +62,7 @@ impl PolywrapClient {
         let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
 
         decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {}", e)))
+            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
     }
 }
 
@@ -110,7 +110,7 @@ impl Invoker for PolywrapClient {
 
         let mut env = env;
         if env.is_none() {
-            if let Some(e) = self.get_env_by_uri(&uri) {
+            if let Some(e) = self.get_env_by_uri(uri) {
                 let e = e.to_owned();
                 env = Some(e);
             };
@@ -162,8 +162,7 @@ impl Client for PolywrapClient {
 
       match uri_package_or_wrapper {
           UriPackageOrWrapper::Uri(uri) => Err(Error::InvokeError(format!(
-              "Failed to resolve wrapper: {}",
-              uri
+              "Failed to resolve wrapper: {uri}"
           ))),
           UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
           UriPackageOrWrapper::Package(_, package) => {

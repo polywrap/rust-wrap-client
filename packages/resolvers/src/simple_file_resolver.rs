@@ -53,8 +53,7 @@ impl UriResolver for FilesystemResolver {
             Ok(uri_package_or_wrapper)
         } else {
             Err(Error::ResolutionError(format!(
-                "Failed to find manifest file: {}",
-                manifest_search_pattern
+                "Failed to find manifest file: {manifest_search_pattern}"
             )))
         }
     }

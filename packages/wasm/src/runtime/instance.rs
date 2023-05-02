@@ -124,8 +124,7 @@ impl WasmInstance {
         let export = self.instance.exports.get_function(name);
         if export.is_err() {
             return Err(WrapperError::WasmRuntimeError(format!(
-                "Export {} not found",
-                name
+                "Export {name} not found"
             )));
         }
         let function = export.unwrap();

@@ -71,15 +71,15 @@ impl UriResolver for StaticResolver {
         let (description, result) = if let Some(found) = uri_package_or_wrapper {
             match found {
                 UriPackageOrWrapper::Package(uri, package) => (
-                    format!("StaticResolver - Package ({})", uri),
+                    format!("StaticResolver - Package ({uri})"),
                     UriPackageOrWrapper::Package(uri.clone(), package.clone())
                 ),
                 UriPackageOrWrapper::Wrapper(uri, wrapper) => (
-                    format!("StaticResolver - Wrapper ({})", uri),
+                    format!("StaticResolver - Wrapper ({uri})"),
                     UriPackageOrWrapper::Wrapper(uri.clone(), wrapper.clone())
                 ),
                 UriPackageOrWrapper::Uri(uri) => (
-                    format!("StaticResolver - Redirect ({})", uri),
+                    format!("StaticResolver - Redirect ({uri})"),
                     UriPackageOrWrapper::Uri(uri.clone())
                 ),
             }

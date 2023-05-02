@@ -9,8 +9,7 @@ pub fn apply_redirects(uri: &Uri, redirects: &Vec<UriRedirect>) -> Result<Uri, E
         if redirect.from.to_string() == uri.to_string() {
             return Err(Error::RedirectsError(
                 format!(
-                    "Redirect missing the from property.\nEncountered while resolving {}",
-                    uri
+                    "Redirect missing the from property.\nEncountered while resolving {uri}"
                 ),
                 redirect_from_to_map,
             ));
@@ -34,8 +33,7 @@ pub fn apply_redirects(uri: &Uri, redirects: &Vec<UriRedirect>) -> Result<Uri, E
         if visited_uris.contains_key(&final_uri) {
             return Err(Error::RedirectsError(
                 format!(
-                    "Redirect loop detected while resolving {}",
-                    uri
+                    "Redirect loop detected while resolving {uri}"
                 ),
                 redirect_from_to_map,
             ));

@@ -16,7 +16,7 @@ impl Uri {
         if let Ok(result_uri) = parsed_uri {
           result_uri
         } else {
-            panic!("Error parsing URI: `{}`", uri);
+            panic!("Error parsing URI: `{uri}`");
         }
     }
 
@@ -30,7 +30,7 @@ impl Uri {
         let wrap_scheme_idx = processed.find("wrap://");
 
         if wrap_scheme_idx.is_none() {
-            processed = format!("wrap://{}", processed);
+            processed = format!("wrap://{processed}");
         }
 
         if wrap_scheme_idx.is_some() && wrap_scheme_idx.unwrap() != 0 {
@@ -50,8 +50,7 @@ impl Uri {
             wrap://ipfs/QmHASH
             wrap://ens/domain.eth
             ens/domain.eth
-            Invalid URI Received: ${}"#,
-                uri
+            Invalid URI Received: ${uri}"#
             )));
         }
 

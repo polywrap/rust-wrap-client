@@ -107,17 +107,12 @@ impl Wrapper for WasmWrapper {
         let abort = Box::new(move |msg| {
             panic!(
                 r#"WasmWrapper: Wasm module aborted execution.
-              URI: {uri}
-              Method: {method}
-              Args: {args:?}
-              Env: {env:?}
-              Message: {message}.
-            "#,
-                uri = abort_uri,
-                method = abort_method,
-                args = abort_args,
-                env = abort_env,
-                message = msg
+              URI: {abort_uri}
+              Method: {abort_method}
+              Args: {abort_args:?}
+              Env: {abort_env:?}
+              Message: {msg}.
+            "#
             );
         });
 

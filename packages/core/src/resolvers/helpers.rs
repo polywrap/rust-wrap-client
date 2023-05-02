@@ -75,7 +75,7 @@ pub fn get_implementations(
 ) -> Result<Vec<Uri>, Error> {
     let mut implementation_uris: Vec<Uri> = vec![];
 
-    println!("URIS: {:#?}", implementation_uris);
+    println!("URIS: {implementation_uris:#?}");
 
     if let Some(interfaces) = interfaces {
         let implementations_value = interfaces.get(&wrapper_uri.uri);
