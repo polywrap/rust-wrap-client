@@ -1,16 +1,16 @@
-use polywrap_client::core::{loader::Loader, uri::Uri};
+use polywrap_client::core::{client::Loader, uri::Uri};
 use std::sync::Arc;
 
 use crate::wrapper::FFIWrapper;
 
 pub struct FFILoader {
-    inner_loader: Arc<dyn Loader>,
+    inner_client: Arc<dyn Client>,
 }
 
 impl FFILoader {
-    pub fn new(loader: Arc<dyn Loader>) -> FFILoader {
+    pub fn new(client: Arc<dyn Client>) -> FFILoader {
         FFILoader {
-            inner_loader: loader,
+            inner_client: loader,
         }
     }
 
@@ -27,8 +27,8 @@ impl FFILoader {
     }
 }
 
-impl From<Box<dyn Loader>> for FFILoader {
-    fn from(value: Box<dyn Loader>) -> Self {
-        FFILoader::new(Arc::from(value))
+impl From<Box<dyn Client>> for FFILoader {
+    fn from(value: Box<dyn Client>) -> Self {
+        FFIclient::new(Arc::from(value))
     }
 }

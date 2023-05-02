@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use crate::resolvers::ffi_resolver::FFIUriResolver;
 use crate::resolvers::uri_package_or_wrapper::FFIUriPackageOrWrapper;
-use crate::loader::FFILoader;
+use crate::client::FFILoader;
 use crate::plugin_wrapper::FFIPluginModule;
 use crate::invoker::FFIInvoker;
 use crate::client::FFIClient;

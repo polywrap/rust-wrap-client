@@ -5,7 +5,7 @@ use polywrap_core::{
   resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
   uri::Uri,
   error::Error, 
-  wrapper::Wrapper, loader::Loader, package::WrapPackage, 
+  wrapper::Wrapper, package::WrapPackage, client::Client, 
 };
 use polywrap_msgpack::{msgpack, decode};
 use polywrap_wasm::wasm_package::{WasmPackage};
@@ -32,25 +32,24 @@ impl UriResolverWrapper {
     &self,
     uri: Uri,
     implementation_uri: Uri,
-    loader: Arc<dyn Loader>,
+    client: Arc<dyn Client>,
     resolution_context: &mut UriResolutionContext
   ) -> Result<MaybeUriOrManifest, Error> {
       let mut sub_context = resolution_context.create_sub_context();
       let wrapper = self.load_extension(
         uri.clone(), 
         implementation_uri.clone(), 
-        loader.clone(), 
+        client.clone(), 
         &mut sub_context
       )?;
 
       let mut env = None;
-      if let Some(e) = loader.get_env_by_uri(&uri) {
+      if let Some(e) = client.get_env_by_uri(&uri) {
           let e = e.to_owned();
           env = Some(e);
       };
 
-      let invoker = loader.get_invoker()?;
-      let result = invoker.invoke_wrapper_raw(
+      let result = client.invoke_wrapper_raw(
           wrapper, 
           &implementation_uri, 
           "tryResolveUri", 
@@ -76,11 +75,11 @@ impl UriResolverWrapper {
     &self,
     current_uri: Uri,
     resolver_extension_uri: Uri,
-    loader: Arc<dyn Loader>,
+    client: Arc<dyn Client>,
     resolution_context: &mut UriResolutionContext
   ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error> {
 
-    let result = loader.try_resolve_uri(
+    let result = client.try_resolve_uri(
       &resolver_extension_uri,
       Some(resolution_context)
     )?;
@@ -113,20 +112,19 @@ impl ResolverWithHistory for UriResolverWrapper {
     fn _try_resolve_uri(
       &self, 
       uri: &Uri, 
-      loader: Arc<dyn Loader>, 
+      client: Arc<dyn Client>, 
       resolution_context: &mut UriResolutionContext
     ) ->  Result<UriPackageOrWrapper, Error> {
       let result = self.try_resolve_uri_with_implementation(
         uri.clone(), 
         self.implementation_uri.clone(), 
-        loader.clone(), 
+        client.clone(), 
         resolution_context
       )?;
-      let invoker = loader.get_invoker()?;
       let file_reader = UriResolverExtensionFileReader::new(
         self.implementation_uri.clone(),
         uri.clone(),
-        invoker
+        client
       );
 
       if let Some(manifest) = result.manifest {

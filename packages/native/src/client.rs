@@ -2,14 +2,14 @@ use std::{sync::Arc, collections::HashMap};
 
 use polywrap_client::{
     client::PolywrapClient,
-    core::{invoke::Invoker, loader::Loader, uri::Uri},
+    core::{invoke::Invoker, client::Loader, uri::Uri},
 };
 
-use crate::{loader::FFILoader, invoker::FFIInvoker, wrapper::FFIWrapper};
+use crate::{client::FFILoader, invoker::FFIInvoker, wrapper::FFIWrapper};
 
 pub struct FFIClient {
     inner_invoker: FFIInvoker,
-    inner_loader: FFILoader
+    inner_client: FFILoader
 }
 
 impl FFIClient {
@@ -18,7 +18,7 @@ impl FFIClient {
 
         Self {
           inner_invoker: FFIInvoker { inner_invoker: client.clone() as Arc<dyn Invoker> },
-          inner_loader: FFILoader::new(client as Arc<dyn Loader>)
+          inner_client: FFIclient::new(client as Arc<dyn Client>)
         }
     }
 
