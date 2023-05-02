@@ -22,7 +22,7 @@ pub struct ArgsGetKey {
 #[derive(Serialize, Deserialize)]
 pub struct CustomMap {
     pub map: Map<String, u32>,
-    pub nestedMap: Map<String, Map<String, u32>>,
+    pub nested_map: Map<String, Map<String, u32>>,
 }
 
 #[test]
@@ -45,21 +45,21 @@ fn map_type_test() {
         interfaces: None,
     };
     let client = PolywrapClient::new(config);
-    let mut myMap = Map(BTreeMap::new());
-    myMap.0.insert(String::from("Hello"), 1);
-    myMap.0.insert(String::from("Heyo"), 50);
+    let mut my_map = Map(BTreeMap::new());
+    my_map.0.insert(String::from("Hello"), 1);
+    my_map.0.insert(String::from("Heyo"), 50);
 
-    let mut myNestedMap = Map(BTreeMap::new());
-    let mut insideNestedMap = Map(BTreeMap::new());
+    let mut my_nested_map = Map(BTreeMap::new());
+    let mut inside_nested_map = Map(BTreeMap::new());
 
-    insideNestedMap.0.insert(String::from("Hello"), 1);
-    insideNestedMap.0.insert(String::from("Heyo"), 50);
-    myNestedMap
+    inside_nested_map.0.insert(String::from("Hello"), 1);
+    inside_nested_map.0.insert(String::from("Heyo"), 50);
+    my_nested_map
         .0
-        .insert(String::from("Nested"), insideNestedMap);
+        .insert(String::from("Nested"), inside_nested_map);
     let foo = CustomMap {
-        map: myMap,
-        nestedMap: myNestedMap,
+        map: my_map,
+        nested_map: my_nested_map,
     };
 
     let get_key_args = ArgsGetKey {

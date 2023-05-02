@@ -75,7 +75,7 @@ impl Debug for WasmWrapper {
 
 impl Wrapper for WasmWrapper {
     fn invoke(
-        &mut self,
+        &self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,

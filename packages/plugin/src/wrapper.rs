@@ -28,7 +28,7 @@ impl PluginWrapper {
 
 impl Wrapper for PluginWrapper {
     fn invoke(
-        &mut self,
+        &self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,

@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 use polywrap_core::{
   resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
@@ -77,7 +77,7 @@ impl UriResolverWrapper {
     resolver_extension_uri: Uri,
     client: Arc<dyn Client>,
     resolution_context: &mut UriResolutionContext
-  ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error> {
+  ) -> Result<Arc<dyn Wrapper>, Error> {
 
     let result = client.try_resolve_uri(
       &resolver_extension_uri,
@@ -95,7 +95,7 @@ impl UriResolverWrapper {
           Err(Error::LoadWrapperError(error))
         },
         UriPackageOrWrapper::Package(_, package) => {
-          let wrapper = package.lock().unwrap()
+          let wrapper = package
             .create_wrapper()
             .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
 
@@ -144,7 +144,7 @@ impl ResolverWithHistory for UriResolverWrapper {
       if package.get_manifest(None).is_ok() {
         return Ok(
           UriPackageOrWrapper::Package(uri.clone(), 
-          Arc::new(Mutex::new(Box::new(package))))
+          Arc::new(package))
         );
       }
 

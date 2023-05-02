@@ -11,7 +11,7 @@ use wrap_manifest_schemas::{
 };
 
 use polywrap_msgpack::msgpack;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 use std::fs;
 use polywrap_tests_utils::helpers::get_tests_path;
 
@@ -29,14 +29,14 @@ impl MockInvoker {
 impl Invoker for MockInvoker {
     fn invoke_wrapper_raw(
         &self,
-        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
+        wrapper: Arc<dyn Wrapper>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
         env: Option<Env>,
         resolution_context: Option<&mut UriResolutionContext>
     ) -> Result<Vec<u8>, Error> {
-        let result = wrapper.lock().unwrap().invoke(
+        let result = wrapper.invoke(
             Arc::new(self.clone()),
             uri,
             method,
@@ -66,7 +66,7 @@ impl Invoker for MockInvoker {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let invoke_result = self.invoke_wrapper_raw(
-            Arc::new(Mutex::new(Box::new(self.wrapper.clone()))),
+            Arc::new(self.wrapper.clone()),
             uri,
             method,
             args,

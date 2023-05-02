@@ -1,4 +1,4 @@
-use std::{fs, path::Path, sync::{Arc, Mutex}, fmt};
+use std::{fs, path::Path, sync::{Arc}, fmt};
 
 use polywrap_core::{
     error::Error,
@@ -48,7 +48,7 @@ impl UriResolver for FilesystemResolver {
             );
             let uri_package_or_wrapper = UriPackageOrWrapper::Package(
                 uri.clone(),
-                Arc::new(Mutex::new(Box::new(wasm_wrapper))),
+                Arc::new(wasm_wrapper),
             );
             Ok(uri_package_or_wrapper)
         } else {

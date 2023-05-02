@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex}, fmt::{Formatter,Debug}};
+use std::{sync::{Arc}, fmt::{Formatter,Debug}};
 
 use polywrap_core::{
     file_reader::FileReader,
@@ -86,12 +86,12 @@ impl WrapPackage for WasmPackage {
 
     fn create_wrapper(
         &self
-    ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, polywrap_core::error::Error> {
+    ) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
         let wasm_module = self.get_wasm_module()?;
 
-        Ok(Arc::new(Mutex::new(Box::new(WasmWrapper::new(
+        Ok(Arc::new(WasmWrapper::new(
             wasm_module,
             self.file_reader.clone(),
-        )))))
+        )))
     }
 }

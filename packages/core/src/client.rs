@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 use crate::error::Error;
 use crate::invoke::Invoker;
@@ -34,6 +34,6 @@ pub trait Client: Invoker + UriResolverHandler {
     &self,
     uri: &Uri,
     resolution_context: Option<&mut UriResolutionContext>,
-  ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error>;
+  ) -> Result<Arc<dyn Wrapper>, Error>;
   fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env>;
 }

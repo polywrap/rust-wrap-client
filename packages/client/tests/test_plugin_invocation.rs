@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::{Arc},
 };
 
 use polywrap_client::client::PolywrapClient;
@@ -62,7 +62,7 @@ pub fn get_manifest() -> WrapManifest {
 fn invoke_test() {
     let plugin = PluginEnv {};
     let package: PluginPackage = plugin.into();
-    let module = Arc::new(Mutex::new(Box::new(package) as Box<dyn WrapPackage>));
+    let module = Arc::new(package) as Arc<dyn WrapPackage>;
 
     let plugin_static_like = StaticResolverLike::Package(Uri::try_from("ens/env-plugin.eth").unwrap(), module);
     let static_resolver = StaticResolver::from(vec![

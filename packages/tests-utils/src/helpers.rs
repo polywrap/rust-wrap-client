@@ -1,4 +1,4 @@
-use std::{path::{Path,PathBuf},sync::{Arc, Mutex}, fmt::{Debug, Formatter}};
+use std::{path::{Path,PathBuf},sync::{Arc}, fmt::{Debug, Formatter}};
 
 use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoke::Invoker, uri::Uri, env::Env, resolvers::uri_resolution_context::UriResolutionContext, package::WrapPackage};
 use wrap_manifest_schemas::versions::WrapManifest;
@@ -40,8 +40,8 @@ impl MockPackage {
 }
 
 impl WrapPackage for MockPackage {
-    fn create_wrapper(&self) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, polywrap_core::error::Error> {
-        Ok(Arc::new(Mutex::new(Box::new(MockWrapper::new(None)))))
+    fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
+        Ok(Arc::new(MockWrapper::new(None)))
     }
 
     fn get_manifest(
@@ -54,7 +54,7 @@ impl WrapPackage for MockPackage {
 
 impl Wrapper for MockWrapper {
     fn invoke(
-        &mut self,
+        &self,
         _: Arc<dyn Invoker>,
         _: &Uri,
         _: &str,
@@ -73,12 +73,12 @@ impl Wrapper for MockWrapper {
     }
 }
 
-pub fn get_mock_package(name: Option<String>) -> Arc<Mutex<Box<dyn WrapPackage>>> {
-    Arc::new(Mutex::new(Box::new(MockPackage::new(name))))
+pub fn get_mock_package(name: Option<String>) -> Arc<dyn WrapPackage> {
+    Arc::new(MockPackage::new(name))
 }
 
-pub fn get_mock_wrapper(name: Option<String>) -> Arc<Mutex<Box<dyn Wrapper>>> {
-    Arc::new(Mutex::new(Box::new(MockWrapper::new(name))))
+pub fn get_mock_wrapper(name: Option<String>) -> Arc<dyn Wrapper> {
+    Arc::new(MockWrapper::new(name))
 }
 
 pub fn get_tests_path() -> Result<PathBuf, ()> {

@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 use polywrap_core::{
     client::{Client, ClientConfig},
@@ -38,7 +38,7 @@ impl PolywrapClient {
 
     pub fn invoke_wrapper<T: DeserializeOwned>(
         &self,
-        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
+        wrapper: Arc<dyn Wrapper>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
@@ -69,7 +69,7 @@ impl PolywrapClient {
 impl Invoker for PolywrapClient {
     fn invoke_wrapper_raw(
         &self,
-        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
+        wrapper: Arc<dyn Wrapper>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
@@ -77,8 +77,6 @@ impl Invoker for PolywrapClient {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let result = wrapper
-            .lock()
-            .unwrap()
             .invoke(
                 Arc::new(self.clone()),
                 uri,
@@ -151,7 +149,7 @@ impl Client for PolywrapClient {
       &self,
       uri: &Uri,
       resolution_context: Option<&mut UriResolutionContext>,
-  ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error> {
+  ) -> Result<Arc<dyn Wrapper>, Error> {
       let mut empty_res_context = UriResolutionContext::new();
       let mut resolution_ctx = match resolution_context {
           Some(ctx) => ctx,
@@ -170,8 +168,6 @@ impl Client for PolywrapClient {
           UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
           UriPackageOrWrapper::Package(_, package) => {
               let wrapper = package
-                  .lock()
-                  .unwrap()
                   .create_wrapper()
                   .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
               Ok(wrapper)

@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 use crate::{uri::Uri, wrapper::Wrapper, client::Client};
 
@@ -10,7 +10,7 @@ use super::{
 
 pub struct WrapperResolver {
     pub uri: Uri,
-    pub wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
+    pub wrapper: Arc<dyn Wrapper>,
 }
 
 impl WrapperResolver {}

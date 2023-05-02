@@ -1,12 +1,12 @@
 use crate::{
     error::Error, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::{Env}, interface_implementation::InterfaceImplementations,
 };
-use std::{sync::{Arc, Mutex}};
+use std::{sync::{Arc}};
 
 pub trait Invoker: Send + Sync {
     fn invoke_wrapper_raw(
         &self,
-        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
+        wrapper: Arc<dyn Wrapper>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,

@@ -48,7 +48,7 @@ impl WrapPackage for PluginPackage {
         Ok(self.manifest.clone())
     }
 
-    fn create_wrapper(&self) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error> {
-        Ok(Arc::new(Mutex::new(Box::new(PluginWrapper::new(self.plugin_module.clone())))))
+    fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error> {
+        Ok(Arc::new(PluginWrapper::new(self.plugin_module.clone())))
     }
 }

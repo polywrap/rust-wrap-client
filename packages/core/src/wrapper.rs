@@ -13,7 +13,7 @@ pub struct GetFileOptions {
 
 pub trait Wrapper: Send + Sync + Debug + Any {
     fn invoke(
-        &mut self,
+        &self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,

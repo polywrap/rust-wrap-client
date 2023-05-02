@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 use crate::{uri::Uri, package::WrapPackage, client::Client};
 
@@ -7,7 +7,7 @@ use super::{resolver_with_history::ResolverWithHistory, uri_resolution_context::
 
 pub struct PackageResolver {
   pub uri: Uri,
-  pub package: Arc<Mutex<Box<dyn WrapPackage>>>
+  pub package: Arc<dyn WrapPackage>
 }
 
 impl PackageResolver {}

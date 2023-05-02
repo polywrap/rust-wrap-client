@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex}, fmt::Debug, any::Any};
+use std::{sync::{Arc}, fmt::Debug, any::Any};
 
 use wrap_manifest_schemas::{versions::WrapManifest};
 
@@ -15,7 +15,7 @@ pub struct SerializeManifestOptions {
 pub trait WrapPackage: Send + Sync + Debug + Any {
     fn create_wrapper(
         &self,
-    ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error>;
+    ) -> Result<Arc<dyn Wrapper>, Error>;
     fn get_manifest(
         &self,
         options: Option<GetManifestOptions>,

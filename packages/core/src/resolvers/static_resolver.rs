@@ -1,5 +1,5 @@
 use core::fmt;
-use std::{collections::HashMap, sync::{Mutex, Arc}};
+use std::{collections::HashMap, sync::{Arc}};
 use crate::{
     client::{UriRedirect, Client},
     error::Error,
@@ -12,8 +12,8 @@ use crate::{
 
 pub enum StaticResolverLike {
     Redirect(UriRedirect),
-    Wrapper(Uri, Arc<Mutex<Box<dyn Wrapper>>>),
-    Package(Uri, Arc<Mutex<Box<dyn WrapPackage>>>),
+    Wrapper(Uri, Arc<dyn Wrapper>),
+    Package(Uri, Arc<dyn WrapPackage>),
     StaticResolverLike(Vec<StaticResolverLike>),
 }
 

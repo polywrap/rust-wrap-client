@@ -58,8 +58,7 @@ fn test_uri_resolver_wrapper() {
     }
 
     let result = result.unwrap();
-    if let UriPackageOrWrapper::Wrapper(_, w) = result {
-        let wrapper = w.lock().unwrap();
+    if let UriPackageOrWrapper::Wrapper(_, wrapper) = result {
         let wrapper = &*wrapper as &dyn std::any::Any;
         assert_eq!(wrapper.type_id(), TypeId::of::<WasmWrapper>());
     } else {
