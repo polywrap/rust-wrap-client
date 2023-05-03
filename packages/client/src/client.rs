@@ -202,7 +202,7 @@ impl PolywrapClient {
             .map_err(|e| Error::InvokeError(e.to_string()))
     }
 
-    pub fn invoke_wrapper<TWrapper: Wrapper, TResult: DeserializeOwned>(
+    pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
         &self,
         wrapper: &TWrapper,
         uri: &Uri,
@@ -280,23 +280,36 @@ mod client_tests {
     use super::PolywrapClient;
 
     #[derive(Debug)]
-    struct MockWrapper {}
+    struct MockWrapper {
+        id: u32,
+    }
+
+    impl MockWrapper {
+        pub fn new(id: u32) -> Self {
+            MockWrapper { id }
+        }
+    }
 
     impl Wrapper for MockWrapper {
         fn invoke(
             &self,
-            invoker: Arc<dyn Invoker>,
-            uri: &Uri,
+            _: Arc<dyn Invoker>,
+            _: &Uri,
             method: &str,
-            args: Option<&[u8]>,
-            env: Option<&Env>,
-            resolution_context: Option<&mut UriResolutionContext>,
+            _: Option<&[u8]>,
+            _: Option<&Env>,
+            _: Option<&mut UriResolutionContext>,
         ) -> Result<Vec<u8>, Error> {
-            // In Msgpack: True = [195]
-            Ok(vec![195])
+            // In Msgpack: True = [195] and False = [194]
+
+            if method == "foo" {
+                Ok(vec![195])
+            } else {
+                Ok(vec![194])
+            }
         }
 
-        fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
+        fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
             unimplemented!()
         }
     }
@@ -308,13 +321,17 @@ mod client_tests {
         fn try_resolve_uri(
             &self,
             uri: &Uri,
-            client: Arc<dyn Client>,
-            resolution_context: &mut UriResolutionContext,
+            _: Arc<dyn Client>,
+            _: &mut UriResolutionContext,
         ) -> Result<UriPackageOrWrapper, Error> {
-            Ok(UriPackageOrWrapper::Wrapper(
-                "wrap://ens/mock.eth".try_into().unwrap(),
-                Arc::new(MockWrapper {}),
-            ))
+            if uri.to_string() == "wrap://ens/mock.eth".to_string() {
+                Ok(UriPackageOrWrapper::Wrapper(
+                    "wrap://ens/mock.eth".try_into().unwrap(),
+                    Arc::new(MockWrapper::new(54)),
+                ))
+            } else {
+                Err(Error::InvokeError("Not Found".to_string()))
+            }
         }
     }
 
@@ -337,5 +354,69 @@ mod client_tests {
             .unwrap();
 
         assert!(result);
+    }
+
+    #[test]
+    fn invoke_wrapper() {
+        let client = PolywrapClient::new(ClientConfig {
+            resolver: Arc::new(MockResolver {}),
+            envs: None,
+            interfaces: None,
+        });
+
+        let wrapper = MockWrapper::new(100);
+
+        let result = client
+            .invoke_wrapper::<bool, MockWrapper>(
+                &wrapper,
+                &"wrap://ens/mock.eth".try_into().unwrap(),
+                "foo",
+                None,
+                None,
+                None,
+            )
+            .unwrap();
+
+        assert!(result);
+    }
+
+    #[test]
+    fn load_wrapper() {
+        let client = PolywrapClient::new(ClientConfig {
+            resolver: Arc::new(MockResolver {}),
+            envs: None,
+            interfaces: None,
+        });
+
+        let wrapper = client
+            .load_wrapper(&"wrap://ens/mock.eth".try_into().unwrap(), None)
+            .unwrap();
+        let wrapper = &*(wrapper) as &dyn std::any::Any;
+        let wrapper = wrapper.downcast_ref::<MockWrapper>().unwrap();
+
+        assert_eq!(wrapper.id, 54);
+    }
+
+    #[test]
+    fn try_resolve_uri() {
+        let client = PolywrapClient::new(ClientConfig {
+            resolver: Arc::new(MockResolver {}),
+            envs: None,
+            interfaces: None,
+        });
+        let uri: Uri = "wrap://ens/mock.eth".try_into().unwrap();
+
+        let uri_package_or_wrapper = client.try_resolve_uri(&uri, None).unwrap();
+        
+        match uri_package_or_wrapper {
+            UriPackageOrWrapper::Uri(_) => panic!("Found Uri, should've found MockWrapper"),
+            UriPackageOrWrapper::Wrapper(_, wrapper) => {
+              let wrapper = &*(wrapper) as &dyn std::any::Any;
+              let wrapper = wrapper.downcast_ref::<MockWrapper>().unwrap();
+
+              assert_eq!(wrapper.id, 54);
+            },
+            UriPackageOrWrapper::Package(_, _) => panic!("Found Uri, should've found MockWrapper"),
+        }
     }
 }
