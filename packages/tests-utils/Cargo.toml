@@ -1,6 +1,6 @@
 [package]
 name = "polywrap_tests_utils"
-
+description = "Utilities for testing Polywrap Client"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

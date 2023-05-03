@@ -1,0 +1,194 @@
+[Error]
+enum Error {
+  "UriParseError",
+  "RedirectsError",
+  "WrapperError",
+  "WrapperCreateError",
+  "InvokeError",
+  "LoadWrapperError",
+  "WasmWrapperError",
+  "ResolutionError",
+  "MsgpackError",
+  "ManifestError",
+  "FileReadError",
+  "ResolverError",
+  "PluginError"
+};
+
+interface Uri {
+  constructor([ByRef] string uri);
+};
+
+interface FFIInvoker {
+  [Throws=Error]
+  sequence<u8> invoke_raw(Uri uri, [ByRef] string method, sequence<u8>? args, string? env);
+
+  [Throws=Error]
+  sequence<Uri> get_implementations(Uri uri);
+
+  record<DOMString, sequence<Uri>>? get_interfaces();
+};
+
+interface FFIWrapper {
+  [Throws=Error]
+  sequence<u8> invoke(FFIInvoker invoker, Uri uri, [ByRef] string method, sequence<u8>? args, string? env);
+};
+
+interface FFIWrapPackage { };
+
+interface FFILoader {
+  string? get_env_by_uri(Uri uri);
+  
+  [Throws=Error]
+  FFIWrapper load_wrapper(Uri uri);
+};
+
+interface FFIWasmWrapper {
+  constructor(sequence<u8> wasm_module);
+};
+
+callback interface FFIPluginModule {
+  sequence<u8> wrap_invoke(string method_name, sequence<u8> params, string? env, FFIInvoker invoker);
+};
+
+interface FFIPluginWrapper {
+  constructor(FFIPluginModule plugin_module);
+};
+
+callback interface FFIUriResolver {
+  FFIUriPackageOrWrapper wrap_try_resolve_uri(Uri uri, FFILoader loader);
+};
+
+interface FFIUriPackageOrWrapperUriVariant {
+  constructor(Uri uri);
+  Uri get_uri();
+};
+
+interface FFIUriPackageOrWrapperWrapperVariant {
+  constructor(Uri uri, FFIWrapper wrapper);
+  Uri get_uri();
+  FFIWrapper get_wrapper();
+};
+
+interface FFIUriPackageOrWrapperPackageVariant {
+  constructor(Uri uri, FFIWrapPackage package);
+  Uri get_uri();
+  FFIWrapPackage get_package();
+};
+
+enum FFIUriPackageOrWrapperKind {
+  "_Uri",
+  "_Wrapper",
+  "_Package",
+};
+
+interface FFIUriPackageOrWrapper {
+  [Name=new_uri]
+  constructor(Uri uri);
+  [Name=new_wrapper]
+  constructor(Uri uri, FFIWrapper wrapper);
+  [Name=new_package]
+  constructor(Uri uri, FFIWrapPackage package);
+  FFIUriPackageOrWrapperKind get_kind();
+  FFIUriPackageOrWrapperUriVariant? get_uri();
+  FFIUriPackageOrWrapperWrapperVariant? get_wrapper();
+  FFIUriPackageOrWrapperPackageVariant? get_package();
+};
+
+interface FFIUriResolverLikeRedirectVariant {
+  constructor(Uri from, Uri to);
+};
+
+interface FFIUriResolverLikePackageVariant {
+  constructor(Uri uri, FFIWrapPackage package);
+};
+
+interface FFIUriResolverLikeWrapperVariant {
+  constructor(Uri uri, FFIWrapper wrapper);
+};
+
+interface FFIUriResolverLikeResolverVariant {
+  constructor(FFIUriResolver resolver);
+};
+
+interface FFIUriResolverLikeResolverLikeVariant {
+  constructor(sequence<FFIUriResolverLike> resolver_like);
+};
+
+interface FFIUriResolverLike {
+  [Name=new_resolver]
+  constructor(FFIUriResolverLikeResolverVariant resolver);
+  [Name=new_redirect]
+  constructor(FFIUriResolverLikeRedirectVariant redirect);
+  [Name=new_wrapper]
+  constructor(FFIUriResolverLikeWrapperVariant wrapper);
+  [Name=new_package]
+  constructor(FFIUriResolverLikePackageVariant package);
+  [Name=new_resolver_like]
+  constructor(FFIUriResolverLikeResolverLikeVariant resolver_like);
+  FFIUriResolverLikeKind get_kind();
+  FFIUriResolverLikeResolverVariant? get_resolver();
+  FFIUriResolverLikeRedirectVariant? get_redirect();
+  FFIUriResolverLikeWrapperVariant? get_wrapper();
+  FFIUriResolverLikePackageVariant? get_package();
+  FFIUriResolverLikeResolverLikeVariant? get_resolver_like();
+};
+
+enum FFIUriResolverLikeKind {
+  "_Resolver",
+  "_Redirect",
+  "_Package",
+  "_Wrapper",
+  "_ResolverLike",
+};
+
+interface FFIStaticUriResolver {
+  constructor(record<DOMString, FFIUriPackageOrWrapper> uri_map);
+};
+
+interface FFIExtendableUriResolver {
+  constructor(string? name);
+};
+
+interface FFIRecursiveUriResolver {
+  constructor(FFIUriResolverLike uri_resolver_like);
+};
+
+interface FFIClient {
+  [Throws=Error]
+  sequence<u8> invoke_raw(Uri uri, [ByRef] string method, sequence<u8>? args, string? env);
+
+  [Throws=Error]
+  sequence<Uri> get_implementations(Uri uri);
+
+  record<DOMString, sequence<Uri>>? get_interfaces();
+
+  string? get_env_by_uri(Uri uri);
+  
+  [Throws=Error]
+  FFIWrapper load_wrapper(Uri uri);
+};
+
+interface FFIBuilderConfig {
+  constructor();
+  void add_env(Uri uri, [ByRef] string env);
+  void remove_env(Uri uri);
+  void set_env(Uri uri, [ByRef] string env);
+  void add_interface_implementation(Uri interface_uri, Uri implementation_uri);
+  void remove_interface_implementation(Uri interface_uri, Uri implementation_uri);
+  void add_wasm_wrapper(Uri uri, FFIWasmWrapper wrapper);
+  void add_plugin_wrapper(Uri uri, FFIPluginWrapper wrapper);
+  void remove_wrapper(Uri uri);
+  void add_redirect(Uri from, Uri to);
+  void remove_redirect(Uri from);
+  void add_resolver(FFIUriResolver resolver);
+  void add_static_resolver(FFIStaticUriResolver resolver);
+  void add_extendable_resolver(FFIExtendableUriResolver resolver);
+  void add_recursive_resolver(FFIRecursiveUriResolver resolver);
+  FFIClient build();
+};
+
+namespace main {
+  [Throws=Error]
+  Uri uri_from_string([ByRef] string uri);
+};

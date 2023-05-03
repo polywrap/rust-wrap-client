@@ -14,14 +14,15 @@ wrap_manifest_schemas.workspace = true
 polywrap_msgpack.workspace = true
 serde_json.workspace = true
 
-convert_case = { version = "0.6.0", optional = true }
-syn = { workspace = true, optional = true }
-proc-macro2 = { workspace = true, optional = true }
-
-polywrap_paste = "1.0.0"
 Inflector = "0.11.4"
 
-[dev-dependencies]
+polywrap_plugin_implementor = { workspace = true, optional = true }
+
 serde.workspace = true
-polywrap_client.workspace = true
-polywrap_plugin_macro.workspace = true
+num-bigint = "0.4.3"
+bigdecimal = "0.3.0"
+
+[features]
+default = ["implementor"]
+
+implementor = ["polywrap_plugin_implementor"]

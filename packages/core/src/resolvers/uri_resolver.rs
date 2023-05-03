@@ -23,7 +23,7 @@ pub trait UriResolver: Send + Sync + Debug {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        loader: &dyn Loader,
+        loader: Arc<dyn Loader>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error>;
 }
@@ -41,23 +41,23 @@ impl From<UriResolverLike> for Arc<dyn UriResolver> {
               resolvers
             ))
           },
-          UriResolverLike::Resolver(resolver) => Arc::from(resolver),
+          UriResolverLike::Resolver(resolver) => resolver,
           UriResolverLike::Redirect(redirect) => {
             Arc::new(RedirectResolver {
               from: redirect.from,
               to: redirect.to
             })
           },
-          UriResolverLike::Package(pkg) => {
+          UriResolverLike::Package(uri, package) => {
             Arc::new(PackageResolver {
-              uri: pkg.uri.clone(),
-              package: pkg.package.clone(),
+              uri,
+              package,
             })
           },
-          UriResolverLike::Wrapper(wrapper) => {
+          UriResolverLike::Wrapper(uri, wrapper) => {
             Arc::new(WrapperResolver {
-              uri: wrapper.uri.clone(),
-              wrapper: wrapper.wrapper.clone(),
+              uri,
+              wrapper,
             })
           },
         }

@@ -55,7 +55,12 @@ impl PartialEq for WasmPackage {
 
 impl Debug for WasmPackage {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, "WasmPackage: {:?}", self)
+        write!(f, r#"
+        WasmPackage
+        
+        -Wasm Module: {:?}
+        -Manifest: {:?}
+        "#, self.wasm_module, self.manifest)
     }
 }
 
@@ -81,12 +86,12 @@ impl WrapPackage for WasmPackage {
 
     fn create_wrapper(
         &self
-    ) -> Result<Arc<Mutex<dyn Wrapper>>, polywrap_core::error::Error> {
+    ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, polywrap_core::error::Error> {
         let wasm_module = self.get_wasm_module()?;
 
-        Ok(Arc::new(Mutex::new(WasmWrapper::new(
+        Ok(Arc::new(Mutex::new(Box::new(WasmWrapper::new(
             wasm_module,
             self.file_reader.clone(),
-        ))))
+        )))))
     }
 }

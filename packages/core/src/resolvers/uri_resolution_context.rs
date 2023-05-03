@@ -3,22 +3,11 @@ use std::{collections::HashMap, sync::Arc, sync::Mutex, vec};
 
 use crate::{uri::Uri};
 
-#[derive(Debug)]
-pub struct UriWrapper {
-    pub uri: Uri,
-    pub wrapper: Arc<Mutex<dyn Wrapper>>,
-}
-
-pub struct UriPackage {
-    pub uri: Uri,
-    pub package: Arc<Mutex<dyn WrapPackage>>,
-}
-
 #[derive(Clone)]
 pub enum UriPackageOrWrapper {
   Uri(Uri),
-  Wrapper(Uri, Arc<Mutex<dyn Wrapper>>),
-  Package(Uri, Arc<Mutex<dyn WrapPackage>>),
+  Wrapper(Uri, Arc<Mutex<Box<dyn Wrapper>>>),
+  Package(Uri, Arc<Mutex<Box<dyn WrapPackage>>>),
 }
 
 impl UriPackageOrWrapper {

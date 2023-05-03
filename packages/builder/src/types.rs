@@ -1,16 +1,19 @@
+use std::sync::{Mutex, Arc};
+
 use polywrap_core::{
     interface_implementation::InterfaceImplementations,
     env::{Envs,Env}, 
-    resolvers::{uri_resolution_context::{UriWrapper,UriPackage}, uri_resolver_like::UriResolverLike},
+    resolvers::{uri_resolver_like::UriResolverLike},
     uri::Uri, 
-    client::{UriRedirect, ClientConfig}
+    client::{UriRedirect, ClientConfig}, package::WrapPackage, wrapper::Wrapper
 };
 
+#[derive(Clone)]
 pub struct BuilderConfig {
     pub interfaces: Option<InterfaceImplementations>,
     pub envs: Option<Envs>,
-    pub wrappers: Option<Vec<UriWrapper>>,
-    pub packages: Option<Vec<UriPackage>>,
+    pub wrappers: Option<Vec<(Uri, Arc<Mutex<Box<dyn Wrapper>>>)>>,
+    pub packages: Option<Vec<(Uri, Arc<Mutex<Box<dyn WrapPackage>>>)>>,
     pub redirects: Option<Vec<UriRedirect>>,
     pub resolvers: Option<Vec<UriResolverLike>>,
 }
@@ -36,11 +39,11 @@ pub trait ClientBuilder {
         interface_uri: Uri,
         implementation_uri: Uri
     ) -> &mut Self;
-    fn add_wrapper(&mut self, wrapper: UriWrapper) -> &mut Self;
-    fn add_wrappers(&mut self, wrappers: Vec<UriWrapper>) -> &mut Self;
+    fn add_wrapper(&mut self, uri: Uri, wrapper: Arc<Mutex<Box<dyn Wrapper>>>) -> &mut Self;
+    fn add_wrappers(&mut self, wrappers: Vec<(Uri, Arc<Mutex<Box<dyn Wrapper>>>)>) -> &mut Self;
     fn remove_wrapper(&mut self, uri: Uri) -> &mut Self;
-    fn add_package(&mut self, package: UriPackage) -> &mut Self;
-    fn add_packages(&mut self, packages: Vec<UriPackage>) -> &mut Self;
+    fn add_package(&mut self, uri: Uri, package: Arc<Mutex<Box<dyn WrapPackage>>>) -> &mut Self;
+    fn add_packages(&mut self, packages: Vec<(Uri, Arc<Mutex<Box<dyn WrapPackage>>>)>) -> &mut Self;
     fn remove_package(&mut self, uri: Uri) -> &mut Self;
     fn add_redirect(&mut self, from: Uri, to: Uri) -> &mut Self;
     fn add_redirects(&mut self, redirects: Vec<UriRedirect>) -> &mut Self;

@@ -40,8 +40,8 @@ impl MockPackage {
 }
 
 impl WrapPackage for MockPackage {
-    fn create_wrapper(&self) -> Result<Arc<Mutex<dyn Wrapper>>, polywrap_core::error::Error> {
-        Ok(Arc::new(Mutex::new(MockWrapper::new(None))))
+    fn create_wrapper(&self) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, polywrap_core::error::Error> {
+        Ok(Arc::new(Mutex::new(Box::new(MockWrapper::new(None)))))
     }
 
     fn get_manifest(
@@ -73,12 +73,12 @@ impl Wrapper for MockWrapper {
     }
 }
 
-pub fn get_mock_package(name: Option<String>) -> Arc<Mutex<dyn WrapPackage>> {
-    Arc::new(Mutex::new(MockPackage::new(name)))
+pub fn get_mock_package(name: Option<String>) -> Arc<Mutex<Box<dyn WrapPackage>>> {
+    Arc::new(Mutex::new(Box::new(MockPackage::new(name))))
 }
 
-pub fn get_mock_wrapper(name: Option<String>) -> Arc<Mutex<dyn Wrapper>> {
-    Arc::new(Mutex::new(MockWrapper::new(name)))
+pub fn get_mock_wrapper(name: Option<String>) -> Arc<Mutex<Box<dyn Wrapper>>> {
+    Arc::new(Mutex::new(Box::new(MockWrapper::new(name))))
 }
 
 pub fn get_tests_path() -> Result<PathBuf, ()> {

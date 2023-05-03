@@ -1,7 +1,0 @@
-format: 0.2.0
-project:
-  type: plugin/rust
-  name: Fs
-source:
-  module: ./Cargo.toml
-  schema: ./schema.graphql

@@ -1,0 +1,26 @@
+[package]
+name = "polywrap_native"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+polywrap_client.workspace = true
+polywrap_plugin.workspace = true
+polywrap_wasm.workspace = true
+
+serde_json.workspace = true
+
+uniffi = { version = "0.23.0", features = [ "cli" ] }
+
+[build-dependencies]
+uniffi = { version = "0.23.0", features = [ "build" ] }
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
