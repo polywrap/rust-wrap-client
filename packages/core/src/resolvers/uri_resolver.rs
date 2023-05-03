@@ -13,7 +13,7 @@ use super::wrapper_resolver::WrapperResolver;
 
 pub trait UriResolverHandler {
     fn try_resolve_uri(
-        &self,
+        self: Arc<Self>,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<UriPackageOrWrapper, Error>;

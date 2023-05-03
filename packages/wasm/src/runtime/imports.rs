@@ -178,7 +178,7 @@ pub fn create_imports(
           None
         };
 
-        let result = state.invoker.invoke_raw(
+        let result = state.invoker.clone().invoke_raw(
             &uri,
             &method,
             Some(&args_buffer),
@@ -353,7 +353,7 @@ pub fn create_imports(
               None
             };
 
-            let result = state.invoker.invoke_raw(
+            let result = state.invoker.clone().invoke_raw(
                 &uri.try_into().unwrap(),
                 &method,
                 Some(&args_buffer),
