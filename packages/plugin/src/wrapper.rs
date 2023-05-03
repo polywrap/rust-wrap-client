@@ -33,7 +33,7 @@ impl Wrapper for PluginWrapper {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         let args = match args {

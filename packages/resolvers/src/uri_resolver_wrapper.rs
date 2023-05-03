@@ -45,7 +45,6 @@ impl UriResolverWrapper {
 
       let mut env = None;
       if let Some(e) = client.get_env_by_uri(&uri) {
-          let e = e.to_owned();
           env = Some(e);
       };
 

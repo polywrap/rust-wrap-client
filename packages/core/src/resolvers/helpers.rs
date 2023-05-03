@@ -69,13 +69,11 @@ impl FileReader for UriResolverExtensionFileReader {
 }
 
 pub fn get_implementations(
-    wrapper_uri: Uri,
+    wrapper_uri: &Uri,
     interfaces: Option<InterfaceImplementations>,
-    _client: Box<dyn Client>,
+    _: &dyn Client,
 ) -> Result<Vec<Uri>, Error> {
     let mut implementation_uris: Vec<Uri> = vec![];
-
-    println!("URIS: {implementation_uris:#?}");
 
     if let Some(interfaces) = interfaces {
         let implementations_value = interfaces.get(&wrapper_uri.uri);

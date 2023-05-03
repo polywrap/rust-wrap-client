@@ -37,7 +37,7 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
         resolution_context: &mut UriResolutionContext
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
         let implementations = client.get_implementations(
-           Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?
+           &Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?
         )?;
 
         let resolvers = implementations.into_iter().filter_map(|implementation| {

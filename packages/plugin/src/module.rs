@@ -10,7 +10,7 @@ pub trait PluginModule: Send + Sync + Debug {
         &mut self,
         method_name: &str,
         params: &[u8],
-        env: Option<Env>,
+        env: Option<&Env>,
         invoker: Arc<dyn polywrap_core::invoke::Invoker>,
     ) -> Result<Vec<u8>, PluginError>;
 }

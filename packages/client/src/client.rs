@@ -36,30 +36,39 @@ impl PolywrapClient {
         }
     }
 
-    pub fn invoke_wrapper<T: DeserializeOwned>(
-        &self,
-        wrapper: Arc<dyn Wrapper>,
-        uri: &Uri,
-        method: &str,
-        args: Option<&[u8]>,
-        env: Option<Env>,
-        resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<T, Error> {
-        let result =
-            self.invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)?;
-        decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
-    }
-
     pub fn invoke<T: DeserializeOwned>(
         &self,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<T, Error> {
         let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
+
+        decode(result.as_slice())
+            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
+    }
+
+    pub fn invoke_wrapper<TWrapper: Wrapper, TResult: DeserializeOwned>(
+      &self,
+      wrapper: &TWrapper,
+      uri: &Uri,
+      method: &str,
+      args: Option<&[u8]>,
+      env: Option<&Env>,
+      resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<TResult, Error> {
+      let result = wrapper
+            .invoke(
+                Arc::new(self.clone()),
+                uri,
+                method,
+                args,
+                env,
+                resolution_context,
+            )
+            .map_err(|e| Error::InvokeError(e.to_string()))?;
 
         decode(result.as_slice())
             .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
@@ -73,7 +82,7 @@ impl Invoker for PolywrapClient {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let result = wrapper
@@ -95,7 +104,7 @@ impl Invoker for PolywrapClient {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let mut empty_res_context = UriResolutionContext::new();
@@ -110,10 +119,7 @@ impl Invoker for PolywrapClient {
 
         let mut env = env;
         if env.is_none() {
-            if let Some(e) = self.get_env_by_uri(uri) {
-                let e = e.to_owned();
-                env = Some(e);
-            };
+            env = self.get_env_by_uri(uri);
         }
 
         let invoke_result = self
@@ -123,11 +129,11 @@ impl Invoker for PolywrapClient {
         Ok(invoke_result)
     }
 
-    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error> {
+    fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
         polywrap_core::resolvers::helpers::get_implementations(
             uri,
             self.get_interfaces(),
-            Box::new(self.clone()),
+            self,
         )
     }
 

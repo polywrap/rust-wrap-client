@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
+use polywrap_client::invoke_args;
 use polywrap_client::msgpack::msgpack;
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
@@ -50,7 +51,7 @@ fn subinvoke_test() {
         .invoke::<u32>(
             &invoke_uri,
             "addAndIncrement",
-            Some(&msgpack!({"a": 1, "b": 1})),
+            invoke_args!({"a": 1, "b": 1}),
             None,
             None,
         )

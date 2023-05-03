@@ -10,7 +10,7 @@ pub trait Invoker: Send + Sync {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
     fn invoke_raw(
@@ -18,9 +18,9 @@ pub trait Invoker: Send + Sync {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
-    fn get_implementations(&self, uri: Uri) -> Result<Vec<Uri>, Error>;
+    fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error>;
     fn get_interfaces(&self) -> Option<InterfaceImplementations>;
 }

@@ -169,9 +169,11 @@ pub fn create_imports(
 
         let uri: Uri = String::from_utf8(uri_buffer).unwrap().try_into().unwrap();
         let method = String::from_utf8(method_buffer).unwrap();
+        let mut _decoded_env = serde_json::Value::Null;
 
         let env = if !state.env.is_empty() {
-          Some(polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap())
+          _decoded_env = polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap();
+          Some(&_decoded_env)
         } else {
           None
         };
@@ -325,8 +327,6 @@ pub fn create_imports(
         let args_len = values[7].unwrap_i32() as u32;
 
         let async_context = Arc::new(Mutex::new(context));
-
-        
             let mut context = async_context.lock().unwrap();
             let mutable_context = context.as_mut();
             let mut state = mutable_context.data().lock().unwrap();
@@ -345,8 +345,10 @@ pub fn create_imports(
             let interface = String::from_utf8(interface_buffer).unwrap();
             let uri = String::from_utf8(impl_uri_buffer).unwrap();
             let method = String::from_utf8(method_buffer).unwrap();
+            let mut _decoded_env = serde_json::Value::Null;
             let env = if !state.env.is_empty() {
-              Some(polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap())
+              _decoded_env = polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap();
+              Some(&_decoded_env)
             } else {
               None
             };
@@ -537,7 +539,7 @@ pub fn create_imports(
         memory.view(&mutable_context).read(pointer.try_into().unwrap(), &mut uri_bytes).unwrap();
         let uri = String::from_utf8(uri_bytes).unwrap();
         println!("URI: {length}");
-        let result = state.invoker.get_implementations(uri.try_into().unwrap());
+        let result = state.invoker.get_implementations(&uri.try_into().unwrap());
 
         if result.is_err() {
             let result = result.as_ref().err().unwrap();

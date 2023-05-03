@@ -18,7 +18,7 @@ pub trait Wrapper: Send + Sync + Debug + Any {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
     fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error>;

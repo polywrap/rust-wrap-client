@@ -32,7 +32,7 @@ impl PluginModule for PluginModuleWithMethods {
         &mut self,
         method_name: &str,
         params: &[u8],
-        env: Option<Env>,
+        env: Option<&Env>,
         invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,
     ) -> Result<Vec<u8>, PluginError> {
         if let Some(method) = self.methods_map.get(method_name) {

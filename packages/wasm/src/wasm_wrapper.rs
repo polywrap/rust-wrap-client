@@ -46,7 +46,7 @@ impl WasmWrapper {
         method: &str,
         args: Option<&[u8]>,
         resolution_context: Option<&mut UriResolutionContext>,
-        env: Option<Env>,
+        env: Option<&Env>,
     ) -> Result<T, Error> {
         let result = self
             .invoke(invoker, uri, method, args, env, resolution_context)?;
@@ -80,7 +80,7 @@ impl Wrapper for WasmWrapper {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
