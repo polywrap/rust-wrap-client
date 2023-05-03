@@ -16,7 +16,6 @@ thiserror.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 polywrap_plugin.workspace = true
-polywrap_plugin_macro.workspace = true
 polywrap_msgpack.workspace = true
 
 reqwest = { version = "0.11", features = ["json"] }
