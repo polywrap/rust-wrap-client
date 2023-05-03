@@ -1,8 +1,6 @@
 use base64::{decode, DecodeError};
-use polywrap_client::{
-    core::file_reader::SimpleFileReader,
-    wasm::{wasm_package::WasmPackage, wasm_wrapper::WasmWrapper},
-};
+use polywrap_core::file_reader::SimpleFileReader;
+use polywrap_wasm::{wasm_package::WasmPackage, wasm_wrapper::WasmWrapper};
 use std::sync::Arc;
 
 fn wrap_wasm() -> Result<Vec<u8>, DecodeError> {
