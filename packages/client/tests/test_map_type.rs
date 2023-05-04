@@ -67,7 +67,7 @@ fn map_type_test() {
         foo,
     };
 
-    let args = polywrap_msgpack::serialize(get_key_args).unwrap();
+    let args = polywrap_msgpack::serialize(&get_key_args).unwrap();
     let invoke_result = client
         .invoke::<u32>(&invoke_uri, "getKey", Some(&args), None, None)
         .unwrap();
