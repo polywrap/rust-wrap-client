@@ -40,7 +40,7 @@ fn test_env_methods() {
     let env_from_builder = current_env.get(&uri.uri);
     assert_eq!(env_from_builder.unwrap(), &json!({ "c": "c" }));
 
-    builder.remove_env(uri);
+    builder.remove_env(&uri);
 
     assert!(builder.envs.is_none());
 }
@@ -76,7 +76,7 @@ fn test_interface_implementation_methods() {
         implementation_c_uri.clone()
     ]);
 
-    builder.remove_interface_implementation(interface_uri.clone(), implementation_b_uri);
+    builder.remove_interface_implementation(&interface_uri, &implementation_b_uri);
     let interfaces = builder.interfaces.clone().unwrap();
     let implementations = interfaces.get(&interface_uri.uri).unwrap();
     assert_eq!(implementations, &vec![
@@ -116,7 +116,7 @@ fn test_redirects() {
     builder.add_redirect("ens/a.eth".to_string().try_into().unwrap(), "ens/b.eth".to_string().try_into().unwrap());
     assert!(builder.redirects.is_some());
 
-    builder.remove_redirect("ens/a.eth".to_string().try_into().unwrap());
+    builder.remove_redirect(&"ens/a.eth".to_string().try_into().unwrap());
     assert!(builder.redirects.is_none());
 }
 
@@ -166,7 +166,7 @@ fn test_packages() {
 
     builder.add_packages(builder_packages);
     builder.add_package(modified_uri_package_b.0, modified_uri_package_b.1);
-    builder.remove_package(String::from("wrap://package/c").try_into().unwrap());
+    builder.remove_package(&String::from("wrap://package/c").try_into().unwrap());
 
     let builder_packages = builder.packages.unwrap();
     assert_eq!(builder_packages.len(), 2);
@@ -228,7 +228,7 @@ fn test_wrappers() {
 
     builder.add_wrappers(builder_wrappers);
     builder.add_wrapper(modified_uri_wrapper_b.0, modified_uri_wrapper_b.1);
-    builder.remove_wrapper(String::from("wrap://wrapper/c").try_into().unwrap());
+    builder.remove_wrapper(&String::from("wrap://wrapper/c").try_into().unwrap());
 
     let builder_wrappers = builder.wrappers.unwrap();
     assert_eq!(builder_wrappers.len(), 2);

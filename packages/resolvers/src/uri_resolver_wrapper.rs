@@ -44,11 +44,11 @@ impl UriResolverWrapper {
       )?;
 
       let client_clone = client;
-      let env = client_clone.get_env_by_uri(&uri);
+      let env = client_clone.get_env_by_uri(uri);
 
       let result = client.invoke_wrapper_raw(
           wrapper, 
-          &implementation_uri, 
+          implementation_uri, 
           "tryResolveUri", 
           Some(&msgpack!({
             "authority": uri.authority.as_str(),
@@ -77,7 +77,7 @@ impl UriResolverWrapper {
   ) -> Result<Arc<dyn Wrapper>, Error> {
 
     let result = client.try_resolve_uri(
-      &resolver_extension_uri,
+      resolver_extension_uri,
       Some(resolution_context)
     )?;
 

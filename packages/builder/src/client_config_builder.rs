@@ -97,7 +97,7 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn remove_env(&mut self, uri: Uri) -> &mut Self {
+    fn remove_env(&mut self, uri: &Uri) -> &mut Self {
         if let Some(envs) = self.envs.as_mut() {
             envs.retain(|k, _| &uri.clone().uri != k);
             if envs.keys().len() == 0 {
@@ -175,15 +175,15 @@ impl ClientBuilder for BuilderConfig {
 
     fn remove_interface_implementation(
         &mut self,
-        interface_uri: Uri,
-        implementation_uri: Uri,
+        interface_uri: &Uri,
+        implementation_uri: &Uri,
     ) -> &mut Self {
         if let Some(interfaces) = self.interfaces.as_mut() {
             let implementations = interfaces.get_mut(&interface_uri.uri);
             if let Some(implementations) = implementations {
                 let index = implementations
                     .iter()
-                    .position(|i| i == &implementation_uri);
+                    .position(|i| i == implementation_uri);
                 if let Some(i) = index {
                     implementations.remove(i);
                 };
@@ -217,9 +217,9 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn remove_wrapper(&mut self, uri: Uri) -> &mut Self {
+    fn remove_wrapper(&mut self, uri: &Uri) -> &mut Self {
         if let Some(wrappers) = self.wrappers.as_mut() {
-            if let Some(index) = wrappers.iter().position(|(current_uri, _)| current_uri == &uri) {
+            if let Some(index) = wrappers.iter().position(|(current_uri, _)| current_uri == uri) {
                 wrappers.remove(index);
             }
         }
@@ -250,9 +250,9 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn remove_package(&mut self, uri: Uri) -> &mut Self {
+    fn remove_package(&mut self, uri: &Uri) -> &mut Self {
         if let Some(packages) = self.packages.as_mut() {
-            if let Some(index) = packages.iter().position(|(current_uri, _)| current_uri == &uri) {
+            if let Some(index) = packages.iter().position(|(current_uri, _)| current_uri == uri) {
                 packages.remove(index);
             }
         }
@@ -285,9 +285,9 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn remove_redirect(&mut self, from: Uri) -> &mut Self {
+    fn remove_redirect(&mut self, from: &Uri) -> &mut Self {
         if let Some(redirects) = self.redirects.as_mut() {
-            if let Some(i) = redirects.iter().position(|u| u.from == from) {
+            if let Some(i) = redirects.iter().position(|u| &u.from == from) {
                 redirects.remove(i);
                 if redirects.is_empty() {
                     self.redirects = None;
