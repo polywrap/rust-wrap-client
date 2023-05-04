@@ -6,7 +6,7 @@ use polywrap_core::{file_reader::FileReader, client::Client};
 pub struct BaseFileReader {}
 
 impl FileReader for BaseFileReader {
-    fn read_file(&self, client: &dyn Client, file_path: &str) -> Result<Vec<u8>, polywrap_core::error::Error> {
+    fn read_file(&self, _client: &dyn Client, file_path: &str) -> Result<Vec<u8>, polywrap_core::error::Error> {
         let contents = std::fs::read(file_path)
             .map_err(|e| polywrap_core::error::Error::WasmWrapperError(e.to_string()))?;
         Ok(contents)

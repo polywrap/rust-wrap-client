@@ -30,7 +30,7 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
         let sub_context = resolution_context.create_sub_history_context();
         for resolver in resolvers.into_iter() {
             let result = resolver
-                .try_resolve_uri(uri, client.clone(), resolution_context);
+                .try_resolve_uri(uri, client, resolution_context);
             let track_and_return = if let Ok(UriPackageOrWrapper::Uri(result_uri)) = &result {
                 uri.to_string() != result_uri.to_string()
             } else {

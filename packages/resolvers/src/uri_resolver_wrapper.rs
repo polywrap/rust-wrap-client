@@ -30,20 +30,20 @@ impl UriResolverWrapper {
 
   fn try_resolve_uri_with_implementation(
     &self,
-    uri: Uri,
-    implementation_uri: Uri,
+    uri: &Uri,
+    implementation_uri: &Uri,
     client: &dyn Client,
     resolution_context: &mut UriResolutionContext
   ) -> Result<MaybeUriOrManifest, Error> {
       let mut sub_context = resolution_context.create_sub_context();
       let wrapper = self.load_extension(
-        uri.clone(), 
-        implementation_uri.clone(), 
-        client.clone(), 
+        uri, 
+        implementation_uri, 
+        client, 
         &mut sub_context
       )?;
 
-      let client_clone = client.clone();
+      let client_clone = client;
       let env = client_clone.get_env_by_uri(&uri);
 
       let result = client.invoke_wrapper_raw(
@@ -70,8 +70,8 @@ impl UriResolverWrapper {
 
   fn load_extension(
     &self,
-    current_uri: Uri,
-    resolver_extension_uri: Uri,
+    current_uri: &Uri,
+    resolver_extension_uri: &Uri,
     client: &dyn Client,
     resolution_context: &mut UriResolutionContext
   ) -> Result<Arc<dyn Wrapper>, Error> {
@@ -113,9 +113,9 @@ impl ResolverWithHistory for UriResolverWrapper {
       resolution_context: &mut UriResolutionContext
     ) ->  Result<UriPackageOrWrapper, Error> {
       let result = self.try_resolve_uri_with_implementation(
-        uri.clone(), 
-        self.implementation_uri.clone(), 
-        client.clone(), 
+        uri, 
+        &self.implementation_uri, 
+        client, 
         resolution_context
       )?;
       let file_reader = UriResolverExtensionFileReader::new(

@@ -264,7 +264,7 @@ mod client_tests {
             _: &dyn Client,
             _: &mut UriResolutionContext,
         ) -> Result<UriPackageOrWrapper, Error> {
-            if uri.to_string() == "wrap://ens/mock.eth".to_string() {
+            if uri.to_string() == *"wrap://ens/mock.eth" {
                 Ok(UriPackageOrWrapper::Wrapper(
                     "wrap://ens/mock.eth".try_into().unwrap(),
                     Arc::new(MockWrapper::new(54)),

@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::Arc;
+
 
 use crate::{uri::Uri, client::Client};
 

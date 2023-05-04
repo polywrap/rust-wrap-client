@@ -73,8 +73,8 @@ impl UriResolver for ExtendableUriResolver {
         resolution_context: &mut UriResolutionContext
     ) -> Result<UriPackageOrWrapper, Error> {
         let resolvers = self.get_uri_resolvers(
-            &uri.clone(),
-            client.clone(),
+            uri,
+            client,
             resolution_context
         )?;
 
@@ -84,7 +84,7 @@ impl UriResolver for ExtendableUriResolver {
         }
 
         self.try_resolve_uri_with_resolvers(
-            &uri.clone(),
+            uri,
             client,
             resolvers,
             resolution_context
