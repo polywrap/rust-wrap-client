@@ -5,7 +5,7 @@ use std::{sync::{Arc}};
 
 pub trait Invoker: Send + Sync {
     fn invoke_wrapper_raw(
-        self: Arc<Self>,
+        &self,
         wrapper: Arc<dyn Wrapper>,
         uri: &Uri,
         method: &str,
@@ -14,7 +14,7 @@ pub trait Invoker: Send + Sync {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
     fn invoke_raw(
-        self: Arc<Self>,
+        &self,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,

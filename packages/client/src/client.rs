@@ -17,13 +17,14 @@ use polywrap_core::{
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
 
-struct InnerPolywrapClient {
+#[derive(Clone, Debug)]
+pub struct PolywrapClient {
     pub resolver: Arc<dyn UriResolver>,
     pub envs: Option<Envs>,
     pub interfaces: Option<InterfaceImplementations>,
 }
 
-impl InnerPolywrapClient {
+impl PolywrapClient {
     pub fn new(config: ClientConfig) -> Self {
         let resolver = config.resolver;
         let envs = config.envs;
@@ -34,11 +35,56 @@ impl InnerPolywrapClient {
             interfaces,
         }
     }
+
+    pub fn invoke<T: DeserializeOwned>(
+      &self,
+      uri: &Uri,
+      method: &str,
+      args: Option<&[u8]>,
+      env: Option<&Env>,
+      resolution_context: Option<&mut UriResolutionContext>,
+  ) -> Result<T, Error> {
+      let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
+
+      decode(result.as_slice())
+          .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
+  }
+
+  pub fn invoke_wrapper_raw(
+      &self,
+      wrapper: Arc<dyn Wrapper>,
+      uri: &Uri,
+      method: &str,
+      args: Option<&[u8]>,
+      env: Option<&Env>,
+      resolution_context: Option<&mut UriResolutionContext>,
+  ) -> Result<Vec<u8>, Error> {
+      wrapper
+          .invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
+          .map_err(|e| Error::InvokeError(e.to_string()))
+  }
+
+  pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
+      &self,
+      wrapper: &TWrapper,
+      uri: &Uri,
+      method: &str,
+      args: Option<&[u8]>,
+      env: Option<&Env>,
+      resolution_context: Option<&mut UriResolutionContext>,
+  ) -> Result<TResult, Error> {
+      let result = wrapper
+          .invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
+          .map_err(|e| Error::InvokeError(e.to_string()))?;
+
+      decode(result.as_slice())
+          .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
+  }
 }
 
-impl Invoker for InnerPolywrapClient {
+impl Invoker for PolywrapClient {
     fn invoke_wrapper_raw(
-        self: Arc<Self>,
+        &self,
         wrapper: Arc<dyn Wrapper>,
         uri: &Uri,
         method: &str,
@@ -47,14 +93,14 @@ impl Invoker for InnerPolywrapClient {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let result = wrapper
-            .invoke(self.clone(), uri, method, args, env, resolution_context)
+            .invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
             .map_err(|e| Error::InvokeError(e.to_string()))?;
 
         Ok(result)
     }
 
     fn invoke_raw(
-        self: Arc<Self>,
+        &self,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
@@ -98,9 +144,9 @@ impl Invoker for InnerPolywrapClient {
     }
 }
 
-impl Client for InnerPolywrapClient {
+impl Client for PolywrapClient {
     fn load_wrapper(
-        self: Arc<Self>,
+        &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Arc<dyn Wrapper>, Error> {
@@ -121,7 +167,7 @@ impl Client for InnerPolywrapClient {
             UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
             UriPackageOrWrapper::Package(_, package) => {
                 let wrapper = package
-                    .create_wrapper()
+                    .create_wrapper(self)
                     .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
                 Ok(wrapper)
             }
@@ -137,9 +183,9 @@ impl Client for InnerPolywrapClient {
     }
 }
 
-impl UriResolverHandler for InnerPolywrapClient {
+impl UriResolverHandler for PolywrapClient {
     fn try_resolve_uri(
-        self: Arc<Self>,
+        &self,
         uri: &Uri,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<UriPackageOrWrapper, Error> {
@@ -151,113 +197,7 @@ impl UriResolverHandler for InnerPolywrapClient {
             None => &mut uri_resolver_context,
         };
 
-        uri_resolver.try_resolve_uri(uri, self.clone(), resolution_context)
-    }
-}
-
-pub struct PolywrapClient(Arc<InnerPolywrapClient>);
-
-impl PolywrapClient {
-    pub fn new(config: ClientConfig) -> Self {
-        let resolver = config.resolver;
-        let envs = config.envs;
-        let interfaces = config.interfaces;
-        let inner_client = InnerPolywrapClient::new(ClientConfig {
-            resolver,
-            envs,
-            interfaces,
-        });
-
-        PolywrapClient(Arc::new(inner_client))
-    }
-
-    pub fn invoke<T: DeserializeOwned>(
-        &self,
-        uri: &Uri,
-        method: &str,
-        args: Option<&[u8]>,
-        env: Option<&Env>,
-        resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<T, Error> {
-        let result = self
-            .0
-            .clone()
-            .invoke_raw(uri, method, args, env, resolution_context)?;
-
-        decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
-    }
-
-    pub fn invoke_wrapper_raw(
-        &self,
-        wrapper: Arc<dyn Wrapper>,
-        uri: &Uri,
-        method: &str,
-        args: Option<&[u8]>,
-        env: Option<&Env>,
-        resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<Vec<u8>, Error> {
-        wrapper
-            .invoke(self.0.clone(), uri, method, args, env, resolution_context)
-            .map_err(|e| Error::InvokeError(e.to_string()))
-    }
-
-    pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
-        &self,
-        wrapper: &TWrapper,
-        uri: &Uri,
-        method: &str,
-        args: Option<&[u8]>,
-        env: Option<&Env>,
-        resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<TResult, Error> {
-        let result = wrapper
-            .invoke(self.0.clone(), uri, method, args, env, resolution_context)
-            .map_err(|e| Error::InvokeError(e.to_string()))?;
-
-        decode(result.as_slice())
-            .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
-    }
-
-    pub fn try_resolve_uri(
-        &self,
-        uri: &Uri,
-        resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<UriPackageOrWrapper, Error> {
-        self.0.clone().try_resolve_uri(uri, resolution_context)
-    }
-
-    pub fn load_wrapper(
-        &self,
-        uri: &Uri,
-        resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<Arc<dyn Wrapper>, Error> {
-        self.0.clone().load_wrapper(uri, resolution_context)
-    }
-
-    pub fn invoke_raw(
-        &self,
-        uri: &Uri,
-        method: &str,
-        args: Option<&[u8]>,
-        env: Option<&Env>,
-        resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<Vec<u8>, Error> {
-        self.0
-            .clone()
-            .invoke_raw(uri, method, args, env, resolution_context)
-    }
-
-    pub fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
-        self.0.get_implementations(uri)
-    }
-
-    pub fn get_interfaces(&self) -> Option<InterfaceImplementations> {
-        self.0.get_interfaces()
-    }
-
-    pub fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
-        self.0.get_env_by_uri(uri)
+        uri_resolver.try_resolve_uri(uri, self, resolution_context)
     }
 }
 
@@ -270,7 +210,7 @@ mod client_tests {
         invoke::Invoker,
         resolvers::{
             uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-            uri_resolver::UriResolver,
+            uri_resolver::{UriResolver, UriResolverHandler},
         },
         uri::Uri,
         wrapper::{GetFileOptions, Wrapper},
@@ -309,7 +249,7 @@ mod client_tests {
             }
         }
 
-        fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
+        fn get_file(&self, _: &dyn Client, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
             unimplemented!()
         }
     }
@@ -321,7 +261,7 @@ mod client_tests {
         fn try_resolve_uri(
             &self,
             uri: &Uri,
-            _: Arc<dyn Client>,
+            _: &dyn Client,
             _: &mut UriResolutionContext,
         ) -> Result<UriPackageOrWrapper, Error> {
             if uri.to_string() == "wrap://ens/mock.eth".to_string() {
