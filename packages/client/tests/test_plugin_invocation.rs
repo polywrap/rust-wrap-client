@@ -26,8 +26,8 @@ pub trait Module: PluginModule {
     fn check_env_is_bar(
         &mut self,
         args: &GetEnvArgs,
-        invoker: Arc<dyn Invoker>,
-        env: Option<Env>,
+        invoker: &dyn Invoker,
+        env: Option<&Env>,
     ) -> Result<bool, PluginError>;
 }
 
@@ -36,8 +36,8 @@ impl Module for PluginEnv {
     fn check_env_is_bar(
         &mut self,
         args: &GetEnvArgs,
-        _: Arc<dyn Invoker>,
-        env: Option<Env>,
+        _: &dyn Invoker,
+        env: Option<&Env>,
     ) -> Result<bool, PluginError> {
         if let Some(env) = env {
             if let Some(value) = env.get(args.key.clone()) {

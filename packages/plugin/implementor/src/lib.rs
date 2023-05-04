@@ -79,7 +79,8 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
               let env = if env_is_option { 
                 quote! {
                   if let Some(e) = env {
-                    Some(JSON::from_value(e).unwrap())
+                    _decoded_env = JSON::from_value(e.clone()).unwrap();
+                    Some(&_decoded_env)
                   } else {
                     None
                   }
@@ -87,7 +88,8 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
               } else {
                 quote! {
                   if let Some(e) = env {
-                    JSON::from_value(e).unwrap()
+                    _decoded_env = JSON::from_value(e.clone()).unwrap();
+                    &_decoded_env
                   } else {
                     panic!("Env must be defined for method '{}'", #ident_str)
                   }
@@ -122,6 +124,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
           
             quote! {
                 #ident_str => {
+                  let mut _decoded_env = JSON::Value::Null;
                   let result = self.#ident(
                     #args
                   )?;
@@ -137,8 +140,8 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             &mut self,
             method_name: &str,
             params: &[u8],
-            env: Option<JSON::Value>,
-            invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,
+            env: Option<&JSON::Value>,
+            invoker: &dyn polywrap_core::invoke::Invoker,
         ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
                 let supported_methods = vec![#(#supported_methods),*];
                 match method_name {
