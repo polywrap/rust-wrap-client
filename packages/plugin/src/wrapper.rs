@@ -8,7 +8,7 @@ use polywrap_core::{
     invoke::Invoker,
     resolvers::uri_resolution_context::UriResolutionContext,
     uri::Uri,
-    wrapper::{GetFileOptions, Wrapper},
+    wrapper::{GetFileOptions, Wrapper}, client::Client,
 };
 
 use crate::module::PluginModule;
@@ -45,7 +45,7 @@ impl Wrapper for PluginWrapper {
             .instance
             .lock()
             .unwrap()
-            ._wrap_invoke(method, &args, env, invoker);
+            ._wrap_invoke(method, &args, env, invoker.as_ref());
 
         match result {
             Ok(result) => Ok(result),
