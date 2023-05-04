@@ -25,7 +25,7 @@ impl UriResolver for FilesystemResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        _: Arc<dyn Client>,
+        client: &dyn Client,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority != "fs" && uri.authority != "file" {
@@ -37,7 +37,7 @@ impl UriResolver for FilesystemResolver {
         if manifest_path.exists() {
             let manifest = self
                 .file_reader
-                .read_file(manifest_path.to_str().unwrap())?;
+                .read_file(client, manifest_path.to_str().unwrap())?;
 
             let wrapper_path = Path::new(&uri.path).join("wrap.wasm");
             let wrapper_file = fs::read(wrapper_path).unwrap();

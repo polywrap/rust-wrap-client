@@ -27,7 +27,7 @@ impl ResolverWithHistory for RedirectResolver {
     fn _try_resolve_uri(
         &self,
         uri: &Uri,
-        _: Arc<dyn Client>,
+        _: &dyn Client,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, crate::error::Error> {
         if uri.to_string() != self.from.to_string() {

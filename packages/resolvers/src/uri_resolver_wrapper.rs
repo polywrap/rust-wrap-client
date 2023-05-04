@@ -32,7 +32,7 @@ impl UriResolverWrapper {
     &self,
     uri: Uri,
     implementation_uri: Uri,
-    client: Arc<dyn Client>,
+    client: &dyn Client,
     resolution_context: &mut UriResolutionContext
   ) -> Result<MaybeUriOrManifest, Error> {
       let mut sub_context = resolution_context.create_sub_context();
@@ -72,7 +72,7 @@ impl UriResolverWrapper {
     &self,
     current_uri: Uri,
     resolver_extension_uri: Uri,
-    client: Arc<dyn Client>,
+    client: &dyn Client,
     resolution_context: &mut UriResolutionContext
   ) -> Result<Arc<dyn Wrapper>, Error> {
 
@@ -93,7 +93,7 @@ impl UriResolverWrapper {
         },
         UriPackageOrWrapper::Package(_, package) => {
           let wrapper = package
-            .create_wrapper()
+            .create_wrapper(client)
             .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
 
           Ok(wrapper)
@@ -109,7 +109,7 @@ impl ResolverWithHistory for UriResolverWrapper {
     fn _try_resolve_uri(
       &self, 
       uri: &Uri, 
-      client: Arc<dyn Client>, 
+      client: &dyn Client, 
       resolution_context: &mut UriResolutionContext
     ) ->  Result<UriPackageOrWrapper, Error> {
       let result = self.try_resolve_uri_with_implementation(
@@ -120,8 +120,7 @@ impl ResolverWithHistory for UriResolverWrapper {
       )?;
       let file_reader = UriResolverExtensionFileReader::new(
         self.implementation_uri.clone(),
-        uri.clone(),
-        client
+        uri.clone()
       );
 
       if let Some(manifest) = result.manifest {
@@ -130,7 +129,7 @@ impl ResolverWithHistory for UriResolverWrapper {
             Some(manifest),
             None
           );
-          let wrapper = package.create_wrapper()?;
+          let wrapper = package.create_wrapper(client)?;
           return Ok(UriPackageOrWrapper::Wrapper(uri.clone(), wrapper));
       }
 
@@ -138,7 +137,7 @@ impl ResolverWithHistory for UriResolverWrapper {
         Arc::new(file_reader), None, None
       );
 
-      if package.get_manifest(None).is_ok() {
+      if package.get_manifest(client, None).is_ok() {
         return Ok(
           UriPackageOrWrapper::Package(uri.clone(), 
           Arc::new(package))

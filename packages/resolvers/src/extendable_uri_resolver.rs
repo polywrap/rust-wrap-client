@@ -33,7 +33,7 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
     fn get_uri_resolvers(
         &self,
         _: &Uri,
-        client: Arc<dyn Client>,
+        client: &dyn Client,
         resolution_context: &mut UriResolutionContext
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
         let implementations = client.get_implementations(
@@ -69,7 +69,7 @@ impl UriResolver for ExtendableUriResolver {
     fn try_resolve_uri(
         &self, 
         uri: &Uri, 
-        client: Arc<dyn Client>, 
+        client: &dyn Client, 
         resolution_context: &mut UriResolutionContext
     ) -> Result<UriPackageOrWrapper, Error> {
         let resolvers = self.get_uri_resolvers(

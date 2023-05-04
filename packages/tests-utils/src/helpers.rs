@@ -1,6 +1,6 @@
 use std::{path::{Path,PathBuf},sync::{Arc}, fmt::{Debug, Formatter}};
 
-use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoke::Invoker, uri::Uri, env::Env, resolvers::uri_resolution_context::UriResolutionContext, package::WrapPackage};
+use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoke::Invoker, uri::Uri, env::Env, resolvers::uri_resolution_context::UriResolutionContext, package::WrapPackage, client::Client};
 use wrap_manifest_schemas::versions::WrapManifest;
 
 pub struct MockWrapper {
@@ -40,13 +40,14 @@ impl MockPackage {
 }
 
 impl WrapPackage for MockPackage {
-    fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
+    fn create_wrapper(&self, _: &dyn Client) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
         Ok(Arc::new(MockWrapper::new(None)))
     }
 
     fn get_manifest(
         &self, 
-        _: Option<polywrap_core::package::GetManifestOptions>
+        _: &dyn Client,
+        _: Option<&polywrap_core::package::GetManifestOptions>
     ) ->  Result<WrapManifest, polywrap_core::error::Error> {
         unimplemented!()
     }
@@ -67,6 +68,7 @@ impl Wrapper for MockWrapper {
 
     fn get_file(
         &self,
+        _: &dyn Client,
         _: &GetFileOptions
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         Ok(vec![2])

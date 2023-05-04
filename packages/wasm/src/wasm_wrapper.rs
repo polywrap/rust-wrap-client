@@ -2,6 +2,7 @@ use crate::error::WrapperError;
 use crate::runtime::instance::{State,WasmInstance};
 
 
+use polywrap_core::client::Client;
 use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
@@ -40,7 +41,7 @@ impl WasmWrapper {
     }
 
     pub fn invoke_and_decode<T: DeserializeOwned>(
-        &mut self,
+        &self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,
@@ -141,8 +142,8 @@ impl Wrapper for WasmWrapper {
         }
     }
 
-    fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
-        if let Ok(data) = self.file_reader.read_file(&options.path) {
+    fn get_file(&self, client: &dyn Client, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
+        if let Ok(data) = self.file_reader.read_file(client, &options.path) {
             let result = match &options.encoding {
                 Some(encoding) => {
                     let data_string = String::from_utf8(data.clone()).unwrap();

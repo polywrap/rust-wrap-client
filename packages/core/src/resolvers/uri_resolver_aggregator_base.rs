@@ -12,7 +12,7 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
     fn get_uri_resolvers(
         &self,
         uri: &Uri,
-        client: Arc<dyn Client>,
+        client: &dyn Client,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<Vec<Arc<dyn UriResolver>>, crate::error::Error>;
     fn get_step_description(
@@ -23,7 +23,7 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
     fn try_resolve_uri_with_resolvers(
         &self,
         uri: &Uri,
-        client: Arc<dyn Client>,
+        client: &dyn Client,
         resolvers: Vec<Arc<dyn UriResolver>>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, crate::error::Error> {
