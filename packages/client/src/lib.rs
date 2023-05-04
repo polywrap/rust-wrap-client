@@ -1,3 +1,4 @@
+#![feature(trait_upcasting)]
 pub mod client;
 pub mod invoke_args;
 

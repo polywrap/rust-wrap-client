@@ -29,9 +29,8 @@ pub struct ClientConfig {
 }
 
 pub trait Client: Invoker + UriResolverHandler {
-  fn get_config(&self) -> &ClientConfig;
   fn load_wrapper(
-    &self,
+    self: Arc<Self>,
     uri: &Uri,
     resolution_context: Option<&mut UriResolutionContext>,
   ) -> Result<Arc<dyn Wrapper>, Error>;

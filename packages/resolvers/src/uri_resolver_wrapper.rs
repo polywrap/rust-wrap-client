@@ -43,10 +43,8 @@ impl UriResolverWrapper {
         &mut sub_context
       )?;
 
-      let mut env = None;
-      if let Some(e) = client.get_env_by_uri(&uri) {
-          env = Some(e);
-      };
+      let client_clone = client.clone();
+      let env = client_clone.get_env_by_uri(&uri);
 
       let result = client.invoke_wrapper_raw(
           wrapper, 

@@ -59,7 +59,7 @@ impl Wrapper for MockWrapper {
         _: &Uri,
         _: &str,
         _: Option< &[u8]>,
-        _: Option<Env>,
+        _: Option<&Env>,
         _: Option<&mut UriResolutionContext>
     ) ->  Result<Vec<u8>, polywrap_core::error::Error> {
         Ok(vec![2])
