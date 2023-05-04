@@ -33,7 +33,7 @@ impl Invoker for MockInvoker {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         resolution_context: Option<&mut UriResolutionContext>
     ) -> Result<Vec<u8>, Error> {
         let result = wrapper.invoke(
@@ -62,10 +62,10 @@ impl Invoker for MockInvoker {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        let invoke_result = self.invoke_wrapper_raw(
+        let invoke_result = self.clone().invoke_wrapper_raw(
             Arc::new(self.wrapper.clone()),
             uri,
             method,
@@ -84,7 +84,7 @@ impl Invoker for MockInvoker {
         Ok(invoke_result.unwrap())
     }
 
-    fn get_implementations(&self, _uri: Uri) -> Result<Vec<Uri>, Error> {
+    fn get_implementations(&self, _uri: &Uri) -> Result<Vec<Uri>, Error> {
         Ok(vec![])
     }
 
@@ -111,7 +111,7 @@ fn invoke_test() {
     let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader));
 
     let mock_invoker = MockInvoker::new(wrapper);
-    let result = mock_invoker.invoke_raw(
+    let result = Arc::new(mock_invoker).invoke_raw(
         &Uri::try_from("ens/wrapper.eth").unwrap(),
         "add",
         Some(&msgpack!({ "a": 1, "b": 1})), 
