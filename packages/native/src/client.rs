@@ -5,8 +5,6 @@ use polywrap_client::core::{
 };
 use serde_json::Value;
 
-use crate::wrapper::FFIWrapper;
-
 pub struct FFIClient {
     inner_client: Arc<dyn Client>,
 }
@@ -16,14 +14,6 @@ impl FFIClient {
         Self {
             inner_client: client,
         }
-    }
-
-    pub fn load_wrapper(
-        &self,
-        uri: Arc<Uri>,
-    ) -> Result<Arc<FFIWrapper>, polywrap_client::core::error::Error> {
-        let wrapper = self.inner_client.load_wrapper(uri.as_ref(), None)?;
-        Ok(Arc::new(FFIWrapper::new(wrapper)))
     }
 
     pub fn invoke_raw(

@@ -1,13 +1,13 @@
 use core::fmt;
 use std::{collections::HashMap, sync::{Arc}};
 use crate::{
-    client::{UriRedirect, Client},
+    client::{UriRedirect},
     error::Error,
     uri::Uri,
     resolvers::uri_resolution_context::{
       UriPackageOrWrapper, UriResolutionContext, UriResolutionStep,
     },
-    resolvers::uri_resolver::UriResolver, package::WrapPackage, wrapper::Wrapper,
+    resolvers::uri_resolver::UriResolver, package::WrapPackage, wrapper::Wrapper, invoke::Invoker,
 };
 
 pub enum StaticResolverLike {
@@ -64,7 +64,7 @@ impl UriResolver for StaticResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        _: Arc<dyn Client>,
+        _: Arc<dyn Invoker>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let uri_package_or_wrapper = self.uri_map.get(&uri.to_string());

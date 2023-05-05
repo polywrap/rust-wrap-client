@@ -1,8 +1,8 @@
 use std::fmt::Debug;
 use std::sync::Arc;
 
-use crate::client::Client;
 use crate::error::Error;
+use crate::invoke::Invoker;
 use crate::uri::Uri;
 use super::package_resolver::PackageResolver;
 use super::redirect_resolver::RedirectResolver;
@@ -23,7 +23,7 @@ pub trait UriResolver: Send + Sync + Debug {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        client: Arc<dyn Client>,
+        client: Arc<dyn Invoker>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error>;
 }

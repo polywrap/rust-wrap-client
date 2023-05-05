@@ -1,7 +1,7 @@
 use core::fmt;
 use std::sync::{Arc};
 
-use crate::{uri::Uri, wrapper::Wrapper, client::Client};
+use crate::{uri::Uri, wrapper::Wrapper, invoke::Invoker};
 
 use super::{
     resolver_with_history::ResolverWithHistory,
@@ -23,7 +23,7 @@ impl ResolverWithHistory for WrapperResolver {
     fn _try_resolve_uri(
         &self,
         uri: &Uri,
-        _: Arc<dyn Client>,
+        _: Arc<dyn Invoker>,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, crate::error::Error> {
         if uri.to_string() != self.uri.to_string() {

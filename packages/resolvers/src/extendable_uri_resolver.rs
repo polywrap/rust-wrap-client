@@ -10,7 +10,7 @@ use polywrap_core::{
         uri_resolver::UriResolver
     },
     uri::Uri,
-    error::Error, client::Client
+    error::Error, invoke::Invoker
 };
 
 use crate::uri_resolver_wrapper::UriResolverWrapper;
@@ -33,10 +33,10 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
     fn get_uri_resolvers(
         &self,
         _: &Uri,
-        client: &dyn Client,
+        invoker: &dyn Invoker,
         resolution_context: &mut UriResolutionContext
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
-        let implementations = client.get_implementations(
+        let implementations = invoker.get_implementations(
            &Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?
         )?;
 
@@ -69,12 +69,12 @@ impl UriResolver for ExtendableUriResolver {
     fn try_resolve_uri(
         &self, 
         uri: &Uri, 
-        client: Arc<dyn Client>, 
+        invoker: Arc<dyn Invoker>, 
         resolution_context: &mut UriResolutionContext
     ) -> Result<UriPackageOrWrapper, Error> {
         let resolvers = self.get_uri_resolvers(
             uri,
-            client.as_ref(),
+            invoker.as_ref(),
             resolution_context
         )?;
 
@@ -85,7 +85,7 @@ impl UriResolver for ExtendableUriResolver {
 
         self.try_resolve_uri_with_resolvers(
             uri,
-            client,
+            invoker,
             resolvers,
             resolution_context
         )
