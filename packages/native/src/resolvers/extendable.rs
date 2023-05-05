@@ -1,4 +1,6 @@
-use polywrap_client::{core::resolvers::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver}, resolvers::extendable_uri_resolver::ExtendableUriResolver};
+use std::sync::Arc;
+
+use polywrap_client::{core::{resolvers::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver}, client::Client}, resolvers::extendable_uri_resolver::ExtendableUriResolver};
 
 #[derive(Debug)]
 pub struct FFIExtendableUriResolver {
@@ -17,9 +19,9 @@ impl UriResolver for FFIExtendableUriResolver {
     fn try_resolve_uri(
         &self,
         uri: &polywrap_client::core::uri::Uri,
-        client: std::sync::Arc<dyn polywrap_client::core::client::Loader>,
+        client: Arc<dyn Client>,
         resolution_context: &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, polywrap_client::core::error::Error> {
-        self.inner_resolver.try_resolve_uri(uri, loader, resolution_context)
+        self.inner_resolver.try_resolve_uri(uri, client, resolution_context)
     }
 }

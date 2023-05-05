@@ -2,17 +2,17 @@ use polywrap_client::{
     builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
     core::{resolvers::uri_resolver_like::UriResolverLike, uri::Uri}, client::PolywrapClient,
 };
+use polywrap_plugin::{module::PluginModule, wrapper::PluginWrapper};
 use std::sync::{Arc, Mutex};
 
 use crate::{
-    plugin_wrapper::FFIPluginWrapper,
     resolvers::{
         _static::FFIStaticUriResolver,
         extendable::FFIExtendableUriResolver,
         ffi_resolver::{FFIUriResolver, FFIUriResolverWrapper},
         recursive::FFIRecursiveUriResolver,
     },
-    wasm_wrapper::FFIWasmWrapper, client::FFIClient,
+    wasm_wrapper::FFIWasmWrapper, client::FFIClient, plugin_wrapper::FFIPluginModule,
 };
 
 pub struct FFIBuilderConfig {
@@ -37,7 +37,7 @@ impl FFIBuilderConfig {
         self.inner_builder
             .lock()
             .unwrap()
-            .remove_env(uri.as_ref().clone());
+            .remove_env(uri.as_ref());
     }
 
     pub fn set_env(&self, uri: Arc<Uri>, env: &str) {
@@ -62,8 +62,8 @@ impl FFIBuilderConfig {
             .lock()
             .unwrap()
             .remove_interface_implementation(
-                interface_uri.as_ref().clone(),
-                implementation_uri.as_ref().clone()
+                interface_uri.as_ref(),
+                implementation_uri.as_ref()
             );
     }
 
@@ -74,10 +74,12 @@ impl FFIBuilderConfig {
         );
     }
 
-    pub fn add_plugin_wrapper(&self, uri: Arc<Uri>, wrapper: Arc<FFIPluginWrapper>) {
+    pub fn add_plugin_wrapper(&self, uri: Arc<Uri>, plugin_module: Box<dyn FFIPluginModule>) {
+        let plugin_instance = Box::new(plugin_module) as Box<dyn PluginModule>;
+        let plugin = PluginWrapper::new(Arc::new(Mutex::new(plugin_instance)));
         self.inner_builder.lock().unwrap().add_wrapper(
             uri.as_ref().clone(),
-            wrapper.inner_plugin.clone(),
+            Arc::new(plugin),
         );
     }
 
@@ -85,7 +87,7 @@ impl FFIBuilderConfig {
         self.inner_builder
             .lock()
             .unwrap()
-            .remove_wrapper(uri.as_ref().clone());
+            .remove_wrapper(uri.as_ref());
     }
 
     pub fn add_redirect(&self, from: Arc<Uri>, to: Arc<Uri>) {
@@ -99,7 +101,7 @@ impl FFIBuilderConfig {
         self.inner_builder
             .lock()
             .unwrap()
-            .remove_redirect(from.as_ref().clone());
+            .remove_redirect(from.as_ref());
     }
 
     pub fn add_resolver(&self, resolver: Box<dyn FFIUriResolver>) {
@@ -133,7 +135,7 @@ impl FFIBuilderConfig {
 
     pub fn build(&self) -> Arc<FFIClient> {
       let config = self.inner_builder.lock().unwrap().clone().build();
-      let client = PolywrapClient::new(config);
+      let client = Arc::new(PolywrapClient::new(config));
       Arc::new(FFIClient::new(client))
     }
 }
