@@ -2,7 +2,7 @@ use crate::error::WrapperError;
 use crate::runtime::instance::{State,WasmInstance};
 
 
-use polywrap_core::client::Client;
+
 use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;

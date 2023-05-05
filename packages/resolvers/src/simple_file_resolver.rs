@@ -25,7 +25,7 @@ impl UriResolver for FilesystemResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        client: Arc<dyn Client>,
+        _client: Arc<dyn Client>,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority != "fs" && uri.authority != "file" {
