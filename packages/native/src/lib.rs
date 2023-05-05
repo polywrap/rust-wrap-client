@@ -34,7 +34,6 @@ use crate::resolvers::uri_resolver_like::FFIUriResolverLike;
 use polywrap_client::core::uri::Uri;
 use polywrap_client::core::error::Error;
 use crate::builder::FFIBuilderConfig;
-use polywrap_client::core::invoke::Invoker;
 
 pub fn uri_from_string(uri: &str) -> Result<Arc<Uri>, Error> {
   Ok(Arc::new(uri.to_string().try_into()?))
