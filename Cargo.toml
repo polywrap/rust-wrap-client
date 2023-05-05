@@ -8,9 +8,9 @@ repository = "https://github.com/polywrap/rust-client"
 [workspace]
 members = [
     "packages/client",
-    "packages/native",
     "packages/core",
     "packages/wasm",
+    "packages/native",
     "packages/resolvers",
     "packages/msgpack",
     "packages/manifest",

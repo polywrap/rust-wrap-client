@@ -26,8 +26,8 @@ use polywrap_wasm::wasm_wrapper::WasmWrapper;
 fn test_uri_resolver_wrapper() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let wrapper_path = format!("{}/subinvoke/00-subinvoke/implementations/as", path);
-    let wrapper_uri = Uri::try_from(format!("fs/{}", wrapper_path)).unwrap();
+    let wrapper_path = format!("{path}/subinvoke/00-subinvoke/implementations/as");
+    let wrapper_uri = Uri::try_from(format!("fs/{wrapper_path}")).unwrap();
 
     let file_reader = SimpleFileReader::new();
     let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
@@ -58,8 +58,7 @@ fn test_uri_resolver_wrapper() {
     }
 
     let result = result.unwrap();
-    if let UriPackageOrWrapper::Wrapper(_, w) = result {
-        let wrapper = w.lock().unwrap();
+    if let UriPackageOrWrapper::Wrapper(_, wrapper) = result {
         let wrapper = &*wrapper as &dyn std::any::Any;
         assert_eq!(wrapper.type_id(), TypeId::of::<WasmWrapper>());
     } else {

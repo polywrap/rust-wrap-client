@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use polywrap_client::{core::resolvers::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike}};
+use polywrap_client::{core::{resolvers::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike}, client::Client}};
 use super::{uri_resolver_like::FFIUriResolverLike};
 
 #[derive(Debug)]
@@ -22,9 +22,9 @@ impl UriResolver for FFIRecursiveUriResolver {
     fn try_resolve_uri(
         &self,
         uri: &polywrap_client::core::uri::Uri,
-        loader: std::sync::Arc<dyn polywrap_client::core::loader::Loader>,
+        client: Arc<dyn Client>,
         resolution_context: &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, polywrap_client::core::error::Error> {
-        self.inner_resolver.try_resolve_uri(uri, loader, resolution_context)
+        self.inner_resolver.try_resolve_uri(uri, client, resolution_context)
     }
 }

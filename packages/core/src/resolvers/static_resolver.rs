@@ -1,9 +1,8 @@
 use core::fmt;
-use std::{collections::HashMap, sync::{Mutex, Arc}};
+use std::{collections::HashMap, sync::{Arc}};
 use crate::{
-    client::UriRedirect,
+    client::{UriRedirect, Client},
     error::Error,
-    loader::Loader,
     uri::Uri,
     resolvers::uri_resolution_context::{
       UriPackageOrWrapper, UriResolutionContext, UriResolutionStep,
@@ -13,8 +12,8 @@ use crate::{
 
 pub enum StaticResolverLike {
     Redirect(UriRedirect),
-    Wrapper(Uri, Arc<Mutex<Box<dyn Wrapper>>>),
-    Package(Uri, Arc<Mutex<Box<dyn WrapPackage>>>),
+    Wrapper(Uri, Arc<dyn Wrapper>),
+    Package(Uri, Arc<dyn WrapPackage>),
     StaticResolverLike(Vec<StaticResolverLike>),
 }
 
@@ -65,22 +64,22 @@ impl UriResolver for StaticResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        _: Arc<dyn Loader>,
+        _: Arc<dyn Client>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let uri_package_or_wrapper = self.uri_map.get(&uri.to_string());
         let (description, result) = if let Some(found) = uri_package_or_wrapper {
             match found {
                 UriPackageOrWrapper::Package(uri, package) => (
-                    format!("StaticResolver - Package ({})", uri),
+                    format!("StaticResolver - Package ({uri})"),
                     UriPackageOrWrapper::Package(uri.clone(), package.clone())
                 ),
                 UriPackageOrWrapper::Wrapper(uri, wrapper) => (
-                    format!("StaticResolver - Wrapper ({})", uri),
+                    format!("StaticResolver - Wrapper ({uri})"),
                     UriPackageOrWrapper::Wrapper(uri.clone(), wrapper.clone())
                 ),
                 UriPackageOrWrapper::Uri(uri) => (
-                    format!("StaticResolver - Redirect ({})", uri),
+                    format!("StaticResolver - Redirect ({uri})"),
                     UriPackageOrWrapper::Uri(uri.clone())
                 ),
             }

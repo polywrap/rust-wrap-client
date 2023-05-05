@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 
-use polywrap_core::file_reader::FileReader;
+use polywrap_core::{file_reader::FileReader};
 
 pub struct BaseFileReader {}
 

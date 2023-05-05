@@ -1,7 +1,7 @@
 use core::fmt;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
-use crate::{loader::Loader, uri::Uri, wrapper::Wrapper};
+use crate::{uri::Uri, wrapper::Wrapper, client::Client};
 
 use super::{
     resolver_with_history::ResolverWithHistory,
@@ -10,7 +10,7 @@ use super::{
 
 pub struct WrapperResolver {
     pub uri: Uri,
-    pub wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
+    pub wrapper: Arc<dyn Wrapper>,
 }
 
 impl WrapperResolver {}
@@ -23,7 +23,7 @@ impl ResolverWithHistory for WrapperResolver {
     fn _try_resolve_uri(
         &self,
         uri: &Uri,
-        _: Arc<dyn Loader>,
+        _: Arc<dyn Client>,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, crate::error::Error> {
         if uri.to_string() != self.uri.to_string() {

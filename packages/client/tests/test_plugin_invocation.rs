@@ -1,18 +1,15 @@
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
 
+use JSON::{json, from_value, Value};
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{invoke::{Invoker}, resolvers::{static_resolver::{StaticResolverLike, StaticResolver}}, uri::Uri, client::ClientConfig, env::Env, package::WrapPackage};
-
+use polywrap_core::{invoke::{Invoker}, env::Env, resolvers::static_resolver::{StaticResolverLike, StaticResolver}, package::WrapPackage, uri::Uri, client::ClientConfig};
 use polywrap_msgpack::msgpack;
-use polywrap_plugin::{
-    error::PluginError, implementor::plugin_impl, module::PluginModule, package::PluginPackage,
-};
-use serde_json as JSON;
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
-use JSON::{from_value, json, Value};
+use std::{sync::Arc, collections::HashMap};
+use serde_json as JSON;
+
+use polywrap_plugin::{
+    error::PluginError, module::PluginModule, implementor::plugin_impl, package::PluginPackage,
+};
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 pub struct GetEnvArgs {
@@ -27,7 +24,7 @@ pub trait Module: PluginModule {
         &mut self,
         args: &GetEnvArgs,
         invoker: Arc<dyn Invoker>,
-        env: Option<Env>,
+        env: Option<&Env>,
     ) -> Result<bool, PluginError>;
 }
 
@@ -37,7 +34,7 @@ impl Module for PluginEnv {
         &mut self,
         args: &GetEnvArgs,
         _: Arc<dyn Invoker>,
-        env: Option<Env>,
+        env: Option<&Env>,
     ) -> Result<bool, PluginError> {
         if let Some(env) = env {
             if let Some(value) = env.get(args.key.clone()) {
@@ -62,7 +59,7 @@ pub fn get_manifest() -> WrapManifest {
 fn invoke_test() {
     let plugin = PluginEnv {};
     let package: PluginPackage = plugin.into();
-    let module = Arc::new(Mutex::new(Box::new(package) as Box<dyn WrapPackage>));
+    let module = Arc::new(package) as Arc<dyn WrapPackage>;
 
     let plugin_static_like = StaticResolverLike::Package(Uri::try_from("ens/env-plugin.eth").unwrap(), module);
     let static_resolver = StaticResolver::from(vec![

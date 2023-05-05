@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::{Arc, Mutex}};
+use std::{collections::HashMap, sync::{Arc}};
 
 use polywrap_core::{
     client::{ClientConfig, UriRedirect},
@@ -75,15 +75,15 @@ impl ClientBuilder for BuilderConfig {
     fn add_env(&mut self, uri: Uri, env: Env) -> &mut Self {
         match self.envs.as_mut() {
             Some(envs) => {
-                if let Some(u) = envs.get_mut(&uri.uri) {
+                if let Some(u) = envs.get_mut(&uri.to_string()) {
                     merge(u, &env);
                 } else {
-                    envs.insert(uri.uri, env);
+                    envs.insert(uri.to_string(), env);
                 }
             }
             None => {
                 let mut envs: Envs = HashMap::new();
-                envs.insert(uri.uri, env);
+                envs.insert(uri.to_string(), env);
                 self.envs = Some(envs);
             }
         };
@@ -97,7 +97,7 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn remove_env(&mut self, uri: Uri) -> &mut Self {
+    fn remove_env(&mut self, uri: &Uri) -> &mut Self {
         if let Some(envs) = self.envs.as_mut() {
             envs.retain(|k, _| &uri.clone().uri != k);
             if envs.keys().len() == 0 {
@@ -109,10 +109,10 @@ impl ClientBuilder for BuilderConfig {
 
     fn set_env(&mut self, uri: Uri, env: Env) -> &mut Self {
         if let Some(envs) = self.envs.as_mut() {
-            envs.insert(uri.uri, env);
+            envs.insert(uri.to_string(), env);
         } else {
             let mut new_env: Envs = HashMap::new();
-            new_env.insert(uri.uri, env);
+            new_env.insert(uri.to_string(), env);
             self.envs = Some(new_env);
         }
         self
@@ -125,17 +125,17 @@ impl ClientBuilder for BuilderConfig {
     ) -> &mut Self {
         match self.interfaces.as_mut() {
             Some(interfaces) => {
-                let current_interface = interfaces.get_mut(&interface_uri.uri);
+                let current_interface = interfaces.get_mut(&interface_uri.to_string());
                 match current_interface {
                     Some(i) => i.push(implementation_uri),
                     None => {
-                        interfaces.insert(interface_uri.uri, vec![implementation_uri]);
+                        interfaces.insert(interface_uri.to_string(), vec![implementation_uri]);
                     }
                 }
             }
             None => {
                 let mut interfaces = HashMap::new();
-                interfaces.insert(interface_uri.uri, vec![implementation_uri]);
+                interfaces.insert(interface_uri.to_string(), vec![implementation_uri]);
                 self.interfaces = Some(interfaces);
             }
         }
@@ -149,7 +149,7 @@ impl ClientBuilder for BuilderConfig {
     ) -> &mut Self {
         match self.interfaces.as_mut() {
             Some(interfaces) => {
-                let current_interface = interfaces.get_mut(&interface_uri.uri);
+                let current_interface = interfaces.get_mut(&interface_uri.to_string());
                 match current_interface {
                     Some(i) => {
                         for implementation_uri in implementation_uris {
@@ -159,13 +159,13 @@ impl ClientBuilder for BuilderConfig {
                         }
                     }
                     None => {
-                        interfaces.insert(interface_uri.uri, implementation_uris);
+                        interfaces.insert(interface_uri.to_string(), implementation_uris);
                     }
                 };
             }
             None => {
                 let mut interfaces = HashMap::new();
-                interfaces.insert(interface_uri.uri, implementation_uris);
+                interfaces.insert(interface_uri.to_string(), implementation_uris);
                 self.interfaces = Some(interfaces);
             }
         };
@@ -175,15 +175,15 @@ impl ClientBuilder for BuilderConfig {
 
     fn remove_interface_implementation(
         &mut self,
-        interface_uri: Uri,
-        implementation_uri: Uri,
+        interface_uri: &Uri,
+        implementation_uri: &Uri,
     ) -> &mut Self {
         if let Some(interfaces) = self.interfaces.as_mut() {
-            let implementations = interfaces.get_mut(&interface_uri.uri);
+            let implementations = interfaces.get_mut(&interface_uri.to_string());
             if let Some(implementations) = implementations {
                 let index = implementations
                     .iter()
-                    .position(|i| i == &implementation_uri);
+                    .position(|i| i == implementation_uri);
                 if let Some(i) = index {
                     implementations.remove(i);
                 };
@@ -193,11 +193,11 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_wrapper(&mut self, uri: Uri, wrapper: Arc<Mutex<Box<dyn Wrapper>>>) -> &mut Self {
+    fn add_wrapper(&mut self, uri: Uri, wrapper: Arc<dyn Wrapper>) -> &mut Self {
         if let Some(wrappers) = self.wrappers.as_mut() {
             let existing_wrapper = wrappers
             .iter_mut()
-            .find(|i: &&mut (Uri, Arc<Mutex<Box<dyn Wrapper>>>)| i.0 == uri);
+            .find(|i: &&mut (Uri, Arc<dyn Wrapper>)| i.0 == uri);
             
             if let Some(p) = existing_wrapper {
                 p.1 = wrapper;
@@ -210,23 +210,23 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_wrappers(&mut self, wrappers: Vec<(Uri, Arc<Mutex<Box<dyn Wrapper>>>)>) -> &mut Self {
+    fn add_wrappers(&mut self, wrappers: Vec<(Uri, Arc<dyn Wrapper>)>) -> &mut Self {
         for (uri, wrapper) in wrappers.into_iter() {
             self.add_wrapper(uri, wrapper);
         }
         self
     }
 
-    fn remove_wrapper(&mut self, uri: Uri) -> &mut Self {
+    fn remove_wrapper(&mut self, uri: &Uri) -> &mut Self {
         if let Some(wrappers) = self.wrappers.as_mut() {
-            if let Some(index) = wrappers.iter().position(|(current_uri, _)| current_uri == &uri) {
+            if let Some(index) = wrappers.iter().position(|(current_uri, _)| current_uri == uri) {
                 wrappers.remove(index);
             }
         }
         self
     }
 
-    fn add_package(&mut self, uri: Uri, package: Arc<Mutex<Box<dyn WrapPackage>>>) -> &mut Self {
+    fn add_package(&mut self, uri: Uri, package: Arc<dyn WrapPackage>) -> &mut Self {
         if let Some(packages) = self.packages.as_mut() {
             let existing_package = packages
             .iter_mut()
@@ -243,16 +243,16 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_packages(&mut self, packages: Vec<(Uri, Arc<Mutex<Box<dyn WrapPackage>>>)>) -> &mut Self {
+    fn add_packages(&mut self, packages: Vec<(Uri, Arc<dyn WrapPackage>)>) -> &mut Self {
         for (uri, package) in packages.into_iter() {
             self.add_package(uri, package);
         }
         self
     }
 
-    fn remove_package(&mut self, uri: Uri) -> &mut Self {
+    fn remove_package(&mut self, uri: &Uri) -> &mut Self {
         if let Some(packages) = self.packages.as_mut() {
-            if let Some(index) = packages.iter().position(|(current_uri, _)| current_uri == &uri) {
+            if let Some(index) = packages.iter().position(|(current_uri, _)| current_uri == uri) {
                 packages.remove(index);
             }
         }
@@ -285,9 +285,9 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn remove_redirect(&mut self, from: Uri) -> &mut Self {
+    fn remove_redirect(&mut self, from: &Uri) -> &mut Self {
         if let Some(redirects) = self.redirects.as_mut() {
-            if let Some(i) = redirects.iter().position(|u| u.from == from) {
+            if let Some(i) = redirects.iter().position(|u| &u.from == from) {
                 redirects.remove(i);
                 if redirects.is_empty() {
                     self.redirects = None;

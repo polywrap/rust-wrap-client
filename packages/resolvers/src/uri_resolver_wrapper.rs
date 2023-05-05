@@ -1,11 +1,11 @@
 use core::fmt;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 use polywrap_core::{
   resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
   uri::Uri,
   error::Error, 
-  wrapper::Wrapper, loader::Loader, package::WrapPackage, 
+  wrapper::Wrapper, package::WrapPackage, client::Client, 
 };
 use polywrap_msgpack::{msgpack, decode};
 use polywrap_wasm::wasm_package::{WasmPackage};
@@ -30,29 +30,25 @@ impl UriResolverWrapper {
 
   fn try_resolve_uri_with_implementation(
     &self,
-    uri: Uri,
-    implementation_uri: Uri,
-    loader: Arc<dyn Loader>,
+    uri: &Uri,
+    implementation_uri: &Uri,
+    client: &dyn Client,
     resolution_context: &mut UriResolutionContext
   ) -> Result<MaybeUriOrManifest, Error> {
       let mut sub_context = resolution_context.create_sub_context();
       let wrapper = self.load_extension(
-        uri.clone(), 
-        implementation_uri.clone(), 
-        loader.clone(), 
+        uri, 
+        implementation_uri, 
+        client, 
         &mut sub_context
       )?;
 
-      let mut env = None;
-      if let Some(e) = loader.get_env_by_uri(&uri) {
-          let e = e.to_owned();
-          env = Some(e);
-      };
+      let client_clone = client;
+      let env = client_clone.get_env_by_uri(uri);
 
-      let invoker = loader.get_invoker()?;
-      let result = invoker.invoke_wrapper_raw(
+      let result = client.invoke_wrapper_raw(
           wrapper, 
-          &implementation_uri, 
+          implementation_uri, 
           "tryResolveUri", 
           Some(&msgpack!({
             "authority": uri.authority.as_str(),
@@ -74,14 +70,14 @@ impl UriResolverWrapper {
 
   fn load_extension(
     &self,
-    current_uri: Uri,
-    resolver_extension_uri: Uri,
-    loader: Arc<dyn Loader>,
+    current_uri: &Uri,
+    resolver_extension_uri: &Uri,
+    client: &dyn Client,
     resolution_context: &mut UriResolutionContext
-  ) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error> {
+  ) -> Result<Arc<dyn Wrapper>, Error> {
 
-    let result = loader.try_resolve_uri(
-      &resolver_extension_uri,
+    let result = client.try_resolve_uri(
+      resolver_extension_uri,
       Some(resolution_context)
     )?;
 
@@ -89,14 +85,14 @@ impl UriResolverWrapper {
       UriPackageOrWrapper::Uri(uri) => {
           let error = format!(
             "While resolving {} with URI resolver extension {}, the extension could not be fully resolved. Last tried URI is {}", 
-            current_uri.uri, 
-            resolver_extension_uri.uri,
-            uri.uri
+            current_uri.to_string(), 
+            resolver_extension_uri.to_string(),
+            uri.to_string()
           );
           Err(Error::LoadWrapperError(error))
         },
         UriPackageOrWrapper::Package(_, package) => {
-          let wrapper = package.lock().unwrap()
+          let wrapper = package
             .create_wrapper()
             .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
 
@@ -113,20 +109,19 @@ impl ResolverWithHistory for UriResolverWrapper {
     fn _try_resolve_uri(
       &self, 
       uri: &Uri, 
-      loader: Arc<dyn Loader>, 
+      client: Arc<dyn Client>, 
       resolution_context: &mut UriResolutionContext
     ) ->  Result<UriPackageOrWrapper, Error> {
       let result = self.try_resolve_uri_with_implementation(
-        uri.clone(), 
-        self.implementation_uri.clone(), 
-        loader.clone(), 
+        uri, 
+        &self.implementation_uri, 
+        client.as_ref(), 
         resolution_context
       )?;
-      let invoker = loader.get_invoker()?;
       let file_reader = UriResolverExtensionFileReader::new(
         self.implementation_uri.clone(),
         uri.clone(),
-        invoker
+        client
       );
 
       if let Some(manifest) = result.manifest {
@@ -146,7 +141,7 @@ impl ResolverWithHistory for UriResolverWrapper {
       if package.get_manifest(None).is_ok() {
         return Ok(
           UriPackageOrWrapper::Package(uri.clone(), 
-          Arc::new(Mutex::new(Box::new(package))))
+          Arc::new(package))
         );
       }
 

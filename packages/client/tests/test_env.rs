@@ -38,10 +38,9 @@ fn test_env() {
     let path = test_path.into_os_string().into_string().unwrap();
 
     let env_wrapper =
-        Uri::try_from(format!("fs/{}/env-type/01-main/implementations/as", path)).unwrap();
+        Uri::try_from(format!("fs/{path}/env-type/01-main/implementations/as")).unwrap();
     let as_env_external_wrapper_path = Uri::try_from(format!(
-        "fs/{}/env-type/00-external/implementations/as",
-        path
+        "fs/{path}/env-type/00-external/implementations/as"
     ))
     .unwrap();
 

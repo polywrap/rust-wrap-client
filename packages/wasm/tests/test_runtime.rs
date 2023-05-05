@@ -11,7 +11,7 @@ use wrap_manifest_schemas::{
 };
 
 use polywrap_msgpack::msgpack;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 use std::fs;
 use polywrap_tests_utils::helpers::get_tests_path;
 
@@ -29,14 +29,14 @@ impl MockInvoker {
 impl Invoker for MockInvoker {
     fn invoke_wrapper_raw(
         &self,
-        wrapper: Arc<Mutex<Box<dyn Wrapper>>>,
+        wrapper: Arc<dyn Wrapper>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         resolution_context: Option<&mut UriResolutionContext>
     ) -> Result<Vec<u8>, Error> {
-        let result = wrapper.lock().unwrap().invoke(
+        let result = wrapper.invoke(
             Arc::new(self.clone()),
             uri,
             method,
@@ -62,11 +62,11 @@ impl Invoker for MockInvoker {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        let invoke_result = self.invoke_wrapper_raw(
-            Arc::new(Mutex::new(Box::new(self.wrapper.clone()))),
+        let invoke_result = self.clone().invoke_wrapper_raw(
+            Arc::new(self.wrapper.clone()),
             uri,
             method,
             args,
@@ -84,7 +84,7 @@ impl Invoker for MockInvoker {
         Ok(invoke_result.unwrap())
     }
 
-    fn get_implementations(&self, _uri: Uri) -> Result<Vec<Uri>, Error> {
+    fn get_implementations(&self, _uri: &Uri) -> Result<Vec<Uri>, Error> {
         Ok(vec![])
     }
 
@@ -99,8 +99,8 @@ fn invoke_test() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    let module_path = format!("{}/subinvoke/00-subinvoke/implementations/as/wrap.wasm", path);
-    let manifest_path = format!("{}/subinvoke/00-subinvoke/implementations/as/wrap.info", path);
+    let module_path = format!("{path}/subinvoke/00-subinvoke/implementations/as/wrap.wasm");
+    let manifest_path = format!("{path}/subinvoke/00-subinvoke/implementations/as/wrap.info");
 
     let module_bytes = fs::read(Path::new(&module_path)).unwrap();
     let manifest_bytes = fs::read(Path::new(&manifest_path)).unwrap();
@@ -111,7 +111,7 @@ fn invoke_test() {
     let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader));
 
     let mock_invoker = MockInvoker::new(wrapper);
-    let result = mock_invoker.invoke_raw(
+    let result = Arc::new(mock_invoker).invoke_raw(
         &Uri::try_from("ens/wrapper.eth").unwrap(),
         "add",
         Some(&msgpack!({ "a": 1, "b": 1})), 

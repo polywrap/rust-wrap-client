@@ -1,7 +1,7 @@
-use polywrap_client::core::{resolvers::uri_resolver::UriResolver, uri::Uri};
-
-use crate::loader::FFILoader;
+use polywrap_client::core::{resolvers::uri_resolver::UriResolver, uri::Uri, client::Client};
 use std::{fmt::Debug, sync::Arc};
+
+use crate::client::FFIClient;
 
 use super::uri_package_or_wrapper::FFIUriPackageOrWrapper;
 
@@ -9,7 +9,7 @@ pub trait FFIUriResolver: Send + Sync + Debug {
     fn wrap_try_resolve_uri(
       &self,
       uri: Arc<Uri>,
-      loader: Arc<FFILoader>
+      client: Arc<FFIClient>
     ) -> Arc<FFIUriPackageOrWrapper>;
 }
 
@@ -26,11 +26,10 @@ impl UriResolver for FFIUriResolverWrapper {
     fn try_resolve_uri(
         &self,
         uri: &polywrap_client::core::uri::Uri,
-        loader: std::sync::Arc<dyn polywrap_client::core::loader::Loader>,
+        client: Arc<dyn Client>,
         _: &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
     ) -> Result<polywrap_client::core::resolvers::uri_resolution_context::UriPackageOrWrapper, polywrap_client::core::error::Error> {
-        let loader = FFILoader::new(loader);
-        let result = self.0.wrap_try_resolve_uri(Arc::new(uri.clone()), Arc::new(loader));
+        let result = self.0.wrap_try_resolve_uri(Arc::new(uri.clone()), Arc::new(FFIClient::new(client)));
         Ok(result.as_ref().clone().into())
     }
 }
