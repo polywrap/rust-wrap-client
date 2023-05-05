@@ -3,7 +3,7 @@ use std::{sync::{Arc}, fmt::{Formatter,Debug}};
 use polywrap_core::{
     file_reader::FileReader,
     package::{GetManifestOptions, WrapPackage},
-    wrapper::Wrapper, client::Client,
+    wrapper::Wrapper,
 };
 use wrap_manifest_schemas::{
     deserialize::{deserialize_wrap_manifest, DeserializeManifestOptions},
@@ -36,12 +36,12 @@ impl WasmPackage {
         }
     }
 
-    pub fn get_wasm_module(&self, client: &dyn Client) -> Result<Vec<u8>, polywrap_core::error::Error> {
+    pub fn get_wasm_module(&self) -> Result<Vec<u8>, polywrap_core::error::Error> {
         if self.wasm_module.is_some() {
             return Ok(self.wasm_module.clone().unwrap());
         }
 
-        let file_content = self.file_reader.read_file(client, "wrap.wasm")?;
+        let file_content = self.file_reader.read_file("wrap.wasm")?;
 
         Ok(file_content)
     }
@@ -67,12 +67,11 @@ impl Debug for WasmPackage {
 impl WrapPackage for WasmPackage {
     fn get_manifest(
         &self,
-        client: &dyn Client,
         options: Option<&GetManifestOptions>,
     ) -> Result<WrapManifest, polywrap_core::error::Error> {
         let encoded_manifest = match self.manifest.clone() {
             Some(manifest) => manifest,
-            None => self.file_reader.read_file(client, "wrap.info")?,
+            None => self.file_reader.read_file("wrap.info")?,
         };
 
         let opts = options.map(|options| DeserializeManifestOptions {
@@ -87,9 +86,8 @@ impl WrapPackage for WasmPackage {
 
     fn create_wrapper(
         &self,
-        client: &dyn Client
     ) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
-        let wasm_module = self.get_wasm_module(client)?;
+        let wasm_module = self.get_wasm_module()?;
 
         Ok(Arc::new(WasmWrapper::new(
             wasm_module,

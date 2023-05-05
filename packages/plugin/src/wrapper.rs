@@ -8,7 +8,7 @@ use polywrap_core::{
     invoke::Invoker,
     resolvers::uri_resolution_context::UriResolutionContext,
     uri::Uri,
-    wrapper::{GetFileOptions, Wrapper}, client::Client,
+    wrapper::{GetFileOptions, Wrapper},
 };
 
 use crate::module::PluginModule;
@@ -45,7 +45,7 @@ impl Wrapper for PluginWrapper {
             .instance
             .lock()
             .unwrap()
-            ._wrap_invoke(method, &args, env, invoker.as_ref());
+            ._wrap_invoke(method, &args, env, invoker);
 
         match result {
             Ok(result) => Ok(result),
@@ -61,7 +61,7 @@ impl Wrapper for PluginWrapper {
             .into()),
         }
     }
-    fn get_file(&self, _: &dyn Client, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
+    fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
         unimplemented!("client.get_file(...) is not implemented for Plugins.")
     }
 }

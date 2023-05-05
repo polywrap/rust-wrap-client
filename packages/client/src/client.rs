@@ -167,7 +167,7 @@ impl Client for PolywrapClient {
             UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
             UriPackageOrWrapper::Package(_, package) => {
                 let wrapper = package
-                    .create_wrapper(self)
+                    .create_wrapper()
                     .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
                 Ok(wrapper)
             }
@@ -197,7 +197,7 @@ impl UriResolverHandler for PolywrapClient {
             None => &mut uri_resolver_context,
         };
 
-        uri_resolver.try_resolve_uri(uri, self, resolution_context)
+        uri_resolver.try_resolve_uri(uri, Arc::new(self.clone()), resolution_context)
     }
 }
 
@@ -249,7 +249,7 @@ mod client_tests {
             }
         }
 
-        fn get_file(&self, _: &dyn Client, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
+        fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
             unimplemented!()
         }
     }
@@ -261,7 +261,7 @@ mod client_tests {
         fn try_resolve_uri(
             &self,
             uri: &Uri,
-            _: &dyn Client,
+            _: Arc<dyn Client>,
             _: &mut UriResolutionContext,
         ) -> Result<UriPackageOrWrapper, Error> {
             if uri.to_string() == *"wrap://ens/mock.eth" {

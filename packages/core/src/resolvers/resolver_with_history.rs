@@ -1,4 +1,4 @@
-use std::{fmt::Debug};
+use std::{fmt::Debug, sync::Arc};
 
 use crate::{
     error::Error,
@@ -9,11 +9,11 @@ use crate::{
 
 pub trait ResolverWithHistory: Send + Sync {
   fn get_step_description(&self, uri: &Uri) -> String;
-  fn _try_resolve_uri(&self, uri: &Uri, client: &dyn Client, resolution_ctx: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error>;
+  fn _try_resolve_uri(&self, uri: &Uri, client: Arc<dyn Client>, resolution_ctx: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error>;
 }
 
 impl<T: ResolverWithHistory + Debug> UriResolver for T {
-  fn try_resolve_uri(&self, uri: &Uri, client: &dyn Client, resolution_ctx: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error> {
+  fn try_resolve_uri(&self, uri: &Uri, client: Arc<dyn Client>, resolution_ctx: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error> {
     let result = self._try_resolve_uri(uri, client, resolution_ctx);
 
     let resolution_step = UriResolutionStep {

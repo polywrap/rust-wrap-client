@@ -2,7 +2,7 @@ use std::{sync::{Arc, Mutex}, fmt::{Formatter,Debug}};
 use wrap_manifest_schemas::{
     versions::WrapManifest,
 };
-use polywrap_core::{error::Error, package::{GetManifestOptions, WrapPackage}, wrapper::Wrapper, client::Client};
+use polywrap_core::{error::Error, package::{GetManifestOptions, WrapPackage}, wrapper::Wrapper};
 
 use crate::{module::PluginModule, wrapper::PluginWrapper};
 
@@ -43,13 +43,12 @@ impl Debug for PluginPackage {
 impl WrapPackage for PluginPackage {
     fn get_manifest(
         &self,
-        _: &dyn Client,
         _: Option<&GetManifestOptions>,
     ) -> Result<WrapManifest, Error> {
         Ok(self.manifest.clone())
     }
 
-    fn create_wrapper(&self, _: &dyn Client,) -> Result<Arc<dyn Wrapper>, Error> {
+    fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error> {
         Ok(Arc::new(PluginWrapper::new(self.plugin_module.clone())))
     }
 }

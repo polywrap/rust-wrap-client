@@ -33,10 +33,10 @@ impl PluginModule for PluginModuleWithMethods {
         method_name: &str,
         params: &[u8],
         env: Option<&Env>,
-        invoker: &dyn Invoker,
+        invoker: Arc<dyn Invoker>,
     ) -> Result<Vec<u8>, PluginError> {
         if let Some(method) = self.methods_map.get(method_name) {
-          (method)(params, env, invoker)
+          (method)(params, env, invoker.as_ref())
         } else {
           Err(PluginError::MethodNotFoundError(method_name.to_string()))
         }

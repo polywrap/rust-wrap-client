@@ -69,12 +69,12 @@ impl UriResolver for ExtendableUriResolver {
     fn try_resolve_uri(
         &self, 
         uri: &Uri, 
-        client: &dyn Client, 
+        client: Arc<dyn Client>, 
         resolution_context: &mut UriResolutionContext
     ) -> Result<UriPackageOrWrapper, Error> {
         let resolvers = self.get_uri_resolvers(
             uri,
-            client,
+            client.as_ref(),
             resolution_context
         )?;
 

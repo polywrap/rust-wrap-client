@@ -93,7 +93,7 @@ impl UriResolverWrapper {
         },
         UriPackageOrWrapper::Package(_, package) => {
           let wrapper = package
-            .create_wrapper(client)
+            .create_wrapper()
             .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
 
           Ok(wrapper)
@@ -109,18 +109,19 @@ impl ResolverWithHistory for UriResolverWrapper {
     fn _try_resolve_uri(
       &self, 
       uri: &Uri, 
-      client: &dyn Client, 
+      client: Arc<dyn Client>, 
       resolution_context: &mut UriResolutionContext
     ) ->  Result<UriPackageOrWrapper, Error> {
       let result = self.try_resolve_uri_with_implementation(
         uri, 
         &self.implementation_uri, 
-        client, 
+        client.as_ref(), 
         resolution_context
       )?;
       let file_reader = UriResolverExtensionFileReader::new(
         self.implementation_uri.clone(),
-        uri.clone()
+        uri.clone(),
+        client
       );
 
       if let Some(manifest) = result.manifest {
@@ -129,7 +130,7 @@ impl ResolverWithHistory for UriResolverWrapper {
             Some(manifest),
             None
           );
-          let wrapper = package.create_wrapper(client)?;
+          let wrapper = package.create_wrapper()?;
           return Ok(UriPackageOrWrapper::Wrapper(uri.clone(), wrapper));
       }
 
@@ -137,7 +138,7 @@ impl ResolverWithHistory for UriResolverWrapper {
         Arc::new(file_reader), None, None
       );
 
-      if package.get_manifest(client, None).is_ok() {
+      if package.get_manifest(None).is_ok() {
         return Ok(
           UriPackageOrWrapper::Package(uri.clone(), 
           Arc::new(package))

@@ -1,6 +1,5 @@
 use core::fmt;
-
-
+use std::sync::Arc;
 use crate::{uri::Uri, client::Client};
 
 use super::{
@@ -27,7 +26,7 @@ impl ResolverWithHistory for RedirectResolver {
     fn _try_resolve_uri(
         &self,
         uri: &Uri,
-        _: &dyn Client,
+        _: Arc<dyn Client>,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, crate::error::Error> {
         if uri.to_string() != self.from.to_string() {

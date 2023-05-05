@@ -1,6 +1,6 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::Arc};
 
-use polywrap_core::env::Env;
+use polywrap_core::{env::Env, invoke::Invoker};
 
 use crate::error::PluginError;
 
@@ -10,6 +10,6 @@ pub trait PluginModule: Send + Sync + Debug {
         method_name: &str,
         params: &[u8],
         env: Option<&Env>,
-        invoker: &dyn polywrap_core::invoke::Invoker,
+        invoker: Arc<dyn Invoker>,
     ) -> Result<Vec<u8>, PluginError>;
 }

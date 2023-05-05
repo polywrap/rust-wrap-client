@@ -23,7 +23,7 @@ impl ResolverWithHistory for WrapperResolver {
     fn _try_resolve_uri(
         &self,
         uri: &Uri,
-        _: &dyn Client,
+        _: Arc<dyn Client>,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, crate::error::Error> {
         if uri.to_string() != self.uri.to_string() {

@@ -142,8 +142,8 @@ impl Wrapper for WasmWrapper {
         }
     }
 
-    fn get_file(&self, client: &dyn Client, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
-        if let Ok(data) = self.file_reader.read_file(client, &options.path) {
+    fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error> {
+        if let Ok(data) = self.file_reader.read_file(&options.path) {
             let result = match &options.encoding {
                 Some(encoding) => {
                     let data_string = String::from_utf8(data.clone()).unwrap();

@@ -1,4 +1,6 @@
 
+use std::sync::Arc;
+
 use crate::{
     file_reader::FileReader,
     uri::Uri,
@@ -30,29 +32,32 @@ fn combine_paths(a: &str, b: &str) -> String {
 pub struct UriResolverExtensionFileReader {
     pub resolver_extension_uri: Uri,
     pub wrapper_uri: Uri,
+    client: Arc<dyn Client>
 }
 
 impl UriResolverExtensionFileReader {
     pub fn new(
         resolver_extension_uri: Uri, 
         wrapper_uri: Uri,
+        client: Arc<dyn Client>
     ) -> Self {
         UriResolverExtensionFileReader {
             resolver_extension_uri,
-            wrapper_uri
+            wrapper_uri,
+            client
         } 
     } 
 }
 
 impl FileReader for UriResolverExtensionFileReader {
-    fn read_file(&self, client: &dyn Client, file_path: &str) -> Result<Vec<u8>, Error> {
+    fn read_file(&self, file_path: &str) -> Result<Vec<u8>, Error> {
         let path = combine_paths(&self.wrapper_uri.path, file_path);
 
         let invoker_args = msgpack!({
             "path": path
         });
         // TODO: This vec<u8> isn't the file but the msgpack representation of it
-        let result = client.invoke_raw(
+        let result = self.client.invoke_raw(
             &self.resolver_extension_uri,
             "getFile",
             Some(&invoker_args),

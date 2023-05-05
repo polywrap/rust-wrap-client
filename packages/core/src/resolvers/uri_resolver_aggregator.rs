@@ -47,11 +47,11 @@ impl UriResolver for UriResolverAggregator {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        client: &dyn Client,
+        client: Arc<dyn Client>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let resolver_result = self
-            .get_uri_resolvers(uri, client, resolution_context);
+            .get_uri_resolvers(uri, client.as_ref(), resolution_context);
 
         if let Ok(resolvers) = resolver_result {
           self.try_resolve_uri_with_resolvers(uri, client, resolvers, resolution_context)
