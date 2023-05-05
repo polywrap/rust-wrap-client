@@ -22,7 +22,7 @@ pub struct ArgsGetKey {
 #[derive(Serialize, Deserialize)]
 pub struct CustomMap {
     pub map: Map<String, u32>,
-    pub nested_map: Map<String, Map<String, u32>>,
+    pub nestedMap: Map<String, Map<String, u32>>,
 }
 
 #[test]
@@ -59,7 +59,7 @@ fn map_type_test() {
         .insert(String::from("Nested"), inside_nested_map);
     let foo = CustomMap {
         map: my_map,
-        nested_map: my_nested_map,
+        nestedMap: my_nested_map,
     };
 
     let get_key_args = ArgsGetKey {
