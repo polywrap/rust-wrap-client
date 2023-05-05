@@ -10,6 +10,7 @@ use polywrap_core::{
     uri::Uri,
     wrapper::{GetFileOptions, Wrapper},
 };
+use polywrap_msgpack::msgpack;
 
 use crate::module::PluginModule;
 
@@ -38,7 +39,7 @@ impl Wrapper for PluginWrapper {
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         let args = match args {
             Some(args) => args.to_vec(),
-            None => vec![],
+            None => msgpack!({}),
         };
 
         let result = self

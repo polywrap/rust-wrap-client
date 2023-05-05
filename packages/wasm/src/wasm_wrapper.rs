@@ -13,7 +13,7 @@ use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
 use wasmer::Value;
-use polywrap_msgpack::decode;
+use polywrap_msgpack::{decode, msgpack};
 use serde::de::DeserializeOwned;
 use std::fmt::Formatter;
 use std::sync::Mutex;
@@ -86,12 +86,12 @@ impl Wrapper for WasmWrapper {
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),
-            None => vec![],
+            None => msgpack!({}),
         };
 
         let env = match env {
             Some(e) => polywrap_msgpack::serialize(e)?,
-            None => vec![],
+            None => msgpack!({}),
         };
 
         let params = &[
