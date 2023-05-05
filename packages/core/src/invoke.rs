@@ -1,18 +1,8 @@
 use crate::{
-    error::Error, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::{Env}, interface_implementation::InterfaceImplementations,
+    error::Error, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::{Env}, interface_implementation::InterfaceImplementations,
 };
-use std::{sync::{Arc}};
 
 pub trait Invoker: Send + Sync {
-    fn invoke_wrapper_raw(
-        &self,
-        wrapper: Arc<dyn Wrapper>,
-        uri: &Uri,
-        method: &str,
-        args: Option<&[u8]>,
-        env: Option<&Env>,
-        resolution_context: Option<&mut UriResolutionContext>,
-    ) -> Result<Vec<u8>, Error>;
     fn invoke_raw(
         &self,
         uri: &Uri,
