@@ -78,7 +78,7 @@ pub fn get_implementations(
     let mut implementation_uris: Vec<Uri> = vec![];
 
     if let Some(interfaces) = interfaces {
-        let implementations_value = interfaces.get(&wrapper_uri.uri);
+        let implementations_value = interfaces.get(&wrapper_uri.to_string());
         if let Some(implementations) = implementations_value {
             for implementation in implementations.iter() {
                 // TODO: Validate if implementation is already added

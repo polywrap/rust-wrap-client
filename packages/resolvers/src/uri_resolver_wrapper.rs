@@ -85,9 +85,9 @@ impl UriResolverWrapper {
       UriPackageOrWrapper::Uri(uri) => {
           let error = format!(
             "While resolving {} with URI resolver extension {}, the extension could not be fully resolved. Last tried URI is {}", 
-            current_uri.uri, 
-            resolver_extension_uri.uri,
-            uri.uri
+            current_uri.to_string(), 
+            resolver_extension_uri.to_string(),
+            uri.to_string()
           );
           Err(Error::LoadWrapperError(error))
         },

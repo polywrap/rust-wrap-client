@@ -72,7 +72,7 @@ impl PartialEq for Uri {
 
 impl From<Uri> for String {
     fn from(uri: Uri) -> Self {
-        uri.uri
+        uri.to_string()
     }
 }
 

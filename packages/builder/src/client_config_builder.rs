@@ -75,15 +75,15 @@ impl ClientBuilder for BuilderConfig {
     fn add_env(&mut self, uri: Uri, env: Env) -> &mut Self {
         match self.envs.as_mut() {
             Some(envs) => {
-                if let Some(u) = envs.get_mut(&uri.uri) {
+                if let Some(u) = envs.get_mut(&uri.to_string()) {
                     merge(u, &env);
                 } else {
-                    envs.insert(uri.uri, env);
+                    envs.insert(uri.to_string(), env);
                 }
             }
             None => {
                 let mut envs: Envs = HashMap::new();
-                envs.insert(uri.uri, env);
+                envs.insert(uri.to_string(), env);
                 self.envs = Some(envs);
             }
         };
@@ -109,10 +109,10 @@ impl ClientBuilder for BuilderConfig {
 
     fn set_env(&mut self, uri: Uri, env: Env) -> &mut Self {
         if let Some(envs) = self.envs.as_mut() {
-            envs.insert(uri.uri, env);
+            envs.insert(uri.to_string(), env);
         } else {
             let mut new_env: Envs = HashMap::new();
-            new_env.insert(uri.uri, env);
+            new_env.insert(uri.to_string(), env);
             self.envs = Some(new_env);
         }
         self
@@ -125,17 +125,17 @@ impl ClientBuilder for BuilderConfig {
     ) -> &mut Self {
         match self.interfaces.as_mut() {
             Some(interfaces) => {
-                let current_interface = interfaces.get_mut(&interface_uri.uri);
+                let current_interface = interfaces.get_mut(&interface_uri.to_string());
                 match current_interface {
                     Some(i) => i.push(implementation_uri),
                     None => {
-                        interfaces.insert(interface_uri.uri, vec![implementation_uri]);
+                        interfaces.insert(interface_uri.to_string(), vec![implementation_uri]);
                     }
                 }
             }
             None => {
                 let mut interfaces = HashMap::new();
-                interfaces.insert(interface_uri.uri, vec![implementation_uri]);
+                interfaces.insert(interface_uri.to_string(), vec![implementation_uri]);
                 self.interfaces = Some(interfaces);
             }
         }
@@ -149,7 +149,7 @@ impl ClientBuilder for BuilderConfig {
     ) -> &mut Self {
         match self.interfaces.as_mut() {
             Some(interfaces) => {
-                let current_interface = interfaces.get_mut(&interface_uri.uri);
+                let current_interface = interfaces.get_mut(&interface_uri.to_string());
                 match current_interface {
                     Some(i) => {
                         for implementation_uri in implementation_uris {
@@ -159,13 +159,13 @@ impl ClientBuilder for BuilderConfig {
                         }
                     }
                     None => {
-                        interfaces.insert(interface_uri.uri, implementation_uris);
+                        interfaces.insert(interface_uri.to_string(), implementation_uris);
                     }
                 };
             }
             None => {
                 let mut interfaces = HashMap::new();
-                interfaces.insert(interface_uri.uri, implementation_uris);
+                interfaces.insert(interface_uri.to_string(), implementation_uris);
                 self.interfaces = Some(interfaces);
             }
         };
@@ -179,7 +179,7 @@ impl ClientBuilder for BuilderConfig {
         implementation_uri: &Uri,
     ) -> &mut Self {
         if let Some(interfaces) = self.interfaces.as_mut() {
-            let implementations = interfaces.get_mut(&interface_uri.uri);
+            let implementations = interfaces.get_mut(&interface_uri.to_string());
             if let Some(implementations) = implementations {
                 let index = implementations
                     .iter()
