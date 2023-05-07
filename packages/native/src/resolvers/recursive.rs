@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use polywrap_client::{core::{resolvers::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike}, invoke::Invoker}};
+use polywrap_client::{core::{resolvers::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver, recursive_resolver::RecursiveResolver, uri_resolver_like::UriResolverLike}, invoker::Invoker}};
 use super::{uri_resolver_like::FFIUriResolverLike};
 
 #[derive(Debug)]

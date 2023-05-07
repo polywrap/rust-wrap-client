@@ -1,4 +1,4 @@
-use polywrap_client::core::{resolvers::uri_resolver::UriResolver, uri::Uri, invoke::Invoker};
+use polywrap_client::core::{resolvers::uri_resolver::UriResolver, uri::Uri, invoker::Invoker};
 use std::{fmt::Debug, sync::Arc};
 
 use crate::{invoker::FFIInvoker};

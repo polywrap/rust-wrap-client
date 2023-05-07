@@ -135,7 +135,7 @@ impl FFIBuilderConfig {
 
     pub fn build(&self) -> Arc<FFIClient> {
       let config = self.inner_builder.lock().unwrap().clone().build();
-      let client = Arc::new(PolywrapClient::new(config));
+      let client = PolywrapClient::new(config);
       Arc::new(FFIClient::new(client))
     }
 }

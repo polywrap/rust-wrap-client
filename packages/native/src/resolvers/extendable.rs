@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use polywrap_client::{core::{resolvers::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver}, invoke::Invoker}, resolvers::extendable_uri_resolver::ExtendableUriResolver};
+use polywrap_client::{core::{resolvers::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver}, invoker::Invoker}, resolvers::extendable_uri_resolver::ExtendableUriResolver};
 
 #[derive(Debug)]
 pub struct FFIExtendableUriResolver {

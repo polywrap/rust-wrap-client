@@ -1,4 +1,4 @@
-use polywrap_client::core::{invoke::Invoker, uri::Uri};
+use polywrap_client::core::{invoker::Invoker, uri::Uri};
 use serde_json::Value;
 use std::{collections::HashMap, sync::Arc};
 

@@ -10,7 +10,7 @@ use polywrap_core::{
         uri_resolver::UriResolver
     },
     uri::Uri,
-    error::Error, invoke::Invoker
+    error::Error, invoker::Invoker
 };
 
 use crate::uri_resolver_wrapper::UriResolverWrapper;

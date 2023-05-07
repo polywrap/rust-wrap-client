@@ -4,7 +4,7 @@ use std::sync::{Arc};
 use polywrap_core::{
   resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
   uri::Uri,
-  error::Error, package::WrapPackage, invoke::Invoker, 
+  error::Error, package::WrapPackage, invoker::Invoker, 
 };
 use polywrap_msgpack::{msgpack, decode};
 use polywrap_wasm::wasm_package::{WasmPackage};

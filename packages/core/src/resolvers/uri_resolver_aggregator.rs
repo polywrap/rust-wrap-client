@@ -1,6 +1,6 @@
 use core::fmt;
 use std::{sync::Arc};
-use crate::{error::Error, uri::Uri, invoke::Invoker};
+use crate::{error::Error, uri::Uri, invoker::Invoker};
 
 use super::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},

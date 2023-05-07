@@ -4,7 +4,7 @@ use crate::{
     error::Error,
     uri::Uri,
     resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep},
-    resolvers::uri_resolver::UriResolver, invoke::Invoker
+    resolvers::uri_resolver::UriResolver, invoker::Invoker
 };
 
 pub trait ResolverWithHistory: Send + Sync {

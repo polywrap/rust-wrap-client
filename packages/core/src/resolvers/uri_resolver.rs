@@ -2,7 +2,7 @@ use std::fmt::Debug;
 use std::sync::Arc;
 
 use crate::error::Error;
-use crate::invoke::Invoker;
+use crate::invoker::Invoker;
 use crate::uri::Uri;
 use super::package_resolver::PackageResolver;
 use super::redirect_resolver::RedirectResolver;

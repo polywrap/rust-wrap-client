@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{uri::Uri, invoke::Invoker};
+use crate::{uri::Uri, invoker::Invoker};
 
 use super::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep},

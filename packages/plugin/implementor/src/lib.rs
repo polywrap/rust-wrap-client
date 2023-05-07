@@ -141,7 +141,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             method_name: &str,
             params: &[u8],
             env: Option<&JSON::Value>,
-            invoker: Arc<dyn polywrap_core::invoke::Invoker>,
+            invoker: Arc<dyn polywrap_core::invoker::Invoker>,
         ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
                 let supported_methods = vec![#(#supported_methods),*];
                 match method_name {

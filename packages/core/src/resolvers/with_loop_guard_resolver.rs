@@ -1,7 +1,7 @@
 use core::fmt;
 use std::{sync::Arc};
 
-use crate::{error::Error, invoke::Invoker};
+use crate::{error::Error, invoker::Invoker};
 
 use super::{uri_resolver_like::UriResolverLike, uri_resolver::UriResolver, uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}};
 

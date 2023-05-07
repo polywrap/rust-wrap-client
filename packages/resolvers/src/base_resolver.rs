@@ -4,7 +4,7 @@ use polywrap_core::{
     error::Error,
     uri::Uri,
     resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    resolvers::uri_resolver::UriResolver, invoke::Invoker,
+    resolvers::uri_resolver::UriResolver, invoker::Invoker,
 };
 
 pub struct BaseResolver {

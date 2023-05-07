@@ -6,7 +6,7 @@ use crate::runtime::instance::{State,WasmInstance};
 use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
-use polywrap_core::invoke::Invoker;
+use polywrap_core::invoker::Invoker;
 use polywrap_core::resolvers::uri_resolution_context::UriResolutionContext;
 use polywrap_core::uri::Uri;
 use polywrap_core::wrapper::Encoding;

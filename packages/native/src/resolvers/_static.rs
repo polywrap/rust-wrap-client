@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use polywrap_client::core::{resolvers::{static_resolver::StaticResolver, uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver}, invoke::Invoker};
+use polywrap_client::core::{resolvers::{static_resolver::StaticResolver, uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver}, invoker::Invoker};
 
 use super::uri_package_or_wrapper::FFIUriPackageOrWrapper;
 

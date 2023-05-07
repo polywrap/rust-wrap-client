@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::sync::{Arc};
 
-use polywrap_client::core::invoke::Invoker;
+use polywrap_client::core::invoker::Invoker;
 use polywrap_plugin::module::PluginModule;
 
 use crate::invoker::FFIInvoker;

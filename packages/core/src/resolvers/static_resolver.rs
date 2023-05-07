@@ -7,7 +7,7 @@ use crate::{
     resolvers::uri_resolution_context::{
       UriPackageOrWrapper, UriResolutionContext, UriResolutionStep,
     },
-    resolvers::uri_resolver::UriResolver, package::WrapPackage, wrapper::Wrapper, invoke::Invoker,
+    resolvers::uri_resolver::UriResolver, package::WrapPackage, wrapper::Wrapper, invoker::Invoker,
 };
 
 pub enum StaticResolverLike {

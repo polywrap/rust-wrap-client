@@ -5,7 +5,7 @@ use crate::{
     error::Error,
     resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     resolvers::uri_resolver::UriResolver,
-    uri::Uri, invoke::Invoker,
+    uri::Uri, invoker::Invoker,
 };
 
 use super::{uri_resolver_like::UriResolverLike, uri_resolver_aggregator::UriResolverAggregator};

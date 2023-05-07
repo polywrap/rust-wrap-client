@@ -1,7 +1,7 @@
 use std::{path::Path, collections::HashMap};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
 use polywrap_core::{
-    invoke::{Invoker},
+    invoker::{Invoker},
     uri::Uri,
     error::Error,
     file_reader::{SimpleFileReader}, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env, interface_implementation::InterfaceImplementations

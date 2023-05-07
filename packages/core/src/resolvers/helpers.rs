@@ -5,7 +5,7 @@ use crate::{
     file_reader::FileReader,
     uri::Uri,
     error::Error,
-    interface_implementation::InterfaceImplementations, client::Client, invoke::Invoker
+    interface_implementation::InterfaceImplementations, client::Client, invoker::Invoker
 };
 use polywrap_msgpack::{msgpack};
 

@@ -5,7 +5,7 @@ use polywrap_core::{
     env::{Env, Envs},
     error::Error,
     interface_implementation::InterfaceImplementations,
-    invoke::Invoker,
+    invoker::Invoker,
     resolvers::uri_resolution_context::UriResolutionContext,
     resolvers::{
         uri_resolution_context::UriPackageOrWrapper,
@@ -48,35 +48,6 @@ impl PolywrapClient {
 
       decode(result.as_slice())
           .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
-  }
-
-  fn load_wrapper(
-    &self,
-    uri: &Uri,
-    resolution_context: Option<&mut UriResolutionContext>,
-) -> Result<Arc<dyn Wrapper>, Error> {
-    let mut empty_res_context = UriResolutionContext::new();
-    let mut resolution_ctx = match resolution_context {
-        Some(ctx) => ctx,
-        None => &mut empty_res_context,
-    };
-
-    let uri_package_or_wrapper = self
-        .try_resolve_uri(uri, Some(&mut resolution_ctx))
-        .map_err(|e| Error::ResolutionError(e.to_string()))?;
-
-    match uri_package_or_wrapper {
-        UriPackageOrWrapper::Uri(uri) => Err(Error::InvokeError(format!(
-            "Failed to resolve wrapper: {uri}"
-        ))),
-        UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
-        UriPackageOrWrapper::Package(_, package) => {
-            let wrapper = package
-                .create_wrapper()
-                .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
-            Ok(wrapper)
-        }
-    }
   }
 
   pub fn invoke_wrapper_raw(
@@ -165,6 +136,35 @@ impl Client for PolywrapClient {
 
         None
     }
+
+    fn load_wrapper(
+      &self,
+      uri: &Uri,
+      resolution_context: Option<&mut UriResolutionContext>,
+  ) -> Result<Arc<dyn Wrapper>, Error> {
+      let mut empty_res_context = UriResolutionContext::new();
+      let mut resolution_ctx = match resolution_context {
+          Some(ctx) => ctx,
+          None => &mut empty_res_context,
+      };
+  
+      let uri_package_or_wrapper = self
+          .try_resolve_uri(uri, Some(&mut resolution_ctx))
+          .map_err(|e| Error::ResolutionError(e.to_string()))?;
+  
+      match uri_package_or_wrapper {
+          UriPackageOrWrapper::Uri(uri) => Err(Error::InvokeError(format!(
+              "Failed to resolve wrapper: {uri}"
+          ))),
+          UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
+          UriPackageOrWrapper::Package(_, package) => {
+              let wrapper = package
+                  .create_wrapper()
+                  .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
+              Ok(wrapper)
+          }
+      }
+    }  
 }
 
 impl UriResolverHandler for PolywrapClient {
@@ -189,9 +189,9 @@ impl UriResolverHandler for PolywrapClient {
 mod client_tests {
     use crate::client::Env;
     use polywrap_core::{
-        client::{ClientConfig},
+        client::{ClientConfig, Client},
         error::Error,
-        invoke::Invoker,
+        invoker::Invoker,
         resolvers::{
             uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
             uri_resolver::{UriResolver, UriResolverHandler},

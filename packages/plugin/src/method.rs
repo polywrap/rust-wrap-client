@@ -1,4 +1,4 @@
-use polywrap_core::{invoke::Invoker, env::Env};
+use polywrap_core::{invoker::Invoker, env::Env};
 
 use crate::error::PluginError;
 

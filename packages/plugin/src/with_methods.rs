@@ -1,5 +1,5 @@
 use std::{collections::HashMap, sync::Arc, fmt::{Debug, Formatter}};
-use polywrap_core::{env::Env, invoke::Invoker};
+use polywrap_core::{env::Env, invoker::Invoker};
 
 use crate::{method::PluginMethod, module::{PluginModule}, error::PluginError};
 

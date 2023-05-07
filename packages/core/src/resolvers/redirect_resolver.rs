@@ -1,6 +1,6 @@
 use core::fmt;
 use std::sync::Arc;
-use crate::{uri::Uri, invoke::Invoker};
+use crate::{uri::Uri, invoker::Invoker};
 
 use super::{
     resolver_with_history::ResolverWithHistory,
