@@ -50,7 +50,7 @@ impl Uri {
             wrap://ipfs/QmHASH
             wrap://ens/domain.eth
             ens/domain.eth
-            Invalid URI Received: ${uri}"#
+            Invalid URI Received: {uri}"#
             )));
         }
 
