@@ -45,7 +45,7 @@ callback interface FFIPluginModule {
 };
 
 callback interface FFIUriResolver {
-  FFIUriPackageOrWrapper wrap_try_resolve_uri(Uri uri, FFIClient client);
+  FFIUriPackageOrWrapper wrap_try_resolve_uri(Uri uri, FFIInvoker invoker);
 };
 
 interface FFIUriPackageOrWrapperUriVariant {
@@ -153,7 +153,10 @@ interface FFIClient {
   record<DOMString, sequence<Uri>>? get_interfaces();
 
   string? get_env_by_uri(Uri uri);
-  
+
+  [Throws=Error]
+  sequence<u8> invoke_wrapper_raw(FFIWrapper wrapper, Uri uri, [ByRef] string method, sequence<u8>? args, string? env);
+
   [Throws=Error]
   FFIWrapper load_wrapper(Uri uri);
 };

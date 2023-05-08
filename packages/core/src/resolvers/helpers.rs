@@ -5,7 +5,7 @@ use crate::{
     file_reader::FileReader,
     uri::Uri,
     error::Error,
-    interface_implementation::InterfaceImplementations, client::Client
+    interface_implementation::InterfaceImplementations, client::Client, invoker::Invoker
 };
 use polywrap_msgpack::{msgpack};
 
@@ -32,19 +32,19 @@ fn combine_paths(a: &str, b: &str) -> String {
 pub struct UriResolverExtensionFileReader {
     pub resolver_extension_uri: Uri,
     pub wrapper_uri: Uri,
-    client: Arc<dyn Client>
+    invoker: Arc<dyn Invoker>
 }
 
 impl UriResolverExtensionFileReader {
     pub fn new(
         resolver_extension_uri: Uri, 
         wrapper_uri: Uri,
-        client: Arc<dyn Client>
+        invoker: Arc<dyn Invoker>
     ) -> Self {
         UriResolverExtensionFileReader {
             resolver_extension_uri,
             wrapper_uri,
-            client
+            invoker
         } 
     } 
 }
@@ -57,7 +57,7 @@ impl FileReader for UriResolverExtensionFileReader {
             "path": path
         });
         // TODO: This vec<u8> isn't the file but the msgpack representation of it
-        let result = self.client.invoke_raw(
+        let result = self.invoker.invoke_raw(
             &self.resolver_extension_uri,
             "getFile",
             Some(&invoker_args),

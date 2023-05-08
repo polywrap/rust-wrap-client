@@ -1,5 +1,5 @@
 use std::{sync::{Arc, Mutex}};
-use polywrap_core::invoke::{Invoker};
+use polywrap_core::invoker::{Invoker};
 use wasmer::{Module, Instance, Store, Memory, MemoryType, Value};
 
 use crate::error::WrapperError;

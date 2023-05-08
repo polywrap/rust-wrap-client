@@ -1,4 +1,4 @@
-use polywrap_client::core::{invoke::Invoker, uri::Uri};
+use polywrap_client::core::{invoker::Invoker, uri::Uri};
 use serde_json::Value;
 use std::{collections::HashMap, sync::Arc};
 
@@ -67,21 +67,6 @@ impl FFIInvoker {
 }
 
 impl Invoker for FFIInvoker {
-  fn invoke_wrapper_raw(
-      &self,
-      wrapper: Arc<dyn polywrap_client::core::wrapper::Wrapper>,
-      uri: &Uri,
-      method: &str,
-      args: Option<&[u8]>,
-      env: Option<&polywrap_client::core::env::Env>,
-      resolution_context: Option<
-          &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
-      >,
-  ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
-      self.inner_invoker
-          .invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)
-  }
-
   fn invoke_raw(
       &self,
       uri: &Uri,

@@ -1,7 +1,7 @@
 
 use JSON::{json, from_value, Value};
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{invoke::{Invoker}, env::Env, resolvers::static_resolver::{StaticResolverLike, StaticResolver}, package::WrapPackage, uri::Uri, client::ClientConfig};
+use polywrap_core::{invoker::{Invoker}, env::Env, resolvers::static_resolver::{StaticResolverLike, StaticResolver}, package::WrapPackage, uri::Uri, client::ClientConfig};
 use polywrap_msgpack::msgpack;
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
 use std::{sync::Arc, collections::HashMap};

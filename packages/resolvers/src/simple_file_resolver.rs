@@ -5,7 +5,7 @@ use polywrap_core::{
     file_reader::FileReader,
     uri::Uri,
     resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    resolvers::uri_resolver::UriResolver, client::Client,
+    resolvers::uri_resolver::UriResolver, invoker::Invoker,
 };
 use polywrap_wasm::{
     wasm_package::WasmPackage,
@@ -25,7 +25,7 @@ impl UriResolver for FilesystemResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        _client: Arc<dyn Client>,
+        _invoker: Arc<dyn Invoker>,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority != "fs" && uri.authority != "file" {

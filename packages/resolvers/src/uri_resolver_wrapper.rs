@@ -4,8 +4,7 @@ use std::sync::{Arc};
 use polywrap_core::{
   resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
   uri::Uri,
-  error::Error, 
-  wrapper::Wrapper, package::WrapPackage, client::Client, 
+  error::Error, package::WrapPackage, invoker::Invoker, 
 };
 use polywrap_msgpack::{msgpack, decode};
 use polywrap_wasm::wasm_package::{WasmPackage};
@@ -32,29 +31,17 @@ impl UriResolverWrapper {
     &self,
     uri: &Uri,
     implementation_uri: &Uri,
-    client: &dyn Client,
+    invoker: &dyn Invoker,
     resolution_context: &mut UriResolutionContext
   ) -> Result<MaybeUriOrManifest, Error> {
-      let mut sub_context = resolution_context.create_sub_context();
-      let wrapper = self.load_extension(
-        uri, 
-        implementation_uri, 
-        client, 
-        &mut sub_context
-      )?;
-
-      let client_clone = client;
-      let env = client_clone.get_env_by_uri(uri);
-
-      let result = client.invoke_wrapper_raw(
-          wrapper, 
-          implementation_uri, 
+      let result = invoker.invoke_raw(
+          implementation_uri,
           "tryResolveUri", 
           Some(&msgpack!({
             "authority": uri.authority.as_str(),
             "path": uri.path.as_str(),
           })), 
-          env, 
+          None, 
           Some(resolution_context)
       )?;
 
@@ -67,61 +54,25 @@ impl UriResolverWrapper {
         Ok(decode::<MaybeUriOrManifest>(result.as_slice())?)
       }
   }
-
-  fn load_extension(
-    &self,
-    current_uri: &Uri,
-    resolver_extension_uri: &Uri,
-    client: &dyn Client,
-    resolution_context: &mut UriResolutionContext
-  ) -> Result<Arc<dyn Wrapper>, Error> {
-
-    let result = client.try_resolve_uri(
-      resolver_extension_uri,
-      Some(resolution_context)
-    )?;
-
-    match result {
-      UriPackageOrWrapper::Uri(uri) => {
-          let error = format!(
-            "While resolving {} with URI resolver extension {}, the extension could not be fully resolved. Last tried URI is {}", 
-            current_uri.to_string(), 
-            resolver_extension_uri.to_string(),
-            uri.to_string()
-          );
-          Err(Error::LoadWrapperError(error))
-        },
-        UriPackageOrWrapper::Package(_, package) => {
-          let wrapper = package
-            .create_wrapper()
-            .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
-
-          Ok(wrapper)
-        },
-        UriPackageOrWrapper::Wrapper(_, wrapper) => {
-          Ok(wrapper)
-        },
-    }
-  }
 }
 
 impl ResolverWithHistory for UriResolverWrapper {
     fn _try_resolve_uri(
       &self, 
       uri: &Uri, 
-      client: Arc<dyn Client>, 
+      invoker: Arc<dyn Invoker>, 
       resolution_context: &mut UriResolutionContext
     ) ->  Result<UriPackageOrWrapper, Error> {
       let result = self.try_resolve_uri_with_implementation(
         uri, 
         &self.implementation_uri, 
-        client.as_ref(), 
+        invoker.as_ref(), 
         resolution_context
       )?;
       let file_reader = UriResolverExtensionFileReader::new(
         self.implementation_uri.clone(),
         uri.clone(),
-        client
+        invoker
       );
 
       if let Some(manifest) = result.manifest {

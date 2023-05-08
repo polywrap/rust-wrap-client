@@ -1,7 +1,7 @@
 use std::{path::Path, collections::HashMap};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
 use polywrap_core::{
-    invoke::{Invoker},
+    invoker::{Invoker},
     uri::Uri,
     error::Error,
     file_reader::{SimpleFileReader}, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env, interface_implementation::InterfaceImplementations
@@ -24,39 +24,39 @@ impl MockInvoker {
     fn new(wrapper: WasmWrapper) -> Self {
         Self { wrapper }
     }
+
+    fn invoke_wrapper_raw(
+      &self,
+      wrapper: Arc<dyn Wrapper>,
+      uri: &Uri,
+      method: &str,
+      args: Option<&[u8]>,
+      env: Option<&Env>,
+      resolution_context: Option<&mut UriResolutionContext>
+  ) -> Result<Vec<u8>, Error> {
+      let result = wrapper.invoke(
+          Arc::new(self.clone()),
+          uri,
+          method,
+          args,
+          env,
+          resolution_context
+      );
+
+      if result.is_err() {
+          return Err(Error::InvokeError(format!(
+              "Failed to invoke wrapper: {}",
+              result.err().unwrap()
+          )));
+      };
+
+      let result = result.unwrap();
+
+      Ok(result)    
+  }
 }
 
 impl Invoker for MockInvoker {
-    fn invoke_wrapper_raw(
-        &self,
-        wrapper: Arc<dyn Wrapper>,
-        uri: &Uri,
-        method: &str,
-        args: Option<&[u8]>,
-        env: Option<&Env>,
-        resolution_context: Option<&mut UriResolutionContext>
-    ) -> Result<Vec<u8>, Error> {
-        let result = wrapper.invoke(
-            Arc::new(self.clone()),
-            uri,
-            method,
-            args,
-            env,
-            resolution_context
-        );
-
-        if result.is_err() {
-            return Err(Error::InvokeError(format!(
-                "Failed to invoke wrapper: {}",
-                result.err().unwrap()
-            )));
-        };
-
-        let result = result.unwrap();
-
-        Ok(result)    
-    }
-
     fn invoke_raw(
         &self,
         uri: &Uri,

@@ -2,7 +2,7 @@ pub mod uri;
 pub mod error;
 pub mod client;
 pub mod wrapper;
-pub mod invoke;
+pub mod invoker;
 pub mod redirects;
 pub mod package;
 pub mod file_reader;

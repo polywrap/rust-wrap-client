@@ -5,7 +5,7 @@ use std::{
 
 use polywrap_core::{
     env::Env,
-    invoke::Invoker,
+    invoker::Invoker,
     resolvers::uri_resolution_context::UriResolutionContext,
     uri::Uri,
     wrapper::{GetFileOptions, Wrapper},

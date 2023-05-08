@@ -1,7 +1,7 @@
 use core::fmt;
 use std::{sync::Arc};
 
-use crate::{error::Error, client::Client};
+use crate::{error::Error, invoker::Invoker};
 
 use super::{uri_resolver_like::UriResolverLike, uri_resolver::UriResolver, uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}};
 
@@ -18,14 +18,14 @@ impl From<UriResolverLike> for ResolverWithLoopGuard {
 }
 
 impl UriResolver for ResolverWithLoopGuard {
-    fn try_resolve_uri(&self, uri: &crate::uri::Uri, client: Arc<dyn Client>, resolution_context: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error> {
+    fn try_resolve_uri(&self, uri: &crate::uri::Uri, invoker: Arc<dyn Invoker>, resolution_context: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error> {
         if resolution_context.is_resolving(uri) {
           //TODO handle this error
           Err(Error::ResolverError("Infinite Loop".to_string()))
         } else {
           resolution_context.start_resolving(uri);
 
-          let result = self.resolver.try_resolve_uri(uri, client, resolution_context);
+          let result = self.resolver.try_resolve_uri(uri, invoker, resolution_context);
 
           resolution_context.stop_resolving(uri);
 
