@@ -1,21 +1,20 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_client::{
-    client::PolywrapClient,
-    core::{client::Client, error::Error, invoker::Invoker, uri::Uri},
+    core::{client::Client, error::Error, uri::Uri},
 };
 use serde_json::Value;
 
-use crate::{invoker::FFIInvoker, wrapper::FFIWrapper};
+use crate::{wrapper::FFIWrapper};
 
 pub struct FFIClient {
-    inner_client: Arc<PolywrapClient>,
+    inner_client: Arc<dyn Client>,
 }
 
 impl FFIClient {
-    pub fn new(client: PolywrapClient) -> FFIClient {
+    pub fn new(client: Arc<dyn Client>) -> FFIClient {
         Self {
-            inner_client: Arc::new(client),
+            inner_client: client
         }
     }
 
@@ -86,10 +85,15 @@ impl FFIClient {
         args: Option<Vec<u8>>,
         env: Option<String>,
     ) -> Result<Vec<u8>, Error> {
-        let invoker = self.inner_client.clone() as Arc<dyn Invoker>;
-        wrapper
-            .invoke(FFIInvoker::new(invoker).into(), uri, method, args, env)
-            .map_err(|e| Error::InvokeError(e.to_string()))
+        let args = args.as_deref();
+
+        let mut _decoded_env = serde_json::Value::Null;
+        let env = env.map(|env| {
+            _decoded_env = serde_json::from_str::<Value>(&env).unwrap();
+            &_decoded_env
+        });
+
+        self.inner_client.invoke_wrapper_raw(wrapper.0.clone(), uri.as_ref(), method, args, env, None)
     }
 
     pub fn load_wrapper(&self, uri: Arc<Uri>) -> Result<Arc<FFIWrapper>, Error> {

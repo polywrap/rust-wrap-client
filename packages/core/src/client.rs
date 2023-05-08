@@ -35,4 +35,13 @@ pub trait Client: Invoker + UriResolverHandler {
     uri: &Uri,
     resolution_context: Option<&mut UriResolutionContext>,
   ) -> Result<Arc<dyn Wrapper>, Error>;
+  fn invoke_wrapper_raw(
+    &self,
+    wrapper: Arc<dyn Wrapper>,
+    uri: &Uri,
+    method: &str,
+    args: Option<&[u8]>,
+    env: Option<&Env>,
+    resolution_context: Option<&mut UriResolutionContext>,
+) -> Result<Vec<u8>, Error>;
 }

@@ -50,20 +50,6 @@ impl PolywrapClient {
           .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
   }
 
-  pub fn invoke_wrapper_raw(
-      &self,
-      wrapper: Arc<dyn Wrapper>,
-      uri: &Uri,
-      method: &str,
-      args: Option<&[u8]>,
-      env: Option<&Env>,
-      resolution_context: Option<&mut UriResolutionContext>,
-  ) -> Result<Vec<u8>, Error> {
-      wrapper
-          .invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
-          .map_err(|e| Error::InvokeError(e.to_string()))
-  }
-
   pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
       &self,
       wrapper: &TWrapper,
@@ -164,7 +150,21 @@ impl Client for PolywrapClient {
               Ok(wrapper)
           }
       }
-    }  
+    }
+
+    fn invoke_wrapper_raw(
+      &self,
+      wrapper: Arc<dyn Wrapper>,
+      uri: &Uri,
+      method: &str,
+      args: Option<&[u8]>,
+      env: Option<&Env>,
+      resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<Vec<u8>, Error> {
+        wrapper
+            .invoke(Arc::new(self.clone()), uri, method, args, env, resolution_context)
+            .map_err(|e| Error::InvokeError(e.to_string()))
+    }
 }
 
 impl UriResolverHandler for PolywrapClient {
