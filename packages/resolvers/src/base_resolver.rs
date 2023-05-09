@@ -1,12 +1,10 @@
 use core::fmt;
 use std::sync::Arc;
-
 use polywrap_core::{
     error::Error,
-    loader::Loader,
     uri::Uri,
     resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    resolvers::uri_resolver::UriResolver,
+    resolvers::uri_resolver::UriResolver, invoker::Invoker,
 };
 
 pub struct BaseResolver {
@@ -27,13 +25,13 @@ impl UriResolver for BaseResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        loader: Arc<dyn Loader>,
+        invoker: Arc<dyn Invoker>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
-        let redirected_uri = self.static_resolver.try_resolve_uri(uri, loader.clone(), resolution_context)?;
+        let redirected_uri = self.static_resolver.try_resolve_uri(uri, invoker.clone(), resolution_context)?;
 
         if let UriPackageOrWrapper::Uri(redirected_uri) = redirected_uri {
-          self.fs_resolver.try_resolve_uri(&redirected_uri, loader, resolution_context)
+          self.fs_resolver.try_resolve_uri(&redirected_uri, invoker, resolution_context)
         } else {
           Ok(redirected_uri)
         }

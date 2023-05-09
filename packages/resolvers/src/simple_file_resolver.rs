@@ -1,12 +1,11 @@
-use std::{fs, path::Path, sync::{Arc, Mutex}, fmt};
+use std::{fs, path::Path, sync::{Arc}, fmt};
 
 use polywrap_core::{
     error::Error,
     file_reader::FileReader,
-    loader::Loader,
     uri::Uri,
     resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    resolvers::uri_resolver::UriResolver,
+    resolvers::uri_resolver::UriResolver, invoker::Invoker,
 };
 use polywrap_wasm::{
     wasm_package::WasmPackage,
@@ -26,7 +25,7 @@ impl UriResolver for FilesystemResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        _: Arc<dyn Loader>,
+        _invoker: Arc<dyn Invoker>,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority != "fs" && uri.authority != "file" {
@@ -49,13 +48,12 @@ impl UriResolver for FilesystemResolver {
             );
             let uri_package_or_wrapper = UriPackageOrWrapper::Package(
                 uri.clone(),
-                Arc::new(Mutex::new(Box::new(wasm_wrapper))),
+                Arc::new(wasm_wrapper),
             );
             Ok(uri_package_or_wrapper)
         } else {
             Err(Error::ResolutionError(format!(
-                "Failed to find manifest file: {}",
-                manifest_search_pattern
+                "Failed to find manifest file: {manifest_search_pattern}"
             )))
         }
     }

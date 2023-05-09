@@ -2,17 +2,18 @@ use crate::error::WrapperError;
 use crate::runtime::instance::{State,WasmInstance};
 
 
+
 use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
-use polywrap_core::invoke::Invoker;
+use polywrap_core::invoker::Invoker;
 use polywrap_core::resolvers::uri_resolution_context::UriResolutionContext;
 use polywrap_core::uri::Uri;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
 use wasmer::Value;
-use polywrap_msgpack::decode;
+use polywrap_msgpack::{decode, msgpack};
 use serde::de::DeserializeOwned;
 use std::fmt::Formatter;
 use std::sync::Mutex;
@@ -40,13 +41,13 @@ impl WasmWrapper {
     }
 
     pub fn invoke_and_decode<T: DeserializeOwned>(
-        &mut self,
+        &self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
         resolution_context: Option<&mut UriResolutionContext>,
-        env: Option<Env>,
+        env: Option<&Env>,
     ) -> Result<T, Error> {
         let result = self
             .invoke(invoker, uri, method, args, env, resolution_context)?;
@@ -75,22 +76,22 @@ impl Debug for WasmWrapper {
 
 impl Wrapper for WasmWrapper {
     fn invoke(
-        &mut self,
+        &self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),
-            None => vec![],
+            None => msgpack!({}),
         };
 
         let env = match env {
             Some(e) => polywrap_msgpack::serialize(e)?,
-            None => vec![],
+            None => msgpack!({}),
         };
 
         let params = &[
@@ -107,17 +108,12 @@ impl Wrapper for WasmWrapper {
         let abort = Box::new(move |msg| {
             panic!(
                 r#"WasmWrapper: Wasm module aborted execution.
-              URI: {uri}
-              Method: {method}
-              Args: {args:?}
-              Env: {env:?}
-              Message: {message}.
-            "#,
-                uri = abort_uri,
-                method = abort_method,
-                args = abort_args,
-                env = abort_env,
-                message = msg
+              URI: {abort_uri}
+              Method: {abort_method}
+              Args: {abort_args:?}
+              Env: {abort_env:?}
+              Message: {msg}.
+            "#
             );
         });
 

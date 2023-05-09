@@ -3,10 +3,9 @@ use std::sync::Arc;
 
 use crate::{
     error::Error,
-    loader::Loader,
     resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     resolvers::uri_resolver::UriResolver,
-    uri::Uri,
+    uri::Uri, invoker::Invoker,
 };
 
 use super::{uri_resolver_like::UriResolverLike, uri_resolver_aggregator::UriResolverAggregator};
@@ -52,14 +51,14 @@ impl RecursiveResolver {
         &self,
         result: Result<UriPackageOrWrapper, Error>,
         uri: &Uri,
-        loader: Arc<dyn Loader>,
+        invoker: Arc<dyn Invoker>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if let Ok(value) = &result {
             match value {
                 UriPackageOrWrapper::Uri(result_uri) => {
                     if result_uri.clone().to_string() != uri.to_string() {
-                        self.try_resolve_uri(result_uri, loader, resolution_context)
+                        self.try_resolve_uri(result_uri, invoker, resolution_context)
                     } else {
                         result
                     }
@@ -76,7 +75,7 @@ impl UriResolver for RecursiveResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        loader: Arc<dyn Loader>,
+        invoker: Arc<dyn Invoker>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if resolution_context.is_resolving(uri) {
@@ -86,10 +85,10 @@ impl UriResolver for RecursiveResolver {
             resolution_context.start_resolving(uri);
             let resolver_result = self
                 .resolver
-                .try_resolve_uri(uri, loader.clone(), resolution_context);
+                .try_resolve_uri(uri, invoker.clone(), resolution_context);
 
             let result = self
-                .try_resolve_again_if_redirect(resolver_result, uri, loader, resolution_context);
+                .try_resolve_again_if_redirect(resolver_result, uri, invoker, resolution_context);
 
             resolution_context.stop_resolving(uri);
 

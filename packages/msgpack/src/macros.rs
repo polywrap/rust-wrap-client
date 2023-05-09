@@ -280,16 +280,17 @@ mod tests {
             }
         });
 
-        let mut expected_map_tuples: Vec<(Value, Value)> = Vec::new();
-        expected_map_tuples.push((Value::from("code"), Value::from(200)));
-        expected_map_tuples.push((Value::from("success"), Value::from(true)));
-        expected_map_tuples.push((
+        let expected_map_tuples: Vec<(Value, Value)> = vec![
+          (Value::from("code"), Value::from(200)),
+          (Value::from("success"), Value::from(true)),
+          (
             Value::from("payload"),
             Value::Map(vec![(
                 Value::from("features"),
                 Value::Array(vec![Value::from("serde"), Value::from("msgpack")]),
             )]),
-        ));
+          )
+        ];
 
         let expected = Value::Map(expected_map_tuples);
 

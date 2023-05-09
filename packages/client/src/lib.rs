@@ -1,3 +1,4 @@
+#![feature(trait_upcasting)]
 pub mod client;
 
 pub use polywrap_client_builder as builder;

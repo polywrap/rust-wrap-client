@@ -31,7 +31,7 @@ impl AnyManifest {
     pub fn from_json_value(value: Value) -> Result<Self, Error> {
         match value["version"].as_str().unwrap() {
             "0.1" => Ok(AnyManifest::WrapManifest01(serde_json::from_value(value)?)),
-            v => Err(Error::FromJSONError(format!("Invalid manifest version: {}", v))),
+            v => Err(Error::FromJSONError(format!("Invalid manifest version: {v}"))),
         }
     }
 

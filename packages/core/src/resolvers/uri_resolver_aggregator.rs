@@ -1,6 +1,6 @@
 use core::fmt;
 use std::{sync::Arc};
-use crate::{error::Error, loader::Loader, uri::Uri};
+use crate::{error::Error, uri::Uri, invoker::Invoker};
 
 use super::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
@@ -47,14 +47,14 @@ impl UriResolver for UriResolverAggregator {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        loader: Arc<dyn Loader>,
+        invoker: Arc<dyn Invoker>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let resolver_result = self
-            .get_uri_resolvers(uri, loader.clone(), resolution_context);
+            .get_uri_resolvers(uri, invoker.as_ref(), resolution_context);
 
         if let Ok(resolvers) = resolver_result {
-          self.try_resolve_uri_with_resolvers(uri, loader, resolvers, resolution_context)
+          self.try_resolve_uri_with_resolvers(uri, invoker, resolvers, resolution_context)
         } else {
           //TODO: verify this case.
           Err(Error::ResolutionError("Failed to get URI resolvers".to_string()))
@@ -82,7 +82,7 @@ impl UriResolverAggregatorBase for UriResolverAggregator {
     fn get_uri_resolvers(
         &self,
         _: &Uri,
-        _: Arc<dyn Loader>,
+        _: &dyn Invoker,
         _: &mut UriResolutionContext,
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
         Ok(self.resolvers.clone())

@@ -1,11 +1,11 @@
+
 use std::sync::Arc;
+
 use crate::{
     file_reader::FileReader,
-    invoke::{Invoker},
     uri::Uri,
     error::Error,
-    loader::Loader,
-    interface_implementation::InterfaceImplementations
+    interface_implementation::InterfaceImplementations, client::Client, invoker::Invoker
 };
 use polywrap_msgpack::{msgpack};
 
@@ -32,19 +32,19 @@ fn combine_paths(a: &str, b: &str) -> String {
 pub struct UriResolverExtensionFileReader {
     pub resolver_extension_uri: Uri,
     pub wrapper_uri: Uri,
-    pub invoker: Arc<dyn Invoker>
+    invoker: Arc<dyn Invoker>
 }
 
 impl UriResolverExtensionFileReader {
     pub fn new(
         resolver_extension_uri: Uri, 
-        wrapper_uri: Uri, 
+        wrapper_uri: Uri,
         invoker: Arc<dyn Invoker>
     ) -> Self {
         UriResolverExtensionFileReader {
             resolver_extension_uri,
             wrapper_uri,
-            invoker,
+            invoker
         } 
     } 
 }
@@ -71,16 +71,14 @@ impl FileReader for UriResolverExtensionFileReader {
 }
 
 pub fn get_implementations(
-    wrapper_uri: Uri,
+    wrapper_uri: &Uri,
     interfaces: Option<InterfaceImplementations>,
-    _loader: Box<dyn Loader>,
+    _: &dyn Client,
 ) -> Result<Vec<Uri>, Error> {
     let mut implementation_uris: Vec<Uri> = vec![];
 
-    println!("URIS: {:#?}", implementation_uris);
-
     if let Some(interfaces) = interfaces {
-        let implementations_value = interfaces.get(&wrapper_uri.uri);
+        let implementations_value = interfaces.get(&wrapper_uri.to_string());
         if let Some(implementations) = implementations_value {
             for implementation in implementations.iter() {
                 // TODO: Validate if implementation is already added

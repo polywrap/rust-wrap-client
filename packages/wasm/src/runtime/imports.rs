@@ -127,11 +127,7 @@ pub fn create_imports(
         let msg = String::from_utf8(msg_buffer).unwrap();
         let file = String::from_utf8(file_buffer).unwrap();
         (state.abort)(format!(
-            "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]",
-            msg = msg,
-            file = file,
-            line = line,
-            column = column
+            "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]"
         ));
 
         Ok(vec![])
@@ -173,8 +169,9 @@ pub fn create_imports(
 
         let uri: Uri = String::from_utf8(uri_buffer).unwrap().try_into().unwrap();
         let method = String::from_utf8(method_buffer).unwrap();
+        let mut _decoded_env = serde_json::Value::Null;
 
-        let result = state.invoker.invoke_raw(
+        let result = state.invoker.clone().invoke_raw(
             &uri,
             &method,
             Some(&args_buffer),
@@ -323,8 +320,6 @@ pub fn create_imports(
         let args_len = values[7].unwrap_i32() as u32;
 
         let async_context = Arc::new(Mutex::new(context));
-
-        
             let mut context = async_context.lock().unwrap();
             let mutable_context = context.as_mut();
             let mut state = mutable_context.data().lock().unwrap();
@@ -343,13 +338,15 @@ pub fn create_imports(
             let interface = String::from_utf8(interface_buffer).unwrap();
             let uri = String::from_utf8(impl_uri_buffer).unwrap();
             let method = String::from_utf8(method_buffer).unwrap();
+            let mut _decoded_env = serde_json::Value::Null;
             let env = if !state.env.is_empty() {
-              Some(polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap())
+              _decoded_env = polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap();
+              Some(&_decoded_env)
             } else {
               None
             };
 
-            let result = state.invoker.invoke_raw(
+            let result = state.invoker.clone().invoke_raw(
                 &uri.try_into().unwrap(),
                 &method,
                 Some(&args_buffer),
@@ -363,7 +360,7 @@ pub fn create_imports(
                     Ok(vec![Value::I32(1)])
                 }
                 Err(e) => {
-                    let error = format!("interface implementation subinvoke failed for uri: {} with error: {}", interface, e);
+                    let error = format!("interface implementation subinvoke failed for uri: {interface} with error: {e}");
                     state.subinvoke.error = Some(error);
                     Ok(vec![Value::I32(0)])
                 }
@@ -534,8 +531,8 @@ pub fn create_imports(
         let mut uri_bytes = vec![0; length as usize];
         memory.view(&mutable_context).read(pointer.try_into().unwrap(), &mut uri_bytes).unwrap();
         let uri = String::from_utf8(uri_bytes).unwrap();
-        println!("URI: {}", length);
-        let result = state.invoker.get_implementations(uri.try_into().unwrap());
+        println!("URI: {length}");
+        let result = state.invoker.get_implementations(&uri.try_into().unwrap());
 
         if result.is_err() {
             let result = result.as_ref().err().unwrap();
@@ -571,7 +568,7 @@ pub fn create_imports(
 
         if let Some(r) = &state.get_implementations_result {
             let length = r.len();
-            println!("POINTER LEN: {}", length);
+            println!("POINTER LEN: {length}");
             Ok(vec![Value::I32(length as i32)])
         } else {
             (state.abort)(
@@ -601,7 +598,7 @@ pub fn create_imports(
         let state = mutable_context.data().lock().unwrap();
         let memory = state.memory.as_ref().unwrap();
 
-        println!("POINTER: {}", pointer);
+        println!("POINTER: {pointer}");
 
         if let Some(r) = &state.get_implementations_result {
             memory.view(&mutable_context).write(pointer.try_into().unwrap(), r).unwrap();

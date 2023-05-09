@@ -1,5 +1,5 @@
 use std::{sync::{Arc, Mutex}};
-use polywrap_core::invoke::{Invoker};
+use polywrap_core::invoker::{Invoker};
 use wasmer::{Module, Instance, Store, Memory, MemoryType, Value};
 
 use crate::error::WrapperError;
@@ -68,7 +68,7 @@ pub struct WasmInstance {
 }
 
 impl WasmInstance {
-    pub fn new(wasm_module: &Vec<u8>, state: Arc<Mutex<State>>) -> Result<Self, WrapperError> {
+    pub fn new(wasm_module: &[u8], state: Arc<Mutex<State>>) -> Result<Self, WrapperError> {
         let mut store = Store::default();
         let module = Module::new(&store, wasm_module).unwrap();
         let memory = WasmInstance::create_memory(&mut store, wasm_module)?;
@@ -124,8 +124,7 @@ impl WasmInstance {
         let export = self.instance.exports.get_function(name);
         if export.is_err() {
             return Err(WrapperError::WasmRuntimeError(format!(
-                "Export {} not found",
-                name
+                "Export {name} not found"
             )));
         }
         let function = export.unwrap();

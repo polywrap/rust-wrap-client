@@ -1,7 +1,6 @@
 use core::fmt;
 use std::sync::Arc;
-
-use crate::{loader::Loader, uri::Uri};
+use crate::{uri::Uri, invoker::Invoker};
 
 use super::{
     resolver_with_history::ResolverWithHistory,
@@ -27,7 +26,7 @@ impl ResolverWithHistory for RedirectResolver {
     fn _try_resolve_uri(
         &self,
         uri: &Uri,
-        _: Arc<dyn Loader>,
+        _: Arc<dyn Invoker>,
         _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, crate::error::Error> {
         if uri.to_string() != self.from.to_string() {

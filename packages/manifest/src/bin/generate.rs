@@ -57,8 +57,7 @@ fn generate_schemas() -> Result<(), Error> {
 
     for version in versions {
         let mut schema = ureq::get(&format!(
-            "https://raw.githubusercontent.com/polywrap/wrap/master/manifest/wrap.info/{}.json",
-            version
+            "https://raw.githubusercontent.com/polywrap/wrap/master/manifest/wrap.info/{version}.json"
         ))
         .call()
         .unwrap()
@@ -69,13 +68,13 @@ fn generate_schemas() -> Result<(), Error> {
         jsonref
             .deref_value(&mut schema)
             .map_err(|e| {
-                Error::SchemaFetch(format!("Error dereferencing Schema. {}", e))
+                Error::SchemaFetch(format!("Error dereferencing Schema. {e}"))
             })
             .unwrap();
 
         let schema = serde_json::to_string_pretty(&schema).unwrap();
         fs::write(
-            PathBuf::from("schemas").join(format!("{}.json", version)),
+            PathBuf::from("schemas").join(format!("{version}.json")),
             schema,
         )
         .unwrap();

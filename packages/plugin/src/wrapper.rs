@@ -5,11 +5,12 @@ use std::{
 
 use polywrap_core::{
     env::Env,
-    invoke::Invoker,
+    invoker::Invoker,
     resolvers::uri_resolution_context::UriResolutionContext,
     uri::Uri,
     wrapper::{GetFileOptions, Wrapper},
 };
+use polywrap_msgpack::msgpack;
 
 use crate::module::PluginModule;
 
@@ -28,17 +29,17 @@ impl PluginWrapper {
 
 impl Wrapper for PluginWrapper {
     fn invoke(
-        &mut self,
+        &self,
         invoker: Arc<dyn Invoker>,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
+        env: Option<&Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         let args = match args {
             Some(args) => args.to_vec(),
-            None => vec![],
+            None => msgpack!({}),
         };
 
         let result = self

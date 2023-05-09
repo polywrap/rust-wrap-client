@@ -23,13 +23,11 @@ fn test_interface_implementation() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let implementation_uri = Uri::try_from(format!(
-        "fs/{}/interface-invoke/01-implementation/implementations/as",
-        path
+        "fs/{path}/interface-invoke/01-implementation/implementations/as"
     ))
     .unwrap();
     let wrapper_uri = Uri::try_from(format!(
-        "fs/{}/interface-invoke/02-wrapper/implementations/as",
-        path
+        "fs/{path}/interface-invoke/02-wrapper/implementations/as"
     ))
     .unwrap();
 
