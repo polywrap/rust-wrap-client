@@ -275,7 +275,6 @@ fn test_subinvoke_method_with_optional_env_works_without_env() {
     assert_eq!(result, None);
 }
 
-
 #[test]
 fn test_subinvoker_env_does_not_override_subinvoked_env() {
     let subinvoker_uri = get_subinvoker_with_env_uri();

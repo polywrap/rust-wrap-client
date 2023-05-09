@@ -26,7 +26,6 @@ fn get_env_wrapper_uri() -> Uri {
 
     subinvoker_uri
 }
-
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct Env {
@@ -88,7 +87,6 @@ fn test_invoke_method_without_env_does_not_require_env() {
 
     assert_eq!(result, test_string);
 }
-
 
 #[test]
 fn test_invoke_method_without_env_works_with_env() {
