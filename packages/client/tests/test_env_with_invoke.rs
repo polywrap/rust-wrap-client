@@ -14,6 +14,19 @@ use std::sync::Arc;
 
 use serde_json::json;
 
+fn get_env_wrapper_uri() -> Uri {
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
+
+    let subinvoker_uri = Uri::try_from(format!(
+        "fs/{}/env-type/00-main/implementations/rs",
+        path
+    ))
+    .unwrap();
+
+    subinvoker_uri
+}
+
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct Env {
@@ -29,19 +42,6 @@ struct Env {
     object: HashMap<String, String>,
     optObject: Option<HashMap<String, String>>,
     array: Vec<i32>,
-}
-
-fn get_env_wrapper_uri() -> Uri {
-    let test_path = get_tests_path().unwrap();
-    let path = test_path.into_os_string().into_string().unwrap();
-
-    let subinvoker_uri = Uri::try_from(format!(
-        "fs/{}/env-type/00-main/implementations/rs",
-        path
-    ))
-    .unwrap();
-
-    subinvoker_uri
 }
 
 fn build_client(uri: &Uri, env: Option<&Env>) -> PolywrapClient {
