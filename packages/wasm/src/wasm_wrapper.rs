@@ -91,7 +91,7 @@ impl Wrapper for WasmWrapper {
 
         let env = match env {
             Some(e) => polywrap_msgpack::serialize(e)?,
-            None => msgpack!({}),
+            None => vec![],
         };
 
         let params = &[
