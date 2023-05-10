@@ -69,7 +69,7 @@ fn build_client(uri: &Uri, env: Option<&Env>) -> PolywrapClient {
 }
 
 #[test]
-fn test_invoke_method_without_env_does_not_require_env() {
+fn invoke_method_without_env_does_not_require_env() {
     let wrapper_uri = get_env_wrapper_uri();
 
     let client = build_client(&wrapper_uri, None);
@@ -89,7 +89,7 @@ fn test_invoke_method_without_env_does_not_require_env() {
 }
 
 #[test]
-fn test_invoke_method_without_env_works_with_env() {
+fn invoke_method_without_env_works_with_env() {
     let wrapper_uri = get_env_wrapper_uri();
 
     let env = Env {
@@ -126,7 +126,7 @@ fn test_invoke_method_without_env_works_with_env() {
 }
 
 #[test]
-fn test_invoke_method_with_required_env_works_with_env() {
+fn invoke_method_with_required_env_works_with_env() {
     let wrapper_uri = get_env_wrapper_uri();
 
     let env = Env {
@@ -163,7 +163,7 @@ fn test_invoke_method_with_required_env_works_with_env() {
 
 #[test]
 #[should_panic(expected = "Environment is not set, and it is required")]
-fn test_invoke_method_with_required_env_panics_without_env_registered() {
+fn invoke_method_with_required_env_panics_without_env_registered() {
     let wrapper_uri = get_env_wrapper_uri();
 
     let client = build_client(&wrapper_uri, None);
@@ -182,7 +182,7 @@ fn test_invoke_method_with_required_env_panics_without_env_registered() {
 }
 
 #[test]
-fn test_invoke_method_with_optional_env_works_with_env() {
+fn invoke_method_with_optional_env_works_with_env() {
     let wrapper_uri = get_env_wrapper_uri();
 
     let env = Env {
@@ -218,7 +218,7 @@ fn test_invoke_method_with_optional_env_works_with_env() {
 }
 
 #[test]
-fn test_invoke_method_with_optional_env_works_without_env() {
+fn invoke_method_with_optional_env_works_without_env() {
     let wrapper_uri = get_env_wrapper_uri();
 
     let client = build_client(&wrapper_uri, None);
@@ -239,7 +239,7 @@ fn test_invoke_method_with_optional_env_works_without_env() {
 // TODO: this test requires getEnvFromUriHistory feature to be implemented
 // Issue: https://github.com/polywrap/rust-client/issues/79
 // #[test]
-// fn test_env_can_be_registered_for_any_uri_in_resolution_path() {
+// fn env_can_be_registered_for_any_uri_in_resolution_path() {
 //     let wrapper_uri = get_env_wrapper_uri();
 //     let redirect_from_uri = Uri::try_from("mock/from").unwrap();
 

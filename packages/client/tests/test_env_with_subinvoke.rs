@@ -108,7 +108,7 @@ fn build_client(subinvoker_env: Option<&Env>, subinvoked_env: Option<&Env>) -> P
 }
 
 #[test]
-fn test_subinvoke_method_without_env_does_not_require_env() {
+fn subinvoke_method_without_env_does_not_require_env() {
     let subinvoker_uri = get_subinvoker_uri();
 
     let client = build_client(None, None);
@@ -128,7 +128,7 @@ fn test_subinvoke_method_without_env_does_not_require_env() {
 }
 
 #[test]
-fn test_subinvoke_method_without_env_works_with_env() {
+fn subinvoke_method_without_env_works_with_env() {
     let subinvoker_uri = get_subinvoker_uri();
 
     let env = Env {
@@ -165,7 +165,7 @@ fn test_subinvoke_method_without_env_works_with_env() {
 }
 
 #[test]
-fn test_subinvoke_method_with_required_env_works_with_env() {
+fn subinvoke_method_with_required_env_works_with_env() {
     let subinvoker_uri = get_subinvoker_uri();
 
     let env = Env {
@@ -202,7 +202,7 @@ fn test_subinvoke_method_with_required_env_works_with_env() {
 
 #[test]
 #[should_panic(expected = "Environment is not set, and it is required")]
-fn test_subinvoke_method_with_required_env_panics_without_env_registered() {
+fn subinvoke_method_with_required_env_panics_without_env_registered() {
     let subinvoker_uri = get_subinvoker_uri();
 
     let client = build_client(None, None);
@@ -221,7 +221,7 @@ fn test_subinvoke_method_with_required_env_panics_without_env_registered() {
 }
 
 #[test]
-fn test_subinvoke_method_with_optional_env_works_with_env() {
+fn subinvoke_method_with_optional_env_works_with_env() {
     let subinvoker_uri = get_subinvoker_uri();
 
     let env = Env {
@@ -257,7 +257,7 @@ fn test_subinvoke_method_with_optional_env_works_with_env() {
 }
 
 #[test]
-fn test_subinvoke_method_with_optional_env_works_without_env() {
+fn subinvoke_method_with_optional_env_works_without_env() {
     let subinvoker_uri = get_subinvoker_uri();
 
     let client = build_client(None, None);
@@ -276,7 +276,7 @@ fn test_subinvoke_method_with_optional_env_works_without_env() {
 }
 
 #[test]
-fn test_subinvoker_env_does_not_override_subinvoked_env() {
+fn subinvoker_env_does_not_override_subinvoked_env() {
     let subinvoker_uri = get_subinvoker_with_env_uri();
     let subinvoked_uri = get_subinvoked_uri();
 
