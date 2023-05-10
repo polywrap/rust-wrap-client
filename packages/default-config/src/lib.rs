@@ -1,14 +1,12 @@
 use fs_plugin_rs::FileSystemPlugin;
 use http_plugin_rs::HttpPlugin;
 
-use polywrap_client::{
-    builder::types::BuilderConfig,
-    core::{
-        client::UriRedirect, env::Envs, resolvers::uri_resolution_context::UriPackage,
-        resolvers::uri_resolution_context::UriWrapper, uri::Uri,
-    },
-    plugin::package::PluginPackage,
+use polywrap_client_builder::types::BuilderConfig;
+use polywrap_core::{
+    client::UriRedirect, env::Envs, resolvers::uri_resolution_context::UriPackage,
+    resolvers::uri_resolution_context::UriWrapper, uri::Uri,
 };
+use polywrap_plugin::package::PluginPackage;
 use serde_json::json;
 use std::{
     collections::HashMap,
