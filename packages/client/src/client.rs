@@ -9,7 +9,7 @@ use polywrap_core::{
     resolvers::uri_resolution_context::UriResolutionContext,
     resolvers::{
         uri_resolution_context::UriPackageOrWrapper,
-        uri_resolver::{UriResolver, UriResolverHandler},
+        uri_resolver::{UriResolver, UriResolverHandler}, helpers::get_env_from_resolution_path,
     },
     uri::Uri,
     wrapper::Wrapper,
@@ -89,10 +89,19 @@ impl Invoker for PolywrapClient {
             .map_err(|e| Error::LoadWrapperError(e.to_string()))?;
 
         let self_clone = self.clone();
-        let mut env = env;
-        if env.is_none() {
-            env = self_clone.get_env_by_uri(uri);
-        }
+
+        let resolution_path = resolution_context.get_resolution_path();
+        let resolution_path = if resolution_path.len() > 0 {
+            resolution_path
+        } else {
+            vec![uri.clone()]
+        };
+
+        let env = if env.is_some() {
+            env
+        } else {
+            get_env_from_resolution_path(&resolution_path, &self_clone)
+        };
 
         let invoke_result = self
             .invoke_wrapper_raw(wrapper, uri, method, args, env, Some(resolution_context))
