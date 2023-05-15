@@ -139,7 +139,7 @@ impl Invoker for PolywrapClient {
         resolution_context.track_step(UriResolutionStep {
             source_uri: resolved_uri.clone(),
             result: match invoke_result.clone() {
-                Ok(_) => Ok(UriPackageOrWrapper::Uri(resolved_uri)),
+                Ok(_) => Ok(UriPackageOrWrapper::Uri(resolved_uri.clone())),
                 Err(e) => Err(Error::InvokeError(e.to_string())),
             },
             description: Some("Client.invokeWrapper".to_string()),
