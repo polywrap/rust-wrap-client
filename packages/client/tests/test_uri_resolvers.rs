@@ -8,7 +8,6 @@ use polywrap_client::resolvers::uri_resolver_wrapper::UriResolverWrapper;
 
 use polywrap_client::core::{
     resolvers::{
-        resolver_with_history::ResolverWithHistory,
         uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     },
     uri::Uri,
@@ -17,6 +16,7 @@ use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::interface_implementation::InterfaceImplementations;
 use polywrap_core::resolvers::static_resolver::StaticResolver;
+use polywrap_core::resolvers::uri_resolver::UriResolver;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
@@ -51,7 +51,7 @@ fn test_uri_resolver_wrapper() {
         UriResolverWrapper::new(Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap());
     let client = PolywrapClient::new(config);
     let result =
-        uri_resolver_wrapper._try_resolve_uri(&wrapper_uri, Arc::new(client), &mut uri_resolution_context);
+        uri_resolver_wrapper.try_resolve_uri(&wrapper_uri, Arc::new(client), &mut uri_resolution_context);
 
     if result.is_err() {
         panic!("Error in try resolver uri: {:?}", result.err());
