@@ -1,13 +1,9 @@
 use crate::error::WrapperError;
 use crate::runtime::instance::{State,WasmInstance};
-
-
-
 use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
 use polywrap_core::invoker::Invoker;
-use polywrap_core::resolvers::uri_resolution_context::UriResolutionContext;
 use polywrap_core::uri::Uri;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
@@ -46,11 +42,10 @@ impl WasmWrapper {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
         env: Option<&Env>,
     ) -> Result<T, Error> {
         let result = self
-            .invoke(invoker, uri, method, args, env, resolution_context)?;
+            .invoke(invoker, uri, method, args, env)?;
 
         let result = decode(result.as_slice())?;
 
@@ -82,7 +77,6 @@ impl Wrapper for WasmWrapper {
         method: &str,
         args: Option<&[u8]>,
         env: Option<&Env>,
-        _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),

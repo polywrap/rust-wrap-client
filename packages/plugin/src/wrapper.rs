@@ -6,7 +6,6 @@ use std::{
 use polywrap_core::{
     env::Env,
     invoker::Invoker,
-    resolvers::uri_resolution_context::UriResolutionContext,
     uri::Uri,
     wrapper::{GetFileOptions, Wrapper},
 };
@@ -35,7 +34,6 @@ impl Wrapper for PluginWrapper {
         method: &str,
         args: Option<&[u8]>,
         env: Option<&Env>,
-        _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         let args = match args {
             Some(args) => args.to_vec(),
