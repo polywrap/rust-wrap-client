@@ -1,5 +1,6 @@
 #![feature(trait_upcasting)]
 pub mod client;
+pub mod subinvoker;
 
 pub use polywrap_client_builder as builder;
 pub use polywrap_core as core;

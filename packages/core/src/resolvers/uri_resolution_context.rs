@@ -95,7 +95,7 @@ impl UriResolutionContext {
         UriResolutionContext {
             resolving_uri_map: self.resolving_uri_map.clone(),
             resolution_path: vec![],
-            history: self.history.clone()
+            history: vec![]
         }
     }
 }

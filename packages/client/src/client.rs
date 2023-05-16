@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
     client::{Client, ClientConfig},
@@ -8,7 +8,7 @@ use polywrap_core::{
     invoker::Invoker,
     resolvers::uri_resolution_context::UriResolutionContext,
     resolvers::{
-        uri_resolution_context::UriPackageOrWrapper,
+        uri_resolution_context::{UriPackageOrWrapper, UriResolutionStep},
         uri_resolver::{UriResolver, UriResolverHandler}, helpers::get_env_from_resolution_path,
     },
     uri::Uri,
@@ -16,6 +16,8 @@ use polywrap_core::{
 };
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
+
+use crate::subinvoker::Subinvoker;
 
 #[derive(Clone, Debug)]
 pub struct PolywrapClient {
@@ -78,36 +80,76 @@ impl Invoker for PolywrapClient {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let mut empty_res_context = UriResolutionContext::new();
-        let mut resolution_context = match resolution_context {
+        let resolution_context = match resolution_context {
             None => &mut empty_res_context,
             Some(ctx) => ctx,
         };
 
-        let wrapper = self
+        let mut load_wrapper_context = resolution_context.create_sub_context();
+
+        let load_result = self
             .clone()
-            .load_wrapper(uri, Some(&mut resolution_context))
-            .map_err(|e| Error::LoadWrapperError(e.to_string()))?;
+            .load_wrapper(uri, Some(&mut load_wrapper_context));
 
-        let self_clone = self.clone();
+        if let Err(error) = load_result.clone() {
+            resolution_context.track_step(UriResolutionStep {
+                source_uri: uri.clone(),
+                result: Err(error.clone()),
+                description: Some(format!("Client.loadWrapper({uri})")),
+                sub_history: Some(load_wrapper_context.get_history().clone())
+            });
 
-        let resolution_path = resolution_context.get_resolution_path();
+            return Err(Error::LoadWrapperError(error.to_string()));
+        }
+
+        let resolution_path = load_wrapper_context.get_resolution_path();
         let resolution_path = if resolution_path.len() > 0 {
             resolution_path
         } else {
             vec![uri.clone()]
         };
 
+        let resolved_uri = resolution_path.last().unwrap();
+
+        let wrapper = load_result.unwrap();
+
+        resolution_context.track_step(UriResolutionStep {
+            source_uri: uri.clone(),
+            result: Ok(UriPackageOrWrapper::Wrapper(resolved_uri.clone(), wrapper.clone())),
+            description: Some("Client.loadWrapper".to_string()),
+            sub_history: Some(load_wrapper_context.get_history().clone())
+        });
+
         let env = if env.is_some() {
             env
         } else {
-            get_env_from_resolution_path(&resolution_path, &self_clone)
+            get_env_from_resolution_path(&resolution_path, self)
         };
 
-        let invoke_result = self
-            .invoke_wrapper_raw(wrapper, uri, method, args, env, Some(resolution_context))
-            .map_err(|e| Error::InvokeError(e.to_string()))?;
+        let invoke_context = resolution_context.create_sub_context();
+        let invoke_context = Arc::new(Mutex::new(invoke_context));
 
-        Ok(invoke_result)
+        let subinvoker = Arc::new(Subinvoker::new(
+            Arc::new(self.clone()),
+            invoke_context.clone(),
+        ));
+
+        let invoke_result = wrapper
+            .invoke(subinvoker.clone(), uri, method, args, env, None);
+
+        let invoke_context = invoke_context.lock().unwrap();
+
+        resolution_context.track_step(UriResolutionStep {
+            source_uri: resolved_uri.clone(),
+            result: match invoke_result.clone() {
+                Ok(_) => Ok(UriPackageOrWrapper::Uri(resolved_uri.clone())),
+                Err(e) => Err(Error::InvokeError(e.to_string())),
+            },
+            description: Some("Client.invokeWrapper".to_string()),
+            sub_history: Some(invoke_context.get_history().clone())
+        });
+
+        invoke_result.map_err(|e| Error::InvokeError(e.to_string()))
     }
 
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
