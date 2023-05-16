@@ -5,7 +5,7 @@ use crate::{
     file_reader::FileReader,
     uri::Uri,
     error::Error,
-    interface_implementation::InterfaceImplementations, client::Client, invoker::Invoker
+    interface_implementation::InterfaceImplementations, client::Client, invoker::Invoker, env::Env
 };
 use polywrap_msgpack::{msgpack};
 
@@ -102,3 +102,19 @@ pub fn get_implementations(
     //     if implementation_uris.contains(x)
     // }
 }
+
+pub fn get_env_from_resolution_path<'a>(
+    resolution_path: &[Uri],
+    client: &'a dyn Client
+) -> Option<&'a Env> {
+    for uri in resolution_path.iter() {
+      let env = client.get_env_by_uri(uri);
+  
+      if env.is_some() {
+        return env;
+      }
+    }
+  
+    return None;
+}
+  
