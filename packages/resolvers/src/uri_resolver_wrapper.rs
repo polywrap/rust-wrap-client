@@ -34,7 +34,6 @@ impl UriResolverWrapper {
         invoker: &dyn Invoker,
         resolution_context: &mut UriResolutionContext
     ) -> Result<MaybeUriOrManifest, Error> {
-
         let mut resolver_extension_context = resolution_context.create_sub_context();
         let result = invoker.invoke_raw(
             implementation_uri,
