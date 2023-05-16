@@ -210,9 +210,11 @@ impl Client for PolywrapClient {
             Arc::new(self.clone()),
             subinvocation_context.clone(),
         ));
-    
+
+        let abort_handler = build_abort_handler(uri.clone(), method.to_string());
+
         let invoke_result = wrapper
-            .invoke(subinvoker.clone(), uri, method, args, env)
+            .invoke(method, args, env, subinvoker.clone(), Some(abort_handler))
             .map_err(|e| Error::InvokeError(e.to_string()));
 
         let subinvocation_context = subinvocation_context.lock().unwrap();
@@ -231,6 +233,18 @@ impl Client for PolywrapClient {
 
         invoke_result
     }
+}
+
+fn build_abort_handler(uri: Uri, method: String) -> Box<dyn Fn(String) + Send + Sync> {
+    Box::new(move |msg: String| {
+        panic!(
+            r#"Wrapper aborted execution.
+            URI: {uri}  
+            Method: {method}
+            Message: {msg}
+        "#
+        );
+    })
 }
 
 impl UriResolverHandler for PolywrapClient {
@@ -283,11 +297,11 @@ mod client_tests {
     impl Wrapper for MockWrapper {
         fn invoke(
             &self,
-            _: Arc<dyn Invoker>,
-            _: &Uri,
             method: &str,
             _: Option<&[u8]>,
             _: Option<&Env>,
+            _: Arc<dyn Invoker>,
+            _: Option<Box<dyn Fn(String) + Send + Sync>>,
         ) -> Result<Vec<u8>, Error> {
             // In Msgpack: True = [195] and False = [194]
 
