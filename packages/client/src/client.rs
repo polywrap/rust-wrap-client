@@ -59,8 +59,7 @@ impl PolywrapClient {
       method: &str,
       args: Option<&[u8]>,
       env: Option<&Env>,
-      loaded_wrapper_context: Option<&UriResolutionContext>,
-      invoked_wrapper_context: Option<Arc<Mutex<UriResolutionContext>>>,
+      resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
   ) -> Result<TResult, Error> {
         let result = self.invoke_wrapper_raw(
             wrapper,
@@ -68,8 +67,7 @@ impl PolywrapClient {
             method,
             args,
             env,
-            loaded_wrapper_context,
-            invoked_wrapper_context,
+            resolution_context,
         )?;
 
       decode(result.as_slice())
@@ -137,7 +135,7 @@ impl Invoker for PolywrapClient {
         let invoked_wrapper_context = Arc::new(Mutex::new(invoked_wrapper_context));
 
         let invoke_result =self
-            .invoke_wrapper_raw(&*wrapper, uri, method, args, env, Some(&loaded_wrapper_context), Some(invoked_wrapper_context.clone()));
+            .invoke_wrapper_raw(&*wrapper, uri, method, args, env, Some(invoked_wrapper_context.clone()));
 
         let invoked_wrapper_context = invoked_wrapper_context.lock().unwrap();
 
@@ -212,17 +210,16 @@ impl Client for PolywrapClient {
       method: &str,
       args: Option<&[u8]>,
       env: Option<&Env>,
-      _: Option<&UriResolutionContext>,
-      invoked_wrapper_context: Option<Arc<Mutex<UriResolutionContext>>>,
+      resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
-        let invoked_wrapper_context = match invoked_wrapper_context {
+        let resolution_context = match resolution_context {
             Some(ctx) => ctx,
             None => Arc::new(Mutex::new(UriResolutionContext::new())),
         };
 
         let subinvoker = Arc::new(Subinvoker::new(
             Arc::new(self.clone()),
-            invoked_wrapper_context,
+            resolution_context,
         ));
     
         wrapper
@@ -358,7 +355,6 @@ mod client_tests {
                 &wrapper,
                 &"wrap://ens/mock.eth".try_into().unwrap(),
                 "foo",
-                None,
                 None,
                 None,
                 None,
