@@ -42,7 +42,7 @@ pub trait Client: Invoker + UriResolverHandler {
     method: &str,
     args: Option<&[u8]>,
     env: Option<&Env>,
-    load_wrapper_context: Option<&UriResolutionContext>,
-    invoke_wrapper_context: Option<Arc<Mutex<UriResolutionContext>>>,
+    loaded_wrapper_context: Option<&UriResolutionContext>,
+    invoked_wrapper_context: Option<Arc<Mutex<UriResolutionContext>>>,
 ) -> Result<Vec<u8>, Error>;
 }
