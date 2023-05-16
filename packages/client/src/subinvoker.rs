@@ -1,28 +1,24 @@
-use std::sync::{RwLock, Arc};
+use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
-    resolvers::uri_resolution_context::{UriResolutionContext, UriResolutionStep}, 
+    resolvers::uri_resolution_context::UriResolutionContext, 
     invoker::Invoker, env::Env, error::Error, uri::Uri, interface_implementation::InterfaceImplementations
 };
 
 pub struct Subinvoker {
-    pub invoke_context: RwLock<UriResolutionContext>,
+    pub resolution_context: Arc<Mutex<UriResolutionContext>>,
     invoker: Arc<dyn Invoker>,
 }
 
 impl Subinvoker {
   pub fn new(
       invoker: Arc<dyn Invoker>,
-      invoke_context: UriResolutionContext,
+      resolution_context: Arc<Mutex<UriResolutionContext>>,
   ) -> Self {
       Self {
           invoker,
-          invoke_context: RwLock::new(invoke_context),
+          resolution_context,
       }
-  }
-
-  pub fn get_history(&self) -> Vec<UriResolutionStep> {
-      self.invoke_context.read().unwrap().get_history().clone()
   }
 }
 
@@ -35,7 +31,7 @@ impl Invoker for Subinvoker {
         env: Option<&Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        let mut context = self.invoke_context.write().unwrap();
+        let mut context = self.resolution_context.lock().unwrap();
         self.invoker.invoke_raw(uri, method, args, env, Some(&mut context))
     }
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
