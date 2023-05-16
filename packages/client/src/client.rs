@@ -59,7 +59,7 @@ impl PolywrapClient {
       method: &str,
       args: Option<&[u8]>,
       env: Option<&Env>,
-      resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
+      resolution_context: Option<&mut UriResolutionContext>,
   ) -> Result<TResult, Error> {
         let result = self.invoke_wrapper_raw(
             wrapper,
@@ -85,7 +85,7 @@ impl Invoker for PolywrapClient {
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let mut empty_res_context = UriResolutionContext::new();
-        let resolution_context = match resolution_context {
+        let mut resolution_context = match resolution_context {
             None => &mut empty_res_context,
             Some(ctx) => ctx,
         };
@@ -96,7 +96,9 @@ impl Invoker for PolywrapClient {
             .clone()
             .load_wrapper(uri, Some(&mut loaded_wrapper_context));
 
-        if let Err(error) = load_result.clone() {
+        if load_result.is_err() {
+            let error = load_result.err().unwrap();
+
             resolution_context.track_step(UriResolutionStep {
                 source_uri: uri.clone(),
                 result: Err(error.clone()),
@@ -131,25 +133,8 @@ impl Invoker for PolywrapClient {
             get_env_from_resolution_path(&resolution_path, self)
         };
 
-        let invoked_wrapper_context = resolution_context.create_sub_context();
-        let invoked_wrapper_context = Arc::new(Mutex::new(invoked_wrapper_context));
-
-        let invoke_result =self
-            .invoke_wrapper_raw(&*wrapper, uri, method, args, env, Some(invoked_wrapper_context.clone()));
-
-        let invoked_wrapper_context = invoked_wrapper_context.lock().unwrap();
-
-        resolution_context.track_step(UriResolutionStep {
-            source_uri: resolved_uri.clone(),
-            result: match invoke_result.clone() {
-                Ok(_) => Ok(UriPackageOrWrapper::Uri(resolved_uri.clone())),
-                Err(e) => Err(Error::InvokeError(e.to_string())),
-            },
-            description: Some("Client.invokeWrapper".to_string()),
-            sub_history: Some(invoked_wrapper_context.get_history().clone())
-        });
-
-        invoke_result.map_err(|e| Error::InvokeError(e.to_string()))
+        self
+            .invoke_wrapper_raw(&*wrapper, uri, method, args, env, Some(&mut resolution_context))
     }
 
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
@@ -180,13 +165,13 @@ impl Client for PolywrapClient {
       resolution_context: Option<&mut UriResolutionContext>,
   ) -> Result<Arc<dyn Wrapper>, Error> {
       let mut empty_res_context = UriResolutionContext::new();
-      let mut resolution_ctx = match resolution_context {
-          Some(ctx) => ctx,
+      let mut resolution_context = match resolution_context {
           None => &mut empty_res_context,
+          Some(ctx) => ctx,
       };
   
       let uri_package_or_wrapper = self
-          .try_resolve_uri(uri, Some(&mut resolution_ctx))
+          .try_resolve_uri(uri, Some(&mut resolution_context))
           .map_err(|e| Error::ResolutionError(e.to_string()))?;
   
       match uri_package_or_wrapper {
@@ -210,21 +195,41 @@ impl Client for PolywrapClient {
       method: &str,
       args: Option<&[u8]>,
       env: Option<&Env>,
-      resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
+      resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
+        let mut empty_res_context = UriResolutionContext::new();
         let resolution_context = match resolution_context {
+            None => &mut empty_res_context,
             Some(ctx) => ctx,
-            None => Arc::new(Mutex::new(UriResolutionContext::new())),
         };
+
+        let subinvocation_context = resolution_context.create_sub_context();
+        let subinvocation_context = Arc::new(Mutex::new(subinvocation_context));
 
         let subinvoker = Arc::new(Subinvoker::new(
             Arc::new(self.clone()),
-            resolution_context,
+            subinvocation_context.clone(),
         ));
     
-        wrapper
+        let invoke_result = wrapper
             .invoke(subinvoker.clone(), uri, method, args, env)
-            .map_err(|e| Error::InvokeError(e.to_string()))
+            .map_err(|e| Error::InvokeError(e.to_string()));
+
+        let subinvocation_context = subinvocation_context.lock().unwrap();
+
+        resolution_context.track_step(UriResolutionStep {
+            source_uri: uri.clone(),
+            result: if invoke_result.is_ok() {
+                Ok(UriPackageOrWrapper::Uri(uri.clone()))
+            } else {
+                let error = invoke_result.clone().unwrap_err();
+                Err(Error::InvokeError(error.to_string()))
+            },
+            description: Some("Client.invokeWrapper".to_string()),
+            sub_history: Some(subinvocation_context.get_history().clone())
+        });
+
+        invoke_result
     }
 }
 
