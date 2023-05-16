@@ -134,9 +134,12 @@ impl Invoker for PolywrapClient {
         };
 
         let invoke_wrapper_context = Arc::new(Mutex::new(resolution_context.create_sub_context()));
+        let invoke_context = Arc::new(Mutex::new(invoke_context));
 
         let invoke_result =self
             .invoke_wrapper_raw(&*wrapper, uri, method, args, env, Some(&load_wrapper_context), Some(invoke_wrapper_context.clone()));
+
+        let invoke_context = invoke_context.lock().unwrap();
 
         resolution_context.track_step(UriResolutionStep {
             source_uri: resolved_uri.clone(),
@@ -145,7 +148,7 @@ impl Invoker for PolywrapClient {
                 Err(e) => Err(Error::InvokeError(e.to_string())),
             },
             description: Some("Client.invokeWrapper".to_string()),
-            sub_history: Some(invoke_wrapper_context.lock().unwrap().get_history().clone())
+            sub_history: Some(invoke_wrapper_context.get_history().clone())
         });
 
         invoke_result.map_err(|e| Error::InvokeError(e.to_string()))

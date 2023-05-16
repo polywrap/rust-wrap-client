@@ -6,18 +6,18 @@ use polywrap_core::{
 };
 
 pub struct Subinvoker {
-    invoke_context: Arc<Mutex<UriResolutionContext>>,
+    resolution_context: Arc<Mutex<UriResolutionContext>>,
     invoker: Arc<dyn Invoker>,
 }
 
 impl Subinvoker {
   pub fn new(
       invoker: Arc<dyn Invoker>,
-      invoke_context: Arc<Mutex<UriResolutionContext>>,
+      resolution_context: Arc<Mutex<UriResolutionContext>>,
   ) -> Self {
       Self {
           invoker,
-          invoke_context: invoke_context,
+          resolution_context,
       }
   }
 }
@@ -31,7 +31,7 @@ impl Invoker for Subinvoker {
         env: Option<&Env>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        let mut context = self.invoke_context.lock().unwrap();
+        let mut context = self.resolution_context.lock().unwrap();
         self.invoker.invoke_raw(uri, method, args, env, Some(&mut context))
     }
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
