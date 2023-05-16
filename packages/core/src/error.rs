@@ -30,6 +30,8 @@ pub enum Error {
   ResolverError(String),
   #[error("`{0}`")]
   PluginError(String),
+  #[error("`{0}`")]
+  RuntimeError(String),
 }
 
 impl From<MsgpackError> for Error {
