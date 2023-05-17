@@ -1,5 +1,5 @@
 [package]
-name = "polywrap_uri_resolution"
+name = "polywrap_resolution"
 description = "Core types of Polywrap URI resolution"
 
 version.workspace = true
