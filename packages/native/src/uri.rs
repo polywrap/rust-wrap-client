@@ -3,7 +3,15 @@ use polywrap_client::core::uri::Uri;
 pub struct FFIUri(pub Uri);
 
 impl FFIUri {
-  pub fn new(uri: &str) -> Self {
+  pub fn new(authority: &str, path: &str, uri: &str) -> Self {
+    FFIUri(Uri {
+      authority: authority.to_string(),
+      path: path.to_string(),
+      uri: uri.to_string()
+     })
+  }
+
+  pub fn from_str(uri: &str) -> Self {
     FFIUri(Uri::new(uri))
   }
 }
