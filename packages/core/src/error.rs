@@ -12,7 +12,7 @@ pub enum Error {
   WrapperError(String),
   #[error("Failed to create wrapper: `{0}`")]
   WrapperCreateError(String),
-  #[error("Failed to invoke wrapper at `{0}`, method `{1}`: `{2}`")]
+  #[error("Failed to invoke wrapper, uri: `{0}`, method: `{1}`: `{2}`")]
   InvokeError(String, String, String),
   #[error("Error loading wrapper: `{0}`")]
   LoadWrapperError(String),
