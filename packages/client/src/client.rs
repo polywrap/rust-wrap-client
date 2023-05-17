@@ -49,7 +49,7 @@ impl PolywrapClient {
       let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
 
       decode(result.as_slice())
-          .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
+          .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {e}")))
   }
 
   pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
@@ -71,7 +71,7 @@ impl PolywrapClient {
         )?;
 
       decode(result.as_slice())
-          .map_err(|e| Error::InvokeError(format!("Failed to decode result: {e}")))
+          .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {e}")))
   }
 }
 
@@ -175,7 +175,7 @@ impl Client for PolywrapClient {
           .map_err(|e| Error::ResolutionError(e.to_string()))?;
   
       match uri_package_or_wrapper {
-          UriPackageOrWrapper::Uri(uri) => Err(Error::InvokeError(format!(
+          UriPackageOrWrapper::Uri(uri) => Err(Error::ResolutionError(format!(
               "Failed to resolve wrapper: {uri}"
           ))),
           UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
@@ -211,11 +211,11 @@ impl Client for PolywrapClient {
             subinvocation_context.clone(),
         ));
 
-        let abort_handler = build_abort_handler(uri.clone(), method.to_string());
+        let abort_handler = build_abort_handler(None, uri.clone(), method.to_string());
 
         let invoke_result = wrapper
             .invoke(method, args, env, subinvoker.clone(), Some(abort_handler))
-            .map_err(|e| Error::InvokeError(e.to_string()));
+            .map_err(|e| Error::InvokeError(uri.to_string(), method.to_string(), e.to_string()));
 
         let subinvocation_context = subinvocation_context.lock().unwrap();
 
@@ -224,8 +224,7 @@ impl Client for PolywrapClient {
             result: if invoke_result.is_ok() {
                 Ok(UriPackageOrWrapper::Uri(uri.clone()))
             } else {
-                let error = invoke_result.clone().unwrap_err();
-                Err(Error::InvokeError(error.to_string()))
+                Err(invoke_result.clone().unwrap_err())
             },
             description: Some("Client.invokeWrapper".to_string()),
             sub_history: Some(subinvocation_context.get_history().clone())
@@ -233,18 +232,28 @@ impl Client for PolywrapClient {
 
         invoke_result
     }
+
 }
 
-fn build_abort_handler(uri: Uri, method: String) -> Box<dyn Fn(String) + Send + Sync> {
-    Box::new(move |msg: String| {
-        panic!(
-            r#"Wrapper aborted execution.
-            URI: {uri}  
-            Method: {method}
-            Message: {msg}
-        "#
-        );
-    })
+fn build_abort_handler(custom_abort_handler: Option<Arc<dyn Fn(Uri, String, String) + Send + Sync>>, uri: Uri, method: String) -> Box<dyn Fn(String) + Send + Sync> {
+    match custom_abort_handler {
+        Some(abort) => {
+            return Box::new(move |error_message: String| {
+                abort(uri.clone(), method.clone(), error_message)
+            })
+        },
+        None => {
+            Box::new(move |error_message: String| {
+                panic!(
+                    r#"Wrapper aborted execution.
+                    URI: {uri}  
+                    Method: {method}
+                    Message: {error_message}
+                "#
+                );
+            })
+        }
+    }
 }
 
 impl UriResolverHandler for PolywrapClient {
@@ -333,7 +342,7 @@ mod client_tests {
                     Arc::new(MockWrapper::new(54)),
                 ))
             } else {
-                Err(Error::InvokeError("Not Found".to_string()))
+                Err(Error::ResolutionError("Not Found".to_string()))
             }
         }
     }
