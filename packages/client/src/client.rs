@@ -12,7 +12,7 @@ use polywrap_core::{
         uri_resolver::{UriResolver, UriResolverHandler}, helpers::get_env_from_resolution_path,
     },
     uri::Uri,
-    wrapper::Wrapper,
+    wrapper::Wrapper, wrap_loader::WrapLoader, wrap_invoker::WrapInvoker,
 };
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
@@ -148,9 +148,7 @@ impl Invoker for PolywrapClient {
 
         None
     }
-}
 
-impl Client for PolywrapClient {
     fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
         if let Some(envs) = &self.envs {
             return envs.get(&uri.to_string());
@@ -158,44 +156,48 @@ impl Client for PolywrapClient {
 
         None
     }
+}
 
+impl WrapLoader for PolywrapClient {
     fn load_wrapper(
-      &self,
-      uri: &Uri,
-      resolution_context: Option<&mut UriResolutionContext>,
-  ) -> Result<Arc<dyn Wrapper>, Error> {
-      let mut empty_res_context = UriResolutionContext::new();
-      let mut resolution_context = match resolution_context {
-          None => &mut empty_res_context,
-          Some(ctx) => ctx,
-      };
-  
-      let uri_package_or_wrapper = self
-          .try_resolve_uri(uri, Some(&mut resolution_context))
-          .map_err(|e| Error::ResolutionError(e.to_string()))?;
-  
-      match uri_package_or_wrapper {
-          UriPackageOrWrapper::Uri(uri) => Err(Error::ResolutionError(format!(
-              "Failed to resolve wrapper: {uri}"
-          ))),
-          UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
-          UriPackageOrWrapper::Package(_, package) => {
-              let wrapper = package
-                  .create_wrapper()
-                  .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
-              Ok(wrapper)
-          }
-      }
+        &self,
+        uri: &Uri,
+        resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<Arc<dyn Wrapper>, Error> {
+        let mut empty_res_context = UriResolutionContext::new();
+        let mut resolution_context = match resolution_context {
+            None => &mut empty_res_context,
+            Some(ctx) => ctx,
+        };
+    
+        let uri_package_or_wrapper = self
+            .try_resolve_uri(uri, Some(&mut resolution_context))
+            .map_err(|e| Error::ResolutionError(e.to_string()))?;
+    
+        match uri_package_or_wrapper {
+            UriPackageOrWrapper::Uri(uri) => Err(Error::ResolutionError(format!(
+                "Failed to resolve wrapper: {uri}"
+            ))),
+            UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
+            UriPackageOrWrapper::Package(_, package) => {
+                let wrapper = package
+                    .create_wrapper()
+                    .map_err(|e| Error::WrapperCreateError(e.to_string()))?;
+                Ok(wrapper)
+            }
+        }
     }
+}
 
+impl WrapInvoker for PolywrapClient {
     fn invoke_wrapper_raw(
-      &self,
-      wrapper: &dyn Wrapper,
-      uri: &Uri,
-      method: &str,
-      args: Option<&[u8]>,
-      env: Option<&Env>,
-      resolution_context: Option<&mut UriResolutionContext>,
+        &self,
+        wrapper: &dyn Wrapper,
+        uri: &Uri,
+        method: &str,
+        args: Option<&[u8]>,
+        env: Option<&Env>,
+        resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let mut empty_res_context = UriResolutionContext::new();
         let resolution_context = match resolution_context {
@@ -252,11 +254,14 @@ impl UriResolverHandler for PolywrapClient {
     }
 }
 
+impl Client for PolywrapClient {
+}
+
 #[cfg(test)]
 mod client_tests {
     use crate::client::Env;
     use polywrap_core::{
-        client::{ClientConfig, Client},
+        client::ClientConfig,
         error::Error,
         invoker::Invoker,
         resolvers::{
@@ -264,7 +269,7 @@ mod client_tests {
             uri_resolver::{UriResolver, UriResolverHandler},
         },
         uri::Uri,
-        wrapper::{GetFileOptions, Wrapper},
+        wrapper::{GetFileOptions, Wrapper}, wrap_loader::WrapLoader,
     };
     use std::sync::Arc;
 
