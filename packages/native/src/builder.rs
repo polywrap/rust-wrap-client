@@ -153,7 +153,7 @@ mod builder_tests {
     #[test]
     fn it_adds_env() {
         let builder = FFIBuilderConfig::new();
-        let uri = Arc::new(FFIUri::from_str("wrap://ens/some.eth"));
+        let uri = Arc::new(FFIUri::from_string("wrap://ens/some.eth"));
         let env = json!({
           "foo": "bar"
         }).to_string();

@@ -11,8 +11,12 @@ impl FFIUri {
      })
   }
 
-  pub fn from_str(uri: &str) -> Self {
+  pub fn from_string(uri: &str) -> Self {
     FFIUri(Uri::new(uri))
+  }
+
+  pub fn to_string(&self) -> String {
+    self.0.to_string()
   }
 }
 
