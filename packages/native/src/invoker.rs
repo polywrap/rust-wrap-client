@@ -2,6 +2,8 @@ use polywrap_client::core::{invoker::Invoker, uri::Uri};
 use serde_json::Value;
 use std::{collections::HashMap, sync::Arc};
 
+use crate::uri::FFIUri;
+
 pub struct FFIInvoker {
     pub inner_invoker: Arc<dyn Invoker>,
 }
@@ -15,7 +17,7 @@ impl FFIInvoker {
 
     pub fn invoke_raw(
         &self,
-        uri: Arc<Uri>,
+        uri: Arc<FFIUri>,
         method: &str,
         args: Option<Vec<u8>>,
         env: Option<String>,
@@ -39,22 +41,22 @@ impl FFIInvoker {
 
     pub fn get_implementations(
         &self,
-        uri: Arc<Uri>,
-    ) -> Result<Vec<Arc<Uri>>, polywrap_client::core::error::Error> {
+        uri: Arc<FFIUri>,
+    ) -> Result<Vec<Arc<FFIUri>>, polywrap_client::core::error::Error> {
         Ok(self
             .inner_invoker
-            .get_implementations(uri.as_ref())?
+            .get_implementations(&uri.0)?
             .into_iter()
-            .map(|uri| uri.into())
+            .map(|uri| Arc::new(uri.into()))
             .collect())
     }
 
-    pub fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<Uri>>>> {
+    pub fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<FFIUri>>>> {
         if let Some(interfaces) = self.inner_invoker.get_interfaces() {
             let interfaces = interfaces
                 .into_iter()
                 .map(|(key, uris)| {
-                    let uris = uris.into_iter().map(|uri| uri.into()).collect();
+                    let uris = uris.into_iter().map(|uri| Arc::new(uri.into())).collect();
                     (key, uris)
                 })
                 .collect();

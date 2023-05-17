@@ -1,6 +1,6 @@
 use polywrap_client::core::uri::Uri;
 
-pub struct FFIUri(Uri);
+pub struct FFIUri(pub Uri);
 
 impl FFIUri {
   pub fn new(uri: &str) -> Self {
@@ -17,6 +17,18 @@ impl PartialEq for FFIUri {
 impl From<FFIUri> for String {
   fn from(uri: FFIUri) -> Self {
       uri.to_string()
+  }
+}
+
+impl From<FFIUri> for Uri {
+  fn from(uri: FFIUri) -> Self {
+      uri.0
+  }
+}
+
+impl From<Uri> for FFIUri {
+  fn from(uri: Uri) -> Self {
+      FFIUri(uri)
   }
 }
 

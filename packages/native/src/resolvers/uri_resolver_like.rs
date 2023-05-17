@@ -5,39 +5,39 @@ use polywrap_client::core::{
 };
 use std::sync::Arc;
 
-use crate::{package::FFIWrapPackage, wrapper::FFIWrapper};
+use crate::{package::FFIWrapPackage, wrapper::FFIWrapper, uri::FFIUri};
 
 use super::ffi_resolver::{FFIUriResolver, FFIUriResolverWrapper};
 
 pub struct FFIUriResolverLikeRedirectVariant {
-    from: Arc<Uri>,
-    to: Arc<Uri>,
+    from: Arc<FFIUri>,
+    to: Arc<FFIUri>,
 }
 
 impl FFIUriResolverLikeRedirectVariant {
-    pub fn new(from: Arc<Uri>, to: Arc<Uri>) -> FFIUriResolverLikeRedirectVariant {
+    pub fn new(from: Arc<FFIUri>, to: Arc<FFIUri>) -> FFIUriResolverLikeRedirectVariant {
         FFIUriResolverLikeRedirectVariant { from, to }
     }
 }
 
 pub struct FFIUriResolverLikePackageVariant {
-    uri: Arc<Uri>,
+    uri: Arc<FFIUri>,
     package: Arc<FFIWrapPackage>,
 }
 
 impl FFIUriResolverLikePackageVariant {
-    pub fn new(uri: Arc<Uri>, package: Arc<FFIWrapPackage>) -> FFIUriResolverLikePackageVariant {
+    pub fn new(uri: Arc<FFIUri>, package: Arc<FFIWrapPackage>) -> FFIUriResolverLikePackageVariant {
         FFIUriResolverLikePackageVariant { uri, package }
     }
 }
 
 pub struct FFIUriResolverLikeWrapperVariant {
-    uri: Arc<Uri>,
+    uri: Arc<FFIUri>,
     wrapper: Arc<FFIWrapper>,
 }
 
 impl FFIUriResolverLikeWrapperVariant {
-    pub fn new(uri: Arc<Uri>, wrapper: Arc<FFIWrapper>) -> FFIUriResolverLikeWrapperVariant {
+    pub fn new(uri: Arc<FFIUri>, wrapper: Arc<FFIWrapper>) -> FFIUriResolverLikeWrapperVariant {
         FFIUriResolverLikeWrapperVariant { uri, wrapper }
     }
 }
@@ -168,17 +168,17 @@ impl From<FFIUriResolverLike> for UriResolverLike {
             FFIUriResolverLikeKind::_Redirect => {
                 let redirect = value.get_redirect().unwrap();
                 UriResolverLike::Redirect(UriRedirect {
-                    from: redirect.from.as_ref().clone(),
-                    to: redirect.to.as_ref().clone(),
+                    from: redirect.from.0.clone(),
+                    to: redirect.to.0.clone(),
                 })
             }
             FFIUriResolverLikeKind::_Package => {
                 let package = value.get_package().unwrap();
-                UriResolverLike::Package(package.uri.as_ref().clone(), package.package.0.clone())
+                UriResolverLike::Package(package.uri.0.clone(), package.package.0.clone())
             }
             FFIUriResolverLikeKind::_Wrapper => {
                 let wrapper = value.get_wrapper().unwrap();
-                UriResolverLike::Wrapper(wrapper.uri.as_ref().clone(), wrapper.wrapper.0.clone())
+                UriResolverLike::Wrapper(wrapper.uri.0.clone(), wrapper.wrapper.0.clone())
             }
             FFIUriResolverLikeKind::_ResolverLike => UriResolverLike::ResolverLike(
                 value
