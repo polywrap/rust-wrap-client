@@ -1,6 +1,6 @@
 use std::{sync::Arc, fmt::Debug, any::Any};
 
-use crate::{error::Error, invoker::{Invoker}, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::Env};
+use crate::{error::Error, invoker::Invoker, uri::Uri, env::Env};
 pub enum Encoding {
     Base64,
     UTF8,
@@ -19,7 +19,6 @@ pub trait Wrapper: Send + Sync + Debug + Any {
         method: &str,
         args: Option<&[u8]>,
         env: Option<&Env>,
-        resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
     fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error>;
 }

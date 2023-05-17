@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Mutex, Arc};
 
 use polywrap_core::{
     resolvers::uri_resolution_context::UriResolutionContext, 
@@ -6,7 +6,7 @@ use polywrap_core::{
 };
 
 pub struct Subinvoker {
-    pub resolution_context: Arc<Mutex<UriResolutionContext>>,
+    resolution_context: Arc<Mutex<UriResolutionContext>>,
     invoker: Arc<dyn Invoker>,
 }
 

@@ -1,4 +1,4 @@
-use std::sync::{Arc};
+use std::sync::{Arc, Mutex};
 
 use crate::error::Error;
 use crate::invoker::Invoker;
@@ -37,7 +37,7 @@ pub trait Client: Invoker + UriResolverHandler {
   ) -> Result<Arc<dyn Wrapper>, Error>;
   fn invoke_wrapper_raw(
     &self,
-    wrapper: Arc<dyn Wrapper>,
+    wrapper: &dyn Wrapper,
     uri: &Uri,
     method: &str,
     args: Option<&[u8]>,
