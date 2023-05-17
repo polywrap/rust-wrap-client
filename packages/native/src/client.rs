@@ -1,11 +1,11 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_client::{
-    core::{client::Client, error::Error},
+    core::{client::Client},
 };
 use serde_json::Value;
 
-use crate::{wrapper::FFIWrapper, uri::FFIUri};
+use crate::{uri::FFIUri};
 
 pub struct FFIClient {
     inner_client: Arc<dyn Client>,
@@ -75,29 +75,5 @@ impl FFIClient {
             Some(env) => Some(env.to_string()),
             None => None,
         }
-    }
-
-    pub fn invoke_wrapper_raw(
-        &self,
-        wrapper: Arc<FFIWrapper>,
-        uri: Arc<FFIUri>,
-        method: &str,
-        args: Option<Vec<u8>>,
-        env: Option<String>,
-    ) -> Result<Vec<u8>, Error> {
-        let args = args.as_deref();
-
-        let mut _decoded_env = serde_json::Value::Null;
-        let env = env.map(|env| {
-            _decoded_env = serde_json::from_str::<Value>(&env).unwrap();
-            &_decoded_env
-        });
-
-        self.inner_client.invoke_wrapper_raw(wrapper.0.clone(), &uri.0, method, args, env, None)
-    }
-
-    pub fn load_wrapper(&self, uri: Arc<FFIUri>) -> Result<Arc<FFIWrapper>, Error> {
-        let wrapper = self.inner_client.load_wrapper(&uri.0, None)?;
-        Ok(Arc::new(FFIWrapper::new(wrapper)))
     }
 }

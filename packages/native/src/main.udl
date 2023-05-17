@@ -158,12 +158,6 @@ interface FFIClient {
   record<DOMString, sequence<FFIUri>>? get_interfaces();
 
   string? get_env_by_uri(FFIUri uri);
-
-  [Throws=Error]
-  sequence<u8> invoke_wrapper_raw(FFIWrapper wrapper, FFIUri uri, [ByRef] string method, sequence<u8>? args, string? env);
-
-  [Throws=Error]
-  FFIWrapper load_wrapper(FFIUri uri);
 };
 
 interface FFIBuilderConfig {
