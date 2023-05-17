@@ -1,9 +1,6 @@
 use crate::error::WrapperError;
 use crate::runtime::instance::{State,WasmInstance};
 
-
-
-use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
 use polywrap_core::invoker::Invoker;
@@ -47,7 +44,7 @@ impl WasmWrapper {
         method: &str,
         args: Option<&[u8]>,
         resolution_context: Option<&mut UriResolutionContext>,
-        env: Option<&Env>,
+        env: Option<&[u8]>,
     ) -> Result<T, Error> {
         let result = self
             .invoke(invoker, uri, method, args, env, resolution_context)?;
@@ -81,7 +78,7 @@ impl Wrapper for WasmWrapper {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
+        env: Option<&[u8]>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
@@ -90,8 +87,8 @@ impl Wrapper for WasmWrapper {
         };
 
         let env = match env {
-            Some(e) => polywrap_msgpack::serialize(e)?,
-            None => vec![],
+            Some(env) => env.to_vec(),
+            None => msgpack!({}),
         };
 
         let params = &[

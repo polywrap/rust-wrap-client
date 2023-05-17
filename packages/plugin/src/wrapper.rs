@@ -4,7 +4,6 @@ use std::{
 };
 
 use polywrap_core::{
-    env::Env,
     invoker::Invoker,
     resolvers::uri_resolution_context::UriResolutionContext,
     uri::Uri,
@@ -34,7 +33,7 @@ impl Wrapper for PluginWrapper {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
+        env: Option<&[u8]>,
         _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         let args = match args {

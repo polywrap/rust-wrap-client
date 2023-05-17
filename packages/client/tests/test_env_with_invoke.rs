@@ -1,5 +1,5 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_client::core::{env::Envs, uri::Uri};
+use polywrap_client::core::{uri::Uri};
 use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
@@ -11,8 +11,6 @@ use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-
-use serde_json::json;
 
 fn get_env_wrapper_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
@@ -43,11 +41,11 @@ struct Env {
     array: Vec<i32>,
 }
 
-fn build_client(uri: &Uri, env: Option<&Env>) -> PolywrapClient {
-    let mut envs: Envs = HashMap::new();
+fn build_client(uri: &Uri, env: Option<&[u8]>) -> PolywrapClient {
+    let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
    
     if let Some(env) = env {
-        envs.insert(uri.to_string(), json!(env));
+        envs.insert(uri.to_string(), env.to_vec());
     }
 
     let resolvers = HashMap::new();
@@ -109,7 +107,7 @@ fn invoke_method_without_env_works_with_env() {
         array: vec![32, 23],
     };
 
-    let client = build_client(&wrapper_uri, Some(&env));
+    let client = build_client(&wrapper_uri, Some(&polywrap_msgpack::serialize(&env).unwrap()));
 
     let test_string = "test";
     let result = client
@@ -146,7 +144,7 @@ fn invoke_method_with_required_env_works_with_env() {
         array: vec![32, 23],
     };
 
-    let client = build_client(&wrapper_uri, Some(&env));
+    let client = build_client(&wrapper_uri, Some(&polywrap_msgpack::serialize(&env).unwrap()));
 
     let result = client
         .invoke::<Env>(
@@ -202,7 +200,7 @@ fn invoke_method_with_optional_env_works_with_env() {
         array: vec![32, 23],
     };
 
-    let client = build_client(&wrapper_uri, Some(&env));
+    let client = build_client(&wrapper_uri, Some(&polywrap_msgpack::serialize(&env).unwrap()));
 
     let result = client
         .invoke::<Env>(

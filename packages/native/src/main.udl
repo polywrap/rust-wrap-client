@@ -26,7 +26,7 @@ interface FFIUri {
 
 interface FFIInvoker {
   [Throws=Error]
-  sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, string? env);
+  sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env);
 
   [Throws=Error]
   sequence<FFIUri> get_implementations(FFIUri uri);
@@ -36,7 +36,7 @@ interface FFIInvoker {
 
 interface FFIWrapper {
   [Throws=Error]
-  sequence<u8> invoke(FFIInvoker invoker, FFIUri uri, [ByRef] string method, sequence<u8>? args, string? env);
+  sequence<u8> invoke(FFIInvoker invoker, FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env);
 };
 
 interface FFIWrapPackage { };
@@ -46,7 +46,7 @@ interface FFIWasmWrapper {
 };
 
 callback interface FFIPluginModule {
-  sequence<u8> wrap_invoke(string method_name, sequence<u8> params, string? env, FFIInvoker invoker);
+  sequence<u8> wrap_invoke(string method_name, sequence<u8> params, sequence<u8>? env, FFIInvoker invoker);
 };
 
 callback interface FFIUriResolver {
@@ -150,7 +150,7 @@ interface FFIRecursiveUriResolver {
 
 interface FFIClient {
   [Throws=Error]
-  sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, string? env);
+  sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env);
 
   [Throws=Error]
   sequence<FFIUri> get_implementations(FFIUri uri);
@@ -162,9 +162,9 @@ interface FFIClient {
 
 interface FFIBuilderConfig {
   constructor();
-  void add_env(FFIUri uri, [ByRef] string env);
+  void add_env(FFIUri uri, sequence<u8> env);
   void remove_env(FFIUri uri);
-  void set_env(FFIUri uri, [ByRef] string env);
+  void set_env(FFIUri uri, sequence<u8> env);
   void add_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
   void remove_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
   void add_wasm_wrapper(FFIUri uri, FFIWasmWrapper wrapper);

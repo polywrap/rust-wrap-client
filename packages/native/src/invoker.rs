@@ -1,5 +1,4 @@
 use polywrap_client::core::{invoker::Invoker, uri::Uri};
-use serde_json::Value;
 use std::{collections::HashMap, sync::Arc};
 
 use crate::uri::FFIUri;
@@ -20,15 +19,10 @@ impl FFIInvoker {
         uri: Arc<FFIUri>,
         method: &str,
         args: Option<Vec<u8>>,
-        env: Option<String>,
+        env: Option<Vec<u8>>,
     ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
         let args = args.as_deref();
-
-        let mut _decoded_env = serde_json::Value::Null;
-        let env = env.map(|env| {
-          _decoded_env = serde_json::from_str::<Value>(&env).unwrap();
-          &_decoded_env
-        });
+        let env = env.as_deref();
 
         self.inner_invoker.invoke_raw(
             &uri.to_string().try_into().unwrap(),
@@ -74,7 +68,7 @@ impl Invoker for FFIInvoker {
       uri: &Uri,
       method: &str,
       args: Option<&[u8]>,
-      env: Option<&polywrap_client::core::env::Env>,
+      env: Option<&[u8]>,
       resolution_context: Option<
           &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
       >,

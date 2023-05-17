@@ -10,22 +10,8 @@ use polywrap_core::{
     },
 };
 use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
-use serde_json::Value;
 
 use crate::types::BuilderConfig;
-
-pub fn merge(a: &mut Value, b: &Value) {
-    match (a, b) {
-        (&mut Value::Object(ref mut a), Value::Object(b)) => {
-            for (k, v) in b {
-                merge(a.entry(k.clone()).or_insert(Value::Null), v);
-            }
-        }
-        (a, b) => {
-            *a = b.clone();
-        }
-    }
-}
 
 pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
     let mut static_resolvers: Vec<StaticResolverLike> = vec![];

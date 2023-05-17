@@ -1,7 +1,6 @@
 use std::sync::{Arc};
 
 use polywrap_client::core::{wrapper::Wrapper, error::Error};
-use serde_json::Value;
 
 use crate::{invoker::FFIInvoker, uri::FFIUri};
 
@@ -18,16 +17,10 @@ impl FFIWrapper {
     uri: Arc<FFIUri>,
     method: &str,
     args: Option<Vec<u8>>,
-    env: Option<String>,
+    env: Option<Vec<u8>>,
   ) -> Result<Vec<u8>, Error> {
     let args = args.as_deref();
 
-    let mut _decoded_env = serde_json::Value::Null;
-    let env = env.map(|env| {
-      _decoded_env = serde_json::from_str::<Value>(&env).unwrap();
-      &_decoded_env
-    });
-
-    self.0.invoke(invoker.clone(), &uri.0, method, args, env, None)
+    self.0.invoke(invoker.clone(), &uri.0, method, args, env.map(|e| e.as_slice()), None)
   }
 }

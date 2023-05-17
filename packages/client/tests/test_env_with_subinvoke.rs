@@ -1,5 +1,5 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_client::core::{env::Envs, uri::Uri};
+use polywrap_client::core::{uri::Uri};
 use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
@@ -12,8 +12,6 @@ use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-
-use serde_json::json;
 
 fn get_subinvoker_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
@@ -71,18 +69,18 @@ struct Env {
     array: Vec<i32>,
 }
 
-fn build_client(subinvoker_env: Option<&Env>, subinvoked_env: Option<&Env>) -> PolywrapClient {
+fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) -> PolywrapClient {
     let subinvoker_uri = get_subinvoker_uri();
     let subinvoked_uri = get_subinvoked_uri();
 
-    let mut envs: Envs = HashMap::new();
+    let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
    
     if let Some(env) = subinvoker_env {
-        envs.insert(subinvoker_uri.to_string(), json!(env));
+        envs.insert(subinvoker_uri.to_string(), env.to_vec());
     }
 
     if let Some(env) = subinvoked_env {
-        envs.insert(Uri::try_from("mock/main").unwrap().to_string(), json!(env));
+        envs.insert(Uri::try_from("mock/main").unwrap().to_string(), env.to_vec());
     }
 
     let file_reader = SimpleFileReader::new();
@@ -148,7 +146,7 @@ fn subinvoke_method_without_env_works_with_env() {
         array: vec![32, 23],
     };
 
-    let client = build_client(None, Some(&env));
+    let client = build_client(None, Some(&polywrap_msgpack::serialize(&env).unwrap()));
 
     let test_string = "test";
     let result = client
@@ -185,7 +183,7 @@ fn subinvoke_method_with_required_env_works_with_env() {
         array: vec![32, 23],
     };
 
-    let client = build_client(None, Some(&env));
+    let client = build_client(None, Some(&polywrap_msgpack::serialize(&env).unwrap()));
 
     let result = client
         .invoke::<Env>(
@@ -241,7 +239,7 @@ fn subinvoke_method_with_optional_env_works_with_env() {
         array: vec![32, 23],
     };
 
-    let client = build_client(None, Some(&env));
+    let client = build_client(None, Some(&polywrap_msgpack::serialize(&env).unwrap()));
 
     let result = client
         .invoke::<Env>(
@@ -316,10 +314,10 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
 
     let client = {
     
-        let mut envs: Envs = HashMap::new();
+        let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
        
-        envs.insert(subinvoker_uri.to_string(), json!(subinvoker_env));
-        envs.insert(Uri::try_from("mock/main").unwrap().to_string(), json!(subinvoked_env));
+        envs.insert(subinvoker_uri.to_string(), polywrap_msgpack::serialize(&subinvoker_env).unwrap());
+        envs.insert(Uri::try_from("mock/main").unwrap().to_string(), polywrap_msgpack::serialize(&subinvoked_env).unwrap());
 
         let file_reader = SimpleFileReader::new();
         let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));

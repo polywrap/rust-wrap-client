@@ -7,8 +7,8 @@ use polywrap_core::{
     uri::Uri,
     client::UriRedirect
 };
+use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::helpers::{get_mock_package, MockPackage, MockWrapper, get_mock_wrapper};
-use serde_json::json;
 
 #[test]
 fn test_env_methods() {
@@ -17,28 +17,28 @@ fn test_env_methods() {
 
     assert!(builder.envs.is_none());
 
-    builder.add_env(uri.clone(), json!({ "d": "d" }));
+    builder.add_env(uri.clone(), msgpack!({ "d": "d" }));
 
     let current_env = builder.envs.clone().unwrap();
     let env_from_builder = current_env.get(&uri.to_string());
 
     assert!(env_from_builder.is_some());
-    assert_eq!(env_from_builder.unwrap(), &json!({ "d": "d" }));
+    assert_eq!(env_from_builder.unwrap(), &msgpack!({ "d": "d" }));
 
     let mut envs = HashMap::new();
-    envs.insert(uri.clone().uri, json!({"a": "a", "b": "b"}));
+    envs.insert(uri.clone().uri, msgpack!({"a": "a", "b": "b"}));
 
     builder.add_envs(envs);
 
     let current_env = builder.envs.clone().unwrap();
     let env_from_builder = current_env.get(&uri.to_string());
-    assert_eq!(env_from_builder.unwrap(), &json!({ "d": "d", "a": "a", "b": "b" }));
+    assert_eq!(env_from_builder.unwrap(), &msgpack!({ "d": "d", "a": "a", "b": "b" }));
 
-    builder.set_env(uri.clone(), json!({"c": "c"}));
+    builder.set_env(uri.clone(), msgpack!({"c": "c"}));
 
     let current_env = builder.envs.clone().unwrap();
     let env_from_builder = current_env.get(&uri.to_string());
-    assert_eq!(env_from_builder.unwrap(), &json!({ "c": "c" }));
+    assert_eq!(env_from_builder.unwrap(), &msgpack!({ "c": "c" }));
 
     builder.remove_env(&uri);
 

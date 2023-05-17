@@ -1,8 +1,7 @@
-use std::sync::{Arc};
+use std::{sync::{Arc}, collections::HashMap};
 
 use polywrap_core::{
     interface_implementation::InterfaceImplementations,
-    env::{Envs,Env}, 
     resolvers::{uri_resolver_like::UriResolverLike},
     uri::Uri, 
     client::{UriRedirect, ClientConfig}, package::WrapPackage, wrapper::Wrapper
@@ -11,7 +10,7 @@ use polywrap_core::{
 #[derive(Clone)]
 pub struct BuilderConfig {
     pub interfaces: Option<InterfaceImplementations>,
-    pub envs: Option<Envs>,
+    pub envs: Option<HashMap<String, Vec<u8>>>,
     pub wrappers: Option<Vec<(Uri, Arc<dyn Wrapper>)>>,
     pub packages: Option<Vec<(Uri, Arc<dyn WrapPackage>)>>,
     pub redirects: Option<Vec<UriRedirect>>,
@@ -20,10 +19,10 @@ pub struct BuilderConfig {
 
 pub trait ClientBuilder {
     fn add(&mut self, config: BuilderConfig) -> &mut Self;
-    fn add_env(&mut self, uri: Uri, env: Env) -> &mut Self;
-    fn add_envs(&mut self, env: Envs) -> &mut Self;
+    fn add_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self;
+    fn add_envs(&mut self, env: HashMap<String, Vec<u8>>) -> &mut Self;
     fn remove_env(&mut self, uri: &Uri) -> &mut Self;
-    fn set_env(&mut self, uri: Uri, env: Env) -> &mut Self;
+    fn set_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self;
     fn add_interface_implementation(
         &mut self, 
         interface_uri: Uri,

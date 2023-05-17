@@ -2,13 +2,12 @@ use std::{collections::HashMap, sync::{Arc}};
 
 use polywrap_core::{
     client::{ClientConfig, UriRedirect},
-    env::{Env,Envs},
     resolvers::{uri_resolver_like::UriResolverLike}, 
     uri::Uri, wrapper::Wrapper, package::WrapPackage
 };
 
 use crate::{
-    helpers::{build_resolver, merge},
+    helpers::{build_resolver},
     types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
 };
 
@@ -72,25 +71,26 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_env(&mut self, uri: Uri, env: Env) -> &mut Self {
-        match self.envs.as_mut() {
-            Some(envs) => {
-                if let Some(u) = envs.get_mut(&uri.to_string()) {
-                    merge(u, &env);
-                } else {
-                    envs.insert(uri.to_string(), env);
-                }
-            }
-            None => {
-                let mut envs: Envs = HashMap::new();
-                envs.insert(uri.to_string(), env);
-                self.envs = Some(envs);
-            }
-        };
-        self
-    }
+    fn add_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self {
+      match self.envs.as_mut() {
+          Some(envs) => {
+              // if let Some(u) = envs.get_mut(&uri.to_string()) {
+              //     merge(u, &env);
+              // } else {
+                  // TODO: do we actually want to merge here?
+                  envs.insert(uri.to_string(), env);
+              // }
+          }
+          None => {
+              let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
+              envs.insert(uri.to_string(), env);
+              self.envs = Some(envs);
+          }
+      };
+      self
+  }
 
-    fn add_envs(&mut self, envs: Envs) -> &mut Self {
+    fn add_envs(&mut self, envs: HashMap<String, Vec<u8>>) -> &mut Self {
         for (uri, env) in envs.into_iter() {
             self.add_env(Uri::new(uri.as_str()), env);
         }
@@ -107,11 +107,11 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn set_env(&mut self, uri: Uri, env: Env) -> &mut Self {
+    fn set_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self {
         if let Some(envs) = self.envs.as_mut() {
             envs.insert(uri.to_string(), env);
         } else {
-            let mut new_env: Envs = HashMap::new();
+            let mut new_env: HashMap<String, Vec<u8>> = HashMap::new();
             new_env.insert(uri.to_string(), env);
             self.envs = Some(new_env);
         }

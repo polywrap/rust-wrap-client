@@ -1,8 +1,7 @@
-use std::sync::Arc;
+use std::{sync::Arc, collections::HashMap};
 
 use polywrap_core::{
     client::{Client, ClientConfig},
-    env::{Env, Envs},
     error::Error,
     interface_implementation::InterfaceImplementations,
     invoker::Invoker,
@@ -20,7 +19,7 @@ use serde::de::DeserializeOwned;
 #[derive(Clone, Debug)]
 pub struct PolywrapClient {
     pub resolver: Arc<dyn UriResolver>,
-    pub envs: Option<Envs>,
+    pub envs: Option<HashMap<String, Vec<u8>>>,
     pub interfaces: Option<InterfaceImplementations>,
 }
 
@@ -41,7 +40,7 @@ impl PolywrapClient {
       uri: &Uri,
       method: &str,
       args: Option<&[u8]>,
-      env: Option<&Env>,
+      env: Option<&[u8]>,
       resolution_context: Option<&mut UriResolutionContext>,
   ) -> Result<T, Error> {
       let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
@@ -56,7 +55,7 @@ impl PolywrapClient {
       uri: &Uri,
       method: &str,
       args: Option<&[u8]>,
-      env: Option<&Env>,
+      env: Option<&[u8]>,
       resolution_context: Option<&mut UriResolutionContext>,
   ) -> Result<TResult, Error> {
       let result = wrapper
@@ -74,7 +73,7 @@ impl Invoker for PolywrapClient {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
+        env: Option<&[u8]>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let mut empty_res_context = UriResolutionContext::new();
@@ -115,9 +114,9 @@ impl Invoker for PolywrapClient {
 }
 
 impl Client for PolywrapClient {
-    fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<&[u8]> {
         if let Some(envs) = &self.envs {
-            return envs.get(&uri.to_string());
+            return envs.get(&uri.to_string()).map(|value| value.as_slice());
         }
 
         None
@@ -158,7 +157,7 @@ impl Client for PolywrapClient {
       uri: &Uri,
       method: &str,
       args: Option<&[u8]>,
-      env: Option<&Env>,
+      env: Option<&[u8]>,
       resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         wrapper
@@ -187,7 +186,6 @@ impl UriResolverHandler for PolywrapClient {
 
 #[cfg(test)]
 mod client_tests {
-    use crate::client::Env;
     use polywrap_core::{
         client::{ClientConfig, Client},
         error::Error,
@@ -221,7 +219,7 @@ mod client_tests {
             _: &Uri,
             method: &str,
             _: Option<&[u8]>,
-            _: Option<&Env>,
+            _: Option<&[u8]>,
             _: Option<&mut UriResolutionContext>,
         ) -> Result<Vec<u8>, Error> {
             // In Msgpack: True = [195] and False = [194]

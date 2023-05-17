@@ -1,5 +1,5 @@
 use crate::{
-    error::Error, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::{Env}, interface_implementation::InterfaceImplementations,
+    error::Error, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, interface_implementation::InterfaceImplementations,
 };
 
 pub trait Invoker: Send + Sync {
@@ -8,7 +8,7 @@ pub trait Invoker: Send + Sync {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
+        env: Option<&[u8]>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error>;
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error>;

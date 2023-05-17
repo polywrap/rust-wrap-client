@@ -11,7 +11,7 @@ pub trait FFIPluginModule: Send + Sync + Debug {
         &self,
         method_name: String,
         params: Vec<u8>,
-        env: Option<String>,
+        env: Option<Vec<u8>>,
         invoker: Arc<FFIInvoker>,
     ) -> Vec<u8>;
 }
@@ -21,10 +21,10 @@ impl PluginModule for Box<dyn FFIPluginModule> {
         &mut self,
         method_name: &str,
         params: &[u8],
-        env: Option<&polywrap_client::core::env::Env>,
+        env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
     ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
-        let env = env.map(|env| env.to_string());
+        let env = env.map(|env| env.to_vec());
         let invoker = FFIInvoker {
             inner_invoker: invoker,
         };

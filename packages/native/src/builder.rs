@@ -26,10 +26,10 @@ impl FFIBuilderConfig {
         }
     }
 
-    pub fn add_env(&self, uri: Arc<FFIUri>, env: &str) {
+    pub fn add_env(&self, uri: Arc<FFIUri>, env: Vec<u8>) {
         self.inner_builder.lock().unwrap().add_env(
             uri.0.clone(),
-            serde_json::from_str(env).unwrap(),
+            env,
         );
     }
 
@@ -40,10 +40,10 @@ impl FFIBuilderConfig {
             .remove_env(&uri.0);
     }
 
-    pub fn set_env(&self, uri: Arc<FFIUri>, env: &str) {
+    pub fn set_env(&self, uri: Arc<FFIUri>, env: Vec<u8>) {
         self.inner_builder.lock().unwrap().set_env(
             uri.0.clone(),
-            serde_json::from_str(env).unwrap(),
+            env,
         );
     }
 
@@ -144,7 +144,7 @@ impl FFIBuilderConfig {
 mod builder_tests {
     use std::sync::Arc;
 
-    use serde_json::json;
+    use polywrap_client::msgpack::msgpack;
 
     use crate::uri::FFIUri;
 
@@ -154,11 +154,11 @@ mod builder_tests {
     fn it_adds_env() {
         let builder = FFIBuilderConfig::new();
         let uri = Arc::new(FFIUri::from_string("wrap://ens/some.eth"));
-        let env = json!({
+        let env = msgpack!({
           "foo": "bar"
-        }).to_string();
+        });
 
-        builder.add_env(uri.clone(), &env);
+        builder.add_env(uri.clone(), env);
 
         let ffi_client = builder.build();
         let found_env = ffi_client.get_env_by_uri(uri);
