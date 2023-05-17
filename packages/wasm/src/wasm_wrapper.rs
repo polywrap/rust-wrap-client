@@ -73,10 +73,6 @@ pub enum WrapperInvokeError {
     RuntimeError(String),
 }
 
-trait RuntimeAbortHandler: Send + Sync {
-    fn handle_abort(&self, message: String);
-}
-
 impl Wrapper for WasmWrapper {
     fn invoke(
         &self,
@@ -105,16 +101,16 @@ impl Wrapper for WasmWrapper {
         let abort_method = method.to_string();
         let abort_handler = Arc::new(abort_handler);
 
-        let abort = Box::new(move |msg: String| {
+        let abort = Box::new(move |error_message: String| {
             if let Some(abort_handler) = abort_handler.as_ref() {
                 // Use the abort handler if provided
-                abort_handler(msg.clone());
+                abort_handler(error_message);
             } else {
                 // Otherwise, panic since this is an unrecoverable error
                 panic!(
                     r#"WasmWrapper: Wasm module aborted execution.
                   Method: {abort_method}
-                  Message: {msg}.
+                  Message: {error_message}.
                 "#
                 );
             }
