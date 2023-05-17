@@ -9,10 +9,10 @@ use polywrap_core::{
     resolvers::uri_resolution_context::UriResolutionContext,
     resolvers::{
         uri_resolution_context::{UriPackageOrWrapper, UriResolutionStep},
-        uri_resolver::{UriResolver, UriResolverHandler}, helpers::get_env_from_resolution_path,
+        uri_resolver::UriResolver, helpers::get_env_from_resolution_path,
     },
     uri::Uri,
-    wrapper::Wrapper, wrap_loader::WrapLoader, wrap_invoker::WrapInvoker,
+    wrapper::Wrapper, wrap_loader::WrapLoader, wrap_invoker::WrapInvoker, uri_resolver_handler::UriResolverHandler,
 };
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;

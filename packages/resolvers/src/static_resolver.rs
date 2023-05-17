@@ -1,7 +1,7 @@
 use core::fmt;
 use std::{collections::HashMap, sync::{Arc}};
-use crate::{
-    client::{UriRedirect},
+use polywrap_core::{
+    client::UriRedirect,
     error::Error,
     uri::Uri,
     resolvers::uri_resolution_context::{

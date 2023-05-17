@@ -6,14 +6,13 @@ use polywrap_core::{
             UriResolutionContext,
             UriPackageOrWrapper
         },
-        uri_resolver_aggregator_base::UriResolverAggregatorBase,
         uri_resolver::UriResolver
     },
     uri::Uri,
     error::Error, invoker::Invoker
 };
 
-use crate::uri_resolver_wrapper::UriResolverWrapper;
+use crate::{uri_resolver_wrapper::UriResolverWrapper, uri_resolver_aggregator_base::UriResolverAggregatorBase};
 
 pub struct ExtendableUriResolver {
     name: Option<String>
