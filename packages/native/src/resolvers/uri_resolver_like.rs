@@ -1,7 +1,6 @@
 use polywrap_client::core::{
     client::UriRedirect,
-    resolvers::{uri_resolver::UriResolver, uri_resolver_like::UriResolverLike},
-    uri::Uri,
+    resolvers::{uri_resolver::UriResolver, uri_resolver_like::UriResolverLike}
 };
 use std::sync::Arc;
 

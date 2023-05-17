@@ -180,7 +180,4 @@ interface FFIBuilderConfig {
   FFIClient build();
 };
 
-namespace main {
-  [Throws=Error]
-  FFIUri uri_from_string([ByRef] string uri);
-};
+namespace main { };

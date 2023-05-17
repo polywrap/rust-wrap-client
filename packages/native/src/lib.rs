@@ -8,8 +8,6 @@ pub mod wrapper;
 pub mod package;
 pub mod uri;
 
-use std::sync::Arc;
-
 use polywrap_client::core::error::Error;
 
 use resolvers::ffi_resolver::FFIUriResolver;
@@ -36,9 +34,5 @@ use resolvers::uri_resolver_like::FFIUriResolverLikeResolverLikeVariant;
 use resolvers::uri_resolver_like::FFIUriResolverLike;
 use uri::FFIUri;
 use builder::FFIBuilderConfig;
-
-pub fn uri_from_string(uri: &str) -> Result<Arc<FFIUri>, Error> {
-  Ok(Arc::new(uri.to_string().try_into()?))
-}
 
 uniffi::include_scaffolding!("main");
