@@ -68,11 +68,6 @@ impl Debug for WasmWrapper {
     }
 }
 
-pub enum WrapperInvokeError {
-    WrapError(Error),
-    RuntimeError(String),
-}
-
 impl Wrapper for WasmWrapper {
     fn invoke(
         &self,
