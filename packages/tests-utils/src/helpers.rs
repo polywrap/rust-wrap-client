@@ -1,6 +1,6 @@
 use std::{path::{Path,PathBuf},sync::{Arc}, fmt::{Debug, Formatter}};
 
-use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoker::Invoker, uri::Uri, env::Env, resolvers::uri_resolution_context::UriResolutionContext, package::WrapPackage};
+use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoker::Invoker, env::Env, package::WrapPackage};
 use wrap_manifest_schemas::versions::WrapManifest;
 
 pub struct MockWrapper {
@@ -55,11 +55,11 @@ impl WrapPackage for MockPackage {
 impl Wrapper for MockWrapper {
     fn invoke(
         &self,
-        _: Arc<dyn Invoker>,
-        _: &Uri,
         _: &str,
         _: Option< &[u8]>,
         _: Option<&Env>,
+        _: Arc<dyn Invoker>,
+        _: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) ->  Result<Vec<u8>, polywrap_core::error::Error> {
         Ok(vec![2])
     }
