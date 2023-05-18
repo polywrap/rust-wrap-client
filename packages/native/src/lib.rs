@@ -2,7 +2,6 @@ pub mod builder;
 pub mod resolvers;
 pub mod invoker;
 pub mod wasm_wrapper;
-pub mod plugin_wrapper;
 pub mod client;
 pub mod wrapper;
 pub mod package;
@@ -12,7 +11,6 @@ use polywrap_client::core::error::Error;
 
 use resolvers::ffi_resolver::FFIUriResolver;
 use resolvers::uri_package_or_wrapper::FFIUriPackageOrWrapper;
-use plugin_wrapper::FFIPluginModule;
 use invoker::FFIInvoker;
 use client::FFIClient;
 use resolvers::recursive::FFIRecursiveUriResolver;

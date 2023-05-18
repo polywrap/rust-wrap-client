@@ -2,7 +2,6 @@ use polywrap_client::{
     builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
     core::{resolvers::uri_resolver_like::UriResolverLike}, client::PolywrapClient,
 };
-use polywrap_plugin::{module::PluginModule, wrapper::PluginWrapper};
 use std::sync::{Arc, Mutex};
 
 use crate::{
@@ -12,7 +11,7 @@ use crate::{
         ffi_resolver::{FFIUriResolver, FFIUriResolverWrapper},
         recursive::FFIRecursiveUriResolver,
     },
-    wasm_wrapper::FFIWasmWrapper, client::FFIClient, plugin_wrapper::FFIPluginModule, uri::FFIUri,
+    wasm_wrapper::FFIWasmWrapper, client::FFIClient, uri::FFIUri,
 };
 
 pub struct FFIBuilderConfig {
@@ -71,15 +70,6 @@ impl FFIBuilderConfig {
         self.inner_builder.lock().unwrap().add_wrapper(
             uri.0.clone(),
             wrapper.inner_wasm_wrapper.clone(),
-        );
-    }
-
-    pub fn add_plugin_wrapper(&self, uri: Arc<FFIUri>, plugin_module: Box<dyn FFIPluginModule>) {
-        let plugin_instance = Box::new(plugin_module) as Box<dyn PluginModule>;
-        let plugin = PluginWrapper::new(Arc::new(Mutex::new(plugin_instance)));
-        self.inner_builder.lock().unwrap().add_wrapper(
-            uri.0.clone(),
-            Arc::new(plugin),
         );
     }
 
@@ -158,11 +148,11 @@ mod builder_tests {
           "foo": "bar"
         });
 
-        builder.add_env(uri.clone(), env);
+        builder.add_env(uri.clone(), env.clone());
 
         let ffi_client = builder.build();
         let found_env = ffi_client.get_env_by_uri(uri);
 
-        assert_eq!(found_env.unwrap(), env);
+        assert_eq!(found_env.unwrap(), env.as_slice());
     }
 }
