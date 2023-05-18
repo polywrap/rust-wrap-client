@@ -262,9 +262,9 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
     // Register the env for the redirect_from_uri which will be redirected to the wrapper_uri
     {
         let client = {
-            let mut envs: Envs = HashMap::new();
+            let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
         
-            envs.insert(redirect_from_uri.to_string(), json!(env));
+            envs.insert(redirect_from_uri.to_string(), polywrap_msgpack::serialize(&env).unwrap());
         
             let resolvers = HashMap::from([
                 (
@@ -306,9 +306,9 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
     // Register the env for the wrapper_uri which will be redirected to, from the redirect_from_uri
     {
         let client = {
-            let mut envs: Envs = HashMap::new();
+            let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
         
-            envs.insert(wrapper_uri.to_string(), json!(env));
+            envs.insert(wrapper_uri.to_string(), polywrap_msgpack::serialize(&env).unwrap());
         
             let resolvers = HashMap::from([
                 (
