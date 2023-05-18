@@ -14,12 +14,11 @@ pub struct GetFileOptions {
 pub trait Wrapper: Send + Sync + Debug + Any {
     fn invoke(
         &self,
-        invoker: Arc<dyn Invoker>,
-        uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
         env: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        invoker: Arc<dyn Invoker>,
+        abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, Error>;
     fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error>;
 }

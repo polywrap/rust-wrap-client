@@ -37,7 +37,7 @@ pub trait Client: Invoker + UriResolverHandler {
   ) -> Result<Arc<dyn Wrapper>, Error>;
   fn invoke_wrapper_raw(
     &self,
-    wrapper: Arc<dyn Wrapper>,
+    wrapper: &dyn Wrapper,
     uri: &Uri,
     method: &str,
     args: Option<&[u8]>,

@@ -102,3 +102,19 @@ pub fn get_implementations(
     //     if implementation_uris.contains(x)
     // }
 }
+
+pub fn get_env_from_resolution_path<'a>(
+    resolution_path: &[Uri],
+    client: &'a dyn Client
+) -> Option<&'a [u8]> {
+    for uri in resolution_path.iter() {
+      let env = client.get_env_by_uri(uri);
+  
+      if env.is_some() {
+        return env;
+      }
+    }
+  
+    return None;
+}
+  

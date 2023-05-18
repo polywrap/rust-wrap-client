@@ -55,12 +55,11 @@ impl WrapPackage for MockPackage {
 impl Wrapper for MockWrapper {
     fn invoke(
         &self,
-        _: Arc<dyn Invoker>,
-        _: &Uri,
         _: &str,
         _: Option<&[u8]>,
         _: Option<&[u8]>,
-        _: Option<&mut UriResolutionContext>
+        _: Arc<dyn Invoker>,
+        _: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) ->  Result<Vec<u8>, polywrap_core::error::Error> {
         Ok(vec![2])
     }

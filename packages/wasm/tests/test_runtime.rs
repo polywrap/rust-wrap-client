@@ -28,31 +28,19 @@ impl MockInvoker {
     fn invoke_wrapper_raw(
       &self,
       wrapper: Arc<dyn Wrapper>,
-      uri: &Uri,
+      _: &Uri,
       method: &str,
       args: Option<&[u8]>,
       env: Option<&[u8]>,
-      resolution_context: Option<&mut UriResolutionContext>
+      _: Option<&mut UriResolutionContext>
   ) -> Result<Vec<u8>, Error> {
-      let result = wrapper.invoke(
-          Arc::new(self.clone()),
-          uri,
+      wrapper.invoke(
           method,
           args,
           env,
-          resolution_context
-      );
-
-      if result.is_err() {
-          return Err(Error::InvokeError(format!(
-              "Failed to invoke wrapper: {}",
-              result.err().unwrap()
-          )));
-      };
-
-      let result = result.unwrap();
-
-      Ok(result)    
+          Arc::new(self.clone()),
+          None,
+      )
   }
 }
 
@@ -65,23 +53,14 @@ impl Invoker for MockInvoker {
         env: Option<&[u8]>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
-        let invoke_result = self.clone().invoke_wrapper_raw(
+        self.clone().invoke_wrapper_raw(
             Arc::new(self.wrapper.clone()),
             uri,
             method,
             args,
             env,
             resolution_context,
-        );
-
-        if invoke_result.is_err() {
-            return Err(Error::InvokeError(format!(
-                "Failed to invoke wrapper: {}",
-                invoke_result.err().unwrap()
-            )));
-        };
-
-        Ok(invoke_result.unwrap())
+        )
     }
 
     fn get_implementations(&self, _uri: &Uri) -> Result<Vec<Uri>, Error> {
