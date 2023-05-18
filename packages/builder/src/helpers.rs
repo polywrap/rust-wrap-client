@@ -6,7 +6,10 @@ use polywrap_core::{
         uri_resolver::UriResolver,
     },
 };
-use polywrap_resolvers::{extendable_uri_resolver::ExtendableUriResolver, uri_resolver_aggregator::UriResolverAggregator, static_resolver::{StaticResolverLike, StaticResolver}, recursive_resolver::RecursiveResolver, resolver_vec};
+use polywrap_resolvers::{
+    extendable_uri_resolver::ExtendableUriResolver, 
+    static_resolver::{StaticResolverLike, StaticResolver}, recursive_resolver::RecursiveResolver, resolver_vec
+};
 use serde_json::Value;
 
 use crate::types::BuilderConfig;

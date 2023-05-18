@@ -9,5 +9,5 @@ pub mod static_resolver;
 pub mod recursive_resolver;
 pub mod uri_resolver_aggregator;
 pub mod uri_resolver_aggregator_base;
-pub mod with_loop_guard_resolver;
+pub mod resolver_with_loop_guard;
 pub mod resolver_vec;

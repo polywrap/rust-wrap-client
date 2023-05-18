@@ -14,30 +14,19 @@ pub struct RecursiveResolver {
     resolver: Arc<dyn UriResolver>,
 }
 
-// impl From<Vec<Arc<dyn UriResolver>>> for RecursiveResolver {
-//     fn from(resolvers: Vec<Arc<dyn UriResolver>>) -> Self {
-//         RecursiveResolver::new(
-//             Arc::new(
-//                 UriResolverAggregator::new(
-//                     resolvers.into_iter().map(|resolver| resolver as Arc<dyn UriResolver>).collect()
-//                 )
-//             )
-//         )
-//     }
-// }
-
 impl From<Vec<Box<dyn UriResolver>>> for RecursiveResolver {
     fn from(resolvers: Vec<Box<dyn UriResolver>>) -> Self {
-        let aggregator = UriResolverAggregator::new(resolvers);
-        RecursiveResolver::new(
-            Arc::new(aggregator)
+        RecursiveResolver::from(
+            UriResolverAggregator::from(resolvers)
         )
     }
 }
 
-impl From<Arc<dyn UriResolver>> for RecursiveResolver {
-    fn from(resolver: Arc<dyn UriResolver>) -> Self {
-        RecursiveResolver::new(resolver)
+impl From<UriResolverAggregator> for RecursiveResolver {
+    fn from(resolver: UriResolverAggregator) -> Self {
+        RecursiveResolver::new(
+            Arc::new(resolver)
+        )
     }
 }
 
