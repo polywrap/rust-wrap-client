@@ -1,10 +1,10 @@
 use core::fmt;
 use std::sync::Arc;
-use polywrap_core::resolvers::uri_resolution_context::UriResolutionStep;
-use polywrap_core::resolvers::uri_resolver::UriResolver;
+use polywrap_core::resolution::uri_resolution_context::UriResolutionStep;
+use polywrap_core::resolution::uri_resolver::UriResolver;
 use polywrap_core::{error::Error, uri::Uri, invoker::Invoker};
 
-use polywrap_core::resolvers::{
+use polywrap_core::resolution::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
 };
 

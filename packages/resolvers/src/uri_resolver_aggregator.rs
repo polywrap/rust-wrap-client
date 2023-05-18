@@ -2,7 +2,7 @@ use core::fmt;
 use std::sync::Arc;
 use polywrap_core::{error::Error, uri::Uri, invoker::Invoker};
 
-use polywrap_core::resolvers::{
+use polywrap_core::resolution::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     uri_resolver::UriResolver,
 };
@@ -15,7 +15,8 @@ pub struct UriResolverAggregator {
 }
 
 impl UriResolverAggregator {
-    pub fn new(resolvers: Vec<Arc<dyn UriResolver>>) -> Self {
+    pub fn new(resolvers: Vec<Box<dyn UriResolver>>) -> Self {
+        let resolvers = resolvers.into_iter().map(Arc::from).collect();
         Self {
             name: None,
             resolvers,
@@ -80,8 +81,13 @@ impl fmt::Debug for UriResolverAggregator {
   }
 }
 
-impl From<Vec<Arc<dyn UriResolver>>> for UriResolverAggregator {
-    fn from(resolvers: Vec<Arc<dyn UriResolver>>) -> Self {
+// impl From<Vec<Arc<dyn UriResolver>>> for UriResolverAggregator {
+//     fn from(resolvers: Vec<Arc<dyn UriResolver>>) -> Self {
+//         UriResolverAggregator::new(resolvers)
+//     }
+// }
+impl From<Vec<Box<dyn UriResolver>>> for UriResolverAggregator {
+    fn from(resolvers: Vec<Box<dyn UriResolver>>) -> Self {
         UriResolverAggregator::new(resolvers)
     }
 }

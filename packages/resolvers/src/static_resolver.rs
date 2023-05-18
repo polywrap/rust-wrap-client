@@ -4,10 +4,10 @@ use polywrap_core::{
     client::UriRedirect,
     error::Error,
     uri::Uri,
-    resolvers::uri_resolution_context::{
+    resolution::uri_resolution_context::{
       UriPackageOrWrapper, UriResolutionContext, UriResolutionStep,
     },
-    resolvers::uri_resolver::UriResolver, package::WrapPackage, wrapper::Wrapper, invoker::Invoker,
+    resolution::uri_resolver::UriResolver, package::WrapPackage, wrapper::Wrapper, invoker::Invoker,
 };
 
 pub enum StaticResolverLike {

@@ -3,8 +3,8 @@ use std::sync::Arc;
 use polywrap_core::{
     error::Error,
     uri::Uri,
-    resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    resolvers::uri_resolver::UriResolver, invoker::Invoker,
+    resolution::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+    resolution::uri_resolver::UriResolver, invoker::Invoker,
 };
 
 pub struct BaseResolver {

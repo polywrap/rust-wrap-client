@@ -3,8 +3,8 @@ use std::sync::Arc;
 
 use polywrap_core::{
     error::Error,
-    resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    resolvers::uri_resolver::UriResolver,
+    resolution::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+    resolution::uri_resolver::UriResolver,
     uri::Uri, invoker::Invoker,
 };
 
@@ -14,14 +14,23 @@ pub struct RecursiveResolver {
     resolver: Arc<dyn UriResolver>,
 }
 
-impl From<Vec<Arc<dyn UriResolver>>> for RecursiveResolver {
-    fn from(resolvers: Vec<Arc<dyn UriResolver>>) -> Self {
+// impl From<Vec<Arc<dyn UriResolver>>> for RecursiveResolver {
+//     fn from(resolvers: Vec<Arc<dyn UriResolver>>) -> Self {
+//         RecursiveResolver::new(
+//             Arc::new(
+//                 UriResolverAggregator::new(
+//                     resolvers.into_iter().map(|resolver| resolver as Arc<dyn UriResolver>).collect()
+//                 )
+//             )
+//         )
+//     }
+// }
+
+impl From<Vec<Box<dyn UriResolver>>> for RecursiveResolver {
+    fn from(resolvers: Vec<Box<dyn UriResolver>>) -> Self {
+        let aggregator = UriResolverAggregator::new(resolvers);
         RecursiveResolver::new(
-            Arc::new(
-                UriResolverAggregator::new(
-                    resolvers
-                )
-            )
+            Arc::new(aggregator)
         )
     }
 }
@@ -29,6 +38,12 @@ impl From<Vec<Arc<dyn UriResolver>>> for RecursiveResolver {
 impl From<Arc<dyn UriResolver>> for RecursiveResolver {
     fn from(resolver: Arc<dyn UriResolver>) -> Self {
         RecursiveResolver::new(resolver)
+    }
+}
+
+impl From<Box<dyn UriResolver>> for RecursiveResolver {
+    fn from(resolver: Box<dyn UriResolver>) -> Self {
+        RecursiveResolver::new(Arc::from(resolver))
     }
 }
 

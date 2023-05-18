@@ -1,7 +1,7 @@
 use core::fmt;
 use std::sync::{Arc};
 
-use polywrap_core::{uri::Uri, package::WrapPackage, invoker::Invoker, resolvers::{uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper, UriResolutionStep}, uri_resolver::UriResolver}, error::Error};
+use polywrap_core::{uri::Uri, package::WrapPackage, invoker::Invoker, resolution::{uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper, UriResolutionStep}, uri_resolver::UriResolver}, error::Error};
 
 pub struct PackageResolver {
     pub uri: Uri,

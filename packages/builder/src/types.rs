@@ -4,7 +4,7 @@ use polywrap_core::{
     interface_implementation::InterfaceImplementations,
     env::{Envs,Env}, 
     uri::Uri, 
-    client::{UriRedirect, ClientConfig}, package::WrapPackage, wrapper::Wrapper, resolvers::uri_resolver::UriResolver
+    client::{UriRedirect, ClientConfig}, package::WrapPackage, wrapper::Wrapper, resolution::uri_resolver::UriResolver
 };
 
 #[derive(Clone)]

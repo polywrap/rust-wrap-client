@@ -1,7 +1,7 @@
 use core::fmt;
 use std::sync::Arc;
 use polywrap_core::{
-    resolvers::{
+    resolution::{
         uri_resolution_context::{
             UriResolutionContext,
             UriPackageOrWrapper

@@ -1,4 +1,4 @@
-use crate::{resolvers::uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}, error::Error, uri::Uri};
+use crate::{error::Error, uri::Uri, resolution::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext}};
 
 pub trait UriResolverHandler {
   fn try_resolve_uri(

@@ -6,19 +6,15 @@ use std::sync::Arc;
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::resolvers::uri_resolver_wrapper::UriResolverWrapper;
 
-use polywrap_client::core::{
-    resolvers::{
-        uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    },
-    uri::Uri,
-};
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::interface_implementation::InterfaceImplementations;
-use polywrap_core::resolvers::static_resolver::StaticResolver;
-use polywrap_core::resolvers::uri_resolver::UriResolver;
+use polywrap_core::resolution::uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper};
+use polywrap_core::resolution::uri_resolver::UriResolver;
+use polywrap_core::uri::Uri;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
+use polywrap_resolvers::static_resolver::StaticResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_wasm::wasm_wrapper::WasmWrapper;
 

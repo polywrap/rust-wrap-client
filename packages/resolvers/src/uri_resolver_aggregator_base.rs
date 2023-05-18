@@ -4,7 +4,7 @@ use polywrap_core::error::Error;
 
 use polywrap_core::{uri::Uri, invoker::Invoker};
 
-use polywrap_core::resolvers::{
+use polywrap_core::resolution::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep},
     uri_resolver::UriResolver,
 };

@@ -4,10 +4,10 @@ use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_core::resolvers::static_resolver::StaticResolver;
-use polywrap_core::resolvers::uri_resolution_context::UriPackageOrWrapper;
+use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
+use polywrap_resolvers::static_resolver::StaticResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

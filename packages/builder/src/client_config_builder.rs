@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::{Arc}};
 use polywrap_core::{
     client::{ClientConfig, UriRedirect},
     env::{Env,Envs},
-    resolvers::uri_resolver::UriResolver, 
+    resolution::uri_resolver::UriResolver, 
     uri::Uri, wrapper::Wrapper, package::WrapPackage
 };
 

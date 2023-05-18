@@ -4,12 +4,13 @@ use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_core::resolvers::recursive_resolver::RecursiveResolver;
-use polywrap_core::resolvers::static_resolver::StaticResolver;
-use polywrap_core::resolvers::uri_resolution_context::UriPackageOrWrapper;
-use polywrap_core::resolvers::uri_resolver_like::UriResolverLike;
+use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
+use polywrap_core::resolution::uri_resolver::UriResolver;
 use polywrap_resolvers::base_resolver::BaseResolver;
+use polywrap_resolvers::recursive_resolver::RecursiveResolver;
+use polywrap_resolvers::resolver_vec;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
+use polywrap_resolvers::static_resolver::StaticResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -278,14 +279,13 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
             let file_reader = SimpleFileReader::new();
             let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
         
-            // Use the RecursiveResolver because it tracks resolution path (unlike BaseResolver)
-            let base_resolver = RecursiveResolver::from(vec![
-                UriResolverLike::Resolver(Arc::new(StaticResolver::new(resolvers))),
-                UriResolverLike::Resolver(Arc::new(fs_resolver)),
-            ]);
             let config = ClientConfig {
                 envs: Some(envs),
-                resolver: Arc::new(base_resolver),
+                // Use the RecursiveResolver because it tracks resolution path (unlike BaseResolver)
+                resolver: Arc::new(RecursiveResolver::new(resolver_vec![
+                    StaticResolver::new(resolvers),
+                    fs_resolver,
+                ])),
                 interfaces: None,
             };
             
@@ -322,14 +322,13 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
             let file_reader = SimpleFileReader::new();
             let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
         
-            // Use the RecursiveResolver because it tracks resolution path (unlike BaseResolver)
-            let base_resolver = RecursiveResolver::from(vec![
-                UriResolverLike::Resolver(Arc::new(StaticResolver::new(resolvers))),
-                UriResolverLike::Resolver(Arc::new(fs_resolver)),
-            ]);
             let config = ClientConfig {
                 envs: Some(envs),
-                resolver: Arc::new(base_resolver),
+                // Use the RecursiveResolver because it tracks resolution path (unlike BaseResolver)
+                resolver: Arc::new(RecursiveResolver::from(resolver_vec![
+                    StaticResolver::new(resolvers),
+                    fs_resolver,
+                ])),
                 interfaces: None,
             };
             

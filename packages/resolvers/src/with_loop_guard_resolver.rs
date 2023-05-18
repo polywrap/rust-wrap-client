@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use polywrap_core::{
   error::Error, invoker::Invoker, uri::Uri, 
-  resolvers::{uri_resolver::UriResolver, uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}}
+  resolution::{uri_resolver::UriResolver, uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}}
 };
 
 pub struct ResolverWithLoopGuard {
