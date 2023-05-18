@@ -282,7 +282,7 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
             let config = ClientConfig {
                 envs: Some(envs),
                 // Use the RecursiveResolver because it tracks resolution path (unlike BaseResolver)
-                resolver: Arc::new(RecursiveResolver::new(resolver_vec![
+                resolver: Arc::new(RecursiveResolver::from(resolver_vec![
                     StaticResolver::new(resolvers),
                     fs_resolver,
                 ])),

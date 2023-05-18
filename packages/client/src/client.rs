@@ -266,7 +266,7 @@ mod client_tests {
         invoker::Invoker,
         resolution::{
             uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-            uri_resolver::{UriResolver, UriResolverHandler},
+            uri_resolver::UriResolver,
         },
         uri::Uri,
         wrapper::{GetFileOptions, Wrapper}, wrap_loader::WrapLoader, uri_resolver_handler::UriResolverHandler,
