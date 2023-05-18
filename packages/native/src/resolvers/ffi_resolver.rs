@@ -10,7 +10,7 @@ pub trait FFIUriResolver: Send + Sync + Debug {
       &self,
       uri: Arc<FFIUri>,
       client: Arc<FFIInvoker>
-    ) -> Arc<FFIUriPackageOrWrapper>;
+    ) -> Box<dyn FFIUriPackageOrWrapper>;
 }
 
 #[derive(Debug)]

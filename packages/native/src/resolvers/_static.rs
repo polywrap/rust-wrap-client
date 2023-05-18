@@ -10,7 +10,7 @@ pub struct FFIStaticUriResolver {
 }
 
 impl FFIStaticUriResolver {
-  pub fn new(uri_map: HashMap<String, Arc<FFIUriPackageOrWrapper>>) -> FFIStaticUriResolver {
+  pub fn new(uri_map: HashMap<String, Box<dyn FFIUriPackageOrWrapper>>) -> FFIStaticUriResolver {
     let uri_map: HashMap<String, UriPackageOrWrapper> = uri_map
         .into_iter()
         .map(|(uri, variant)| {
