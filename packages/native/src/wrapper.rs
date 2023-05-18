@@ -5,12 +5,12 @@ use polywrap_client::core::{wrapper::{Wrapper, GetFileOptions}, error::Error, re
 use crate::{invoker::FFIInvoker, uri::FFIUri};
 
 pub trait FFIWrapper: Debug + Send + Sync {
-  fn ffi_invoke(
+  fn invoke(
       &self,
-      invoker: Arc<FFIInvoker>,
       uri: Arc<FFIUri>,
       method: &str,
       args: Option<Vec<u8>>,
+      invoker: Arc<FFIInvoker>,
       env: Option<Vec<u8>>,
   ) -> Result<Vec<u8>, Error>;
 }
@@ -33,7 +33,7 @@ impl Wrapper for ExtWrapper {
     let args = args.map(|args| args.to_vec());
     let env = env.map(|env| env.to_vec());
 
-    self.0.ffi_invoke(invoker, uri, method, args, env)
+    self.0.invoke(uri, method, args, invoker, env)
   }
 
   fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {

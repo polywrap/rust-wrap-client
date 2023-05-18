@@ -1,11 +1,27 @@
-use std::sync::{Arc};
+use std::{fmt::Debug, sync::Arc};
 
-use polywrap_client::core::{package::WrapPackage};
+use polywrap_client::core::{error::Error, package::WrapPackage, wrapper::Wrapper};
+use crate::wrapper::{FFIWrapper, ExtWrapper};
 
-pub struct FFIWrapPackage(pub Arc<dyn WrapPackage>);
+pub trait FFIWrapPackage: Debug + Send + Sync {
+    fn create_wrapper(
+      &self
+    ) -> Result<Box<dyn FFIWrapper>, Error>;
+}
 
-impl FFIWrapPackage {
-  pub fn new(package: Arc<dyn WrapPackage>) -> FFIWrapPackage {
-    FFIWrapPackage(package)
+#[derive(Debug)]
+pub struct ExtWrapPackage(pub Box<dyn FFIWrapPackage>);
+
+impl WrapPackage for ExtWrapPackage {
+  fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error> {
+    let ffi_wrapper = self.0.create_wrapper()?;
+    Ok(Arc::new(ExtWrapper(ffi_wrapper)))
+  }
+
+  fn get_manifest(
+          &self,
+          options: Option<&polywrap_client::core::package::GetManifestOptions>,
+      ) -> Result<polywrap_client::wrap_manifest::versions::WrapManifest, Error> {
+      unimplemented!("get_manifest is not implemented for FFIWrapPackage")
   }
 }

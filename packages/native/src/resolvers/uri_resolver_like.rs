@@ -4,7 +4,7 @@ use polywrap_client::core::{
 };
 use std::sync::Arc;
 
-use crate::{package::FFIWrapPackage, wrapper::{FFIWrapper, ExtWrapper}, uri::FFIUri};
+use crate::{package::{FFIWrapPackage, ExtWrapPackage}, wrapper::{FFIWrapper, ExtWrapper}, uri::FFIUri};
 
 use super::ffi_resolver::{FFIUriResolver, FFIUriResolverWrapper};
 
@@ -21,12 +21,12 @@ impl FFIUriResolverLikeRedirectVariant {
 
 pub struct FFIUriResolverLikePackageVariant {
     uri: Arc<FFIUri>,
-    package: Arc<FFIWrapPackage>,
+    package: Arc<ExtWrapPackage>,
 }
 
 impl FFIUriResolverLikePackageVariant {
-    pub fn new(uri: Arc<FFIUri>, package: Arc<FFIWrapPackage>) -> FFIUriResolverLikePackageVariant {
-        FFIUriResolverLikePackageVariant { uri, package }
+    pub fn new(uri: Arc<FFIUri>, package: Box<dyn FFIWrapPackage>) -> FFIUriResolverLikePackageVariant {
+        FFIUriResolverLikePackageVariant { uri, package: Arc::new(ExtWrapPackage(package)) }
     }
 }
 
@@ -173,7 +173,7 @@ impl From<FFIUriResolverLike> for UriResolverLike {
             }
             FFIUriResolverLikeKind::_Package => {
                 let package = value.get_package().unwrap();
-                UriResolverLike::Package(package.uri.0.clone(), package.package.0.clone())
+                UriResolverLike::Package(package.uri.0.clone(), package.package.clone())
             }
             FFIUriResolverLikeKind::_Wrapper => {
                 let wrapper = value.get_wrapper().unwrap();

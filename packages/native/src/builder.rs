@@ -11,7 +11,7 @@ use crate::{
         ffi_resolver::{FFIUriResolver, FFIUriResolverWrapper},
         recursive::FFIRecursiveUriResolver,
     },
-    wasm_wrapper::FFIWasmWrapper, client::FFIClient, uri::FFIUri,
+    client::FFIClient, uri::FFIUri, wrapper::{FFIWrapper, ExtWrapper},
 };
 
 pub struct FFIBuilderConfig {
@@ -66,10 +66,10 @@ impl FFIBuilderConfig {
             );
     }
 
-    pub fn add_wasm_wrapper(&self, uri: Arc<FFIUri>, wrapper: Arc<FFIWasmWrapper>) {
+    pub fn add_wrapper(&self, uri: Arc<FFIUri>, wrapper: Box<dyn FFIWrapper>) {
         self.inner_builder.lock().unwrap().add_wrapper(
             uri.0.clone(),
-            wrapper.inner_wasm_wrapper.clone(),
+            Arc::new(ExtWrapper(wrapper)),
         );
     }
 

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use polywrap_client::core::{resolvers::uri_resolution_context::UriPackageOrWrapper};
 
-use crate::{package::FFIWrapPackage, wrapper::{FFIWrapper, ExtWrapper}, uri::FFIUri};
+use crate::{package::{FFIWrapPackage, ExtWrapPackage}, wrapper::{FFIWrapper, ExtWrapper}, uri::FFIUri};
 
 #[derive(Clone)]
 pub enum FFIUriPackageOrWrapperKind {
@@ -27,12 +27,12 @@ impl FFIUriPackageOrWrapperUriVariant {
 
 pub struct FFIUriPackageOrWrapperWrapperVariant {
     uri: Arc<FFIUri>,
-    wrapper: Arc<ExtWrapper>,
+    wrapper: Box<dyn FFIWrapper>,
 }
 
 impl FFIUriPackageOrWrapperWrapperVariant {
     pub fn new(uri: Arc<FFIUri>, wrapper: Box<dyn FFIWrapper>) -> FFIUriPackageOrWrapperWrapperVariant {
-        FFIUriPackageOrWrapperWrapperVariant { uri, wrapper: Arc::new(ExtWrapper(wrapper)) }
+        FFIUriPackageOrWrapperWrapperVariant { uri, wrapper }
     }
 
     pub fn get_uri(&self) -> Arc<FFIUri> {
@@ -47,19 +47,19 @@ impl FFIUriPackageOrWrapperWrapperVariant {
 #[derive(Clone)]
 pub struct FFIUriPackageOrWrapperPackageVariant {
     uri: Arc<FFIUri>,
-    package: Arc<FFIWrapPackage>,
+    package: Arc<ExtWrapPackage>,
 }
 
 impl FFIUriPackageOrWrapperPackageVariant {
-    pub fn new(uri: Arc<FFIUri>, package: Arc<FFIWrapPackage>) -> FFIUriPackageOrWrapperPackageVariant {
-        FFIUriPackageOrWrapperPackageVariant { uri, package }
+    pub fn new(uri: Arc<FFIUri>, package: Box<dyn FFIWrapPackage>) -> FFIUriPackageOrWrapperPackageVariant {
+        FFIUriPackageOrWrapperPackageVariant { uri, package: Arc::new(ExtWrapPackage(package)) }
     }
 
     pub fn get_uri(&self) -> Arc<FFIUri> {
         self.uri.clone()
     }
 
-    pub fn get_package(&self) -> Arc<FFIWrapPackage> {
+    pub fn get_package(&self) -> Arc<ExtWrapPackage> {
         self.package.clone()
     }
 }
@@ -91,7 +91,7 @@ impl FFIUriPackageOrWrapper {
         }
     }
 
-    pub fn new_package(uri: Arc<FFIUri>, package: Arc<FFIWrapPackage>) -> FFIUriPackageOrWrapper {
+    pub fn new_package(uri: Arc<FFIUri>, package: Box<dyn FFIWrapPackage>) -> FFIUriPackageOrWrapper {
         Self {
             kind: FFIUriPackageOrWrapperKind::_Package,
             uri: None,
@@ -135,7 +135,7 @@ impl From<FFIUriPackageOrWrapper> for UriPackageOrWrapper {
                 let variant = value.get_package().unwrap();
                 UriPackageOrWrapper::Package(
                     variant.get_uri().0.clone(),
-                    variant.get_package().0.clone(),
+                    variant.get_package().clone(),
                 )
             }
         }
