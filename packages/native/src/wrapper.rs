@@ -8,11 +8,11 @@ pub trait FFIWrapper: Debug + Send + Sync {
   fn invoke(
       &self,
       uri: Arc<FFIUri>,
-      method: &str,
+      method: String,
       args: Option<Vec<u8>>,
       invoker: Arc<FFIInvoker>,
       env: Option<Vec<u8>>,
-  ) -> Result<Vec<u8>, Error>;
+  ) -> Vec<u8>;
 }
 
 #[derive(Debug)]
@@ -33,7 +33,7 @@ impl Wrapper for ExtWrapper {
     let args = args.map(|args| args.to_vec());
     let env = env.map(|env| env.to_vec());
 
-    self.0.invoke(uri, method, args, invoker, env)
+    Ok(self.0.invoke(uri, method.to_string(), args, invoker, env))
   }
 
   fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {

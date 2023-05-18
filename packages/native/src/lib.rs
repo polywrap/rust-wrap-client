@@ -7,26 +7,22 @@ pub mod wrapper;
 pub mod package;
 pub mod uri;
 
-use polywrap_client::core::error::Error;
+use builder::*;
+use invoker::*;
+use wasm_wrapper::*;
+use client::*;
+use wrapper::*;
+use package::*;
+use uri::*;
+use resolvers::{
+  _static::*,
+  extendable::*,
+  ffi_resolver::*,
+  recursive::*,
+  uri_package_or_wrapper::*,
+  uri_resolver_like::*
+};
 
-use resolvers::ffi_resolver::FFIUriResolver;
-use resolvers::uri_package_or_wrapper::FFIUriPackageOrWrapper;
-use invoker::FFIInvoker;
-use client::FFIClient;
-use resolvers::recursive::FFIRecursiveUriResolver;
-use resolvers::_static::FFIStaticUriResolver;
-use resolvers::extendable::FFIExtendableUriResolver;
-use wasm_wrapper::FFIWasmWrapper;
-use wrapper::FFIWrapper;
-use package::FFIWrapPackage;
-use resolvers::uri_resolver_like::FFIUriResolverLikeRedirectVariant;
-use resolvers::uri_resolver_like::FFIUriResolverLikeResolverVariant;
-use resolvers::uri_resolver_like::FFIUriResolverLikeWrapperVariant;
-use resolvers::uri_resolver_like::FFIUriResolverLikeKind;
-use resolvers::uri_resolver_like::FFIUriResolverLikePackageVariant;
-use resolvers::uri_resolver_like::FFIUriResolverLikeResolverLikeVariant;
-use resolvers::uri_resolver_like::FFIUriResolverLike;
-use uri::FFIUri;
-use builder::FFIBuilderConfig;
+use polywrap_client::core::error::Error;
 
 uniffi::include_scaffolding!("main");

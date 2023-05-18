@@ -64,7 +64,7 @@ impl FFIClient {
         }
     }
 
-    pub fn get_env_by_uri(&self, uri: Arc<FFIUri>) -> Option<&[u8]> {
-        self.inner_client.get_env_by_uri(&uri.0)
+    pub fn get_env_by_uri(&self, uri: Arc<FFIUri>) -> Option<Vec<u8>> {
+        self.inner_client.get_env_by_uri(&uri.0).map(|e| e.to_vec())
     }
 }

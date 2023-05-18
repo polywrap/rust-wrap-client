@@ -6,7 +6,7 @@ use crate::wrapper::{FFIWrapper, ExtWrapper};
 pub trait FFIWrapPackage: Debug + Send + Sync {
     fn create_wrapper(
       &self
-    ) -> Result<Box<dyn FFIWrapper>, Error>;
+    ) -> Box<dyn FFIWrapper>;
 }
 
 #[derive(Debug)]
@@ -14,13 +14,13 @@ pub struct ExtWrapPackage(pub Box<dyn FFIWrapPackage>);
 
 impl WrapPackage for ExtWrapPackage {
   fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error> {
-    let ffi_wrapper = self.0.create_wrapper()?;
+    let ffi_wrapper = self.0.create_wrapper();
     Ok(Arc::new(ExtWrapper(ffi_wrapper)))
   }
 
   fn get_manifest(
           &self,
-          options: Option<&polywrap_client::core::package::GetManifestOptions>,
+          _: Option<&polywrap_client::core::package::GetManifestOptions>,
       ) -> Result<polywrap_client::wrap_manifest::versions::WrapManifest, Error> {
       unimplemented!("get_manifest is not implemented for FFIWrapPackage")
   }

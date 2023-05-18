@@ -14,7 +14,7 @@ impl FFIStaticUriResolver {
     let uri_map: HashMap<String, UriPackageOrWrapper> = uri_map
         .into_iter()
         .map(|(uri, variant)| {
-          let uri_package_or_wrapper: UriPackageOrWrapper = variant.as_ref().clone().into();
+          let uri_package_or_wrapper: UriPackageOrWrapper = variant.into();
           (uri, uri_package_or_wrapper)
         })
         .collect();

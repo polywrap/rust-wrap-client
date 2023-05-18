@@ -35,12 +35,10 @@ interface FFIInvoker {
 };
 
 callback interface FFIWrapper {
-  [Throws=Error]
   sequence<u8> invoke(FFIUri uri, [ByRef] string method, sequence<u8>? args, FFIInvoker invoker, sequence<u8>? env);
 };
 
 callback interface FFIWrapPackage {
-  [Throws=Error]
   FFIWrapper create_wrapper();
 };
 
@@ -55,40 +53,27 @@ callback interface FFIUriResolver {
   FFIUriPackageOrWrapper wrap_try_resolve_uri(FFIUri uri, FFIInvoker invoker);
 };
 
-interface FFIUriPackageOrWrapperUriVariant {
-  constructor(FFIUri uri);
-  FFIUri get_uri();
+enum FFIUriPackageOrWrapperKind {
+  "URI",
+  "PACKAGE",
+  "WRAPPER",
 };
 
-interface FFIUriPackageOrWrapperWrapperVariant {
-  constructor(FFIUri uri, FFIWrapper wrapper);
+callback interface FFIUriWrapper {
   FFIUri get_uri();
   FFIWrapper get_wrapper();
 };
 
-interface FFIUriPackageOrWrapperPackageVariant {
-  constructor(FFIUri uri, FFIWrapPackage package);
+callback interface FFIUriWrapPackage {
   FFIUri get_uri();
   FFIWrapPackage get_package();
 };
 
-enum FFIUriPackageOrWrapperKind {
-  "_Uri",
-  "_Wrapper",
-  "_Package",
-};
-
-interface FFIUriPackageOrWrapper {
-  [Name=new_uri]
-  constructor(FFIUri uri);
-  [Name=new_wrapper]
-  constructor(FFIUri uri, FFIWrapper wrapper);
-  [Name=new_package]
-  constructor(FFIUri uri, FFIWrapPackage package);
+callback interface FFIUriPackageOrWrapper {
   FFIUriPackageOrWrapperKind get_kind();
-  FFIUriPackageOrWrapperUriVariant? get_uri();
-  FFIUriPackageOrWrapperWrapperVariant? get_wrapper();
-  FFIUriPackageOrWrapperPackageVariant? get_package();
+  FFIUri as_uri();
+  FFIUriWrapper as_wrapper();
+  FFIUriWrapPackage as_package();
 };
 
 interface FFIUriResolverLikeRedirectVariant {
@@ -159,7 +144,7 @@ interface FFIClient {
 
   record<DOMString, sequence<FFIUri>>? get_interfaces();
 
-  string? get_env_by_uri(FFIUri uri);
+  sequence<u8>? get_env_by_uri(FFIUri uri);
 };
 
 interface FFIBuilderConfig {
