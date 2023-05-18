@@ -93,7 +93,7 @@ impl FFIClient {
             &_decoded_env
         });
 
-        self.inner_client.invoke_wrapper_raw(wrapper.0.clone(), uri.as_ref(), method, args, env, None)
+        self.inner_client.invoke_wrapper_raw(&*wrapper.0.clone(), uri.as_ref(), method, args, env, None)
     }
 
     pub fn load_wrapper(&self, uri: Arc<Uri>) -> Result<Arc<FFIWrapper>, Error> {

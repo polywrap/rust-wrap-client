@@ -3,6 +3,8 @@ pub mod error;
 pub mod client;
 pub mod wrapper;
 pub mod invoker;
+pub mod wrap_loader;
+pub mod wrap_invoker;
 pub mod redirects;
 pub mod package;
 pub mod file_reader;
