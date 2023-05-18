@@ -10,4 +10,5 @@ pub mod package;
 pub mod file_reader;
 pub mod env;
 pub mod interface_implementation;
-pub mod resolvers;
+pub mod uri_resolver_handler;
+pub mod resolution;

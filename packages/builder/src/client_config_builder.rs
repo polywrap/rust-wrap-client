@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::{Arc}};
 use polywrap_core::{
     client::{ClientConfig, UriRedirect},
     env::{Env,Envs},
-    resolvers::{uri_resolver_like::UriResolverLike}, 
+    resolution::uri_resolver::UriResolver, 
     uri::Uri, wrapper::Wrapper, package::WrapPackage
 };
 
@@ -298,7 +298,7 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_resolver(&mut self, resolver: UriResolverLike) -> &mut Self {
+    fn add_resolver(&mut self, resolver: Arc<dyn UriResolver>) -> &mut Self {
         match self.resolvers.as_mut() {
             Some(resolvers) => {
                 resolvers.push(resolver);
@@ -311,7 +311,7 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn add_resolvers(&mut self, resolvers: Vec<UriResolverLike>) -> &mut Self {
+    fn add_resolvers(&mut self, resolvers: Vec<Arc<dyn UriResolver>>) -> &mut Self {
         for resolver in resolvers.into_iter() {
             self.add_resolver(resolver);
         }

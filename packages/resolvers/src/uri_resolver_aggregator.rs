@@ -1,13 +1,13 @@
 use core::fmt;
-use std::{sync::Arc};
-use crate::{error::Error, uri::Uri, invoker::Invoker};
+use std::sync::Arc;
+use polywrap_core::{error::Error, uri::Uri, invoker::Invoker};
 
-use super::{
+use polywrap_core::resolution::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     uri_resolver::UriResolver,
-    uri_resolver_aggregator_base::UriResolverAggregatorBase,
-    uri_resolver_like::UriResolverLike,
 };
+
+use crate::uri_resolver_aggregator_base::UriResolverAggregatorBase;
 
 pub struct UriResolverAggregator {
     name: Option<String>,
@@ -16,6 +16,7 @@ pub struct UriResolverAggregator {
 
 impl UriResolverAggregator {
     pub fn new(resolvers: Vec<Arc<dyn UriResolver>>) -> Self {
+        let resolvers = resolvers.into_iter().map(Arc::from).collect();
         Self {
             name: None,
             resolvers,
@@ -25,21 +26,6 @@ impl UriResolverAggregator {
     pub fn resolver_name(mut self, name: &str) -> Self {
         self.name = Some(name.to_string());
         self
-    }
-}
-
-impl From<Vec<UriResolverLike>> for UriResolverAggregator {
-    fn from(resolver_likes: Vec<UriResolverLike>) -> Self {
-        let resolvers = resolver_likes
-            .into_iter()
-            .map(|resolver_like| {
-                let resolver: Arc<dyn UriResolver> = resolver_like.into();
-
-                resolver
-            })
-            .collect();
-
-        UriResolverAggregator::new(resolvers)
     }
 }
 
@@ -93,4 +79,16 @@ impl fmt::Debug for UriResolverAggregator {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       write!(f, "UriResolverAggregator\nResolvers: {:?}", self.resolvers)
   }
+}
+
+impl From<Vec<Box<dyn UriResolver>>> for UriResolverAggregator {
+    fn from(resolvers: Vec<Box<dyn UriResolver>>) -> Self {
+        UriResolverAggregator::new(resolvers.into_iter().map(Arc::from).collect())
+    }
+}
+
+impl From<Vec<Arc<dyn UriResolver>>> for UriResolverAggregator {
+    fn from(resolvers: Vec<Arc<dyn UriResolver>>) -> Self {
+        UriResolverAggregator::new(resolvers)
+    }
 }

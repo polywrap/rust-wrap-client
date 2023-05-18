@@ -2,15 +2,13 @@ use core::fmt;
 use std::sync::{Arc};
 
 use polywrap_core::{
-    resolvers::{uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep}, uri_resolver::UriResolver},
+    resolution::{uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep}, uri_resolver::UriResolver, helpers::UriResolverExtensionFileReader},
     uri::Uri,
     error::Error, invoker::Invoker, 
 };
 use polywrap_msgpack::{msgpack, decode};
 use polywrap_wasm::wasm_package::WasmPackage;
 use serde::{Serialize,Deserialize};
-
-use polywrap_core::resolvers::helpers::UriResolverExtensionFileReader;
 
 pub struct UriResolverWrapper {
     pub implementation_uri: Uri
