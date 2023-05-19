@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use std::sync::{Arc};
 
-use crate::error::Error;
-use crate::invoker::Invoker;
-use crate::resolvers::uri_resolution_context::UriResolutionContext;
 use crate::uri::Uri;
 use crate::interface_implementation::InterfaceImplementations;
 use crate::resolvers::uri_resolver::{UriResolverHandler, UriResolver};
-use crate::wrapper::Wrapper;
+use crate::env::Envs;
+use crate::invoker::Invoker;
+use crate::wrap_invoker::WrapInvoker;
+use crate::wrap_loader::WrapLoader;
 
 #[derive(Clone,Debug)]
 pub struct UriRedirect {
@@ -28,20 +28,4 @@ pub struct ClientConfig {
   pub interfaces: Option<InterfaceImplementations>
 }
 
-pub trait Client: Invoker + UriResolverHandler {
-  fn get_env_by_uri(&self, uri: &Uri) -> Option<&[u8]>;
-  fn load_wrapper(
-    &self,
-    uri: &Uri,
-    resolution_context: Option<&mut UriResolutionContext>,
-  ) -> Result<Arc<dyn Wrapper>, Error>;
-  fn invoke_wrapper_raw(
-    &self,
-    wrapper: &dyn Wrapper,
-    uri: &Uri,
-    method: &str,
-    args: Option<&[u8]>,
-    env: Option<&[u8]>,
-    resolution_context: Option<&mut UriResolutionContext>,
-) -> Result<Vec<u8>, Error>;
-}
+pub trait Client: Invoker + WrapLoader + WrapInvoker + UriResolverHandler {}

@@ -71,6 +71,10 @@ impl Invoker for MockInvoker {
         let i = HashMap::new();
         Some(i)
     }
+
+    fn get_env_by_uri(&self, _: &Uri) -> Option<&Env> {
+        None
+    }
 }
 
 #[test]
