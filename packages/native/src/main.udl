@@ -12,7 +12,8 @@ enum Error {
   "ManifestError",
   "FileReadError",
   "ResolverError",
-  "PluginError"
+  "PluginError",
+  "RuntimeError"
 };
 
 interface FFIUri {
@@ -34,8 +35,12 @@ interface FFIInvoker {
   record<DOMString, sequence<FFIUri>>? get_interfaces();
 };
 
+callback interface FFIAbortHandler {
+  void abort(string msg);
+};
+
 callback interface FFIWrapper {
-  sequence<u8> invoke(FFIUri uri, [ByRef] string method, sequence<u8>? args, FFIInvoker invoker, sequence<u8>? env);
+  sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker, FFIAbortHandler? abort_handler);
 };
 
 callback interface FFIWrapPackage {
@@ -46,7 +51,7 @@ interface FFIWasmWrapper {
   constructor(sequence<u8> wasm_module);
 
   [Throws=Error]
-  sequence<u8> invoke(FFIUri uri, [ByRef] string method, sequence<u8>? args, FFIInvoker invoker, sequence<u8>? env);
+  sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker, FFIAbortHandler? abort_handler);
 };
 
 callback interface FFIUriResolver {
