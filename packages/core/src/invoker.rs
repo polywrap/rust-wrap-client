@@ -1,5 +1,5 @@
 use crate::{
-    error::Error, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, env::Env, 
+    error::Error, uri::Uri, resolution::uri_resolution_context::UriResolutionContext, env::Env, 
     interface_implementation::InterfaceImplementations,
 };
 pub trait Invoker: Send + Sync {

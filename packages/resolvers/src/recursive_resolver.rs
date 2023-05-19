@@ -1,44 +1,38 @@
 use core::fmt;
 use std::sync::Arc;
 
-use crate::{
+use polywrap_core::{
     error::Error,
-    resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    resolvers::uri_resolver::UriResolver,
+    resolution::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+    resolution::uri_resolver::UriResolver,
     uri::Uri, invoker::Invoker,
 };
 
-use super::{uri_resolver_like::UriResolverLike, uri_resolver_aggregator::UriResolverAggregator};
+use crate::uri_resolver_aggregator::UriResolverAggregator;
 
 pub struct RecursiveResolver {
     resolver: Arc<dyn UriResolver>,
 }
 
-impl From<Vec<UriResolverLike>> for RecursiveResolver {
-    fn from(resolver_likes: Vec<UriResolverLike>) -> Self {
-        let resolvers = resolver_likes
-            .into_iter()
-            .map(|resolver_like| {
-                let resolver: Arc<dyn UriResolver> = resolver_like.into();
-
-                resolver
-            })
-            .collect();
-
-        RecursiveResolver::new(
-            Arc::new(
-                UriResolverAggregator::new(
-                    resolvers
-                )
-            )
+impl From<Vec<Box<dyn UriResolver>>> for RecursiveResolver {
+    fn from(resolvers: Vec<Box<dyn UriResolver>>) -> Self {
+        RecursiveResolver::from(
+            UriResolverAggregator::from(resolvers)
         )
     }
 }
 
-impl From<UriResolverLike> for RecursiveResolver {
-    fn from(resolver_like: UriResolverLike) -> Self {
-        let resolver: Arc<dyn UriResolver> = resolver_like.into();
-        RecursiveResolver::new(resolver)
+impl From<UriResolverAggregator> for RecursiveResolver {
+    fn from(resolver: UriResolverAggregator) -> Self {
+        RecursiveResolver::new(
+            Arc::new(resolver)
+        )
+    }
+}
+
+impl From<Box<dyn UriResolver>> for RecursiveResolver {
+    fn from(resolver: Box<dyn UriResolver>) -> Self {
+        RecursiveResolver::new(Arc::from(resolver))
     }
 }
 

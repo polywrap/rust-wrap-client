@@ -1,7 +1,7 @@
 use std::sync::{Mutex, Arc};
 
 use polywrap_core::{
-    resolvers::uri_resolution_context::UriResolutionContext, 
+    resolution::uri_resolution_context::UriResolutionContext, 
     invoker::Invoker, env::Env, error::Error, uri::Uri, interface_implementation::InterfaceImplementations
 };
 
