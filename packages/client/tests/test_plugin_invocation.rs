@@ -1,8 +1,9 @@
 
 use serde_json::{json, from_value, Value};
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{invoker::{Invoker}, resolvers::static_resolver::{StaticResolverLike, StaticResolver}, package::WrapPackage, uri::Uri, client::ClientConfig};
+use polywrap_core::{invoker::{Invoker}, env::Env, package::WrapPackage, uri::Uri, client::ClientConfig};
 use polywrap_msgpack::msgpack;
+use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
 use std::{sync::Arc, collections::HashMap};
 

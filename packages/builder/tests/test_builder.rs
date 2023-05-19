@@ -1,6 +1,6 @@
 #![feature(closure_lifetime_binder)]
 #![feature(trait_upcasting)]
-use std::{collections::HashMap};
+use std::collections::HashMap;
 
 use polywrap_client_builder::types::{BuilderConfig, ClientBuilder};
 use polywrap_core::{

@@ -4,7 +4,7 @@ use polywrap_core::{
     invoker::{Invoker},
     uri::Uri,
     error::Error,
-    file_reader::{SimpleFileReader}, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, interface_implementation::InterfaceImplementations
+    file_reader::{SimpleFileReader}, resolution::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env, interface_implementation::InterfaceImplementations
 };
 use wrap_manifest_schemas::{
     deserialize::deserialize_wrap_manifest

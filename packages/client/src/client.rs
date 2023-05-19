@@ -5,13 +5,13 @@ use polywrap_core::{
     error::Error,
     interface_implementation::InterfaceImplementations,
     invoker::Invoker,
-    resolvers::uri_resolution_context::UriResolutionContext,
-    resolvers::{
+    resolution::uri_resolution_context::UriResolutionContext,
+    resolution::{
         uri_resolution_context::{UriPackageOrWrapper, UriResolutionStep},
-        uri_resolver::{UriResolver, UriResolverHandler}, helpers::get_env_from_resolution_path,
+        uri_resolver::UriResolver, helpers::get_env_from_resolution_path,
     },
     uri::Uri,
-    wrapper::Wrapper, wrap_loader::WrapLoader, wrap_invoker::WrapInvoker,
+    wrapper::Wrapper, wrap_loader::WrapLoader, wrap_invoker::WrapInvoker, uri_resolver_handler::UriResolverHandler,
 };
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
@@ -137,7 +137,7 @@ impl Invoker for PolywrapClient {
     }
 
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
-        polywrap_core::resolvers::helpers::get_implementations(uri, self.get_interfaces(), self)
+        polywrap_core::resolution::helpers::get_implementations(uri, self.get_interfaces(), self)
     }
 
     fn get_interfaces(&self) -> Option<InterfaceImplementations> {
@@ -262,12 +262,12 @@ mod client_tests {
         client::ClientConfig,
         error::Error,
         invoker::Invoker,
-        resolvers::{
+        resolution::{
             uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-            uri_resolver::{UriResolver, UriResolverHandler},
+            uri_resolver::UriResolver,
         },
         uri::Uri,
-        wrapper::{GetFileOptions, Wrapper}, wrap_loader::WrapLoader,
+        wrapper::{GetFileOptions, Wrapper}, wrap_loader::WrapLoader, uri_resolver_handler::UriResolverHandler,
     };
     use std::sync::Arc;
 

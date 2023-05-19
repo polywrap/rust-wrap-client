@@ -2,9 +2,9 @@ use std::{sync::{Arc}, collections::HashMap};
 
 use polywrap_core::{
     interface_implementation::InterfaceImplementations,
-    resolvers::{uri_resolver_like::UriResolverLike},
+    env::{Envs,Env}, 
     uri::Uri, 
-    client::{UriRedirect, ClientConfig}, package::WrapPackage, wrapper::Wrapper
+    client::{UriRedirect, ClientConfig}, package::WrapPackage, wrapper::Wrapper, resolution::uri_resolver::UriResolver
 };
 
 #[derive(Clone)]
@@ -14,7 +14,7 @@ pub struct BuilderConfig {
     pub wrappers: Option<Vec<(Uri, Arc<dyn Wrapper>)>>,
     pub packages: Option<Vec<(Uri, Arc<dyn WrapPackage>)>>,
     pub redirects: Option<Vec<UriRedirect>>,
-    pub resolvers: Option<Vec<UriResolverLike>>,
+    pub resolvers: Option<Vec<Arc<dyn UriResolver>>>,
 }
 
 pub trait ClientBuilder {
@@ -47,8 +47,8 @@ pub trait ClientBuilder {
     fn add_redirect(&mut self, from: Uri, to: Uri) -> &mut Self;
     fn add_redirects(&mut self, redirects: Vec<UriRedirect>) -> &mut Self;
     fn remove_redirect(&mut self, from: &Uri) -> &mut Self;
-    fn add_resolver(&mut self, resolver: UriResolverLike) -> &mut Self;
-    fn add_resolvers(&mut self, resolver: Vec<UriResolverLike>) -> &mut Self;
+    fn add_resolver(&mut self, resolver: Arc<dyn UriResolver>) -> &mut Self;
+    fn add_resolvers(&mut self, resolver: Vec<Arc<dyn UriResolver>>) -> &mut Self;
 }
 
 pub trait ClientConfigHandler {

@@ -1,6 +1,7 @@
-use crate::error::Error;
 use serde::Serialize;
 use regex::Regex;
+
+use crate::error::Error;
 
 #[derive(Clone,Serialize,Debug)]
 pub struct Uri {

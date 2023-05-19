@@ -2,14 +2,14 @@ use std::sync::Arc;
 
 use polywrap_core::{
     client::ClientConfig,
-    resolvers::{
-        recursive_resolver::RecursiveResolver,
-        static_resolver::{StaticResolver, StaticResolverLike},
+    resolution::{
         uri_resolver::UriResolver,
-        uri_resolver_like::UriResolverLike,
     },
 };
-use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
+use polywrap_resolvers::{
+    extendable_uri_resolver::ExtendableUriResolver, 
+    static_resolver::{StaticResolverLike, StaticResolver}, recursive_resolver::RecursiveResolver, resolver_vec
+};
 
 use crate::types::BuilderConfig;
 
@@ -33,17 +33,13 @@ pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
             static_resolvers.push(StaticResolverLike::Redirect(r));
         }
     }
-    let static_resolver = StaticResolver::from(static_resolvers);
-    let extendable_resolver = ExtendableUriResolver::new(None);
-
-    let resolvers = vec![
-        UriResolverLike::Resolver(Arc::new(static_resolver)),
-        UriResolverLike::Resolver(Arc::new(extendable_resolver)),
-    ];
 
     ClientConfig {
         envs: builder.envs.clone(),
         interfaces: builder.interfaces.clone(),
-        resolver: Arc::new(RecursiveResolver::from(resolvers)) as Arc<dyn UriResolver>,
+        resolver: Arc::new(RecursiveResolver::from(resolver_vec![
+            StaticResolver::from(static_resolvers),
+            ExtendableUriResolver::new(None),
+        ])),
     }
 }

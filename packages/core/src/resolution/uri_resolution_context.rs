@@ -1,7 +1,7 @@
 use crate::{package::WrapPackage, wrapper::Wrapper, error::Error};
 use std::{collections::HashMap, sync::Arc, vec};
 
-use crate::{uri::Uri};
+use crate::uri::Uri;
 
 #[derive(Clone)]
 pub enum UriPackageOrWrapper {

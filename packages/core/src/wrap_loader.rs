@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{resolvers::uri_resolution_context::UriResolutionContext, error::Error, wrapper::Wrapper, uri::Uri};
+use crate::{resolution::uri_resolution_context::UriResolutionContext, error::Error, wrapper::Wrapper, uri::Uri};
 
 pub trait WrapLoader: Send + Sync {
   fn load_wrapper(
