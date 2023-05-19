@@ -148,7 +148,7 @@ impl Invoker for PolywrapClient {
         None
     }
 
-    fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<&[u8]> {
         if let Some(envs) = &self.envs {
             return envs.get(&uri.to_string()).map(|value| value.as_slice());
         }
@@ -195,7 +195,7 @@ impl WrapInvoker for PolywrapClient {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
+        env: Option<&[u8]>,
         resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, Error> {
         let mut empty_res_context = UriResolutionContext::new();

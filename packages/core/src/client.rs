@@ -4,7 +4,6 @@ use std::sync::{Arc};
 use crate::uri::Uri;
 use crate::interface_implementation::InterfaceImplementations;
 use crate::resolvers::uri_resolver::{UriResolverHandler, UriResolver};
-use crate::env::Envs;
 use crate::invoker::Invoker;
 use crate::wrap_invoker::WrapInvoker;
 use crate::wrap_loader::WrapLoader;

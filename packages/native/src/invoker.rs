@@ -89,4 +89,8 @@ impl Invoker for FFIInvoker {
   ) -> Option<polywrap_client::core::interface_implementation::InterfaceImplementations> {
       self.inner_invoker.get_interfaces()
   }
+
+  fn get_env_by_uri(&self, uri: &Uri) -> Option<&[u8]> {
+      self.inner_invoker.get_env_by_uri(uri)
+  }
 }

@@ -72,7 +72,7 @@ impl Invoker for MockInvoker {
         Some(i)
     }
 
-    fn get_env_by_uri(&self, _: &Uri) -> Option<&Env> {
+    fn get_env_by_uri(&self, _: &Uri) -> Option<&[u8]> {
         None
     }
 }
