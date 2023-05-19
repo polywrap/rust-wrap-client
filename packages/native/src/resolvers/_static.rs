@@ -1,6 +1,5 @@
 use std::{collections::HashMap, sync::Arc};
-
-use polywrap_client::core::{resolvers::{static_resolver::StaticResolver, uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver}, invoker::Invoker};
+use polywrap_client::{core::{resolution::{uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext}, uri_resolver::UriResolver}, invoker::Invoker}, resolvers::static_resolver::StaticResolver};
 
 use super::uri_package_or_wrapper::FFIUriPackageOrWrapper;
 
@@ -30,7 +29,7 @@ impl UriResolver for FFIStaticUriResolver {
         &self,
         uri: &polywrap_client::core::uri::Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, polywrap_client::core::error::Error> {
         self.inner_resolver.try_resolve_uri(uri, invoker, resolution_context)
     }

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use polywrap_client::core::resolvers::uri_resolution_context::UriPackageOrWrapper;
+use polywrap_client::core::resolution::uri_resolution_context::UriPackageOrWrapper;
 
 use crate::{uri::FFIUri, wrapper::{FFIWrapper, ExtWrapper}, package::{FFIWrapPackage, ExtWrapPackage}};
 

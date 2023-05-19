@@ -1,4 +1,4 @@
-use polywrap_client::core::{invoker::Invoker, uri::Uri};
+use polywrap_client::core::{invoker::Invoker, uri::Uri, resolution::uri_resolution_context::UriResolutionContext};
 use std::{collections::HashMap, sync::Arc};
 
 use crate::uri::FFIUri;
@@ -70,7 +70,7 @@ impl Invoker for FFIInvoker {
       args: Option<&[u8]>,
       env: Option<&[u8]>,
       resolution_context: Option<
-          &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
+          &mut UriResolutionContext,
       >,
   ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
       self.inner_invoker

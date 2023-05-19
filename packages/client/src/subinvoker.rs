@@ -2,7 +2,7 @@ use std::sync::{Mutex, Arc};
 
 use polywrap_core::{
     resolution::uri_resolution_context::UriResolutionContext, 
-    invoker::Invoker, env::Env, error::Error, uri::Uri, interface_implementation::InterfaceImplementations
+    invoker::Invoker, error::Error, uri::Uri, interface_implementation::InterfaceImplementations
 };
 
 pub struct Subinvoker {

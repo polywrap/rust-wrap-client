@@ -55,7 +55,7 @@ interface FFIWasmWrapper {
 };
 
 callback interface FFIUriResolver {
-  FFIUriPackageOrWrapper wrap_try_resolve_uri(FFIUri uri, FFIInvoker invoker);
+  FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker);
 };
 
 enum FFIUriPackageOrWrapperKind {
@@ -81,53 +81,6 @@ callback interface FFIUriPackageOrWrapper {
   FFIUriWrapPackage as_package();
 };
 
-interface FFIUriResolverLikeRedirectVariant {
-  constructor(FFIUri from, FFIUri to);
-};
-
-interface FFIUriResolverLikePackageVariant {
-  constructor(FFIUri uri, FFIWrapPackage package);
-};
-
-interface FFIUriResolverLikeWrapperVariant {
-  constructor(FFIUri uri, FFIWrapper wrapper);
-};
-
-interface FFIUriResolverLikeResolverVariant {
-  constructor(FFIUriResolver resolver);
-};
-
-interface FFIUriResolverLikeResolverLikeVariant {
-  constructor(sequence<FFIUriResolverLike> resolver_like);
-};
-
-interface FFIUriResolverLike {
-  [Name=new_resolver]
-  constructor(FFIUriResolverLikeResolverVariant resolver);
-  [Name=new_redirect]
-  constructor(FFIUriResolverLikeRedirectVariant redirect);
-  [Name=new_wrapper]
-  constructor(FFIUriResolverLikeWrapperVariant wrapper);
-  [Name=new_package]
-  constructor(FFIUriResolverLikePackageVariant package);
-  [Name=new_resolver_like]
-  constructor(FFIUriResolverLikeResolverLikeVariant resolver_like);
-  FFIUriResolverLikeKind get_kind();
-  FFIUriResolverLikeResolverVariant? get_resolver();
-  FFIUriResolverLikeRedirectVariant? get_redirect();
-  FFIUriResolverLikeWrapperVariant? get_wrapper();
-  FFIUriResolverLikePackageVariant? get_package();
-  FFIUriResolverLikeResolverLikeVariant? get_resolver_like();
-};
-
-enum FFIUriResolverLikeKind {
-  "_Resolver",
-  "_Redirect",
-  "_Package",
-  "_Wrapper",
-  "_ResolverLike",
-};
-
 interface FFIStaticUriResolver {
   constructor(record<DOMString, FFIUriPackageOrWrapper> uri_map);
 };
@@ -137,7 +90,7 @@ interface FFIExtendableUriResolver {
 };
 
 interface FFIRecursiveUriResolver {
-  constructor(FFIUriResolverLike uri_resolver_like);
+  constructor(FFIUriResolver uri_resolver);
 };
 
 interface FFIClient {
@@ -164,9 +117,6 @@ interface FFIBuilderConfig {
   void add_redirect(FFIUri from, FFIUri to);
   void remove_redirect(FFIUri from);
   void add_resolver(FFIUriResolver resolver);
-  void add_static_resolver(FFIStaticUriResolver resolver);
-  void add_extendable_resolver(FFIExtendableUriResolver resolver);
-  void add_recursive_resolver(FFIRecursiveUriResolver resolver);
   FFIClient build();
 };
 

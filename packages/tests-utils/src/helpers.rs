@@ -1,6 +1,6 @@
 use std::{path::{Path,PathBuf},sync::{Arc}, fmt::{Debug, Formatter}};
 
-use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoker::Invoker, uri::Uri, resolvers::uri_resolution_context::UriResolutionContext, package::WrapPackage};
+use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoker::Invoker, package::WrapPackage};
 use wrap_manifest_schemas::versions::WrapManifest;
 
 pub struct MockWrapper {

@@ -1,15 +1,12 @@
 use polywrap_client::{
     builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
-    core::{resolvers::uri_resolver_like::UriResolverLike}, client::PolywrapClient,
+    client::PolywrapClient,
 };
 use std::sync::{Arc, Mutex};
 
 use crate::{
     resolvers::{
-        _static::FFIStaticUriResolver,
-        extendable::FFIExtendableUriResolver,
-        ffi_resolver::{FFIUriResolver, FFIUriResolverWrapper},
-        recursive::FFIRecursiveUriResolver,
+        ffi_resolver::{FFIUriResolver, ExtUriResolver},
     },
     client::FFIClient, uri::FFIUri, wrapper::{FFIWrapper, ExtWrapper},
 };
@@ -95,32 +92,11 @@ impl FFIBuilderConfig {
     }
 
     pub fn add_resolver(&self, resolver: Box<dyn FFIUriResolver>) {
-        let resolver: FFIUriResolverWrapper = resolver.into();
+        let resolver = ExtUriResolver(resolver);
         self.inner_builder
             .lock()
             .unwrap()
-            .add_resolver(UriResolverLike::Resolver(Arc::from(resolver)));
-    }
-
-    pub fn add_static_resolver(&self, resolver: Arc<FFIStaticUriResolver>) {
-        self.inner_builder
-            .lock()
-            .unwrap()
-            .add_resolver(UriResolverLike::Resolver(resolver));
-    }
-
-    pub fn add_extendable_resolver(&self, resolver: Arc<FFIExtendableUriResolver>) {
-        self.inner_builder
-            .lock()
-            .unwrap()
-            .add_resolver(UriResolverLike::Resolver(resolver));
-    }
-
-    pub fn add_recursive_resolver(&self, resolver: Arc<FFIRecursiveUriResolver>) {
-        self.inner_builder
-            .lock()
-            .unwrap()
-            .add_resolver(UriResolverLike::Resolver(resolver));
+            .add_resolver(Arc::new(resolver));
     }
 
     pub fn build(&self) -> Arc<FFIClient> {

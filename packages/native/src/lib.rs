@@ -19,8 +19,7 @@ use resolvers::{
   extendable::*,
   ffi_resolver::*,
   recursive::*,
-  uri_package_or_wrapper::*,
-  uri_resolver_like::*
+  uri_package_or_wrapper::*
 };
 
 use polywrap_client::core::error::Error;

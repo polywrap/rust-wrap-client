@@ -2,7 +2,6 @@ use std::{sync::{Arc}, collections::HashMap};
 
 use polywrap_core::{
     interface_implementation::InterfaceImplementations,
-    env::{Envs,Env}, 
     uri::Uri, 
     client::{UriRedirect, ClientConfig}, package::WrapPackage, wrapper::Wrapper, resolution::uri_resolver::UriResolver
 };
