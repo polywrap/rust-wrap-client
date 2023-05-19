@@ -1,5 +1,5 @@
 [Error]
-enum Error {
+enum FFIError {
   "UriParseError",
   "RedirectsError",
   "WrapperError",
@@ -26,10 +26,10 @@ interface FFIUri {
 };
 
 interface FFIInvoker {
-  [Throws=Error]
+  [Throws=FFIError]
   sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env);
 
-  [Throws=Error]
+  [Throws=FFIError]
   sequence<FFIUri> get_implementations(FFIUri uri);
 
   record<DOMString, sequence<FFIUri>>? get_interfaces();
@@ -50,7 +50,7 @@ callback interface FFIWrapPackage {
 interface FFIWasmWrapper {
   constructor(sequence<u8> wasm_module);
 
-  [Throws=Error]
+  [Throws=FFIError]
   sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker, FFIAbortHandler? abort_handler);
 };
 
@@ -94,10 +94,10 @@ interface FFIRecursiveUriResolver {
 };
 
 interface FFIClient {
-  [Throws=Error]
+  [Throws=FFIError]
   sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env);
 
-  [Throws=Error]
+  [Throws=FFIError]
   sequence<FFIUri> get_implementations(FFIUri uri);
 
   record<DOMString, sequence<FFIUri>>? get_interfaces();

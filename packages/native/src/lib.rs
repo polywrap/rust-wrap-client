@@ -22,6 +22,6 @@ use resolvers::{
   uri_package_or_wrapper::*
 };
 
-use polywrap_client::core::error::Error;
+use polywrap_client::core::error::Error as FFIError;
 
 uniffi::include_scaffolding!("main");
