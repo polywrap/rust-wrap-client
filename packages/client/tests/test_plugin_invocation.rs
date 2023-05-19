@@ -1,16 +1,14 @@
-
-use serde_json::{json, from_value, Value};
 use polywrap_client::client::PolywrapClient;
 use polywrap_core::{invoker::{Invoker}, package::WrapPackage, uri::Uri, client::ClientConfig};
 use polywrap_msgpack::msgpack;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
+use serde_json::{from_value, json};
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
 use std::{sync::Arc, collections::HashMap};
 
 use polywrap_plugin::{
     error::PluginError, module::PluginModule, implementor::plugin_impl, package::PluginPackage,
 };
-use polywrap_msgpack::extensions::generic_map::GenericMap;
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 pub struct GetEnvArgs {
@@ -19,7 +17,7 @@ pub struct GetEnvArgs {
 
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 pub struct Env {
-  map: GenericMap<String, String>
+  foo: String
 }
 
 #[derive(Debug)]
@@ -43,9 +41,11 @@ impl Module for PluginEnv {
         _env: Option<Env>,
     ) -> Result<bool, PluginError> {
         if let Some(_env) = _env {
-            if let Some(value) = _env.map.0.get(&args.key) {
-                return Ok(value.eq(&Value::String("bar".to_string())));
-            }
+            let value = match args.key.as_str() {
+              "foo" => &_env.foo,
+              &_ => panic!("Property does not exist")
+            };
+            return Ok(value == "bar")
         }
 
         Ok(false)

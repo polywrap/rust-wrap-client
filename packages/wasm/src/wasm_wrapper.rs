@@ -84,7 +84,7 @@ impl Wrapper for WasmWrapper {
 
         let env = match env {
             Some(env) => env.to_vec(),
-            None => msgpack!({}),
+            None => vec![],
         };
 
         let params = &[
