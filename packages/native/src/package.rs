@@ -9,6 +9,16 @@ pub trait FFIWrapPackage: Debug + Send + Sync {
     ) -> Box<dyn FFIWrapper>;
 }
 
+impl FFIWrapPackage for Arc<dyn WrapPackage> {
+    fn create_wrapper(
+      &self
+    ) -> Box<dyn FFIWrapper> {
+      let arc_self = self.clone();
+      let wrapper = WrapPackage::create_wrapper(arc_self.as_ref()).unwrap();
+      Box::new(wrapper)
+    }
+}
+
 #[derive(Debug)]
 pub struct ExtWrapPackage(pub Box<dyn FFIWrapPackage>);
 

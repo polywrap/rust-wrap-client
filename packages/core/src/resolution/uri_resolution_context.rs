@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc, vec};
 
 use crate::uri::Uri;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum UriPackageOrWrapper {
   Uri(Uri),
   Wrapper(Uri, Arc<dyn Wrapper>),
@@ -99,3 +99,4 @@ impl UriResolutionContext {
         }
     }
 }
+

@@ -3,3 +3,4 @@ pub mod ffi_resolver;
 pub mod extendable;
 pub mod _static;
 pub mod recursive;
+pub mod resolution_context;
