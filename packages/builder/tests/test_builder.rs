@@ -32,7 +32,7 @@ fn test_env_methods() {
 
     let current_env = builder.envs.clone().unwrap();
     let env_from_builder = current_env.get(&uri.to_string());
-    assert_eq!(env_from_builder.unwrap(), &msgpack!({ "d": "d", "a": "a", "b": "b" }));
+    assert_eq!(env_from_builder.unwrap(), &msgpack!({ "a": "a", "b": "b" }));
 
     builder.set_env(uri.clone(), msgpack!({"c": "c"}));
 
