@@ -27,7 +27,7 @@ interface FFIUri {
 
 interface FFIInvoker {
   [Throws=FFIError]
-  sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env);
+  sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
 
   [Throws=FFIError]
   sequence<FFIUri> get_implementations(FFIUri uri);
@@ -93,9 +93,30 @@ interface FFIRecursiveUriResolver {
   constructor(FFIUriResolver uri_resolver);
 };
 
+dictionary FFIUriResolutionStep {
+  FFIUri source_uri;
+  FFIUriPackageOrWrapper result;
+  string? description;
+  sequence<FFIUriResolutionStep>? sub_history;
+};
+
+interface FFIUriResolutionContext {
+  constructor();
+  void set_resolution_path(sequence<string> resolution_path);
+  void set_history(sequence<FFIUriResolutionStep> history);
+  void set_resolving_uri_map(record<DOMString, boolean> resolving_uri_map);
+  void set_start_resolving(FFIUri uri);
+  void set_stop_resolving(FFIUri uri);
+  void track_step(FFIUriResolutionStep step);
+  sequence<FFIUriResolutionStep> get_history();
+  sequence<FFIUri> get_resolution_path();
+  FFIUriResolutionContext create_sub_history_context();
+  FFIUriResolutionContext create_sub_context();
+};
+
 interface FFIClient {
   [Throws=FFIError]
-  sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env);
+  sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
 
   [Throws=FFIError]
   sequence<FFIUri> get_implementations(FFIUri uri);
@@ -103,6 +124,9 @@ interface FFIClient {
   record<DOMString, sequence<FFIUri>>? get_interfaces();
 
   sequence<u8>? get_env_by_uri(FFIUri uri);
+
+  [Throws=FFIError]
+  sequence<u8> invoke_wrapper_raw(FFIWrapper wrapper, FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
 };
 
 interface FFIBuilderConfig {

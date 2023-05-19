@@ -1,27 +1,36 @@
+use polywrap_client::{
+    core::{
+        invoker::Invoker,
+        resolution::{
+            uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+            uri_resolver::UriResolver,
+        },
+    },
+    resolvers::static_resolver::StaticResolver,
+};
 use std::{collections::HashMap, sync::Arc};
-use polywrap_client::{core::{resolution::{uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext}, uri_resolver::UriResolver}, invoker::Invoker}, resolvers::static_resolver::StaticResolver};
 
-use super::uri_package_or_wrapper::FFIUriPackageOrWrapper;
+use super::{uri_package_or_wrapper::FFIUriPackageOrWrapper};
 
 #[derive(Debug)]
 pub struct FFIStaticUriResolver {
-  inner_resolver: StaticResolver
+    inner_resolver: StaticResolver,
 }
 
 impl FFIStaticUriResolver {
-  pub fn new(uri_map: HashMap<String, Box<dyn FFIUriPackageOrWrapper>>) -> FFIStaticUriResolver {
-    let uri_map: HashMap<String, UriPackageOrWrapper> = uri_map
-        .into_iter()
-        .map(|(uri, variant)| {
-          let uri_package_or_wrapper: UriPackageOrWrapper = variant.into();
-          (uri, uri_package_or_wrapper)
-        })
-        .collect();
+    pub fn new(uri_map: HashMap<String, Box<dyn FFIUriPackageOrWrapper>>) -> FFIStaticUriResolver {
+        let uri_map: HashMap<String, UriPackageOrWrapper> = uri_map
+            .into_iter()
+            .map(|(uri, variant)| {
+                let uri_package_or_wrapper: UriPackageOrWrapper = variant.into();
+                (uri, uri_package_or_wrapper)
+            })
+            .collect();
 
-    FFIStaticUriResolver {
-      inner_resolver: StaticResolver::new(uri_map)
+        FFIStaticUriResolver {
+            inner_resolver: StaticResolver::new(uri_map),
+        }
     }
-  }
 }
 
 impl UriResolver for FFIStaticUriResolver {
@@ -31,6 +40,7 @@ impl UriResolver for FFIStaticUriResolver {
         invoker: Arc<dyn Invoker>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, polywrap_client::core::error::Error> {
-        self.inner_resolver.try_resolve_uri(uri, invoker, resolution_context)
+        self.inner_resolver
+            .try_resolve_uri(uri, invoker, resolution_context)
     }
 }

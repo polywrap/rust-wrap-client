@@ -19,7 +19,8 @@ use resolvers::{
   extendable::*,
   ffi_resolver::*,
   recursive::*,
-  uri_package_or_wrapper::*
+  uri_package_or_wrapper::*,
+  resolution_context::*
 };
 
 use polywrap_client::core::error::Error as FFIError;

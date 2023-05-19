@@ -1,7 +1,13 @@
-use polywrap_client::core::{invoker::Invoker, uri::Uri, resolution::uri_resolution_context::UriResolutionContext};
-use std::{collections::HashMap, sync::Arc};
+use polywrap_client::core::{
+    invoker::Invoker, resolution::uri_resolution_context::UriResolutionContext, uri::Uri,
+};
+use std::{
+    collections::HashMap,
+    ops::{DerefMut},
+    sync::Arc,
+};
 
-use crate::uri::FFIUri;
+use crate::{resolvers::resolution_context::FFIUriResolutionContext, uri::FFIUri};
 
 pub struct FFIInvoker {
     pub inner_invoker: Arc<dyn Invoker>,
@@ -20,17 +26,29 @@ impl FFIInvoker {
         method: &str,
         args: Option<Vec<u8>>,
         env: Option<Vec<u8>>,
+        resolution_context: Option<Arc<FFIUriResolutionContext>>,
     ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
         let args = args.as_deref();
         let env = env.as_deref();
 
-        self.inner_invoker.invoke_raw(
-            &uri.to_string().try_into().unwrap(),
-            method,
-            args,
-            env,
-            None,
-        )
+        if let Some(resolution_context) = resolution_context {
+            let mut res_context_guard = resolution_context.0.lock().unwrap();
+            self.inner_invoker.invoke_raw(
+                &uri.to_string().try_into().unwrap(),
+                method,
+                args,
+                env,
+                Some(res_context_guard.deref_mut()),
+            )
+        } else {
+            self.inner_invoker.invoke_raw(
+                &uri.to_string().try_into().unwrap(),
+                method,
+                args,
+                env,
+                None,
+            )
+        }
     }
 
     pub fn get_implementations(
@@ -63,34 +81,32 @@ impl FFIInvoker {
 }
 
 impl Invoker for FFIInvoker {
-  fn invoke_raw(
-      &self,
-      uri: &Uri,
-      method: &str,
-      args: Option<&[u8]>,
-      env: Option<&[u8]>,
-      resolution_context: Option<
-          &mut UriResolutionContext,
-      >,
-  ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
-      self.inner_invoker
-          .invoke_raw(uri, method, args, env, resolution_context)
-  }
+    fn invoke_raw(
+        &self,
+        uri: &Uri,
+        method: &str,
+        args: Option<&[u8]>,
+        env: Option<&[u8]>,
+        resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
+        self.inner_invoker
+            .invoke_raw(uri, method, args, env, resolution_context)
+    }
 
-  fn get_implementations(
-      &self,
-      uri: &Uri,
-  ) -> Result<Vec<Uri>, polywrap_client::core::error::Error> {
-      self.inner_invoker.get_implementations(uri)
-  }
+    fn get_implementations(
+        &self,
+        uri: &Uri,
+    ) -> Result<Vec<Uri>, polywrap_client::core::error::Error> {
+        self.inner_invoker.get_implementations(uri)
+    }
 
-  fn get_interfaces(
-      &self,
-  ) -> Option<polywrap_client::core::interface_implementation::InterfaceImplementations> {
-      self.inner_invoker.get_interfaces()
-  }
+    fn get_interfaces(
+        &self,
+    ) -> Option<polywrap_client::core::interface_implementation::InterfaceImplementations> {
+        self.inner_invoker.get_interfaces()
+    }
 
-  fn get_env_by_uri(&self, uri: &Uri) -> Option<&[u8]> {
-      self.inner_invoker.get_env_by_uri(uri)
-  }
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<&[u8]> {
+        self.inner_invoker.get_env_by_uri(uri)
+    }
 }

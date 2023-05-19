@@ -1,10 +1,12 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, ops::DerefMut, sync::Arc};
 
-use polywrap_client::{
-    core::{client::Client, error::Error},
+use polywrap_client::core::{client::Client, error::Error};
+
+use crate::{
+    resolvers::resolution_context::FFIUriResolutionContext,
+    uri::FFIUri,
+    wrapper::{ExtWrapper, FFIWrapper},
 };
-
-use crate::{uri::FFIUri, wrapper::{FFIWrapper, ExtWrapper}};
 
 pub struct FFIClient {
     inner_client: Arc<dyn Client>,
@@ -13,7 +15,7 @@ pub struct FFIClient {
 impl FFIClient {
     pub fn new(client: Arc<dyn Client>) -> FFIClient {
         Self {
-            inner_client: client
+            inner_client: client,
         }
     }
 
@@ -23,17 +25,30 @@ impl FFIClient {
         method: &str,
         args: Option<Vec<u8>>,
         env: Option<Vec<u8>>,
+        resolution_context: Option<Arc<FFIUriResolutionContext>>,
     ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
         let args = args.as_deref();
         let env = env.as_deref();
 
-        self.inner_client.invoke_raw(
-            &uri.to_string().try_into().unwrap(),
-            method,
-            args,
-            env,
-            None,
-        )
+        if let Some(resolution_context) = resolution_context {
+            let mut res_context_guard = resolution_context.0.lock().unwrap();
+
+            self.inner_client.invoke_raw(
+                &uri.to_string().try_into().unwrap(),
+                method,
+                args,
+                env,
+                Some(res_context_guard.deref_mut()),
+            )
+        } else {
+            self.inner_client.invoke_raw(
+                &uri.to_string().try_into().unwrap(),
+                method,
+                args,
+                env,
+                None,
+            )
+        }
     }
 
     pub fn get_implementations(
@@ -75,10 +90,31 @@ impl FFIClient {
         method: &str,
         args: Option<Vec<u8>>,
         env: Option<Vec<u8>>,
+        resolution_context: Option<Arc<FFIUriResolutionContext>>,
     ) -> Result<Vec<u8>, Error> {
         let args = args.as_deref();
 
-        self.inner_client.invoke_wrapper_raw(&ExtWrapper(wrapper), &uri.0, method, args.as_deref(), env.as_deref(), None)
+        if let Some(resolution_context) = resolution_context {
+            let mut res_context_guard = resolution_context.0.lock().unwrap();
+
+            self.inner_client.invoke_wrapper_raw(
+                &ExtWrapper(wrapper),
+                &uri.0,
+                method,
+                args.as_deref(),
+                env.as_deref(),
+                Some(res_context_guard.deref_mut()),
+            )
+        } else {
+            self.inner_client.invoke_wrapper_raw(
+                &ExtWrapper(wrapper),
+                &uri.0,
+                method,
+                args.as_deref(),
+                env.as_deref(),
+                None,
+            )
+        }
     }
 
     pub fn load_wrapper(&self, uri: Arc<FFIUri>) -> Result<Box<dyn FFIWrapper>, Error> {
