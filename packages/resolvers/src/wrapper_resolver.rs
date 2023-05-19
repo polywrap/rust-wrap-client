@@ -36,7 +36,7 @@ impl UriResolver for WrapperResolver {
 
         resolution_context.track_step(UriResolutionStep {
             source_uri: uri.clone(),
-            description: Some(format!("Wrapper ({})", uri)),
+            description: Some(format!("Wrapper ({uri})")),
             result: match &result {
                 Ok(r) => Ok(r.clone()),
                 Err(e) => Err(Error::ResolutionError(e.to_string()))

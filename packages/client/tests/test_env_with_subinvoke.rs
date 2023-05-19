@@ -17,39 +17,36 @@ fn get_subinvoker_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    let subinvoker_uri = Uri::try_from(format!(
-        "fs/{}/env-type/01-subinvoker/implementations/rs",
-        path
-    ))
-    .unwrap();
+    
 
-    subinvoker_uri
+    Uri::try_from(format!(
+        "fs/{path}/env-type/01-subinvoker/implementations/rs"
+    ))
+    .unwrap()
 }
 
 fn get_subinvoker_with_env_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     
-    let subinvoker_uri = Uri::try_from(format!(
-        "fs/{}/env-type/02-subinvoker-with-env/implementations/rs",
-        path
-    ))
-    .unwrap();
+    
 
-    subinvoker_uri
+    Uri::try_from(format!(
+        "fs/{path}/env-type/02-subinvoker-with-env/implementations/rs"
+    ))
+    .unwrap()
 }
 
 fn get_subinvoked_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     
-    let subinvoked_uri = Uri::try_from(format!(
-        "fs/{}/env-type/00-main/implementations/rs",
-        path
-    ))
-    .unwrap();
+    
 
-    subinvoked_uri
+    Uri::try_from(format!(
+        "fs/{path}/env-type/00-main/implementations/rs"
+    ))
+    .unwrap()
 }
 
 #[allow(non_snake_case)]

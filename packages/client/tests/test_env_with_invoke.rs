@@ -20,13 +20,12 @@ fn get_env_wrapper_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    let subinvoker_uri = Uri::try_from(format!(
-        "fs/{}/env-type/00-main/implementations/rs",
-        path
-    ))
-    .unwrap();
+    
 
-    subinvoker_uri
+    Uri::try_from(format!(
+        "fs/{path}/env-type/00-main/implementations/rs"
+    ))
+    .unwrap()
 }
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -313,7 +312,7 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
             let resolvers = HashMap::from([
                 (
                     redirect_from_uri.to_string(),
-                    UriPackageOrWrapper::Uri(wrapper_uri.clone())
+                    UriPackageOrWrapper::Uri(wrapper_uri)
                 ),
             ]);
         

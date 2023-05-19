@@ -127,16 +127,14 @@ impl Wrapper for WasmWrapper {
             }
 
             Ok(state.invoke.result.as_ref().unwrap().to_vec())
+        } else if state.invoke.error.is_none() {
+            Err(Error::RuntimeError(
+                "Invoke error is missing".to_string(),
+            ))
         } else {
-            if state.invoke.error.is_none() {
-                Err(Error::RuntimeError(
-                    "Invoke error is missing".to_string(),
-                ))
-            } else {
-                Err(Error::WrapperError(
-                    state.invoke.error.as_ref().unwrap().to_string(),
-                ))
-            }
+            Err(Error::WrapperError(
+                state.invoke.error.as_ref().unwrap().to_string(),
+            ))
         }
     }
 

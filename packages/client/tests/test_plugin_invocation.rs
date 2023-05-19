@@ -72,8 +72,8 @@ fn invoke_test() {
         plugin_static_like
     ]);
 
-    let foo = msgpack!({"foo": "bar"});
-    let envs = HashMap::from([(Uri::try_from("ens/env-plugin.eth").unwrap().uri, foo)]);
+    let env_val = msgpack!({"foo": "bar"});
+    let envs = HashMap::from([(Uri::try_from("ens/env-plugin.eth").unwrap().uri, env_val)]);
     let client = PolywrapClient::new(ClientConfig {
         envs: Some(envs),
         interfaces: None,

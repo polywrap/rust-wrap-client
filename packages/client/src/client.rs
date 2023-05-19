@@ -109,7 +109,7 @@ impl Invoker for PolywrapClient {
         }
 
         let resolution_path = loaded_wrapper_context.get_resolution_path();
-        let resolution_path = if resolution_path.len() > 0 {
+        let resolution_path = if !resolution_path.is_empty() {
             resolution_path
         } else {
             vec![uri.clone()]
@@ -215,7 +215,7 @@ impl WrapInvoker for PolywrapClient {
         let abort_handler = build_abort_handler(None, uri.clone(), method.to_string());
 
         let invoke_result = wrapper
-            .invoke(method, args, env, subinvoker.clone(), Some(abort_handler))
+            .invoke(method, args, env, subinvoker, Some(abort_handler))
             .map_err(|e| Error::InvokeError(uri.to_string(), method.to_string(), e.to_string()));
 
         let subinvocation_context = subinvocation_context.lock().unwrap();

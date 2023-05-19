@@ -115,6 +115,6 @@ pub fn get_env_from_resolution_path<'a>(
       }
     }
   
-    return None;
+    None
 }
   

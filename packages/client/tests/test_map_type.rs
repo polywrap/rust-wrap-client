@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct ArgsGetKey {
-    pub foo: CustomMap,
+    pub bar: CustomMap,
     pub key: String,
 }
 
@@ -57,14 +57,14 @@ fn map_type_test() {
     my_nested_map
         .0
         .insert(String::from("Nested"), inside_nested_map);
-    let foo = CustomMap {
+    let bar = CustomMap {
         map: my_map,
         nestedMap: my_nested_map,
     };
 
     let get_key_args = ArgsGetKey {
         key: String::from("Hello"),
-        foo,
+        bar,
     };
 
     let args = polywrap_msgpack::serialize(&get_key_args).unwrap();
