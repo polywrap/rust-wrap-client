@@ -141,6 +141,8 @@ interface FFIBuilderConfig {
   void remove_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
   void add_wrapper(FFIUri uri, FFIWrapper wrapper);
   void remove_wrapper(FFIUri uri);
+  void add_package(FFIUri uri, FFIWrapPackage package);
+  void remove_package(FFIUri uri);
   void add_redirect(FFIUri from, FFIUri to);
   void remove_redirect(FFIUri from);
   void add_resolver(FFIUriResolver resolver);

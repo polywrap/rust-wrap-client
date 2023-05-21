@@ -8,7 +8,7 @@ use crate::{
     resolvers::{
         ffi_resolver::{FFIUriResolver, ExtUriResolver},
     },
-    client::FFIClient, uri::FFIUri, wrapper::{FFIWrapper, ExtWrapper},
+    client::FFIClient, uri::FFIUri, wrapper::{FFIWrapper, ExtWrapper}, package::{FFIWrapPackage, ExtWrapPackage},
 };
 
 pub struct FFIBuilderConfig {
@@ -76,6 +76,20 @@ impl FFIBuilderConfig {
             .unwrap()
             .remove_wrapper(&uri.0);
     }
+
+    pub fn add_package(&self, uri: Arc<FFIUri>, package: Box<dyn FFIWrapPackage>) {
+      self.inner_builder.lock().unwrap().add_package(
+          uri.0.clone(),
+          Arc::new(ExtWrapPackage(package)),
+      );
+    }
+
+    pub fn remove_package(&self, uri: Arc<FFIUri>) {
+      self.inner_builder
+          .lock()
+          .unwrap()
+          .remove_package(&uri.0);
+  }
 
     pub fn add_redirect(&self, from: Arc<FFIUri>, to: Arc<FFIUri>) {
         self.inner_builder.lock().unwrap().add_redirect(
