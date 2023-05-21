@@ -49,6 +49,29 @@ fn get_subinvoked_uri() -> Uri {
     .unwrap()
 }
 
+fn get_default_env() -> Env {
+  Env {
+      str: "string".to_string(),
+      optStr: None,
+      optFilledStr: Some("optional string".to_string()),
+      number: 10,
+      optNumber: None,
+      bool: true,
+      optBool: None,
+      en: 0,
+      optEnum: None,
+      object: HashMap::from([
+          ("prop".to_string(), "object string".to_string()),
+      ]),
+      optObject: None,
+      array: vec![32, 23],
+  }
+}
+
+fn get_default_serialized_env() -> Vec<u8> {
+  polywrap_msgpack::serialize(&get_default_env()).unwrap()
+}
+
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct Env {
@@ -126,24 +149,7 @@ fn subinvoke_method_without_env_does_not_require_env() {
 fn subinvoke_method_without_env_works_with_env() {
     let subinvoker_uri = get_subinvoker_uri();
 
-    let env = Env {
-        str: "string".to_string(),
-        optStr: None,
-        optFilledStr: Some("optional string".to_string()),
-        number: 10,
-        optNumber: None,
-        bool: true,
-        optBool: None,
-        en: 0,
-        optEnum: None,
-        object: HashMap::from([
-            ("prop".to_string(), "object string".to_string()),
-        ]),
-        optObject: None,
-        array: vec![32, 23],
-    };
-
-    let client = build_client(None, Some(&polywrap_msgpack::serialize(&env).unwrap()));
+    let client = build_client(None, Some(&get_default_serialized_env()));
 
     let test_string = "test";
     let result = client
@@ -163,24 +169,7 @@ fn subinvoke_method_without_env_works_with_env() {
 fn subinvoke_method_with_required_env_works_with_env() {
     let subinvoker_uri = get_subinvoker_uri();
 
-    let env = Env {
-        str: "string".to_string(),
-        optStr: None,
-        optFilledStr: Some("optional string".to_string()),
-        number: 10,
-        optNumber: None,
-        bool: true,
-        optBool: None,
-        en: 0,
-        optEnum: None,
-        object: HashMap::from([
-            ("prop".to_string(), "object string".to_string()),
-        ]),
-        optObject: None,
-        array: vec![32, 23],
-    };
-
-    let client = build_client(None, Some(&polywrap_msgpack::serialize(&env).unwrap()));
+    let client = build_client(None, Some(&get_default_serialized_env()));
 
     let result = client
         .invoke::<Env>(
@@ -192,7 +181,7 @@ fn subinvoke_method_with_required_env_works_with_env() {
         )
         .unwrap();
 
-    assert_eq!(result, env);
+    assert_eq!(result, get_default_env());
 }
 
 #[test]
@@ -219,24 +208,7 @@ fn subinvoke_method_with_required_env_panics_without_env_registered() {
 fn subinvoke_method_with_optional_env_works_with_env() {
     let subinvoker_uri = get_subinvoker_uri();
 
-    let env = Env {
-        str: "string".to_string(),
-        optStr: None,
-        optFilledStr: Some("optional string".to_string()),
-        number: 10,
-        optNumber: None,
-        bool: true,
-        optBool: None,
-        en: 0,
-        optEnum: None,
-        object: HashMap::from([
-            ("prop".to_string(), "object string".to_string()),
-        ]),
-        optObject: None,
-        array: vec![32, 23],
-    };
-
-    let client = build_client(None, Some(&polywrap_msgpack::serialize(&env).unwrap()));
+    let client = build_client(None, Some(&get_default_serialized_env()));
 
     let result = client
         .invoke::<Env>(
@@ -248,7 +220,7 @@ fn subinvoke_method_with_optional_env_works_with_env() {
         )
         .unwrap();
 
-    assert_eq!(result, env);
+    assert_eq!(result, get_default_env());
 }
 
 #[test]
