@@ -74,12 +74,7 @@ impl ClientBuilder for BuilderConfig {
     fn add_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self {
       match self.envs.as_mut() {
           Some(envs) => {
-              // if let Some(u) = envs.get_mut(&uri.to_string()) {
-              //     merge(u, &env);
-              // } else {
-                  // TODO: do we actually want to merge here?
-                  envs.insert(uri.to_string(), env);
-              // }
+              envs.insert(uri.to_string(), env);
           }
           None => {
               let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
