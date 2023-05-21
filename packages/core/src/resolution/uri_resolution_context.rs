@@ -28,7 +28,7 @@ pub struct UriResolutionStep {
     pub sub_history: Option<Vec<UriResolutionStep>>,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct UriResolutionContext {
     resolving_uri_map: HashMap<String, bool>,
     resolution_path: Vec<String>,
