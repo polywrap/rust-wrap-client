@@ -1,7 +1,7 @@
 [package]
 name = "polywrap_client_default_config"
 description = "Default configuration for Polywrap Client"
-version = "0.1.6-beta.2"
+version = "0.1.6-beta.3"
 
 edition.workspace = true
 rust-version.workspace = true
