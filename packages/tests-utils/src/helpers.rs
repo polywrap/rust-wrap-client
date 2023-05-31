@@ -1,29 +1,25 @@
-use std::{path::{Path,PathBuf},sync::{Arc}, fmt::{Debug, Formatter}};
+use std::{
+    fmt::{Debug, Formatter},
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
-use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoker::Invoker, env::Env, package::WrapPackage};
+use polywrap_core::{
+    invoker::Invoker,
+    package::WrapPackage,
+    wrapper::{GetFileOptions, Wrapper}, env::Env,
+};
 use wrap_manifest_schemas::versions::WrapManifest;
 
-pub struct MockWrapper {
-    pub name: String
-}
-pub struct MockPackage {
-    pub name: String
-}
+#[derive(Debug)]
+pub struct MockWrapper;
+#[derive(Debug)]
+pub struct DifferentMockWrapper;
 
-impl Debug for MockWrapper {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "MockWrapper")
-    }
-}
+pub struct MockPackage;
+pub struct DifferentMockPackage;
 
-impl MockWrapper {
-    pub fn new(name: Option<String>) -> Self {
-        Self {
-            name: name.unwrap_or("MockWrapper".to_string())
-        }
-    }
-}
-
+pub struct MockInvoker;
 
 impl Debug for MockPackage {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -31,23 +27,34 @@ impl Debug for MockPackage {
     }
 }
 
-impl MockPackage {
-    pub fn new(name: Option<String>) -> Self {
-        Self {
-            name: name.unwrap_or("MockWrapper".to_string())
-        }
+impl Debug for DifferentMockPackage {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DifferentMockPackage")
     }
 }
 
 impl WrapPackage for MockPackage {
     fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
-        Ok(Arc::new(MockWrapper::new(None)))
+        Ok(Arc::new(MockWrapper {}))
     }
 
     fn get_manifest(
         &self,
-        _: Option<&polywrap_core::package::GetManifestOptions>
-    ) ->  Result<WrapManifest, polywrap_core::error::Error> {
+        _: Option<&polywrap_core::package::GetManifestOptions>,
+    ) -> Result<WrapManifest, polywrap_core::error::Error> {
+        unimplemented!()
+    }
+}
+
+impl WrapPackage for DifferentMockPackage {
+    fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
+        Ok(Arc::new(DifferentMockWrapper {}))
+    }
+
+    fn get_manifest(
+        &self,
+        _: Option<&polywrap_core::package::GetManifestOptions>,
+    ) -> Result<WrapManifest, polywrap_core::error::Error> {
         unimplemented!()
     }
 }
@@ -60,27 +67,85 @@ impl Wrapper for MockWrapper {
         _: Option<&Env>,
         _: Arc<dyn Invoker>,
         _: Option<Box<dyn Fn(String) + Send + Sync>>,
-    ) ->  Result<Vec<u8>, polywrap_core::error::Error> {
-        Ok(vec![2])
-    }
-
-    fn get_file(
-        &self,
-        _: &GetFileOptions
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         Ok(vec![2])
     }
+
+    fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
+        Ok(vec![2])
+    }
 }
 
-pub fn get_mock_package(name: Option<String>) -> Arc<dyn WrapPackage> {
-    Arc::new(MockPackage::new(name))
+impl Wrapper for DifferentMockWrapper {
+    fn invoke(
+        &self,
+        _: &str,
+        _: Option<&[u8]>,
+        _: Option<&Env>,
+        _: Arc<dyn Invoker>,
+        _: Option<Box<dyn Fn(String) + Send + Sync>>,
+    ) -> Result<Vec<u8>, polywrap_core::error::Error> {
+        Ok(vec![1])
+    }
+
+    fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, polywrap_core::error::Error> {
+        Ok(vec![1])
+    }
 }
 
-pub fn get_mock_wrapper(name: Option<String>) -> Arc<dyn Wrapper> {
-    Arc::new(MockWrapper::new(name))
+impl Invoker for MockInvoker {
+    fn invoke_raw(
+        &self,
+        _: &polywrap_core::uri::Uri,
+        _: &str,
+        _: Option<&[u8]>,
+        _: Option<&Env>,
+        _: Option<&mut polywrap_core::resolution::uri_resolution_context::UriResolutionContext>,
+    ) -> Result<Vec<u8>, polywrap_core::error::Error> {
+        Ok(vec![3])
+    }
+
+    fn get_implementations(
+        &self,
+        _: &polywrap_core::uri::Uri,
+    ) -> Result<Vec<polywrap_core::uri::Uri>, polywrap_core::error::Error> {
+        Ok(vec![])
+    }
+
+    fn get_interfaces(
+        &self,
+    ) -> Option<polywrap_core::interface_implementation::InterfaceImplementations> {
+        None
+    }
+
+    fn get_env_by_uri(&self, _: &polywrap_core::uri::Uri) -> Option<&Env> {
+        None
+    }
+}
+
+pub fn get_mock_package() -> Arc<dyn WrapPackage> {
+    Arc::new(MockPackage {})
+}
+
+pub fn get_different_mock_package() -> Arc<dyn WrapPackage> {
+    Arc::new(DifferentMockPackage {})
+}
+
+pub fn get_mock_wrapper() -> Arc<dyn Wrapper> {
+    Arc::new(MockWrapper {})
+}
+
+pub fn get_mock_invoker() -> Arc<dyn Invoker> {
+    Arc::new(MockInvoker {})
+}
+
+pub fn get_different_mock_wrapper() -> Arc<dyn Wrapper> {
+    Arc::new(DifferentMockWrapper {})
 }
 
 pub fn get_tests_path() -> Result<PathBuf, ()> {
-    let path = Path::new("../../packages/tests-utils/cases").canonicalize().unwrap();
+    let path = Path::new("../../packages/tests-utils/cases")
+        .canonicalize()
+        .unwrap();
     Ok(path)
 }

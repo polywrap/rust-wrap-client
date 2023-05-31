@@ -1,7 +1,3 @@
-#![feature(trait_upcasting)]
-use std::any::TypeId;
-use std::collections::HashMap;
-use std::sync::Arc;
 
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::resolvers::uri_resolver_wrapper::UriResolverWrapper;
