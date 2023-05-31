@@ -117,8 +117,20 @@ impl FFIClient {
         }
     }
 
-    pub fn load_wrapper(&self, uri: Arc<FFIUri>) -> Result<Box<dyn FFIWrapper>, Error> {
-        let wrapper = self.inner_client.load_wrapper(&uri.0, None)?;
+    pub fn load_wrapper(
+        &self,
+        uri: Arc<FFIUri>,
+        resolution_context: Option<Arc<FFIUriResolutionContext>>,
+    ) -> Result<Box<dyn FFIWrapper>, Error> {
+        let wrapper = if let Some(resolution_context) = resolution_context {
+            let mut res_context_guard = resolution_context.0.lock().unwrap();
+
+            self.inner_client
+                .load_wrapper(&uri.0, Some(&mut res_context_guard))?
+        } else {
+            self.inner_client.load_wrapper(&uri.0, None)?
+        };
+
         Ok(Box::new(wrapper))
     }
 }

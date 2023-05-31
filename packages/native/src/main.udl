@@ -22,7 +22,7 @@ interface FFIUri {
   [Name=from_string]
   constructor([ByRef] string uri);
 
-  string to_string();
+  string to_string_uri();
 };
 
 interface FFIInvoker {
@@ -129,14 +129,13 @@ interface FFIClient {
   sequence<u8> invoke_wrapper_raw(FFIWrapper wrapper, FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
 
   [Throws=FFIError]
-  FFIWrapper load_wrapper(FFIUri uri);
+  FFIWrapper load_wrapper(FFIUri uri, FFIUriResolutionContext? resolution_context);
 };
 
 interface FFIBuilderConfig {
   constructor();
   void add_env(FFIUri uri, sequence<u8> env);
   void remove_env(FFIUri uri);
-  void set_env(FFIUri uri, sequence<u8> env);
   void add_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
   void remove_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
   void add_wrapper(FFIUri uri, FFIWrapper wrapper);
