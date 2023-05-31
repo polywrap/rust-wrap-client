@@ -31,4 +31,4 @@ jobs:
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
         with:
-          files: lcov.info
+          files: cov.info
