@@ -36,13 +36,6 @@ impl FFIBuilderConfig {
             .remove_env(&uri.0);
     }
 
-    pub fn set_env(&self, uri: Arc<FFIUri>, env: Vec<u8>) {
-        self.inner_builder.lock().unwrap().set_env(
-            uri.0.clone(),
-            env,
-        );
-    }
-
     pub fn add_interface_implementation(&self, interface_uri: Arc<FFIUri>, implementation_uri: Arc<FFIUri>) {
         self.inner_builder
             .lock()
