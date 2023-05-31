@@ -102,17 +102,6 @@ impl ClientBuilder for BuilderConfig {
         self
     }
 
-    fn set_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self {
-        if let Some(envs) = self.envs.as_mut() {
-            envs.insert(uri.to_string(), env);
-        } else {
-            let mut new_env: HashMap<String, Vec<u8>> = HashMap::new();
-            new_env.insert(uri.to_string(), env);
-            self.envs = Some(new_env);
-        }
-        self
-    }
-
     fn add_interface_implementation(
         &mut self,
         interface_uri: Uri,

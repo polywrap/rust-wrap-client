@@ -21,7 +21,6 @@ pub trait ClientBuilder {
     fn add_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self;
     fn add_envs(&mut self, env: HashMap<String, Vec<u8>>) -> &mut Self;
     fn remove_env(&mut self, uri: &Uri) -> &mut Self;
-    fn set_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self;
     fn add_interface_implementation(
         &mut self, 
         interface_uri: Uri,
