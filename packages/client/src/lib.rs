@@ -1,4 +1,3 @@
-#![feature(trait_upcasting)]
 pub mod client;
 pub mod subinvoker;
 pub mod build_abort_handler;

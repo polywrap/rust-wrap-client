@@ -10,14 +10,11 @@ members = [
     "packages/client",
     "packages/core",
     "packages/wasm",
-    "packages/native",
     "packages/resolvers",
     "packages/msgpack",
     "packages/manifest",
     "packages/builder",
-    "packages/plugin",
-    "packages/tests-utils",
-    "packages/default-config"
+    "packages/plugin"
 ]
 
 # Do not include test utils & default config crates in default members
