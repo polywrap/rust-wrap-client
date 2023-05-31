@@ -1,45 +1,38 @@
 use core::fmt;
 use std::sync::Arc;
 
-use crate::{
+use polywrap_core::{
     error::Error,
-    loader::Loader,
-    resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    resolvers::uri_resolver::UriResolver,
-    uri::Uri,
+    resolution::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+    resolution::uri_resolver::UriResolver,
+    uri::Uri, invoker::Invoker,
 };
 
-use super::{uri_resolver_like::UriResolverLike, uri_resolver_aggregator::UriResolverAggregator};
+use crate::uri_resolver_aggregator::UriResolverAggregator;
 
 pub struct RecursiveResolver {
     resolver: Arc<dyn UriResolver>,
 }
 
-impl From<Vec<UriResolverLike>> for RecursiveResolver {
-    fn from(resolver_likes: Vec<UriResolverLike>) -> Self {
-        let resolvers = resolver_likes
-            .into_iter()
-            .map(|resolver_like| {
-                let resolver: Arc<dyn UriResolver> = resolver_like.into();
-
-                resolver
-            })
-            .collect();
-
-        RecursiveResolver::new(
-            Arc::new(
-                UriResolverAggregator::new(
-                    resolvers
-                )
-            )
+impl From<Vec<Box<dyn UriResolver>>> for RecursiveResolver {
+    fn from(resolvers: Vec<Box<dyn UriResolver>>) -> Self {
+        RecursiveResolver::from(
+            UriResolverAggregator::from(resolvers)
         )
     }
 }
 
-impl From<UriResolverLike> for RecursiveResolver {
-    fn from(resolver_like: UriResolverLike) -> Self {
-        let resolver: Arc<dyn UriResolver> = resolver_like.into();
-        RecursiveResolver::new(resolver)
+impl From<UriResolverAggregator> for RecursiveResolver {
+    fn from(resolver: UriResolverAggregator) -> Self {
+        RecursiveResolver::new(
+            Arc::new(resolver)
+        )
+    }
+}
+
+impl From<Box<dyn UriResolver>> for RecursiveResolver {
+    fn from(resolver: Box<dyn UriResolver>) -> Self {
+        RecursiveResolver::new(Arc::from(resolver))
     }
 }
 
@@ -52,14 +45,14 @@ impl RecursiveResolver {
         &self,
         result: Result<UriPackageOrWrapper, Error>,
         uri: &Uri,
-        loader: Arc<dyn Loader>,
+        invoker: Arc<dyn Invoker>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if let Ok(value) = &result {
             match value {
                 UriPackageOrWrapper::Uri(result_uri) => {
                     if result_uri.clone().to_string() != uri.to_string() {
-                        self.try_resolve_uri(result_uri, loader, resolution_context)
+                        self.try_resolve_uri(result_uri, invoker, resolution_context)
                     } else {
                         result
                     }
@@ -76,7 +69,7 @@ impl UriResolver for RecursiveResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        loader: Arc<dyn Loader>,
+        invoker: Arc<dyn Invoker>,
         resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if resolution_context.is_resolving(uri) {
@@ -86,10 +79,10 @@ impl UriResolver for RecursiveResolver {
             resolution_context.start_resolving(uri);
             let resolver_result = self
                 .resolver
-                .try_resolve_uri(uri, loader.clone(), resolution_context);
+                .try_resolve_uri(uri, invoker.clone(), resolution_context);
 
             let result = self
-                .try_resolve_again_if_redirect(resolver_result, uri, loader, resolution_context);
+                .try_resolve_again_if_redirect(resolver_result, uri, invoker, resolution_context);
 
             resolution_context.stop_resolving(uri);
 

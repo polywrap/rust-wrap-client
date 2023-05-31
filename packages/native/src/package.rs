@@ -1,11 +1,11 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 use polywrap_client::core::{package::WrapPackage};
 
-pub struct FFIWrapPackage(pub Arc<Mutex<Box<dyn WrapPackage>>>);
+pub struct FFIWrapPackage(pub Arc<dyn WrapPackage>);
 
 impl FFIWrapPackage {
-  pub fn new(package: Arc<Mutex<Box<dyn WrapPackage>>>) -> FFIWrapPackage {
+  pub fn new(package: Arc<dyn WrapPackage>) -> FFIWrapPackage {
     FFIWrapPackage(package)
   }
 }

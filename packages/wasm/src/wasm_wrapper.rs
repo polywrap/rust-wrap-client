@@ -1,18 +1,14 @@
 use crate::error::WrapperError;
 use crate::runtime::instance::{State,WasmInstance};
-
-
 use polywrap_core::env::Env;
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
-use polywrap_core::invoke::Invoker;
-use polywrap_core::resolvers::uri_resolution_context::UriResolutionContext;
-use polywrap_core::uri::Uri;
+use polywrap_core::invoker::Invoker;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
 use wasmer::Value;
-use polywrap_msgpack::decode;
+use polywrap_msgpack::{decode, msgpack};
 use serde::de::DeserializeOwned;
 use std::fmt::Formatter;
 use std::sync::Mutex;
@@ -40,16 +36,15 @@ impl WasmWrapper {
     }
 
     pub fn invoke_and_decode<T: DeserializeOwned>(
-        &mut self,
-        invoker: Arc<dyn Invoker>,
-        uri: &Uri,
+        &self,
         method: &str,
         args: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
-        env: Option<Env>,
+        env: Option<&Env>,
+        invoker: Arc<dyn Invoker>,
+        abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<T, Error> {
         let result = self
-            .invoke(invoker, uri, method, args, env, resolution_context)?;
+            .invoke(method, args, env, invoker, abort_handler)?;
 
         let result = decode(result.as_slice())?;
 
@@ -75,17 +70,16 @@ impl Debug for WasmWrapper {
 
 impl Wrapper for WasmWrapper {
     fn invoke(
-        &mut self,
-        invoker: Arc<dyn Invoker>,
-        uri: &Uri,
+        &self,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<Env>,
-        _: Option<&mut UriResolutionContext>,
+        env: Option<&Env>,
+        invoker: Arc<dyn Invoker>,
+        abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),
-            None => vec![],
+            None => msgpack!({}),
         };
 
         let env = match env {
@@ -99,26 +93,22 @@ impl Wrapper for WasmWrapper {
             Value::I32(env.len().try_into().unwrap()),
         ];
 
-        let abort_uri = uri.clone();
         let abort_method = method.to_string();
-        let abort_args = args.clone();
-        let abort_env = env.clone();
+        let abort_handler = Arc::new(abort_handler);
 
-        let abort = Box::new(move |msg| {
-            panic!(
-                r#"WasmWrapper: Wasm module aborted execution.
-              URI: {uri}
-              Method: {method}
-              Args: {args:?}
-              Env: {env:?}
-              Message: {message}.
-            "#,
-                uri = abort_uri,
-                method = abort_method,
-                args = abort_args,
-                env = abort_env,
-                message = msg
-            );
+        let abort = Box::new(move |error_message: String| {
+            if let Some(abort_handler) = abort_handler.as_ref() {
+                // Use the abort handler if provided
+                abort_handler(error_message);
+            } else {
+                // Otherwise, panic since this is an unrecoverable error
+                panic!(
+                    r#"WasmWrapper: Wasm module aborted execution.
+                  Method: {abort_method}
+                  Message: {error_message}.
+                "#
+                );
+            }
         });
 
         let state = Arc::new(Mutex::new(State::new(invoker, abort.clone(), method, args, env)));
@@ -131,18 +121,22 @@ impl Wrapper for WasmWrapper {
         let state = state.lock().unwrap();
         if result {
             if state.invoke.result.is_none() {
-                abort("Invoke result is missing".to_string());
+                return Err(Error::RuntimeError(
+                    "Invoke result is missing".to_string(),
+                ));
             }
 
             Ok(state.invoke.result.as_ref().unwrap().to_vec())
         } else {
             if state.invoke.error.is_none() {
-                abort("Invoke error is missing".to_string());
+                Err(Error::RuntimeError(
+                    "Invoke error is missing".to_string(),
+                ))
+            } else {
+                Err(Error::WrapperError(
+                    state.invoke.error.as_ref().unwrap().to_string(),
+                ))
             }
-
-            Err(Error::WrapperError(
-                state.invoke.error.as_ref().unwrap().to_string(),
-            ))
         }
     }
 

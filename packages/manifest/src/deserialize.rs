@@ -44,8 +44,7 @@ pub fn deserialize_wrap_manifest(
         }
     } else {
         Err(super::error::Error::DeserializeError(format!(
-            "Unsupported manifest version: {}. Latest supported version is {}",
-            any_manifest_ver, latest_manifest_ver
+            "Unsupported manifest version: {any_manifest_ver}. Latest supported version is {latest_manifest_ver}"
         )))
     }
 }

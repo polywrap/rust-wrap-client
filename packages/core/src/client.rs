@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
-use crate::invoke::Invoker;
-use crate::loader::Loader;
 use crate::uri::Uri;
 use crate::interface_implementation::InterfaceImplementations;
-use crate::resolvers::uri_resolver::{UriResolverHandler, UriResolver};
-use crate::env::{Envs};
+use crate::resolution::uri_resolver::UriResolver;
+use crate::env::Envs;
+use crate::invoker::Invoker;
+use crate::uri_resolver_handler::UriResolverHandler;
+use crate::wrap_invoker::WrapInvoker;
+use crate::wrap_loader::WrapLoader;
 
 #[derive(Clone,Debug)]
 pub struct UriRedirect {
@@ -26,6 +28,4 @@ pub struct ClientConfig {
   pub interfaces: Option<InterfaceImplementations>
 }
 
-pub trait Client: Invoker + UriResolverHandler + Loader {
-  fn get_config(&self) -> &ClientConfig;
-}
+pub trait Client: Invoker + WrapLoader + WrapInvoker + UriResolverHandler {}

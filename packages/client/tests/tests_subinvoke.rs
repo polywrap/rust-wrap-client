@@ -3,13 +3,13 @@ use std::sync::Arc;
 
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_core::resolvers::static_resolver::StaticResolver;
-use polywrap_core::resolvers::uri_resolution_context::UriPackageOrWrapper;
+use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
+use polywrap_msgpack::msgpack;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
+use polywrap_resolvers::static_resolver::StaticResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
 
 #[test]
@@ -18,13 +18,11 @@ fn subinvoke_test() {
     let path = test_path.into_os_string().into_string().unwrap();
 
     let invoke_uri = Uri::try_from(format!(
-        "fs/{}/subinvoke/01-invoke/implementations/rs",
-        path
+        "fs/{path}/subinvoke/01-invoke/implementations/rs"
     ))
     .unwrap();
     let subinvoke_uri = Uri::try_from(format!(
-        "fs/{}/subinvoke/00-subinvoke/implementations/rs",
-        path
+        "fs/{path}/subinvoke/00-subinvoke/implementations/rs"
     ))
     .unwrap();
 

@@ -3,22 +3,8 @@ use polywrap_msgpack::error::MsgpackError;
 
 #[derive(thiserror::Error, Debug)]
 pub enum PluginError {
-  #[error("`{0}`")]
-  ModuleError(String),
-
-  #[error("PluginWrapper: invocation exception encountered.\nuri: {uri:?}\nmethod: {method:?}\nargs: {args:?}\nexception: {exception:?}")]
+  #[error("PluginWrapper: invocation exception encountered.\nexception: {exception:?}")]
   InvocationError {
-    uri: String,
-    method: String,
-    args: String,
-    exception: String
-  },
-
-  #[error("Subinvocation exception encountered.\nuri: {uri:?}\nmethod: {method:?}\nargs: {args:?}\nexception: {exception:?}")]
-  SubinvocationError {
-    uri: String,
-    method: String,
-    args: String,
     exception: String
   },
 

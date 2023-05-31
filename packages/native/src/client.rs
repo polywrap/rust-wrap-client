@@ -1,24 +1,20 @@
-use std::{sync::Arc, collections::HashMap};
+use std::{collections::HashMap, sync::Arc};
 
 use polywrap_client::{
-    client::PolywrapClient,
-    core::{invoke::Invoker, loader::Loader, uri::Uri},
+    core::{client::Client, error::Error, uri::Uri},
 };
+use serde_json::Value;
 
-use crate::{loader::FFILoader, invoker::FFIInvoker, wrapper::FFIWrapper};
+use crate::{wrapper::FFIWrapper};
 
 pub struct FFIClient {
-    inner_invoker: FFIInvoker,
-    inner_loader: FFILoader
+    inner_client: Arc<dyn Client>,
 }
 
 impl FFIClient {
-    pub fn new(client: PolywrapClient) -> FFIClient {
-        let client = Arc::new(client);
-
+    pub fn new(client: Arc<dyn Client>) -> FFIClient {
         Self {
-          inner_invoker: FFIInvoker { inner_invoker: client.clone() as Arc<dyn Invoker> },
-          inner_loader: FFILoader::new(client as Arc<dyn Loader>)
+            inner_client: client
         }
     }
 
@@ -29,30 +25,79 @@ impl FFIClient {
         args: Option<Vec<u8>>,
         env: Option<String>,
     ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
-        self.inner_invoker.invoke_raw(uri, method, args, env)
+        let args = args.as_deref();
+
+        let mut _decoded_env = serde_json::Value::Null;
+        let env = env.map(|env| {
+            _decoded_env = serde_json::from_str::<Value>(&env).unwrap();
+            &_decoded_env
+        });
+
+        self.inner_client.invoke_raw(
+            &uri.to_string().try_into().unwrap(),
+            method,
+            args,
+            env,
+            None,
+        )
     }
 
-    pub fn get_implementations(&self, uri: Arc<Uri>) -> Result<Vec<Arc<Uri>>, polywrap_client::core::error::Error> {
-        self.inner_invoker.get_implementations(uri)
+    pub fn get_implementations(
+        &self,
+        uri: Arc<Uri>,
+    ) -> Result<Vec<Arc<Uri>>, polywrap_client::core::error::Error> {
+        Ok(self
+            .inner_client
+            .get_implementations(uri.as_ref())?
+            .into_iter()
+            .map(|uri| uri.into())
+            .collect())
     }
 
     pub fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<Uri>>>> {
-      self.inner_invoker.get_interfaces()
+        if let Some(interfaces) = self.inner_client.get_interfaces() {
+            let interfaces = interfaces
+                .into_iter()
+                .map(|(key, uris)| {
+                    let uris = uris.into_iter().map(|uri| uri.into()).collect();
+                    (key, uris)
+                })
+                .collect();
+
+            Some(interfaces)
+        } else {
+            None
+        }
     }
 
-    pub fn get_env_by_uri(
+    pub fn get_env_by_uri(&self, uri: Arc<Uri>) -> Option<String> {
+        match self.inner_client.get_env_by_uri(&uri) {
+            Some(env) => Some(env.to_string()),
+            None => None,
+        }
+    }
+
+    pub fn invoke_wrapper_raw(
         &self,
+        wrapper: Arc<FFIWrapper>,
         uri: Arc<Uri>,
-    ) -> Option<String> {
-        self.inner_loader.get_env_by_uri(uri)
+        method: &str,
+        args: Option<Vec<u8>>,
+        env: Option<String>,
+    ) -> Result<Vec<u8>, Error> {
+        let args = args.as_deref();
+
+        let mut _decoded_env = serde_json::Value::Null;
+        let env = env.map(|env| {
+            _decoded_env = serde_json::from_str::<Value>(&env).unwrap();
+            &_decoded_env
+        });
+
+        self.inner_client.invoke_wrapper_raw(&*wrapper.0.clone(), uri.as_ref(), method, args, env, None)
     }
 
-    pub fn load_wrapper(
-      &self,
-      uri: Arc<Uri>
-    ) -> Result<Arc<FFIWrapper>, polywrap_client::core::error::Error> {
-      let loader = self.inner_loader.load_wrapper(uri)?;
-
-      Ok(loader)
+    pub fn load_wrapper(&self, uri: Arc<Uri>) -> Result<Arc<FFIWrapper>, Error> {
+        let wrapper = self.inner_client.load_wrapper(uri.as_ref(), None)?;
+        Ok(Arc::new(FFIWrapper::new(wrapper)))
     }
 }

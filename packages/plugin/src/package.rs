@@ -43,12 +43,12 @@ impl Debug for PluginPackage {
 impl WrapPackage for PluginPackage {
     fn get_manifest(
         &self,
-        _: Option<GetManifestOptions>,
+        _: Option<&GetManifestOptions>,
     ) -> Result<WrapManifest, Error> {
         Ok(self.manifest.clone())
     }
 
-    fn create_wrapper(&self) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, Error> {
-        Ok(Arc::new(Mutex::new(Box::new(PluginWrapper::new(self.plugin_module.clone())))))
+    fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error> {
+        Ok(Arc::new(PluginWrapper::new(self.plugin_module.clone())))
     }
 }

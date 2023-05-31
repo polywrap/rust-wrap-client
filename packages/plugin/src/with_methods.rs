@@ -1,5 +1,5 @@
 use std::{collections::HashMap, sync::Arc, fmt::{Debug, Formatter}};
-use polywrap_core::env::Env;
+use polywrap_core::{env::Env, invoker::Invoker};
 
 use crate::{method::PluginMethod, module::{PluginModule}, error::PluginError};
 
@@ -32,11 +32,11 @@ impl PluginModule for PluginModuleWithMethods {
         &mut self,
         method_name: &str,
         params: &[u8],
-        env: Option<Env>,
-        invoker: std::sync::Arc<dyn polywrap_core::invoke::Invoker>,
+        env: Option<&Env>,
+        invoker: Arc<dyn Invoker>,
     ) -> Result<Vec<u8>, PluginError> {
         if let Some(method) = self.methods_map.get(method_name) {
-          (method)(params, env, invoker)
+          (method)(params, env, invoker.as_ref())
         } else {
           Err(PluginError::MethodNotFoundError(method_name.to_string()))
         }

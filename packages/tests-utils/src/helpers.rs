@@ -1,6 +1,6 @@
-use std::{path::{Path,PathBuf},sync::{Arc, Mutex}, fmt::{Debug, Formatter}};
+use std::{path::{Path,PathBuf},sync::{Arc}, fmt::{Debug, Formatter}};
 
-use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoke::Invoker, uri::Uri, env::Env, resolvers::uri_resolution_context::UriResolutionContext, package::WrapPackage};
+use polywrap_core::{wrapper::{Wrapper, GetFileOptions},  invoker::Invoker, env::Env, package::WrapPackage};
 use wrap_manifest_schemas::versions::WrapManifest;
 
 pub struct MockWrapper {
@@ -40,13 +40,13 @@ impl MockPackage {
 }
 
 impl WrapPackage for MockPackage {
-    fn create_wrapper(&self) -> Result<Arc<Mutex<Box<dyn Wrapper>>>, polywrap_core::error::Error> {
-        Ok(Arc::new(Mutex::new(Box::new(MockWrapper::new(None)))))
+    fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
+        Ok(Arc::new(MockWrapper::new(None)))
     }
 
     fn get_manifest(
-        &self, 
-        _: Option<polywrap_core::package::GetManifestOptions>
+        &self,
+        _: Option<&polywrap_core::package::GetManifestOptions>
     ) ->  Result<WrapManifest, polywrap_core::error::Error> {
         unimplemented!()
     }
@@ -54,13 +54,12 @@ impl WrapPackage for MockPackage {
 
 impl Wrapper for MockWrapper {
     fn invoke(
-        &mut self,
-        _: Arc<dyn Invoker>,
-        _: &Uri,
+        &self,
         _: &str,
         _: Option< &[u8]>,
-        _: Option<Env>,
-        _: Option<&mut UriResolutionContext>
+        _: Option<&Env>,
+        _: Arc<dyn Invoker>,
+        _: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) ->  Result<Vec<u8>, polywrap_core::error::Error> {
         Ok(vec![2])
     }
@@ -73,12 +72,12 @@ impl Wrapper for MockWrapper {
     }
 }
 
-pub fn get_mock_package(name: Option<String>) -> Arc<Mutex<Box<dyn WrapPackage>>> {
-    Arc::new(Mutex::new(Box::new(MockPackage::new(name))))
+pub fn get_mock_package(name: Option<String>) -> Arc<dyn WrapPackage> {
+    Arc::new(MockPackage::new(name))
 }
 
-pub fn get_mock_wrapper(name: Option<String>) -> Arc<Mutex<Box<dyn Wrapper>>> {
-    Arc::new(Mutex::new(Box::new(MockWrapper::new(name))))
+pub fn get_mock_wrapper(name: Option<String>) -> Arc<dyn Wrapper> {
+    Arc::new(MockWrapper::new(name))
 }
 
 pub fn get_tests_path() -> Result<PathBuf, ()> {

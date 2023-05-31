@@ -1,13 +1,13 @@
 use crate::{package::WrapPackage, wrapper::Wrapper, error::Error};
-use std::{collections::HashMap, sync::Arc, sync::Mutex, vec};
+use std::{collections::HashMap, sync::Arc, vec};
 
-use crate::{uri::Uri};
+use crate::uri::Uri;
 
 #[derive(Clone)]
 pub enum UriPackageOrWrapper {
   Uri(Uri),
-  Wrapper(Uri, Arc<Mutex<Box<dyn Wrapper>>>),
-  Package(Uri, Arc<Mutex<Box<dyn WrapPackage>>>),
+  Wrapper(Uri, Arc<dyn Wrapper>),
+  Package(Uri, Arc<dyn WrapPackage>),
 }
 
 impl UriPackageOrWrapper {
@@ -95,7 +95,7 @@ impl UriResolutionContext {
         UriResolutionContext {
             resolving_uri_map: self.resolving_uri_map.clone(),
             resolution_path: vec![],
-            history: self.history.clone()
+            history: vec![]
         }
     }
 }

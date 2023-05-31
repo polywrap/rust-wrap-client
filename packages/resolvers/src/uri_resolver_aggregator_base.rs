@@ -1,8 +1,10 @@
 use std::sync::Arc;
 
-use crate::{loader::Loader, uri::Uri};
+use polywrap_core::error::Error;
 
-use super::{
+use polywrap_core::{uri::Uri, invoker::Invoker};
+
+use polywrap_core::resolution::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep},
     uri_resolver::UriResolver,
 };
@@ -12,25 +14,25 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
     fn get_uri_resolvers(
         &self,
         uri: &Uri,
-        loader: Arc<dyn Loader>,
+        client: &dyn Invoker,
         resolution_context: &mut UriResolutionContext,
-    ) -> Result<Vec<Arc<dyn UriResolver>>, crate::error::Error>;
+    ) -> Result<Vec<Arc<dyn UriResolver>>, Error>;
     fn get_step_description(
         &self,
         uri: &Uri,
-        result: &Result<UriPackageOrWrapper, crate::error::Error>,
+        result: &Result<UriPackageOrWrapper, Error>,
     ) -> String;
     fn try_resolve_uri_with_resolvers(
         &self,
         uri: &Uri,
-        loader: Arc<dyn Loader>,
+        invoker: Arc<dyn Invoker>,
         resolvers: Vec<Arc<dyn UriResolver>>,
         resolution_context: &mut UriResolutionContext,
-    ) -> Result<UriPackageOrWrapper, crate::error::Error> {
+    ) -> Result<UriPackageOrWrapper, Error> {
         let sub_context = resolution_context.create_sub_history_context();
         for resolver in resolvers.into_iter() {
             let result = resolver
-                .try_resolve_uri(uri, loader.clone(), resolution_context);
+                .try_resolve_uri(uri, invoker.clone(), resolution_context);
             let track_and_return = if let Ok(UriPackageOrWrapper::Uri(result_uri)) = &result {
                 uri.to_string() != result_uri.to_string()
             } else {

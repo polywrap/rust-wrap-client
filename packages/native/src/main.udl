@@ -36,13 +36,6 @@ interface FFIWrapper {
 
 interface FFIWrapPackage { };
 
-interface FFILoader {
-  string? get_env_by_uri(Uri uri);
-  
-  [Throws=Error]
-  FFIWrapper load_wrapper(Uri uri);
-};
-
 interface FFIWasmWrapper {
   constructor(sequence<u8> wasm_module);
 };
@@ -51,12 +44,8 @@ callback interface FFIPluginModule {
   sequence<u8> wrap_invoke(string method_name, sequence<u8> params, string? env, FFIInvoker invoker);
 };
 
-interface FFIPluginWrapper {
-  constructor(FFIPluginModule plugin_module);
-};
-
 callback interface FFIUriResolver {
-  FFIUriPackageOrWrapper wrap_try_resolve_uri(Uri uri, FFILoader loader);
+  FFIUriPackageOrWrapper wrap_try_resolve_uri(Uri uri, FFIInvoker invoker);
 };
 
 interface FFIUriPackageOrWrapperUriVariant {
@@ -164,7 +153,10 @@ interface FFIClient {
   record<DOMString, sequence<Uri>>? get_interfaces();
 
   string? get_env_by_uri(Uri uri);
-  
+
+  [Throws=Error]
+  sequence<u8> invoke_wrapper_raw(FFIWrapper wrapper, Uri uri, [ByRef] string method, sequence<u8>? args, string? env);
+
   [Throws=Error]
   FFIWrapper load_wrapper(Uri uri);
 };
@@ -177,7 +169,7 @@ interface FFIBuilderConfig {
   void add_interface_implementation(Uri interface_uri, Uri implementation_uri);
   void remove_interface_implementation(Uri interface_uri, Uri implementation_uri);
   void add_wasm_wrapper(Uri uri, FFIWasmWrapper wrapper);
-  void add_plugin_wrapper(Uri uri, FFIPluginWrapper wrapper);
+  void add_plugin_wrapper(Uri uri, FFIPluginModule plugin_module);
   void remove_wrapper(Uri uri);
   void add_redirect(Uri from, Uri to);
   void remove_redirect(Uri from);

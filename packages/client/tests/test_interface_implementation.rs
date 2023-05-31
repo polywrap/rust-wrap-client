@@ -4,9 +4,9 @@ use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_core::resolvers::static_resolver::StaticResolver;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
+use polywrap_resolvers::static_resolver::StaticResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -23,13 +23,11 @@ fn test_interface_implementation() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let implementation_uri = Uri::try_from(format!(
-        "fs/{}/interface-invoke/01-implementation/implementations/as",
-        path
+        "fs/{path}/interface-invoke/01-implementation/implementations/as"
     ))
     .unwrap();
     let wrapper_uri = Uri::try_from(format!(
-        "fs/{}/interface-invoke/02-wrapper/implementations/as",
-        path
+        "fs/{path}/interface-invoke/02-wrapper/implementations/as"
     ))
     .unwrap();
 

@@ -1,14 +1,14 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 use polywrap_client::core::{wrapper::Wrapper, error::Error, uri::Uri};
 use serde_json::Value;
 
-use crate::invoker::FFIInvoker;
+use crate::{invoker::FFIInvoker};
 
-pub struct FFIWrapper(pub Arc<Mutex<Box<dyn Wrapper>>>);
+pub struct FFIWrapper(pub Arc<dyn Wrapper>);
 
 impl FFIWrapper {
-  pub fn new(wrapper: Arc<Mutex<Box<dyn Wrapper>>>) -> FFIWrapper {
+  pub fn new(wrapper: Arc<dyn Wrapper>) -> FFIWrapper {
     FFIWrapper(wrapper)
   }
 
@@ -22,8 +22,12 @@ impl FFIWrapper {
   ) -> Result<Vec<u8>, Error> {
     let args = args.as_deref();
 
-    let env = env.map(|env| serde_json::from_str::<Value>(&env).unwrap());
+    let mut _decoded_env = serde_json::Value::Null;
+    let env = env.map(|env| {
+      _decoded_env = serde_json::from_str::<Value>(&env).unwrap();
+      &_decoded_env
+    });
 
-    self.0.lock().unwrap().invoke(invoker.inner_invoker.clone(), uri.as_ref(), method, args, env, None)
+    self.0.invoke(invoker.clone(), uri.as_ref(), method, args, env, None)
   }
 }

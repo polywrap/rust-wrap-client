@@ -6,19 +6,15 @@ use std::sync::Arc;
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::resolvers::uri_resolver_wrapper::UriResolverWrapper;
 
-use polywrap_client::core::{
-    resolvers::{
-        resolver_with_history::ResolverWithHistory,
-        uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    },
-    uri::Uri,
-};
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::interface_implementation::InterfaceImplementations;
-use polywrap_core::resolvers::static_resolver::StaticResolver;
+use polywrap_core::resolution::uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper};
+use polywrap_core::resolution::uri_resolver::UriResolver;
+use polywrap_core::uri::Uri;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
+use polywrap_resolvers::static_resolver::StaticResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_wasm::wasm_wrapper::WasmWrapper;
 
@@ -26,8 +22,8 @@ use polywrap_wasm::wasm_wrapper::WasmWrapper;
 fn test_uri_resolver_wrapper() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let wrapper_path = format!("{}/subinvoke/00-subinvoke/implementations/as", path);
-    let wrapper_uri = Uri::try_from(format!("fs/{}", wrapper_path)).unwrap();
+    let wrapper_path = format!("{path}/subinvoke/00-subinvoke/implementations/as");
+    let wrapper_uri = Uri::try_from(format!("fs/{wrapper_path}")).unwrap();
 
     let file_reader = SimpleFileReader::new();
     let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
@@ -51,15 +47,14 @@ fn test_uri_resolver_wrapper() {
         UriResolverWrapper::new(Uri::try_from("wrap://ens/fs-resolver.polywrap.eth").unwrap());
     let client = PolywrapClient::new(config);
     let result =
-        uri_resolver_wrapper._try_resolve_uri(&wrapper_uri, Arc::new(client), &mut uri_resolution_context);
+        uri_resolver_wrapper.try_resolve_uri(&wrapper_uri, Arc::new(client), &mut uri_resolution_context);
 
     if result.is_err() {
         panic!("Error in try resolver uri: {:?}", result.err());
     }
 
     let result = result.unwrap();
-    if let UriPackageOrWrapper::Wrapper(_, w) = result {
-        let wrapper = w.lock().unwrap();
+    if let UriPackageOrWrapper::Wrapper(_, wrapper) = result {
         let wrapper = &*wrapper as &dyn std::any::Any;
         assert_eq!(wrapper.type_id(), TypeId::of::<WasmWrapper>());
     } else {
