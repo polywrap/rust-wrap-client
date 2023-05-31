@@ -16,9 +16,6 @@ jobs:
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
 
       - name: Install grcov
         run: cargo install grcov
