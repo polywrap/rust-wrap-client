@@ -1,13 +1,12 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_client_builder::types::{BuilderConfig, ClientBuilder};
-use polywrap_core::{client::UriRedirect, package::WrapPackage, uri::Uri};
-use polywrap_tests_utils::helpers::{
+use polywrap_core::{client::UriRedirect, package::WrapPackage, uri::Uri, wrapper::Wrapper};
+use polywrap_msgpack::msgpack;
+use polywrap_tests_utils::mocks::{
     get_different_mock_package, get_different_mock_wrapper, get_mock_invoker, get_mock_package,
     get_mock_wrapper,
 };
-use polywrap_msgpack::msgpack;
-
 
 #[test]
 fn test_env_methods() {
@@ -159,8 +158,8 @@ fn test_packages() {
     let package: &Arc<dyn WrapPackage> = &builder_packages[1].1;
     let wrapper = package.create_wrapper().unwrap();
 
-    let result_package_a = wrapper.invoke("", None, None, get_mock_invoker(), None);
-    assert_eq!(result_package_a.unwrap(), vec![2]);
+    let result_package_a = wrapper.invoke("foo", None, None, get_mock_invoker(), None);
+    assert_eq!(result_package_a.unwrap(), vec![195]);
 
     // We need to recreate the builder because when we do builder.packages.unwrap
     // the ownership is given, not allowing us to call the builder again
@@ -179,8 +178,8 @@ fn test_packages() {
         .find(|(uri, _)| uri == &uri_b)
         .unwrap();
     let wrapper = b_package.1.create_wrapper().unwrap();
-    let result_package_a = wrapper.invoke("", None, None, get_mock_invoker(), None);
-    assert_eq!(result_package_a.unwrap(), vec![1]);
+    let result_package_a = wrapper.invoke("bar", None, None, get_mock_invoker(), None);
+    assert_eq!(result_package_a.unwrap(), vec![195]);
 }
 
 #[test]
@@ -208,6 +207,10 @@ fn test_wrappers() {
     let builder_wrappers = builder.wrappers.unwrap();
     assert_eq!(builder_wrappers.len(), 3);
 
+    let wrapper: &Arc<dyn Wrapper> = &builder_wrappers[1].1;
+    let result_package_a = wrapper.invoke("foo", None, None, get_mock_invoker(), None);
+    assert_eq!(result_package_a.unwrap(), vec![195]);
+
     // We need to recreate the builder because when we do builder.wrappers.unwrap
     // the ownership is given, not allowing us to call the builder again
     let mut builder = BuilderConfig::new(None);
@@ -230,7 +233,8 @@ fn test_wrappers() {
         .find(|(uri, _)| uri == &wrapper_uri)
         .unwrap();
 
-    // let result_wrapper_b = wrapper.1
-    let result_package_b = b_wrapper.1.invoke("", None, None, get_mock_invoker(), None);
-    assert_eq!(result_package_b.unwrap(), [1]);
+    let result_package_b = b_wrapper
+        .1
+        .invoke("bar", None, None, get_mock_invoker(), None);
+    assert_eq!(result_package_b.unwrap(), [195]);
 }

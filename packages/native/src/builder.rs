@@ -123,7 +123,7 @@ mod builder_tests {
     use super::FFIBuilderConfig;
 
     #[test]
-    fn it_adds_env() {
+    fn it_adds_and_removes_env() {
         let builder = FFIBuilderConfig::new();
         let uri = Arc::new(FFIUri::from_string("wrap://ens/some.eth"));
         let env = msgpack!({
@@ -133,8 +133,15 @@ mod builder_tests {
         builder.add_env(uri.clone(), env.clone());
 
         let ffi_client = builder.build();
-        let found_env = ffi_client.get_env_by_uri(uri);
 
+        let found_env = ffi_client.get_env_by_uri(uri.clone());
         assert_eq!(found_env.unwrap(), env.as_slice());
+
+        builder.remove_env(uri.clone())
+    }
+
+    #[test]
+    fn it_adds_and_removes_package() {
+        
     }
 }
