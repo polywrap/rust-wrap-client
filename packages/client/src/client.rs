@@ -7,16 +7,20 @@ use polywrap_core::{
     invoker::Invoker,
     resolution::uri_resolution_context::UriResolutionContext,
     resolution::{
+        helpers::get_env_from_resolution_path,
         uri_resolution_context::{UriPackageOrWrapper, UriResolutionStep},
-        uri_resolver::UriResolver, helpers::get_env_from_resolution_path,
+        uri_resolver::UriResolver,
     },
     uri::Uri,
-    wrapper::Wrapper, wrap_loader::WrapLoader, wrap_invoker::WrapInvoker, uri_resolver_handler::UriResolverHandler,
+    uri_resolver_handler::UriResolverHandler,
+    wrap_invoker::WrapInvoker,
+    wrap_loader::WrapLoader,
+    wrapper::Wrapper,
 };
 use polywrap_msgpack::decode;
 use serde::de::DeserializeOwned;
 
-use crate::{subinvoker::Subinvoker, build_abort_handler::build_abort_handler};
+use crate::{build_abort_handler::build_abort_handler, subinvoker::Subinvoker};
 
 #[derive(Clone, Debug)]
 pub struct PolywrapClient {
@@ -38,40 +42,34 @@ impl PolywrapClient {
     }
 
     pub fn invoke<T: DeserializeOwned>(
-      &self,
-      uri: &Uri,
-      method: &str,
-      args: Option<&[u8]>,
-      env: Option<&[u8]>,
-      resolution_context: Option<&mut UriResolutionContext>,
-  ) -> Result<T, Error> {
-      let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
+        &self,
+        uri: &Uri,
+        method: &str,
+        args: Option<&[u8]>,
+        env: Option<&[u8]>,
+        resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<T, Error> {
+        let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
 
-      decode(result.as_slice())
-          .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {e}")))
-  }
+        decode(result.as_slice())
+            .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {e}")))
+    }
 
-  pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
-      &self,
-      wrapper: &TWrapper,
-      uri: &Uri,
-      method: &str,
-      args: Option<&[u8]>,
-      env: Option<&[u8]>,
-      resolution_context: Option<&mut UriResolutionContext>,
-  ) -> Result<TResult, Error> {
-        let result = self.invoke_wrapper_raw(
-            wrapper,
-            uri,
-            method,
-            args,
-            env,
-            resolution_context,
-        )?;
+    pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
+        &self,
+        wrapper: &TWrapper,
+        uri: &Uri,
+        method: &str,
+        args: Option<&[u8]>,
+        env: Option<&[u8]>,
+        resolution_context: Option<&mut UriResolutionContext>,
+    ) -> Result<TResult, Error> {
+        let result =
+            self.invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)?;
 
-      decode(result.as_slice())
-          .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {e}")))
-  }
+        decode(result.as_slice())
+            .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {e}")))
+    }
 }
 
 impl Invoker for PolywrapClient {
@@ -102,7 +100,7 @@ impl Invoker for PolywrapClient {
                 source_uri: uri.clone(),
                 result: Err(error.clone()),
                 description: Some(format!("Client.loadWrapper({uri})")),
-                sub_history: Some(loaded_wrapper_context.get_history().clone())
+                sub_history: Some(loaded_wrapper_context.get_history().clone()),
             });
 
             return Err(Error::LoadWrapperError(error.to_string()));
@@ -121,9 +119,12 @@ impl Invoker for PolywrapClient {
 
         resolution_context.track_step(UriResolutionStep {
             source_uri: uri.clone(),
-            result: Ok(UriPackageOrWrapper::Wrapper(resolved_uri.clone(), wrapper.clone())),
+            result: Ok(UriPackageOrWrapper::Wrapper(
+                resolved_uri.clone(),
+                wrapper.clone(),
+            )),
             description: Some("Client.loadWrapper".to_string()),
-            sub_history: Some(loaded_wrapper_context.get_history().clone())
+            sub_history: Some(loaded_wrapper_context.get_history().clone()),
         });
 
         let env = if env.is_some() {
@@ -132,8 +133,14 @@ impl Invoker for PolywrapClient {
             get_env_from_resolution_path(&resolution_path, self)
         };
 
-        self
-            .invoke_wrapper_raw(&*wrapper, uri, method, args, env, Some(&mut resolution_context))
+        self.invoke_wrapper_raw(
+            &*wrapper,
+            uri,
+            method,
+            args,
+            env,
+            Some(&mut resolution_context),
+        )
     }
 
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
@@ -168,11 +175,11 @@ impl WrapLoader for PolywrapClient {
             None => &mut empty_res_context,
             Some(ctx) => ctx,
         };
-    
+
         let uri_package_or_wrapper = self
             .try_resolve_uri(uri, Some(&mut resolution_context))
             .map_err(|e| Error::ResolutionError(e.to_string()))?;
-    
+
         match uri_package_or_wrapper {
             UriPackageOrWrapper::Uri(uri) => Err(Error::ResolutionError(format!(
                 "Failed to resolve wrapper: {uri}"
@@ -228,7 +235,7 @@ impl WrapInvoker for PolywrapClient {
                 Err(invoke_result.clone().unwrap_err())
             },
             description: Some("Client.invokeWrapper".to_string()),
-            sub_history: Some(subinvocation_context.get_history().clone())
+            sub_history: Some(subinvocation_context.get_history().clone()),
         });
 
         invoke_result
@@ -253,8 +260,7 @@ impl UriResolverHandler for PolywrapClient {
     }
 }
 
-impl Client for PolywrapClient {
-}
+impl Client for PolywrapClient {}
 
 #[cfg(test)]
 mod client_tests {
@@ -267,22 +273,16 @@ mod client_tests {
             uri_resolver::UriResolver,
         },
         uri::Uri,
-        wrapper::{GetFileOptions, Wrapper}, wrap_loader::WrapLoader, uri_resolver_handler::UriResolverHandler,
+        uri_resolver_handler::UriResolverHandler,
+        wrap_loader::WrapLoader,
+        wrapper::{GetFileOptions, Wrapper},
     };
     use std::sync::Arc;
 
     use super::PolywrapClient;
 
     #[derive(Debug)]
-    struct MockWrapper {
-        id: u32,
-    }
-
-    impl MockWrapper {
-        pub fn new(id: u32) -> Self {
-            MockWrapper { id }
-        }
-    }
+    struct MockWrapper;
 
     impl Wrapper for MockWrapper {
         fn invoke(
@@ -320,7 +320,7 @@ mod client_tests {
             if uri.to_string() == *"wrap://ens/mock.eth" {
                 Ok(UriPackageOrWrapper::Wrapper(
                     "wrap://ens/mock.eth".try_into().unwrap(),
-                    Arc::new(MockWrapper::new(54)),
+                    Arc::new(MockWrapper {}),
                 ))
             } else {
                 Err(Error::ResolutionError("Not Found".to_string()))
@@ -357,7 +357,7 @@ mod client_tests {
             interfaces: None,
         });
 
-        let wrapper = MockWrapper::new(100);
+        let wrapper = MockWrapper {};
 
         let result = client
             .invoke_wrapper::<bool, MockWrapper>(
@@ -384,10 +384,9 @@ mod client_tests {
         let wrapper = client
             .load_wrapper(&"wrap://ens/mock.eth".try_into().unwrap(), None)
             .unwrap();
-        let wrapper = &*(wrapper) as &dyn std::any::Any;
-        let wrapper = wrapper.downcast_ref::<MockWrapper>().unwrap();
 
-        assert_eq!(wrapper.id, 54);
+        let result = wrapper.invoke("foo", None, None, Arc::new(client), None);
+        assert_eq!(result.unwrap(), vec![195])
     }
 
     #[test]
@@ -400,15 +399,13 @@ mod client_tests {
         let uri: Uri = "wrap://ens/mock.eth".try_into().unwrap();
 
         let uri_package_or_wrapper = client.try_resolve_uri(&uri, None).unwrap();
-        
+
         match uri_package_or_wrapper {
             UriPackageOrWrapper::Uri(_) => panic!("Found Uri, should've found MockWrapper"),
             UriPackageOrWrapper::Wrapper(_, wrapper) => {
-              let wrapper = &*(wrapper) as &dyn std::any::Any;
-              let wrapper = wrapper.downcast_ref::<MockWrapper>().unwrap();
-
-              assert_eq!(wrapper.id, 54);
-            },
+                let result = wrapper.invoke("foo", None, None, Arc::new(client), None);
+                assert_eq!(result.unwrap(), vec![195])
+            }
             UriPackageOrWrapper::Package(_, _) => panic!("Found Uri, should've found MockWrapper"),
         }
     }
