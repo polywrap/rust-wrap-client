@@ -14,7 +14,8 @@ members = [
     "packages/msgpack",
     "packages/manifest",
     "packages/builder",
-    "packages/plugin"
+    "packages/plugin",
+    "packages/native"
 ]
 
 # Do not include test utils & default config crates in default members
