@@ -30,23 +30,13 @@ impl FFIInvoker {
         let args = args.as_deref();
         let env = env.as_deref();
 
-        if let Some(resolution_context) = resolution_context {
-            self.inner_invoker.invoke_raw(
-                &uri.to_string().try_into().unwrap(),
-                method,
-                args,
-                env,
-                Some(resolution_context.0.clone()),
-            )
-        } else {
-            self.inner_invoker.invoke_raw(
-                &uri.to_string().try_into().unwrap(),
-                method,
-                args,
-                env,
-                None,
-            )
-        }
+        self.inner_invoker.invoke_raw(
+          &uri.to_string().try_into().unwrap(),
+          method,
+          args,
+          env,
+          resolution_context.map(|ctx| ctx.0.clone()),
+      )
     }
 
     pub fn get_implementations(

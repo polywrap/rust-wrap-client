@@ -30,23 +30,13 @@ impl FFIClient {
         let args = args.as_deref();
         let env = env.as_deref();
 
-        if let Some(resolution_context) = resolution_context {
-            self.inner_client.invoke_raw(
-                &uri.to_string().try_into().unwrap(),
-                method,
-                args,
-                env,
-                Some(resolution_context.0.clone()),
-            )
-        } else {
-            self.inner_client.invoke_raw(
-                &uri.to_string().try_into().unwrap(),
-                method,
-                args,
-                env,
-                None,
-            )
-        }
+        self.inner_client.invoke_raw(
+          &uri.to_string().try_into().unwrap(),
+          method,
+          args,
+          env,
+          resolution_context.map(|ctx| ctx.0.clone()),
+      )
     }
 
     pub fn get_implementations(
@@ -120,12 +110,9 @@ impl FFIClient {
         uri: Arc<FFIUri>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
     ) -> Result<Box<dyn FFIWrapper>, Error> {
-        let wrapper = if let Some(resolution_context) = resolution_context {
+        let wrapper =
             self.inner_client
-                .load_wrapper(&uri.0, Some(resolution_context.0.clone()))?
-        } else {
-            self.inner_client.load_wrapper(&uri.0, None)?
-        };
+                .load_wrapper(&uri.0, resolution_context.map(|ctx| ctx.0.clone()))?;
 
         Ok(Box::new(wrapper))
     }
