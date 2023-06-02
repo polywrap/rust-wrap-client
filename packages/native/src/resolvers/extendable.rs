@@ -9,7 +9,7 @@ use polywrap_client::{
     resolvers::extendable_uri_resolver::ExtendableUriResolver,
 };
 
-use crate::{invoker::FFIInvoker, uri::FFIUri};
+use crate::{FFIInvokerWrapping, uri::FFIUri, invoker::FFIInvoker};
 
 use super::{
     ffi_resolver::{FFIUriResolver}, resolution_context::FFIUriResolutionContext,
@@ -31,12 +31,12 @@ impl FFIExtendableUriResolver {
     pub fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
-        client: Arc<FFIInvoker>,
+        invoker: Box<dyn FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
     ) -> Box<dyn FFIUriPackageOrWrapper> {
         let result = self
             .inner_resolver
-            .try_resolve_uri(&uri.0, client, resolution_context.0.clone())
+            .try_resolve_uri(&uri.0, Arc::new(FFIInvokerWrapping(invoker)), resolution_context.0.clone())
             .unwrap();
 
         Box::new(result)
@@ -47,12 +47,12 @@ impl FFIUriResolver for FFIExtendableUriResolver {
     fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
-        client: Arc<FFIInvoker>,
+        invoker: Box<dyn FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
     ) -> Box<dyn FFIUriPackageOrWrapper> {
         let result = self
             .inner_resolver
-            .try_resolve_uri(&uri.0, client, resolution_context.0.clone())
+            .try_resolve_uri(&uri.0, Arc::new(FFIInvokerWrapping(invoker)), resolution_context.0.clone())
             .unwrap();
 
         Box::new(result)

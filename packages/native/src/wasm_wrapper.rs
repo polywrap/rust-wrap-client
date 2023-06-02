@@ -3,7 +3,7 @@ use std::sync::{Arc};
 use polywrap_client::core::{file_reader::SimpleFileReader, wrapper::Wrapper};
 use polywrap_wasm::wasm_wrapper::WasmWrapper;
 
-use crate::{invoker::FFIInvoker, wrapper::FFIAbortHandler};
+use crate::{wrapper::FFIAbortHandler, invoker::{FFIInvoker, FFIInvokerWrapping}};
 
 pub struct FFIWasmWrapper {
     pub inner_wasm_wrapper: Arc<dyn Wrapper>,
@@ -22,13 +22,13 @@ impl FFIWasmWrapper {
       method: &str,
       args: Option<Vec<u8>>,
       env: Option<Vec<u8>>,
-      invoker: Arc<FFIInvoker>,
+      invoker: Box<dyn FFIInvoker>,
       abort_handler: Option<Box<dyn FFIAbortHandler>>,
     ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
       let abort_handler = abort_handler.map(|a| 
         Box::new(move |msg: String| a.abort(msg)) as Box<dyn Fn(String) + Send + Sync>
       );
 
-      self.inner_wasm_wrapper.invoke(method, args.as_deref(), env.as_deref(), invoker, abort_handler)
+      self.inner_wasm_wrapper.invoke(method, args.as_deref(), env.as_deref(), Arc::new(FFIInvokerWrapping(invoker)), abort_handler)
     }
 }
