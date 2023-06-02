@@ -31,14 +31,12 @@ impl FFIClient {
         let env = env.as_deref();
 
         if let Some(resolution_context) = resolution_context {
-            let mut res_context_guard = resolution_context.0.lock().unwrap();
-
             self.inner_client.invoke_raw(
                 &uri.to_string().try_into().unwrap(),
                 method,
                 args,
                 env,
-                Some(res_context_guard.deref_mut()),
+                Some(resolution_context.0.clone()),
             )
         } else {
             self.inner_client.invoke_raw(
@@ -123,10 +121,8 @@ impl FFIClient {
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
     ) -> Result<Box<dyn FFIWrapper>, Error> {
         let wrapper = if let Some(resolution_context) = resolution_context {
-            let mut res_context_guard = resolution_context.0.lock().unwrap();
-
             self.inner_client
-                .load_wrapper(&uri.0, Some(&mut res_context_guard))?
+                .load_wrapper(&uri.0, Some(resolution_context.0.clone()))?
         } else {
             self.inner_client.load_wrapper(&uri.0, None)?
         };

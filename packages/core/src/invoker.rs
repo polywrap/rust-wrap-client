@@ -1,3 +1,5 @@
+use std::sync::{Mutex, Arc};
+
 use crate::{
     error::Error, uri::Uri, resolution::uri_resolution_context::UriResolutionContext, 
     interface_implementation::InterfaceImplementations,
@@ -9,7 +11,7 @@ pub trait Invoker: Send + Sync {
         method: &str,
         args: Option<&[u8]>,
         env: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error>;
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error>;
     fn get_interfaces(&self) -> Option<InterfaceImplementations>;

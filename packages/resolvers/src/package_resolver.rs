@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::{Arc};
+use std::sync::{Arc, Mutex};
 
 use polywrap_core::{uri::Uri, package::WrapPackage, invoker::Invoker, resolution::{uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper, UriResolutionStep}, uri_resolver::UriResolver}, error::Error};
 
@@ -12,7 +12,7 @@ impl PackageResolver {
 }
 
 impl UriResolver for PackageResolver {
-    fn try_resolve_uri(&self, uri: &Uri, _: Arc<dyn Invoker>, resolution_context: &mut UriResolutionContext) -> Result<UriPackageOrWrapper, Error> {
+    fn try_resolve_uri(&self, uri: &Uri, _: Arc<dyn Invoker>, resolution_context: Arc<Mutex<UriResolutionContext>>) -> Result<UriPackageOrWrapper, Error> {
         let result: Result<UriPackageOrWrapper, Error> = { 
           if uri.to_string() != self.uri.to_string() {
             Ok(UriPackageOrWrapper::Uri(uri.clone()))
@@ -21,7 +21,7 @@ impl UriResolver for PackageResolver {
           }
         };
 
-        resolution_context.track_step(UriResolutionStep {
+        resolution_context.lock().unwrap().track_step(UriResolutionStep {
             source_uri: uri.clone(),
             description: Some(format!("Package ({})", self.uri)),
             result: match &result {

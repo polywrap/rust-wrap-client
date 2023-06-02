@@ -1,4 +1,4 @@
-use std::{path::Path, collections::HashMap};
+use std::{path::Path, collections::HashMap, sync::Mutex};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
 use polywrap_core::{
     invoker::{Invoker},
@@ -32,7 +32,7 @@ impl MockInvoker {
       method: &str,
       args: Option<&[u8]>,
       env: Option<&[u8]>,
-      _: Option<&mut UriResolutionContext>
+      _: Option<Arc<Mutex<UriResolutionContext>>>
   ) -> Result<Vec<u8>, Error> {
       wrapper.invoke(
           method,
@@ -51,7 +51,7 @@ impl Invoker for MockInvoker {
         method: &str,
         args: Option<&[u8]>,
         env: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
         self.clone().invoke_wrapper_raw(
             Arc::new(self.wrapper.clone()),

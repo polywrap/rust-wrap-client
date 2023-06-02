@@ -1,5 +1,5 @@
 use core::fmt;
-use std::{collections::HashMap, sync::{Arc}};
+use std::{collections::HashMap, sync::{Arc, Mutex}};
 use polywrap_core::{
     client::UriRedirect,
     error::Error,
@@ -65,7 +65,7 @@ impl UriResolver for StaticResolver {
         &self,
         uri: &Uri,
         _: Arc<dyn Invoker>,
-        resolution_context: &mut UriResolutionContext,
+        resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
         let uri_package_or_wrapper = self.uri_map.get(&uri.to_string());
         let (description, result) = if let Some(found) = uri_package_or_wrapper {
@@ -90,7 +90,7 @@ impl UriResolver for StaticResolver {
             )
         };
 
-        resolution_context.track_step(UriResolutionStep {
+        resolution_context.lock().unwrap().track_step(UriResolutionStep {
             description: Some(description),
             source_uri: uri.clone(),
             result: Ok(result.clone()),

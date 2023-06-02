@@ -29,10 +29,10 @@ impl Invoker for Subinvoker {
         method: &str,
         args: Option<&[u8]>,
         env: Option<&[u8]>,
-        _: Option<&mut UriResolutionContext>,
+        _: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
-        let mut context = self.resolution_context.lock().unwrap();
-        self.invoker.invoke_raw(uri, method, args, env, Some(&mut context))
+        let context = self.resolution_context.clone();
+        self.invoker.invoke_raw(uri, method, args, env, Some(context))
     }
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
         self.invoker.get_implementations(uri)

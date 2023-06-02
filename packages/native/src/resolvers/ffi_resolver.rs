@@ -24,18 +24,14 @@ impl UriResolver for UriResolverWrapping {
         &self,
         uri: &polywrap_client::core::uri::Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: &mut UriResolutionContext,
+        resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, polywrap_client::core::error::Error> {
-        // Create FFIUriResolutionContext from resolution_context clone
-        let ffi_resolution_context = Arc::new(Mutex::new((resolution_context.clone()).into()));
+        let ffi_resolution_context = FFIUriResolutionContext(resolution_context);
         let result = self.0.try_resolve_uri(
           Arc::new(uri.clone().into()),
           Arc::new(FFIInvoker::new(invoker)),
-          Arc::new(FFIUriResolutionContext(ffi_resolution_context.clone()))
+          Arc::new(ffi_resolution_context)
         );
-
-        // Update resolution_context from FFIUriResolutionContext clone
-        *resolution_context = ffi_resolution_context.lock().unwrap().clone();
 
         Ok(result.into())
     }

@@ -1,4 +1,4 @@
-use std::{sync::{Arc, Mutex}, collections::HashMap};
+use std::{sync::{Arc, Mutex}, collections::HashMap, borrow::BorrowMut};
 
 use polywrap_core::{
     client::{Client, ClientConfig},
@@ -47,7 +47,7 @@ impl PolywrapClient {
         method: &str,
         args: Option<&[u8]>,
         env: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<T, Error> {
         let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
 
@@ -79,34 +79,34 @@ impl Invoker for PolywrapClient {
         method: &str,
         args: Option<&[u8]>,
         env: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
-        let mut empty_res_context = UriResolutionContext::new();
-        let mut resolution_context = match resolution_context {
-            None => &mut empty_res_context,
+        let resolution_context = match resolution_context {
+            None => Arc::new(Mutex::new(UriResolutionContext::new())),
             Some(ctx) => ctx,
         };
 
-        let mut loaded_wrapper_context = resolution_context.create_sub_context();
+        let loaded_wrapper_context = resolution_context.lock().unwrap().create_sub_context();
+        let loaded_wrapper_context = Arc::new(Mutex::new(loaded_wrapper_context));
 
         let load_result = self
             .clone()
-            .load_wrapper(uri, Some(&mut loaded_wrapper_context));
+            .load_wrapper(uri, Some(loaded_wrapper_context.clone()));
 
         if load_result.is_err() {
             let error = load_result.err().unwrap();
 
-            resolution_context.track_step(UriResolutionStep {
+            resolution_context.lock().unwrap().track_step(UriResolutionStep {
                 source_uri: uri.clone(),
                 result: Err(error.clone()),
                 description: Some(format!("Client.loadWrapper({uri})")),
-                sub_history: Some(loaded_wrapper_context.get_history().clone()),
+                sub_history: Some(loaded_wrapper_context.lock().unwrap().get_history().clone()),
             });
 
             return Err(Error::LoadWrapperError(error.to_string()));
         }
 
-        let resolution_path = loaded_wrapper_context.get_resolution_path();
+        let resolution_path = loaded_wrapper_context.lock().unwrap().get_resolution_path();
         let resolution_path = if !resolution_path.is_empty() {
             resolution_path
         } else {
@@ -117,14 +117,14 @@ impl Invoker for PolywrapClient {
 
         let wrapper = load_result.unwrap();
 
-        resolution_context.track_step(UriResolutionStep {
+        resolution_context.lock().unwrap().track_step(UriResolutionStep {
             source_uri: uri.clone(),
             result: Ok(UriPackageOrWrapper::Wrapper(
                 resolved_uri.clone(),
                 wrapper.clone(),
             )),
             description: Some("Client.loadWrapper".to_string()),
-            sub_history: Some(loaded_wrapper_context.get_history().clone()),
+            sub_history: Some(loaded_wrapper_context.lock().unwrap().get_history().clone()),
         });
 
         let env = if env.is_some() {
@@ -133,13 +133,15 @@ impl Invoker for PolywrapClient {
             get_env_from_resolution_path(&resolution_path, self)
         };
 
+        let mut res_context_guard = resolution_context.lock().unwrap();
+
         self.invoke_wrapper_raw(
             &*wrapper,
             uri,
             method,
             args,
             env,
-            Some(&mut resolution_context),
+            Some(res_context_guard.borrow_mut()),
         )
     }
 
@@ -168,16 +170,15 @@ impl WrapLoader for PolywrapClient {
     fn load_wrapper(
         &self,
         uri: &Uri,
-        resolution_context: Option<&mut UriResolutionContext>,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Arc<dyn Wrapper>, Error> {
-        let mut empty_res_context = UriResolutionContext::new();
-        let mut resolution_context = match resolution_context {
-            None => &mut empty_res_context,
+        let resolution_context = match resolution_context {
+            None => Arc::new(Mutex::new(UriResolutionContext::new())),
             Some(ctx) => ctx,
         };
 
         let uri_package_or_wrapper = self
-            .try_resolve_uri(uri, Some(&mut resolution_context))
+            .try_resolve_uri(uri, Some(resolution_context))
             .map_err(|e| Error::ResolutionError(e.to_string()))?;
 
         match uri_package_or_wrapper {
@@ -246,14 +247,12 @@ impl UriResolverHandler for PolywrapClient {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        resolution_context: Option<&mut UriResolutionContext>,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<UriPackageOrWrapper, Error> {
         let uri_resolver = self.resolver.clone();
-        let mut uri_resolver_context = UriResolutionContext::new();
-
         let resolution_context = match resolution_context {
-            Some(ctx) => ctx,
-            None => &mut uri_resolver_context,
+            Some(r) => r,
+            None => Arc::new(Mutex::new(UriResolutionContext::new()))
         };
 
         uri_resolver.try_resolve_uri(uri, Arc::new(self.clone()), resolution_context)
@@ -277,7 +276,7 @@ mod client_tests {
         wrap_loader::WrapLoader,
         wrapper::{GetFileOptions, Wrapper},
     };
-    use std::sync::Arc;
+    use std::sync::{Arc, Mutex};
 
     use super::PolywrapClient;
 
@@ -315,7 +314,7 @@ mod client_tests {
             &self,
             uri: &Uri,
             _: Arc<dyn Invoker>,
-            _: &mut UriResolutionContext,
+            _: Arc<Mutex<UriResolutionContext>>,
         ) -> Result<UriPackageOrWrapper, Error> {
             if uri.to_string() == *"wrap://ens/mock.eth" {
                 Ok(UriPackageOrWrapper::Wrapper(

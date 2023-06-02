@@ -3,8 +3,7 @@ use polywrap_client::core::{
 };
 use std::{
     collections::HashMap,
-    ops::{DerefMut},
-    sync::Arc,
+    sync::{Arc, Mutex},
 };
 
 use crate::{resolvers::resolution_context::FFIUriResolutionContext, uri::FFIUri};
@@ -32,13 +31,12 @@ impl FFIInvoker {
         let env = env.as_deref();
 
         if let Some(resolution_context) = resolution_context {
-            let mut res_context_guard = resolution_context.0.lock().unwrap();
             self.inner_invoker.invoke_raw(
                 &uri.to_string().try_into().unwrap(),
                 method,
                 args,
                 env,
-                Some(res_context_guard.deref_mut()),
+                Some(resolution_context.0.clone()),
             )
         } else {
             self.inner_invoker.invoke_raw(
@@ -87,7 +85,7 @@ impl Invoker for FFIInvoker {
         method: &str,
         args: Option<&[u8]>,
         env: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
         self.inner_invoker
             .invoke_raw(uri, method, args, env, resolution_context)

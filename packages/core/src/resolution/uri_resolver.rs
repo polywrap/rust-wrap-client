@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, sync::Mutex};
 use std::sync::Arc;
 
 use crate::error::Error;
@@ -11,6 +11,6 @@ pub trait UriResolver: Send + Sync + Debug {
         &self,
         uri: &Uri,
         client: Arc<dyn Invoker>,
-        resolution_context: &mut UriResolutionContext,
+        resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error>;
 }

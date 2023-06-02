@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use polywrap_core::{
     error::Error,
     uri::Uri,
@@ -26,9 +26,9 @@ impl UriResolver for BaseResolver {
         &self,
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: &mut UriResolutionContext,
+        resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
-        let redirected_uri = self.static_resolver.try_resolve_uri(uri, invoker.clone(), resolution_context)?;
+        let redirected_uri = self.static_resolver.try_resolve_uri(uri, invoker.clone(), resolution_context.clone())?;
 
         if let UriPackageOrWrapper::Uri(redirected_uri) = redirected_uri {
           self.fs_resolver.try_resolve_uri(&redirected_uri, invoker, resolution_context)
