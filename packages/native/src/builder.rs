@@ -104,7 +104,7 @@ impl FFIBuilderConfig {
 }
 
 #[cfg(test)]
-mod builder_tests {
+mod test {
     use std::sync::Arc;
 
     use polywrap_client::{
@@ -120,7 +120,7 @@ mod builder_tests {
     use super::FFIBuilderConfig;
 
     #[test]
-    fn test_adds_and_removes_env() {
+    fn adds_and_removes_env() {
         let builder = FFIBuilderConfig::new();
         let uri = Arc::new(FFIUri::from_string("wrap://ens/some.eth"));
         let env = msgpack!({
@@ -147,7 +147,7 @@ mod builder_tests {
     }
 
     #[test]
-    fn test_adds_and_removes_package() {
+    fn adds_and_removes_package() {
         let builder = FFIBuilderConfig::new();
         let mock_package: Box<dyn FFIWrapPackage> = Box::new(get_mock_package());
         let uri_mock_package = Arc::new(FFIUri::from_string("package/a"));
@@ -184,7 +184,7 @@ mod builder_tests {
     }
 
     #[test]
-    fn test_adds_and_removes_wrapper() {
+    fn adds_and_removes_wrapper() {
         let builder = FFIBuilderConfig::new();
         let mock_package: Box<dyn FFIWrapper> = Box::new(get_mock_wrapper());
         let uri_mock_wrapper = Arc::new(FFIUri::from_string("wrap/a"));
@@ -220,7 +220,7 @@ mod builder_tests {
     }
 
     #[test]
-    fn tests_adds_and_removes_redirects() {
+    fn adds_and_removes_redirects() {
         let builder = FFIBuilderConfig::new();
         builder.add_redirect(
             Arc::new(FFIUri::from_string("wrap/a")),
@@ -254,7 +254,7 @@ mod builder_tests {
     }
 
     #[test]
-    fn test_adds_and_removes_interface_implementation() {
+    fn adds_and_removes_interface_implementation() {
         let builder = FFIBuilderConfig::new();
         let interface_uri = Arc::new(FFIUri::from_string("wrap://ens/interface.eth"));
         let implementation_a_uri = Arc::new(FFIUri::from_string("wrap://ens/implementation-a.eth"));

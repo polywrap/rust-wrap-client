@@ -44,18 +44,18 @@ impl FFIWasmWrapper {
 }
 
 #[cfg(test)]
-mod wrapper_tests {
+mod test {
     use std::sync::Arc;
 
     use polywrap_client::msgpack::decode;
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
 
-    use crate::invoker::{InvokerWrapping};
+    use crate::invoker::InvokerWrapping;
 
     use super::FFIWasmWrapper;
 
     #[test]
-    fn invoke() {
+    fn ffi_invoke() {
         let wrapper = get_mock_wrapper();
         let ffi_wrapper = FFIWasmWrapper {
             inner_wasm_wrapper: wrapper,

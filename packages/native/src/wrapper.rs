@@ -105,7 +105,7 @@ mod test {
     }
 
     #[test]
-    fn test_ffi_wrapper() {
+    fn ffi_wrapper() {
         let (ffi_wrapper, ffi_invoker) = get_mocks();
         let response =
             ffi_wrapper.invoke("foo".to_string(), None, None, Box::new(ffi_invoker), None);

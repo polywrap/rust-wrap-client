@@ -1,11 +1,12 @@
 use std::{collections::HashMap, ops::DerefMut, sync::Arc};
 
-use polywrap_client::core::{client::Client};
+use polywrap_client::core::client::Client;
 
 use crate::{
+    error::FFIError,
     resolvers::resolution_context::FFIUriResolutionContext,
     uri::FFIUri,
-    wrapper::{WrapperWrapping, FFIWrapper}, error::FFIError,
+    wrapper::{FFIWrapper, WrapperWrapping},
 };
 
 pub struct FFIClient {
@@ -31,12 +32,12 @@ impl FFIClient {
         let env = env.as_deref();
 
         self.inner_client.invoke_raw(
-          &uri.to_string().try_into().unwrap(),
-          method,
-          args,
-          env,
-          resolution_context.map(|ctx| ctx.0.clone()),
-      )
+            &uri.to_string().try_into().unwrap(),
+            method,
+            args,
+            env,
+            resolution_context.map(|ctx| ctx.0.clone()),
+        )
     }
 
     pub fn get_implementations(
@@ -110,10 +111,78 @@ impl FFIClient {
         uri: Arc<FFIUri>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
     ) -> Result<Box<dyn FFIWrapper>, FFIError> {
-        let wrapper =
-            self.inner_client
-                .load_wrapper(&uri.0, resolution_context.map(|ctx| ctx.0.clone()))?;
+        let wrapper = self
+            .inner_client
+            .load_wrapper(&uri.0, resolution_context.map(|ctx| ctx.0.clone()))?;
 
         Ok(Box::new(wrapper))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::{collections::HashMap, sync::Arc};
+
+    use polywrap_tests_utils::mocks::{get_mock_client, get_mock_invoker, get_mock_wrapper};
+
+    use crate::{client::FFIClient, invoker::InvokerWrapping, uri::FFIUri, wrapper::FFIWrapper};
+
+    #[test]
+    fn ffi_invoke_raw() {
+        let ffi_client = FFIClient::new(get_mock_client());
+        let uri = Arc::new(FFIUri::from_string("mock/a"));
+        let response = ffi_client.invoke_raw(uri, "", None, None, None);
+        assert_eq!(response.unwrap(), vec![5]);
+    }
+
+    #[test]
+    fn ffi_load_wrapper() {
+        let ffi_client = FFIClient::new(get_mock_client());
+        let ffi_invoker = InvokerWrapping(get_mock_invoker());
+        let uri = Arc::new(FFIUri::from_string("mock/a"));
+        let wrapper = ffi_client.load_wrapper(uri, None).unwrap();
+        let response = wrapper.invoke("foo".to_string(), None, None, Box::new(ffi_invoker), None);
+
+        assert_eq!(response.unwrap(), vec![195]);
+    }
+
+    #[test]
+    fn ffi_invoke_wrapper_raw() {
+        let ffi_client = FFIClient::new(get_mock_client());
+        let ffi_wrapper: Box<dyn FFIWrapper> = Box::new(get_mock_wrapper());
+        let uri = Arc::new(FFIUri::from_string("mock/a"));
+
+        let response = ffi_client.invoke_wrapper_raw(ffi_wrapper, uri, "", None, None, None);
+        assert_eq!(response.unwrap(), vec![6]);
+    }
+
+    #[test]
+    fn ffi_get_implementations() {
+        let ffi_client = FFIClient::new(get_mock_client());
+        let uri = Arc::new(FFIUri::from_string("mock/c"));
+        let response = ffi_client.get_implementations(uri.clone());
+        assert_eq!(response.unwrap(), vec![uri]);
+    }
+
+    #[test]
+    fn ffi_get_interfaces() {
+        let ffi_client = FFIClient::new(get_mock_client());
+        let response = ffi_client.get_interfaces();
+        assert_eq!(
+            response.unwrap(),
+            HashMap::from([(
+                ("mock/c".to_string()),
+                vec![Arc::new(FFIUri::from_string("mock/d"))]
+            )])
+        );
+    }
+
+    #[test]
+    fn ffi_get_env_by_uri() {
+        let ffi_client = FFIClient::new(get_mock_client());
+        let uri = Arc::new(FFIUri::from_string("mock/c"));
+
+        let response = ffi_client.get_env_by_uri(uri);
+        assert_eq!(response.unwrap(), [4, 8]);
     }
 }
