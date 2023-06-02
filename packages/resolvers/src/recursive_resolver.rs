@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
     error::Error,
@@ -46,7 +46,7 @@ impl RecursiveResolver {
         result: Result<UriPackageOrWrapper, Error>,
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: &mut UriResolutionContext,
+        resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
         if let Ok(value) = &result {
             match value {
@@ -70,21 +70,21 @@ impl UriResolver for RecursiveResolver {
         &self,
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: &mut UriResolutionContext,
+        resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
-        if resolution_context.is_resolving(uri) {
+        if resolution_context.lock().unwrap().is_resolving(uri) {
             //TODO: Handle this error type specifically
             Err(Error::ResolverError("Infinite loop error".to_string()))
         } else {
-            resolution_context.start_resolving(uri);
+            resolution_context.lock().unwrap().start_resolving(uri);
             let resolver_result = self
                 .resolver
-                .try_resolve_uri(uri, invoker.clone(), resolution_context);
+                .try_resolve_uri(uri, invoker.clone(), resolution_context.clone());
 
             let result = self
-                .try_resolve_again_if_redirect(resolver_result, uri, invoker, resolution_context);
+                .try_resolve_again_if_redirect(resolver_result, uri, invoker, resolution_context.clone());
 
-            resolution_context.stop_resolving(uri);
+            resolution_context.lock().unwrap().stop_resolving(uri);
 
             result
         }

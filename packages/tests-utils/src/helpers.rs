@@ -1,7 +1,7 @@
 use std::{
     fmt::{Debug, Formatter},
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{Arc, Mutex},
 };
 
 use polywrap_core::{
@@ -100,7 +100,7 @@ impl Invoker for MockInvoker {
         _: &str,
         _: Option<&[u8]>,
         _: Option<&[u8]>,
-        _: Option<&mut polywrap_core::resolution::uri_resolution_context::UriResolutionContext>,
+        _: Option<Arc<Mutex<polywrap_core::resolution::uri_resolution_context::UriResolutionContext>>>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         Ok(vec![3])
     }
