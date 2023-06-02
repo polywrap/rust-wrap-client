@@ -1,5 +1,6 @@
 use polywrap_client::core::uri::Uri;
 
+#[derive(Debug)]
 pub struct FFIUri(pub Uri);
 
 impl FFIUri {
