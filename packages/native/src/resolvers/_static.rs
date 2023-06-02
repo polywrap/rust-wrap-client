@@ -7,7 +7,7 @@ use polywrap_client::{
     },
     resolvers::static_resolver::StaticResolver,
 };
-use std::{collections::HashMap, sync::Arc, ops::DerefMut};
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{uri::FFIUri, invoker::FFIInvoker};
 
@@ -41,11 +41,9 @@ impl FFIUriResolver for FFIStaticUriResolver {
       client: Arc<FFIInvoker>,
       resolution_context: Arc<FFIUriResolutionContext>,
   ) -> Box<dyn FFIUriPackageOrWrapper> {
-      let mut uri_res_ctx_guard = resolution_context.0.lock().unwrap();
-
       let result = self
           .inner_resolver
-          .try_resolve_uri(&uri.0, client, uri_res_ctx_guard.deref_mut())
+          .try_resolve_uri(&uri.0, client, resolution_context.0.clone())
           .unwrap();
 
       Box::new(result)

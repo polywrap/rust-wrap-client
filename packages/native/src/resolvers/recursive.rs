@@ -6,7 +6,7 @@ use polywrap_client::{
     },
     resolvers::recursive_resolver::RecursiveResolver,
 };
-use std::{ops::DerefMut, sync::Arc};
+use std::{sync::Arc};
 
 use crate::{invoker::FFIInvoker, uri::FFIUri};
 
@@ -35,11 +35,10 @@ impl FFIUriResolver for FFIRecursiveUriResolver {
         client: Arc<FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
     ) -> Box<dyn FFIUriPackageOrWrapper> {
-        let mut uri_res_ctx_guard = resolution_context.0.lock().unwrap();
 
         let result = self
             .inner_resolver
-            .try_resolve_uri(&uri.0, client, uri_res_ctx_guard.deref_mut())
+            .try_resolve_uri(&uri.0, client, resolution_context.0.clone())
             .unwrap();
 
         Box::new(result)
