@@ -17,9 +17,9 @@ pub trait FFIUriResolver: Send + Sync + Debug {
 }
 
 #[derive(Debug)]
-pub struct ExtUriResolver(pub Box<dyn FFIUriResolver>);
+pub struct UriResolverWrapping(pub Box<dyn FFIUriResolver>);
 
-impl UriResolver for ExtUriResolver {
+impl UriResolver for UriResolverWrapping {
     fn try_resolve_uri(
         &self,
         uri: &polywrap_client::core::uri::Uri,
@@ -39,4 +39,10 @@ impl UriResolver for ExtUriResolver {
 
         Ok(result.into())
     }
+}
+
+impl UriResolverWrapping {
+  pub fn as_uri_resolver(self) -> Box<dyn UriResolver> {
+    Box::new(self) as Box<dyn UriResolver>
+  }
 }

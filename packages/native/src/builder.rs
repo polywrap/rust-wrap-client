@@ -6,9 +6,9 @@ use std::sync::{Arc, Mutex};
 
 use crate::{
     resolvers::{
-        ffi_resolver::{FFIUriResolver, ExtUriResolver},
+        ffi_resolver::{FFIUriResolver, UriResolverWrapping},
     },
-    client::FFIClient, uri::FFIUri, wrapper::{FFIWrapper, ExtWrapper}, package::{FFIWrapPackage, ExtWrapPackage},
+    client::FFIClient, uri::FFIUri, wrapper::{FFIWrapper, WrapperWrapping}, package::{FFIWrapPackage, WrapPackageWrapping},
 };
 
 pub struct FFIBuilderConfig {
@@ -59,7 +59,7 @@ impl FFIBuilderConfig {
     pub fn add_wrapper(&self, uri: Arc<FFIUri>, wrapper: Box<dyn FFIWrapper>) {
         self.inner_builder.lock().unwrap().add_wrapper(
             uri.0.clone(),
-            Arc::new(ExtWrapper(wrapper)),
+            Arc::new(WrapperWrapping(wrapper)),
         );
     }
 
@@ -73,7 +73,7 @@ impl FFIBuilderConfig {
     pub fn add_package(&self, uri: Arc<FFIUri>, package: Box<dyn FFIWrapPackage>) {
       self.inner_builder.lock().unwrap().add_package(
           uri.0.clone(),
-          Arc::new(ExtWrapPackage(package)),
+          Arc::new(WrapPackageWrapping(package)),
       );
     }
 
@@ -99,11 +99,10 @@ impl FFIBuilderConfig {
     }
 
     pub fn add_resolver(&self, resolver: Box<dyn FFIUriResolver>) {
-        let resolver = ExtUriResolver(resolver);
         self.inner_builder
             .lock()
             .unwrap()
-            .add_resolver(Arc::new(resolver));
+            .add_resolver(Arc::from(UriResolverWrapping(resolver).as_uri_resolver()));
     }
 
     pub fn build(&self) -> Arc<FFIClient> {

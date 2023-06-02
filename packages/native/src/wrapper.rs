@@ -50,9 +50,9 @@ impl FFIAbortHandler for AbortHandler {
 }
 
 #[derive(Debug)]
-pub struct ExtWrapper(pub Box<dyn FFIWrapper>);
+pub struct WrapperWrapping(pub Box<dyn FFIWrapper>);
 
-impl Wrapper for ExtWrapper {
+impl Wrapper for WrapperWrapping {
     fn invoke(
         &self,
         method: &str,

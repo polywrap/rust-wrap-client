@@ -1,7 +1,7 @@
 use std::{fmt::Debug, sync::Arc};
 
 use polywrap_client::core::{error::Error, package::WrapPackage, wrapper::Wrapper};
-use crate::wrapper::{FFIWrapper, ExtWrapper};
+use crate::wrapper::{FFIWrapper, WrapperWrapping};
 
 pub trait FFIWrapPackage: Debug + Send + Sync {
     fn create_wrapper(
@@ -20,12 +20,12 @@ impl FFIWrapPackage for Arc<dyn WrapPackage> {
 }
 
 #[derive(Debug)]
-pub struct ExtWrapPackage(pub Box<dyn FFIWrapPackage>);
+pub struct WrapPackageWrapping(pub Box<dyn FFIWrapPackage>);
 
-impl WrapPackage for ExtWrapPackage {
+impl WrapPackage for WrapPackageWrapping {
   fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error> {
     let ffi_wrapper = self.0.create_wrapper();
-    Ok(Arc::new(ExtWrapper(ffi_wrapper)))
+    Ok(Arc::new(WrapperWrapping(ffi_wrapper)))
   }
 
   fn get_manifest(

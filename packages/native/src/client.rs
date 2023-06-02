@@ -5,7 +5,7 @@ use polywrap_client::core::{client::Client, error::Error};
 use crate::{
     resolvers::resolution_context::FFIUriResolutionContext,
     uri::FFIUri,
-    wrapper::{ExtWrapper, FFIWrapper},
+    wrapper::{WrapperWrapping, FFIWrapper},
 };
 
 pub struct FFIClient {
@@ -98,7 +98,7 @@ impl FFIClient {
             let mut res_context_guard = resolution_context.0.lock().unwrap();
 
             self.inner_client.invoke_wrapper_raw(
-                &ExtWrapper(wrapper),
+                &WrapperWrapping(wrapper),
                 &uri.0,
                 method,
                 args.as_deref(),
@@ -107,7 +107,7 @@ impl FFIClient {
             )
         } else {
             self.inner_client.invoke_wrapper_raw(
-                &ExtWrapper(wrapper),
+                &WrapperWrapping(wrapper),
                 &uri.0,
                 method,
                 args.as_deref(),

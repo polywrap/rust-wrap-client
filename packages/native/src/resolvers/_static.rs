@@ -1,8 +1,7 @@
 use polywrap_client::{
     core::{
-        invoker::Invoker,
         resolution::{
-            uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+            uri_resolution_context::{UriPackageOrWrapper},
             uri_resolver::UriResolver,
         },
     },
@@ -12,7 +11,7 @@ use std::{collections::HashMap, sync::Arc, ops::DerefMut};
 
 use crate::{uri::FFIUri, invoker::FFIInvoker};
 
-use super::{uri_package_or_wrapper::FFIUriPackageOrWrapper, resolution_context::FFIUriResolutionContext};
+use super::{uri_package_or_wrapper::FFIUriPackageOrWrapper, resolution_context::FFIUriResolutionContext, ffi_resolver::FFIUriResolver};
 
 #[derive(Debug)]
 pub struct FFIStaticUriResolver {
@@ -33,33 +32,22 @@ impl FFIStaticUriResolver {
             inner_resolver: StaticResolver::new(uri_map),
         }
     }
+}
 
-    pub fn try_resolve_uri(
+impl FFIUriResolver for FFIStaticUriResolver {
+  fn try_resolve_uri(
       &self,
       uri: Arc<FFIUri>,
       client: Arc<FFIInvoker>,
-      resolution_context: Arc<FFIUriResolutionContext>
-    ) -> Box<dyn FFIUriPackageOrWrapper> {
+      resolution_context: Arc<FFIUriResolutionContext>,
+  ) -> Box<dyn FFIUriPackageOrWrapper> {
       let mut uri_res_ctx_guard = resolution_context.0.lock().unwrap();
-  
-      let result = self.inner_resolver.try_resolve_uri(
-        &uri.0,
-        client,
-        uri_res_ctx_guard.deref_mut()
-      ).unwrap();
-  
-      Box::new(result)
-    }
-}
 
-impl UriResolver for FFIStaticUriResolver {
-    fn try_resolve_uri(
-        &self,
-        uri: &polywrap_client::core::uri::Uri,
-        invoker: Arc<dyn Invoker>,
-        resolution_context: &mut UriResolutionContext,
-    ) -> Result<UriPackageOrWrapper, polywrap_client::core::error::Error> {
-        self.inner_resolver
-            .try_resolve_uri(uri, invoker, resolution_context)
-    }
+      let result = self
+          .inner_resolver
+          .try_resolve_uri(&uri.0, client, uri_res_ctx_guard.deref_mut())
+          .unwrap();
+
+      Box::new(result)
+  }
 }

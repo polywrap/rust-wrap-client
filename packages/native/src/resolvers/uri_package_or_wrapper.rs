@@ -6,9 +6,9 @@ use polywrap_client::core::{
 };
 
 use crate::{
-    package::{ExtWrapPackage, FFIWrapPackage},
+    package::{WrapPackageWrapping, FFIWrapPackage},
     uri::FFIUri,
-    wrapper::{ExtWrapper, FFIWrapper},
+    wrapper::{WrapperWrapping, FFIWrapper},
 };
 
 pub enum FFIUriPackageOrWrapperKind {
@@ -43,14 +43,14 @@ impl From<Box<dyn FFIUriPackageOrWrapper>> for UriPackageOrWrapper {
                 let uri = uri_wrapper.as_ref().get_uri();
                 let wrapper = uri_wrapper.as_ref().get_wrapper();
 
-                UriPackageOrWrapper::Wrapper(uri.0.clone(), Arc::new(ExtWrapper(wrapper)))
+                UriPackageOrWrapper::Wrapper(uri.0.clone(), Arc::new(WrapperWrapping(wrapper)))
             }
             FFIUriPackageOrWrapperKind::PACKAGE => {
                 let uri_package = value.as_package();
                 let uri = uri_package.as_ref().get_uri();
                 let package = uri_package.as_ref().get_package();
 
-                UriPackageOrWrapper::Package(uri.0.clone(), Arc::new(ExtWrapPackage(package)))
+                UriPackageOrWrapper::Package(uri.0.clone(), Arc::new(WrapPackageWrapping(package)))
             }
         }
     }
