@@ -29,6 +29,6 @@ impl FFIWasmWrapper {
         Box::new(move |msg: String| a.abort(msg)) as Box<dyn Fn(String) + Send + Sync>
       );
 
-      Ok(self.inner_wasm_wrapper.invoke(method, args.as_deref(), env.as_deref(), Arc::new(FFIInvokerWrapping::new(invoker)), abort_handler)?)
+      Ok(self.inner_wasm_wrapper.invoke(method, args.as_deref(), env.as_deref(), Arc::new(FFIInvokerWrapping(invoker)), abort_handler)?)
     }
 }

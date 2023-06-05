@@ -3,7 +3,7 @@ use std::{fmt::Debug, sync::{Arc, Mutex}};
 
 use polywrap_client::core::{resolution::{uri_resolver::UriResolver, uri_resolution_context::{UriResolutionContext, UriPackageOrWrapper}}, invoker::Invoker};
 
-use crate::{invoker::{FFIInvoker, InvokerWrapping}, uri::FFIUri};
+use crate::{invoker::{FFIInvoker, InvokerWrapping}, uri::FFIUri, error::FFIError};
 
 use super::{uri_package_or_wrapper::{FFIUriPackageOrWrapper}, resolution_context::{FFIUriResolutionContext}};
 
@@ -13,7 +13,7 @@ pub trait FFIUriResolver: Send + Sync + Debug {
       uri: Arc<FFIUri>,
       invoker: Box<dyn FFIInvoker>,
       resolution_context: Arc<FFIUriResolutionContext>
-    ) -> Box<dyn FFIUriPackageOrWrapper>;
+    ) -> Result<Box<dyn FFIUriPackageOrWrapper>, FFIError>;
 }
 
 #[derive(Debug)]
@@ -31,7 +31,7 @@ impl UriResolver for UriResolverWrapping {
           Arc::new(uri.clone().into()),
           Box::new(InvokerWrapping(invoker)),
           Arc::new(ffi_resolution_context)
-        );
+        )?;
 
         Ok(result.into())
     }

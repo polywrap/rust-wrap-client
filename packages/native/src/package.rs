@@ -1,21 +1,21 @@
 use std::{fmt::Debug, sync::Arc};
 
 use polywrap_client::core::{error::Error, package::WrapPackage, wrapper::Wrapper};
-use crate::wrapper::{FFIWrapper, WrapperWrapping};
+use crate::{wrapper::{FFIWrapper, WrapperWrapping}, error::FFIError};
 
 pub trait FFIWrapPackage: Debug + Send + Sync {
     fn create_wrapper(
       &self
-    ) -> Box<dyn FFIWrapper>;
+    ) -> Result<Box<dyn FFIWrapper>, FFIError>;
 }
 
 impl FFIWrapPackage for Arc<dyn WrapPackage> {
     fn create_wrapper(
       &self
-    ) -> Box<dyn FFIWrapper> {
+    ) ->  Result<Box<dyn FFIWrapper>, FFIError> {
       let arc_self = self.clone();
-      let wrapper = WrapPackage::create_wrapper(arc_self.as_ref()).unwrap();
-      Box::new(wrapper)
+      let wrapper = WrapPackage::create_wrapper(arc_self.as_ref())?;
+      Ok(Box::new(wrapper))
     }
 }
 
@@ -24,7 +24,7 @@ pub struct WrapPackageWrapping(pub Box<dyn FFIWrapPackage>);
 
 impl WrapPackage for WrapPackageWrapping {
   fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error> {
-    let ffi_wrapper = self.0.create_wrapper();
+    let ffi_wrapper = self.0.create_wrapper()?;
     Ok(Arc::new(WrapperWrapping(ffi_wrapper)))
   }
 

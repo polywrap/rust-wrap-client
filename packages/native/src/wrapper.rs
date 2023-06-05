@@ -6,7 +6,7 @@ use polywrap_client::core::{
     wrapper::{GetFileOptions, Wrapper},
 };
 
-use crate::invoker::{FFIInvokerWrapping, FFIInvoker, InvokerWrapping};
+use crate::{invoker::{FFIInvokerWrapping, FFIInvoker, InvokerWrapping}, error::FFIError};
 
 pub trait FFIAbortHandler: Send + Sync {
     fn abort(&self, msg: String);
@@ -20,7 +20,7 @@ pub trait FFIWrapper: Debug + Send + Sync {
         env: Option<Vec<u8>>,
         invoker: Box<dyn FFIInvoker>,
         abort_handler: Option<Box<dyn FFIAbortHandler>>,
-    ) -> Vec<u8>;
+    ) -> Result<Vec<u8>, FFIError>;
 }
 
 impl FFIWrapper for Arc<dyn Wrapper> {
@@ -31,13 +31,13 @@ impl FFIWrapper for Arc<dyn Wrapper> {
         env: Option<Vec<u8>>,
         invoker: Box<dyn FFIInvoker>,
         abort_handler: Option<Box<dyn FFIAbortHandler>>,
-    ) -> Vec<u8> {
+    ) -> Result<Vec<u8>, FFIError> {
         let arc_self = self.clone();
         let abort_handler = abort_handler.map(
           |a| Box::new(move |msg: String| a.abort(msg)) as Box<dyn Fn(String) + Send + Sync>
         );
 
-        Wrapper::invoke(arc_self.as_ref(), &method, args.as_deref(), env.as_deref(), Arc::new(FFIInvokerWrapping::new(invoker)), abort_handler).unwrap()
+        Ok(Wrapper::invoke(arc_self.as_ref(), &method, args.as_deref(), env.as_deref(), Arc::new(FFIInvokerWrapping(invoker)), abort_handler)?)
     }
 }
 
@@ -69,7 +69,7 @@ impl Wrapper for WrapperWrapping {
 
         Ok(self
             .0
-            .invoke(method.to_string(), args, env, invoker, abort_handler))
+            .invoke(method.to_string(), args, env, invoker, abort_handler)?)
     }
 
     fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
