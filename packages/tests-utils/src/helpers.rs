@@ -118,7 +118,7 @@ impl Invoker for MockInvoker {
         None
     }
 
-    fn get_env_by_uri(&self, _: &polywrap_core::uri::Uri) -> Option<&[u8]> {
+    fn get_env_by_uri(&self, _: &polywrap_core::uri::Uri) -> Option<Vec<u8>> {
         None
     }
 }
