@@ -12,8 +12,11 @@ use polywrap_core::{
 
 use super::MockWrapper;
 
+pub fn get_mock_uri_package_or_wrapper() -> UriPackageOrWrapper {
+    UriPackageOrWrapper::Wrapper("wrap/mock".try_into().unwrap(), Arc::new(MockWrapper {}))
+}
 #[derive(Debug)]
-pub struct MockResolver {}
+pub struct MockResolver;
 
 impl UriResolver for MockResolver {
     fn try_resolve_uri(
@@ -22,11 +25,8 @@ impl UriResolver for MockResolver {
         _: Arc<dyn Invoker>,
         _: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
-        if uri.to_string() == *"wrap://ens/mock.eth" {
-            Ok(UriPackageOrWrapper::Wrapper(
-                "wrap://ens/mock.eth".try_into().unwrap(),
-                Arc::new(MockWrapper {}),
-            ))
+        if uri.to_string() == *"wrap://wrap/mock" {
+            Ok(get_mock_uri_package_or_wrapper())
         } else {
             Err(Error::ResolutionError("Not Found".to_string()))
         }

@@ -45,8 +45,6 @@ impl FFIWasmWrapper {
 
 #[cfg(test)]
 mod test {
-    use std::sync::Arc;
-
     use polywrap_client::msgpack::decode;
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
 

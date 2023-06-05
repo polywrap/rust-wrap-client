@@ -292,7 +292,7 @@ mod client_tests {
 
         let result = client
             .invoke::<bool>(
-                &"wrap://ens/mock.eth".try_into().unwrap(),
+                &"wrap/mock".try_into().unwrap(),
                 "foo",
                 None,
                 None,
@@ -316,7 +316,7 @@ mod client_tests {
         let result = client
             .invoke_wrapper::<bool, MockWrapper>(
                 &wrapper,
-                &"wrap://ens/mock.eth".try_into().unwrap(),
+                &"wrap/mock".try_into().unwrap(),
                 "foo",
                 None,
                 None,
@@ -336,7 +336,7 @@ mod client_tests {
         });
 
         let wrapper = client
-            .load_wrapper(&"wrap://ens/mock.eth".try_into().unwrap(), None)
+            .load_wrapper(&"wrap/mock".try_into().unwrap(), None)
             .unwrap();
 
         let result = wrapper.invoke("foo", None, None, Arc::new(client), None);
@@ -351,7 +351,7 @@ mod client_tests {
             envs: None,
             interfaces: None,
         });
-        let uri: Uri = "wrap://ens/mock.eth".try_into().unwrap();
+        let uri: Uri = "wrap/mock".try_into().unwrap();
 
         let uri_package_or_wrapper = client.try_resolve_uri(&uri, None).unwrap();
 
