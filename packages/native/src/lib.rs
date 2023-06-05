@@ -17,7 +17,6 @@ use package::*;
 use uri::*;
 use resolvers::{
   _static::*,
-  extendable::*,
   ffi_resolver::*,
   recursive::*,
   uri_package_or_wrapper::*,
