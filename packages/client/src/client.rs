@@ -159,7 +159,7 @@ impl Invoker for PolywrapClient {
 
     fn get_env_by_uri(&self, uri: &Uri) -> Option<Vec<u8>> {
         if let Some(envs) = &self.envs {
-            return envs.get(&uri.to_string()).map(|e| e.clone());
+            return envs.get(&uri.to_string()).cloned();
         }
 
         None
