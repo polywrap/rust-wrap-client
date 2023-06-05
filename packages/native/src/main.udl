@@ -14,7 +14,7 @@ interface FFIError {
   ResolverError(string err);
   PluginError(string err);
   RuntimeError(string err);
-  UnexpectedError(string err);
+  OtherError(string err);
 };
 
 interface FFIUri {

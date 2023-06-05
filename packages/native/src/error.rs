@@ -31,23 +31,55 @@ pub enum FFIError {
   #[error("`{err}`")]
   RuntimeError{ err: String },
   #[error("`{err}`")]
-  UnexpectedError{ err: String }
+  OtherError{ err: String }
 }
 
 impl From<polywrap_client::core::error::Error> for FFIError {
     fn from(value: polywrap_client::core::error::Error) -> Self {
-        todo!()
+        match value {
+            polywrap_client::core::error::Error::UriParseError(err) => FFIError::UriParseError { err },
+            polywrap_client::core::error::Error::RedirectsError(err, resolution_stack) => FFIError::RedirectsError { err, resolution_stack },
+            polywrap_client::core::error::Error::WrapperError(err) => FFIError::WrapperError { err },
+            polywrap_client::core::error::Error::WrapperCreateError(err) => FFIError::WrapperCreateError { err },
+            polywrap_client::core::error::Error::InvokeError(uri, method, err) => FFIError::InvokeError { uri, method, err },
+            polywrap_client::core::error::Error::LoadWrapperError(err) => FFIError::LoadWrapperError { err },
+            polywrap_client::core::error::Error::WasmWrapperError(err) => FFIError::WasmWrapperError { err },
+            polywrap_client::core::error::Error::ResolutionError(err) => FFIError::ResolutionError { err },
+            polywrap_client::core::error::Error::MsgpackError(err) => FFIError::MsgpackError { err },
+            polywrap_client::core::error::Error::ManifestError(err) => FFIError::ManifestError { err },
+            polywrap_client::core::error::Error::FileReadError(err) => FFIError::FileReadError { err },
+            polywrap_client::core::error::Error::ResolverError(err) => FFIError::ResolverError { err },
+            polywrap_client::core::error::Error::PluginError(err) => FFIError::PluginError { err },
+            polywrap_client::core::error::Error::RuntimeError(err) => FFIError::RuntimeError { err },
+            polywrap_client::core::error::Error::OtherError(err) => FFIError::OtherError { err },
+        }
     }
 }
 
 impl From<FFIError> for polywrap_client::core::error::Error {
     fn from(value: FFIError) -> Self {
-        todo!()
+        match value {
+            FFIError::UriParseError { err } => polywrap_client::core::error::Error::UriParseError(err),
+            FFIError::RedirectsError { err, resolution_stack } => polywrap_client::core::error::Error::RedirectsError(err, resolution_stack),
+            FFIError::WrapperError { err } => polywrap_client::core::error::Error::WrapperError(err),
+            FFIError::WrapperCreateError { err } => polywrap_client::core::error::Error::WrapperCreateError(err),
+            FFIError::InvokeError { uri, method, err } => polywrap_client::core::error::Error::InvokeError(uri, method, err),
+            FFIError::LoadWrapperError { err } => polywrap_client::core::error::Error::LoadWrapperError(err),
+            FFIError::WasmWrapperError { err } => polywrap_client::core::error::Error::WasmWrapperError(err),
+            FFIError::ResolutionError { err } => polywrap_client::core::error::Error::ResolutionError(err),
+            FFIError::MsgpackError { err } => polywrap_client::core::error::Error::MsgpackError(err),
+            FFIError::ManifestError { err } => polywrap_client::core::error::Error::ManifestError(err),
+            FFIError::FileReadError { err } => polywrap_client::core::error::Error::FileReadError(err),
+            FFIError::ResolverError { err } => polywrap_client::core::error::Error::ResolverError(err),
+            FFIError::PluginError { err } => polywrap_client::core::error::Error::PluginError(err),
+            FFIError::RuntimeError { err } => polywrap_client::core::error::Error::RuntimeError(err),
+            FFIError::OtherError { err } => polywrap_client::core::error::Error::OtherError(err),
+        }
     }
 }
 
 impl From<uniffi::UnexpectedUniFFICallbackError> for FFIError {
   fn from(e: uniffi::UnexpectedUniFFICallbackError) -> Self {
-      Self::UnexpectedError { err: e.reason }
+      Self::OtherError { err: e.reason }
   }
 }
