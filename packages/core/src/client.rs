@@ -9,7 +9,7 @@ use crate::uri_resolver_handler::UriResolverHandler;
 use crate::wrap_invoker::WrapInvoker;
 use crate::wrap_loader::WrapLoader;
 
-#[derive(Clone,Debug)]
+#[derive(Clone,Debug,PartialEq)]
 pub struct UriRedirect {
   pub from: Uri,
   pub to: Uri,

@@ -11,6 +11,7 @@ use crate::{
     wrapper::{WrapperWrapping, FFIWrapper},
 };
 
+#[derive(Debug)]
 pub enum FFIUriPackageOrWrapperKind {
     URI,
     PACKAGE,
