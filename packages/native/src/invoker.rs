@@ -6,22 +6,22 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{resolvers::resolution_context::FFIUriResolutionContext, uri::FFIUri};
+use crate::{resolvers::resolution_context::FFIUriResolutionContext, uri::FFIUri, error::FFIError};
 
 pub trait FFIInvoker: Send + Sync {
     fn invoke_raw(
         &self,
         uri: Arc<FFIUri>,
-        method: &str,
-        args: Option<&[u8]>,
-        env: Option<&[u8]>,
+        method: String,
+        args: Option<Vec<u8>>,
+        env: Option<Vec<u8>>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
-    ) -> Result<Vec<u8>, polywrap_client::core::error::Error>;
+    ) -> Result<Vec<u8>, FFIError>;
 
     fn get_implementations(
         &self,
         uri: Arc<FFIUri>,
-    ) -> Result<Vec<Arc<FFIUri>>, polywrap_client::core::error::Error>;
+    ) -> Result<Vec<Arc<FFIUri>>, FFIError>;
 
     fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<FFIUri>>>>;
 
@@ -34,18 +34,18 @@ impl FFIInvoker for InvokerWrapping {
     fn invoke_raw(
         &self,
         uri: Arc<FFIUri>,
-        method: &str,
-        args: Option<&[u8]>,
-        env: Option<&[u8]>,
+        method: String,
+        args: Option<Vec<u8>>,
+        env: Option<Vec<u8>>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
-    ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
-        self.0.invoke_raw(&uri.0, method, args, env, resolution_context.map(|ctx| ctx.0))
+    ) -> Result<Vec<u8>, FFIError> {
+        Ok(self.0.invoke_raw(&uri.0, &method, args.as_deref(), env.as_deref(), resolution_context.map(|ctx| ctx.0.clone()))?)
     }
 
     fn get_implementations(
         &self,
         uri: Arc<FFIUri>,
-    ) -> Result<Vec<Arc<FFIUri>>, polywrap_client::core::error::Error> {
+    ) -> Result<Vec<Arc<FFIUri>>, FFIError> {
         let uris = self.0.get_implementations(&uri.0)?;
         let uris: Vec<Arc<FFIUri>> = uris.into_iter().map(|uri| Arc::new(FFIUri(uri.clone()))).collect();
 
@@ -69,7 +69,16 @@ impl FFIInvoker for InvokerWrapping {
     }
 }
 
-pub struct FFIInvokerWrapping(pub Box<dyn FFIInvoker>);
+pub struct FFIInvokerWrapping {
+  pub ffi_invoker: Box<dyn FFIInvoker>,
+  env: Option<Vec<u8>>
+}
+
+impl FFIInvokerWrapping {
+    pub fn new(ffi_invoker: Box<dyn FFIInvoker>) -> Self {
+      Self { ffi_invoker, env: None }
+    }
+}
 
 impl Invoker for FFIInvokerWrapping {
     fn invoke_raw(
@@ -80,21 +89,21 @@ impl Invoker for FFIInvokerWrapping {
         env: Option<&[u8]>,
         resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
-        self.0.invoke_raw(
+        Ok(self.ffi_invoker.invoke_raw(
             Arc::new(FFIUri(uri.clone())),
-            method,
-            args,
-            env,
+            method.to_string(),
+            args.map(|a| a.to_vec()),
+            env.map(|e| e.to_vec()),
             resolution_context.map(|ctx| Arc::new(FFIUriResolutionContext(ctx))),
-        )
+        )?)
     }
 
     fn get_implementations(
         &self,
         uri: &Uri,
     ) -> Result<Vec<Uri>, polywrap_client::core::error::Error> {
-        let uris = self.0.get_implementations(Arc::new(FFIUri(uri.clone())))?;
-        let uris: Vec<Uri> = uris.into_iter().map(|uri| uri.0).collect();
+        let uris = self.ffi_invoker.get_implementations(Arc::new(FFIUri(uri.clone())))?;
+        let uris: Vec<Uri> = uris.into_iter().map(|uri| uri.0.clone()).collect();
 
         Ok(uris)
     }
@@ -102,19 +111,18 @@ impl Invoker for FFIInvokerWrapping {
     fn get_interfaces(
         &self,
     ) -> Option<polywrap_client::core::interface_implementation::InterfaceImplementations> {
-        let interfaces = self.0.get_interfaces();
+        let interfaces = self.ffi_invoker.get_interfaces();
         let interfaces: Option<HashMap<String, Vec<Uri>>> = interfaces.map(|interfaces| {
           interfaces.into_iter().map(|(key, value)| (
             key,
-            value.into_iter().map(|uri| uri.0).collect()
+            value.into_iter().map(|uri| uri.0.clone()).collect()
           )).collect()
         });
 
         interfaces
     }
 
-    fn get_env_by_uri(&self, uri: &Uri) -> Option<&[u8]> {
-        let env = self.0.get_env_by_uri(Arc::new(FFIUri(uri.clone())));
-        env.as_deref()
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<Vec<u8>> {
+        self.ffi_invoker.get_env_by_uri(Arc::new(FFIUri(uri.clone())))
     }
 }

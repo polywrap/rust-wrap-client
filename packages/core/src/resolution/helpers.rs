@@ -105,10 +105,10 @@ pub fn get_implementations(
     // }
 }
 
-pub fn get_env_from_resolution_path<'a>(
+pub fn get_env_from_resolution_path(
     resolution_path: &[Uri],
-    client: &'a dyn Client
-) -> Option<&'a [u8]> {
+    client: &dyn Client
+) -> Option<Vec<u8>> {
     for uri in resolution_path.iter() {
       let env = client.get_env_by_uri(uri);
   

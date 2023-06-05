@@ -6,6 +6,7 @@ pub mod client;
 pub mod wrapper;
 pub mod package;
 pub mod uri;
+pub mod error;
 
 use builder::*;
 use invoker::*;
@@ -22,7 +23,6 @@ use resolvers::{
   uri_package_or_wrapper::*,
   resolution_context::*
 };
-
-use polywrap_client::core::error::Error as FFIError;
+use error::*;
 
 uniffi::include_scaffolding!("main");

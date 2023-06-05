@@ -128,7 +128,7 @@ impl Invoker for PolywrapClient {
         });
 
         let env = if env.is_some() {
-            env
+            env.map(|e| e.to_vec())
         } else {
             get_env_from_resolution_path(&resolution_path, self)
         };
@@ -140,7 +140,7 @@ impl Invoker for PolywrapClient {
             uri,
             method,
             args,
-            env,
+            env.as_deref(),
             Some(res_context_guard.borrow_mut()),
         )
     }
@@ -157,9 +157,9 @@ impl Invoker for PolywrapClient {
         None
     }
 
-    fn get_env_by_uri(&self, uri: &Uri) -> Option<&[u8]> {
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<Vec<u8>> {
         if let Some(envs) = &self.envs {
-            return envs.get(&uri.to_string()).map(|value| value.as_slice());
+            return envs.get(&uri.to_string()).map(|e| e.clone());
         }
 
         None

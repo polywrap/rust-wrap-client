@@ -40,7 +40,7 @@ impl Invoker for Subinvoker {
     fn get_interfaces(&self) -> Option<InterfaceImplementations> {
         self.invoker.get_interfaces()
     }
-    fn get_env_by_uri(&self, uri: &Uri) -> Option<&[u8]> {
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<Vec<u8>> {
         self.invoker.get_env_by_uri(uri)
     }
 }

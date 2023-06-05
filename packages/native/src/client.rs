@@ -1,11 +1,11 @@
 use std::{collections::HashMap, ops::DerefMut, sync::Arc};
 
-use polywrap_client::core::{client::Client, error::Error};
+use polywrap_client::core::{client::Client};
 
 use crate::{
     resolvers::resolution_context::FFIUriResolutionContext,
     uri::FFIUri,
-    wrapper::{WrapperWrapping, FFIWrapper},
+    wrapper::{WrapperWrapping, FFIWrapper}, error::FFIError,
 };
 
 pub struct FFIClient {
@@ -79,29 +79,29 @@ impl FFIClient {
         args: Option<Vec<u8>>,
         env: Option<Vec<u8>>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
-    ) -> Result<Vec<u8>, Error> {
+    ) -> Result<Vec<u8>, FFIError> {
         let args = args.as_deref();
 
         if let Some(resolution_context) = resolution_context {
             let mut res_context_guard = resolution_context.0.lock().unwrap();
 
-            self.inner_client.invoke_wrapper_raw(
+            Ok(self.inner_client.invoke_wrapper_raw(
                 &WrapperWrapping(wrapper),
                 &uri.0,
                 method,
                 args.as_deref(),
                 env.as_deref(),
                 Some(res_context_guard.deref_mut()),
-            )
+            )?)
         } else {
-            self.inner_client.invoke_wrapper_raw(
+            Ok(self.inner_client.invoke_wrapper_raw(
                 &WrapperWrapping(wrapper),
                 &uri.0,
                 method,
                 args.as_deref(),
                 env.as_deref(),
                 None,
-            )
+            )?)
         }
     }
 
@@ -109,7 +109,7 @@ impl FFIClient {
         &self,
         uri: Arc<FFIUri>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
-    ) -> Result<Box<dyn FFIWrapper>, Error> {
+    ) -> Result<Box<dyn FFIWrapper>, FFIError> {
         let wrapper =
             self.inner_client
                 .load_wrapper(&uri.0, resolution_context.map(|ctx| ctx.0.clone()))?;

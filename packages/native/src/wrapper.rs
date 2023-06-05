@@ -37,7 +37,7 @@ impl FFIWrapper for Arc<dyn Wrapper> {
           |a| Box::new(move |msg: String| a.abort(msg)) as Box<dyn Fn(String) + Send + Sync>
         );
 
-        Wrapper::invoke(arc_self.as_ref(), &method, args.as_deref(), env.as_deref(), Arc::new(FFIInvokerWrapping(invoker)), abort_handler).unwrap()
+        Wrapper::invoke(arc_self.as_ref(), &method, args.as_deref(), env.as_deref(), Arc::new(FFIInvokerWrapping::new(invoker)), abort_handler).unwrap()
     }
 }
 

@@ -36,7 +36,7 @@ impl FFIExtendableUriResolver {
     ) -> Box<dyn FFIUriPackageOrWrapper> {
         let result = self
             .inner_resolver
-            .try_resolve_uri(&uri.0, Arc::new(FFIInvokerWrapping(invoker)), resolution_context.0.clone())
+            .try_resolve_uri(&uri.0, Arc::new(FFIInvokerWrapping::new(invoker)), resolution_context.0.clone())
             .unwrap();
 
         Box::new(result)
@@ -52,7 +52,7 @@ impl FFIUriResolver for FFIExtendableUriResolver {
     ) -> Box<dyn FFIUriPackageOrWrapper> {
         let result = self
             .inner_resolver
-            .try_resolve_uri(&uri.0, Arc::new(FFIInvokerWrapping(invoker)), resolution_context.0.clone())
+            .try_resolve_uri(&uri.0, Arc::new(FFIInvokerWrapping::new(invoker)), resolution_context.0.clone())
             .unwrap();
 
         Box::new(result)

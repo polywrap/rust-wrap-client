@@ -15,5 +15,5 @@ pub trait Invoker: Send + Sync {
     ) -> Result<Vec<u8>, Error>;
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error>;
     fn get_interfaces(&self) -> Option<InterfaceImplementations>;
-    fn get_env_by_uri(&self, uri: &Uri) -> Option<&[u8]>;
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<Vec<u8>>;
 }

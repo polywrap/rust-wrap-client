@@ -1,19 +1,20 @@
 [Error]
-enum FFIError {
-  "UriParseError",
-  "RedirectsError",
-  "WrapperError",
-  "WrapperCreateError",
-  "InvokeError",
-  "LoadWrapperError",
-  "WasmWrapperError",
-  "ResolutionError",
-  "MsgpackError",
-  "ManifestError",
-  "FileReadError",
-  "ResolverError",
-  "PluginError",
-  "RuntimeError"
+interface FFIError {
+  UriParseError(string err);
+  RedirectsError(string err, record<DOMString, string> resolution_stack);
+  WrapperError(string err);
+  WrapperCreateError(string err);
+  InvokeError(string uri, string method, string err);
+  LoadWrapperError(string err);
+  WasmWrapperError(string err);
+  ResolutionError(string err);
+  MsgpackError(string err);
+  ManifestError(string err);
+  FileReadError(string err);
+  ResolverError(string err);
+  PluginError(string err);
+  RuntimeError(string err);
+  UnexpectedError(string err);
 };
 
 interface FFIUri {
