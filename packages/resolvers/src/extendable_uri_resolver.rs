@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use polywrap_core::{
     resolution::{
         uri_resolution_context::{
@@ -33,14 +33,14 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
         &self,
         _: &Uri,
         invoker: &dyn Invoker,
-        resolution_context: &mut UriResolutionContext
+        resolution_context: Arc<Mutex<UriResolutionContext>>
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
         let implementations = invoker.get_implementations(
            &Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?
         )?;
 
         let resolvers = implementations.into_iter().filter_map(|implementation| {
-            if !resolution_context.is_resolving(&implementation) {
+            if !resolution_context.lock().unwrap().is_resolving(&implementation) {
                 let wrapper = Arc::new(UriResolverWrapper::new(implementation));
                 return Some(wrapper as Arc<dyn UriResolver>);
             }
@@ -69,12 +69,12 @@ impl UriResolver for ExtendableUriResolver {
         &self, 
         uri: &Uri, 
         invoker: Arc<dyn Invoker>, 
-        resolution_context: &mut UriResolutionContext
+        resolution_context: Arc<Mutex<UriResolutionContext>>
     ) -> Result<UriPackageOrWrapper, Error> {
         let resolvers = self.get_uri_resolvers(
             uri,
             invoker.as_ref(),
-            resolution_context
+            resolution_context.clone()
         )?;
 
         if resolvers.is_empty() {

@@ -23,3 +23,5 @@ rmp-serde.workspace = true
 
 [dev-dependencies]
 polywrap_tests_utils.workspace = true
+bigdecimal.workspace = true
+num-bigint.workspace = true

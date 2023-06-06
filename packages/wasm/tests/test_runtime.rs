@@ -1,10 +1,10 @@
-use std::{path::Path, collections::HashMap};
+use std::{path::Path, collections::HashMap, sync::Mutex};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
 use polywrap_core::{
     invoker::{Invoker},
     uri::Uri,
     error::Error,
-    file_reader::{SimpleFileReader}, resolution::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env, interface_implementation::InterfaceImplementations
+    file_reader::{SimpleFileReader}, resolution::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, interface_implementation::InterfaceImplementations
 };
 use wrap_manifest_schemas::{
     deserialize::deserialize_wrap_manifest
@@ -31,8 +31,8 @@ impl MockInvoker {
       _: &Uri,
       method: &str,
       args: Option<&[u8]>,
-      env: Option<&Env>,
-      _: Option<&mut UriResolutionContext>
+      env: Option<&[u8]>,
+      _: Option<Arc<Mutex<UriResolutionContext>>>
   ) -> Result<Vec<u8>, Error> {
       wrapper.invoke(
           method,
@@ -50,8 +50,8 @@ impl Invoker for MockInvoker {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        env: Option<&[u8]>,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
         self.clone().invoke_wrapper_raw(
             Arc::new(self.wrapper.clone()),
@@ -72,7 +72,7 @@ impl Invoker for MockInvoker {
         Some(i)
     }
 
-    fn get_env_by_uri(&self, _: &Uri) -> Option<&Env> {
+    fn get_env_by_uri(&self, _: &Uri) -> Option<Vec<u8>> {
         None
     }
 }

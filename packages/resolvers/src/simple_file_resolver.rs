@@ -1,4 +1,4 @@
-use std::{fs, path::Path, sync::{Arc}, fmt};
+use std::{fs, path::Path, sync::{Arc, Mutex}, fmt};
 
 use polywrap_core::{
     error::Error,
@@ -25,7 +25,7 @@ impl UriResolver for FilesystemResolver {
         &self,
         uri: &Uri,
         _invoker: Arc<dyn Invoker>,
-        _: &mut UriResolutionContext,
+        _: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority != "fs" && uri.authority != "file" {
            return Ok(UriPackageOrWrapper::Uri(uri.clone()));

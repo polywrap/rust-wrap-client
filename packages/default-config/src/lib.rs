@@ -3,11 +3,11 @@ use http_plugin_rs::HttpPlugin;
 
 use polywrap_client_builder::types::BuilderConfig;
 use polywrap_core::{
-    client::UriRedirect, env::Envs, resolvers::uri_resolution_context::UriPackage,
+    client::UriRedirect, resolvers::uri_resolution_context::UriPackage,
     resolvers::uri_resolution_context::UriWrapper, uri::Uri,
 };
+use polywrap_msgpack::msgpack;
 use polywrap_plugin::package::PluginPackage;
-use serde_json::json;
 use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
@@ -77,10 +77,10 @@ pub fn build() -> BuilderConfig {
         vec![Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0").unwrap()],
     );
 
-    let mut envs: Envs = HashMap::new();
+    let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
     envs.insert(
         "ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1".to_string(),
-        json!({
+        msgpack!({
             "provider": "https://ipfs.wrappers.io",
             "fallbackProviders": ["https://ipfs.io"],
             "retries": { "tryResolveUri": 2, "getFile": 2 },

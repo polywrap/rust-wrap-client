@@ -10,14 +10,12 @@ members = [
     "packages/client",
     "packages/core",
     "packages/wasm",
-    "packages/native",
     "packages/resolvers",
     "packages/msgpack",
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
-    "packages/tests-utils",
-    "packages/default-config"
+    "packages/native"
 ]
 
 # Do not include test utils & default config crates in default members
@@ -30,6 +28,7 @@ default-members = [
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
+    "packages/native"
 ]
 
 [workspace.dependencies]
@@ -56,3 +55,5 @@ proc-macro2 = "1.0"
 quote = "1.0"
 syn = { version = "1.0.105", features=["full", "extra-traits", "visit"] }
 base64 = "0.13.1"
+bigdecimal = "0.3.0"
+num-bigint = "0.4.3"

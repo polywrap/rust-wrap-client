@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::{Arc};
+use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
     resolution::{uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep}, uri_resolver::UriResolver, helpers::UriResolverExtensionFileReader},
@@ -30,9 +30,10 @@ impl UriResolverWrapper {
         uri: &Uri,
         implementation_uri: &Uri,
         invoker: &dyn Invoker,
-        resolution_context: &mut UriResolutionContext
+        resolution_context: Arc<Mutex<UriResolutionContext>>
     ) -> Result<MaybeUriOrManifest, Error> {
-        let mut resolver_extension_context = resolution_context.create_sub_context();
+        let resolver_extension_context = resolution_context.lock().unwrap().create_sub_context();
+        let resolver_extension_context = Arc::new(Mutex::new(resolver_extension_context));
         let result = invoker.invoke_raw(
             implementation_uri,
             "tryResolveUri", 
@@ -41,17 +42,17 @@ impl UriResolverWrapper {
                 "path": uri.path.as_str(),
             })), 
             None, 
-            Some(&mut resolver_extension_context)
+            Some(resolver_extension_context.clone())
         );
 
-        resolution_context.track_step(UriResolutionStep {
+        resolution_context.lock().unwrap().track_step(UriResolutionStep {
             source_uri: uri.clone(),
             result: match result.clone() {
                 Ok(_) => Ok(UriPackageOrWrapper::Uri(implementation_uri.clone())),
                 Err(e) => Err(e),
             },
             description: Some(format!("ResolverExtension({implementation_uri})")),
-            sub_history: Some(resolver_extension_context.get_history().clone())
+            sub_history: Some(resolver_extension_context.lock().unwrap().get_history().clone())
         });
 
         let result = result?;
@@ -72,7 +73,7 @@ impl UriResolver for UriResolverWrapper {
         &self, 
         uri: &Uri, 
         invoker: Arc<dyn Invoker>, 
-        resolution_context: &mut UriResolutionContext
+        resolution_context: Arc<Mutex<UriResolutionContext>>
     ) ->  Result<UriPackageOrWrapper, Error> {
         let result = self.try_resolve_uri_with_implementation(
             uri, 

@@ -1,6 +1,6 @@
 use std::{sync::Arc, fmt::Debug, any::Any};
 
-use crate::{error::Error, invoker::Invoker, env::Env};
+use crate::{error::Error, invoker::{Invoker}};
 pub enum Encoding {
     Base64,
     UTF8,
@@ -16,7 +16,7 @@ pub trait Wrapper: Send + Sync + Debug + Any {
         &self,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
+        env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
         abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, Error>;

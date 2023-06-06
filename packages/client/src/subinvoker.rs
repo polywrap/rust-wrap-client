@@ -2,7 +2,7 @@ use std::sync::{Mutex, Arc};
 
 use polywrap_core::{
     resolution::uri_resolution_context::UriResolutionContext, 
-    invoker::Invoker, env::Env, error::Error, uri::Uri, interface_implementation::InterfaceImplementations
+    invoker::Invoker, error::Error, uri::Uri, interface_implementation::InterfaceImplementations
 };
 
 pub struct Subinvoker {
@@ -28,11 +28,11 @@ impl Invoker for Subinvoker {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
-        _: Option<&mut UriResolutionContext>,
+        env: Option<&[u8]>,
+        _: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
-        let mut context = self.resolution_context.lock().unwrap();
-        self.invoker.invoke_raw(uri, method, args, env, Some(&mut context))
+        let context = self.resolution_context.clone();
+        self.invoker.invoke_raw(uri, method, args, env, Some(context))
     }
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
         self.invoker.get_implementations(uri)
@@ -40,7 +40,7 @@ impl Invoker for Subinvoker {
     fn get_interfaces(&self) -> Option<InterfaceImplementations> {
         self.invoker.get_interfaces()
     }
-    fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env> {
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<Vec<u8>> {
         self.invoker.get_env_by_uri(uri)
     }
 }

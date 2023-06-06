@@ -1,6 +1,6 @@
 use crate::error::WrapperError;
 use crate::runtime::instance::{State,WasmInstance};
-use polywrap_core::env::Env;
+
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
 use polywrap_core::invoker::Invoker;
@@ -39,7 +39,7 @@ impl WasmWrapper {
         &self,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
+        env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
         abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<T, Error> {
@@ -73,7 +73,7 @@ impl Wrapper for WasmWrapper {
         &self,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
+        env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
         abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, Error> {
@@ -83,7 +83,7 @@ impl Wrapper for WasmWrapper {
         };
 
         let env = match env {
-            Some(e) => polywrap_msgpack::serialize(e)?,
+            Some(env) => env.to_vec(),
             None => vec![],
         };
 
@@ -127,16 +127,14 @@ impl Wrapper for WasmWrapper {
             }
 
             Ok(state.invoke.result.as_ref().unwrap().to_vec())
+        } else if state.invoke.error.is_none() {
+            Err(Error::RuntimeError(
+                "Invoke error is missing".to_string(),
+            ))
         } else {
-            if state.invoke.error.is_none() {
-                Err(Error::RuntimeError(
-                    "Invoke error is missing".to_string(),
-                ))
-            } else {
-                Err(Error::WrapperError(
-                    state.invoke.error.as_ref().unwrap().to_string(),
-                ))
-            }
+            Err(Error::WrapperError(
+                state.invoke.error.as_ref().unwrap().to_string(),
+            ))
         }
     }
 

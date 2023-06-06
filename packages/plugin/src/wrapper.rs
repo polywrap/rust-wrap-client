@@ -4,7 +4,6 @@ use std::{
 };
 
 use polywrap_core::{
-    env::Env,
     invoker::Invoker,
     wrapper::{GetFileOptions, Wrapper}, error::Error,
 };
@@ -30,7 +29,7 @@ impl Wrapper for PluginWrapper {
         &self,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
+        env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
         _: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, Error> {
