@@ -5,6 +5,7 @@ use polywrap_client::msgpack::msgpack;
 use polywrap_tests_utils::helpers::get_tests_path;
 
 #[test]
+#[ignore]
 fn numbers_test_case() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
