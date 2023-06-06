@@ -1,12 +1,10 @@
-
-use JSON::{json, from_value, Value};
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{invoker::{Invoker}, env::Env, package::WrapPackage, uri::Uri, client::ClientConfig};
+use polywrap_core::{invoker::{Invoker}, package::WrapPackage, uri::Uri, client::ClientConfig};
 use polywrap_msgpack::msgpack;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
+use serde_json::{from_value, json};
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
 use std::{sync::Arc, collections::HashMap};
-use serde_json as JSON;
 
 use polywrap_plugin::{
     error::PluginError, module::PluginModule, implementor::plugin_impl, package::PluginPackage,
@@ -17,6 +15,11 @@ pub struct GetEnvArgs {
     key: String,
 }
 
+#[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
+pub struct Env {
+  foo: String
+}
+
 #[derive(Debug)]
 pub struct PluginEnv {}
 
@@ -25,7 +28,7 @@ pub trait Module: PluginModule {
         &mut self,
         args: &GetEnvArgs,
         invoker: Arc<dyn Invoker>,
-        env: Option<&Env>,
+        env: Option<Env>,
     ) -> Result<bool, PluginError>;
 }
 
@@ -35,12 +38,14 @@ impl Module for PluginEnv {
         &mut self,
         args: &GetEnvArgs,
         _: Arc<dyn Invoker>,
-        env: Option<&Env>,
+        _env: Option<Env>,
     ) -> Result<bool, PluginError> {
-        if let Some(env) = env {
-            if let Some(value) = env.get(args.key.clone()) {
-                return Ok(value.eq(&Value::String("bar".to_string())));
-            }
+        if let Some(_env) = _env {
+            let value = match args.key.as_str() {
+              "foo" => &_env.foo,
+              &_ => panic!("Property does not exist")
+            };
+            return Ok(value == "bar")
         }
 
         Ok(false)
@@ -67,8 +72,8 @@ fn invoke_test() {
         plugin_static_like
     ]);
 
-    let foo = json!({"foo": "bar"});
-    let envs = HashMap::from([(Uri::try_from("ens/env-plugin.eth").unwrap().uri, foo)]);
+    let env_val = msgpack!({"foo": "bar"});
+    let envs = HashMap::from([(Uri::try_from("ens/env-plugin.eth").unwrap().uri, env_val)]);
     let client = PolywrapClient::new(ClientConfig {
         envs: Some(envs),
         interfaces: None,

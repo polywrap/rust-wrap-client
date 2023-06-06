@@ -1,4 +1,4 @@
-use crate::{resolution::uri_resolution_context::UriResolutionContext, error::Error, wrapper::Wrapper, uri::Uri, env::Env};
+use crate::{resolution::uri_resolution_context::UriResolutionContext, error::Error, wrapper::Wrapper, uri::Uri};
 
 pub trait WrapInvoker: Send + Sync {
   fn invoke_wrapper_raw(
@@ -7,7 +7,7 @@ pub trait WrapInvoker: Send + Sync {
       uri: &Uri,
       method: &str,
       args: Option<&[u8]>,
-      env: Option<&Env>,
+      env: Option<&[u8]>,
       resolution_context: Option<&mut UriResolutionContext>,
   ) -> Result<Vec<u8>, Error>;
 }

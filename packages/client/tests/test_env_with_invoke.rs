@@ -1,5 +1,5 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_client::core::{env::Envs, uri::Uri};
+use polywrap_client::core::{uri::Uri};
 use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
@@ -16,19 +16,16 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use serde_json::json;
-
 fn get_env_wrapper_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    let subinvoker_uri = Uri::try_from(format!(
-        "fs/{}/env-type/00-main/implementations/rs",
-        path
-    ))
-    .unwrap();
+    
 
-    subinvoker_uri
+    Uri::try_from(format!(
+        "fs/{path}/env-type/00-main/implementations/rs"
+    ))
+    .unwrap()
 }
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -47,11 +44,34 @@ struct Env {
     array: Vec<i32>,
 }
 
-fn build_client(uri: &Uri, env: Option<&Env>) -> PolywrapClient {
-    let mut envs: Envs = HashMap::new();
+fn get_default_env() -> Env {
+  Env {
+      str: "string".to_string(),
+      optStr: None,
+      optFilledStr: Some("optional string".to_string()),
+      number: 10,
+      optNumber: None,
+      bool: true,
+      optBool: None,
+      en: 0,
+      optEnum: None,
+      object: HashMap::from([
+          ("prop".to_string(), "object string".to_string()),
+      ]),
+      optObject: None,
+      array: vec![32, 23],
+  }
+}
+
+fn get_default_serialized_env() -> Vec<u8> {
+  polywrap_msgpack::serialize(&get_default_env()).unwrap()
+}
+
+fn build_client(uri: &Uri, env: Option<&[u8]>) -> PolywrapClient {
+    let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
    
     if let Some(env) = env {
-        envs.insert(uri.to_string(), json!(env));
+        envs.insert(uri.to_string(), env.to_vec());
     }
 
     let resolvers = HashMap::new();
@@ -95,25 +115,7 @@ fn invoke_method_without_env_does_not_require_env() {
 #[test]
 fn invoke_method_without_env_works_with_env() {
     let wrapper_uri = get_env_wrapper_uri();
-
-    let env = Env {
-        str: "string".to_string(),
-        optStr: None,
-        optFilledStr: Some("optional string".to_string()),
-        number: 10,
-        optNumber: None,
-        bool: true,
-        optBool: None,
-        en: 0,
-        optEnum: None,
-        object: HashMap::from([
-            ("prop".to_string(), "object string".to_string()),
-        ]),
-        optObject: None,
-        array: vec![32, 23],
-    };
-
-    let client = build_client(&wrapper_uri, Some(&env));
+    let client = build_client(&wrapper_uri, Some(&get_default_serialized_env()));
 
     let test_string = "test";
     let result = client
@@ -133,24 +135,7 @@ fn invoke_method_without_env_works_with_env() {
 fn invoke_method_with_required_env_works_with_env() {
     let wrapper_uri = get_env_wrapper_uri();
 
-    let env = Env {
-        str: "string".to_string(),
-        optStr: None,
-        optFilledStr: Some("optional string".to_string()),
-        number: 10,
-        optNumber: None,
-        bool: true,
-        optBool: None,
-        en: 0,
-        optEnum: None,
-        object: HashMap::from([
-            ("prop".to_string(), "object string".to_string()),
-        ]),
-        optObject: None,
-        array: vec![32, 23],
-    };
-
-    let client = build_client(&wrapper_uri, Some(&env));
+    let client = build_client(&wrapper_uri, Some(&get_default_serialized_env()));
 
     let result = client
         .invoke::<Env>(
@@ -162,7 +147,7 @@ fn invoke_method_with_required_env_works_with_env() {
         )
         .unwrap();
 
-    assert_eq!(result, env);
+    assert_eq!(result, get_default_env());
 }
 
 #[test]
@@ -189,24 +174,7 @@ fn invoke_method_with_required_env_panics_without_env_registered() {
 fn invoke_method_with_optional_env_works_with_env() {
     let wrapper_uri = get_env_wrapper_uri();
 
-    let env = Env {
-        str: "string".to_string(),
-        optStr: None,
-        optFilledStr: Some("optional string".to_string()),
-        number: 10,
-        optNumber: None,
-        bool: true,
-        optBool: None,
-        en: 0,
-        optEnum: None,
-        object: HashMap::from([
-            ("prop".to_string(), "object string".to_string()),
-        ]),
-        optObject: None,
-        array: vec![32, 23],
-    };
-
-    let client = build_client(&wrapper_uri, Some(&env));
+    let client = build_client(&wrapper_uri, Some(&get_default_serialized_env()));
 
     let result = client
         .invoke::<Env>(
@@ -218,7 +186,7 @@ fn invoke_method_with_optional_env_works_with_env() {
         )
         .unwrap();
 
-    assert_eq!(result, env);
+    assert_eq!(result, get_default_env());
 }
 
 #[test]
@@ -245,29 +213,14 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
     let wrapper_uri = get_env_wrapper_uri();
     let redirect_from_uri = Uri::try_from("mock/from").unwrap();
 
-    let env = Env {
-        str: "string".to_string(),
-        optStr: None,
-        optFilledStr: Some("optional string".to_string()),
-        number: 10,
-        optNumber: None,
-        bool: true,
-        optBool: None,
-        en: 0,
-        optEnum: None,
-        object: HashMap::from([
-            ("prop".to_string(), "object string".to_string()),
-        ]),
-        optObject: None,
-        array: vec![32, 23],
-    };
+    let env = get_default_env();
 
     // Register the env for the redirect_from_uri which will be redirected to the wrapper_uri
     {
         let client = {
-            let mut envs: Envs = HashMap::new();
+            let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
         
-            envs.insert(redirect_from_uri.to_string(), json!(env));
+            envs.insert(redirect_from_uri.to_string(), get_default_serialized_env());
         
             let resolvers = HashMap::from([
                 (
@@ -308,14 +261,14 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
     // Register the env for the wrapper_uri which will be redirected to, from the redirect_from_uri
     {
         let client = {
-            let mut envs: Envs = HashMap::new();
+            let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
         
-            envs.insert(wrapper_uri.to_string(), json!(env));
+            envs.insert(wrapper_uri.to_string(), polywrap_msgpack::serialize(&env).unwrap());
         
             let resolvers = HashMap::from([
                 (
                     redirect_from_uri.to_string(),
-                    UriPackageOrWrapper::Uri(wrapper_uri.clone())
+                    UriPackageOrWrapper::Uri(wrapper_uri)
                 ),
             ]);
         

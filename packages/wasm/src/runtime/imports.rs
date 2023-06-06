@@ -339,18 +339,12 @@ pub fn create_imports(
             let uri = String::from_utf8(impl_uri_buffer).unwrap();
             let method = String::from_utf8(method_buffer).unwrap();
             let mut _decoded_env = serde_json::Value::Null;
-            let env = if !state.env.is_empty() {
-              _decoded_env = polywrap_msgpack::decode::<serde_json::Value>(&state.env).unwrap();
-              Some(&_decoded_env)
-            } else {
-              None
-            };
 
             let result = state.invoker.clone().invoke_raw(
                 &uri.try_into().unwrap(),
                 &method,
                 Some(&args_buffer),
-                env,
+                Some(&state.env),
                 None
             );
     
