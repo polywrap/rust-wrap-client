@@ -4,13 +4,12 @@ use polywrap_core::{
     invoker::Invoker,
     uri::Uri,
     resolution::{
-        uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+        uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep},
         uri_resolver::UriResolver
     },
     error::Error,
+    wrapper::Wrapper,
 };
-use polywrap_core::resolution::uri_resolution_context::UriResolutionStep;
-use polywrap_core::wrapper::Wrapper;
 use crate::cache::basic_wrapper_cache::BasicWrapperCache;
 use crate::cache::wrapper_cache::WrapperCache;
 use crate::uri_resolver_aggregator::UriResolverAggregator;
@@ -36,16 +35,6 @@ impl WrapperCacheResolver {
         WrapperCacheResolver { resolver, cache }
     }
 
-    /// Caches the result of a resolved URI based on its type.
-    ///
-    /// # Arguments
-    ///
-    /// * `uri_package_or_wrapper` - The resolved URI to cache.
-    /// * `sub_context` - The context for the resolution.
-    ///
-    /// # Returns
-    ///
-    /// * A `Result` containing the cached `UriPackageOrWrapper` on success, or an error on failure.
     fn cache_result(
         &self,
         uri_package_or_wrapper: UriPackageOrWrapper,
