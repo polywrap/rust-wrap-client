@@ -10,6 +10,7 @@ use polywrap_core::{
     error::Error,
 };
 use polywrap_core::resolution::uri_resolution_context::UriResolutionStep;
+use polywrap_core::wrapper::Wrapper;
 use crate::cache::basic_wrapper_cache::BasicWrapperCache;
 use crate::cache::wrapper_cache::WrapperCache;
 use crate::uri_resolver_aggregator::UriResolverAggregator;
@@ -59,31 +60,25 @@ impl WrapperCacheResolver {
                 match wrap_package.create_wrapper() {
                     Err(e) => Err(e),
                     Ok(wrapper) => {
-                        let resolution_path = sub_context.lock().unwrap().get_resolution_path();
-                        for uri in resolution_path {
-                            self.cache.lock().unwrap().set(uri, wrapper.clone());
-                        }
+                        self.cache_resolution_path(sub_context.clone(), wrapper.clone());
                         Ok(UriPackageOrWrapper::Wrapper(resolved_uri, wrapper))
                     }
                 }
             }
 
             UriPackageOrWrapper::Wrapper(resolved_uri, wrapper) => {
-                let resolution_path = sub_context.lock().unwrap().get_resolution_path();
-                for uri in resolution_path {
-                    self.cache.lock().unwrap().set(uri, wrapper.clone());
-                }
-
+                self.cache_resolution_path(sub_context.clone(), wrapper.clone());
                 Ok(UriPackageOrWrapper::Wrapper(resolved_uri, wrapper))
             }
         }
     }
 
-    // fn cache_resolution_path(&mut self, resolution_path: Vec<Uri>, wrapper: &Box<dyn Wrapper>) {
-    //     for uri in resolution_path {
-    //         self.cache.set(uri, wrapper.clone());
-    //     }
-    // }
+    fn cache_resolution_path(&self, resolution_context: Arc<Mutex<UriResolutionContext>>, wrapper: Arc<dyn Wrapper>) {
+        let resolution_path = resolution_context.lock().unwrap().get_resolution_path();
+        for uri in resolution_path {
+            self.cache.lock().unwrap().set(uri, wrapper.clone());
+        }
+    }
 }
 
 impl UriResolver for WrapperCacheResolver {
