@@ -10,7 +10,9 @@ use polywrap_core::{
     error::Error,
 };
 use polywrap_core::resolution::uri_resolution_context::UriResolutionStep;
+use crate::cache::basic_wrapper_cache::BasicWrapperCache;
 use crate::cache::wrapper_cache::WrapperCache;
+use crate::uri_resolver_aggregator::UriResolverAggregator;
 
 /// A URI resolver that uses a cache to store and retrieve the results of resolved URIs.
 pub struct WrapperCacheResolver {
@@ -84,12 +86,6 @@ impl WrapperCacheResolver {
     // }
 }
 
-impl fmt::Debug for WrapperCacheResolver {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "WrapperCacheResolver")
-    }
-}
-
 impl UriResolver for WrapperCacheResolver {
     /// Tries to resolve the given URI using a cache and returns the result.
     ///
@@ -139,5 +135,37 @@ impl UriResolver for WrapperCacheResolver {
         );
 
         return final_result;
+    }
+}
+
+impl fmt::Debug for WrapperCacheResolver {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "WrapperCacheResolver")
+    }
+}
+
+impl From<Vec<Box<dyn UriResolver>>> for WrapperCacheResolver {
+    fn from(resolvers: Vec<Box<dyn UriResolver>>) -> Self {
+        WrapperCacheResolver::from(
+            UriResolverAggregator::from(resolvers)
+        )
+    }
+}
+
+impl From<UriResolverAggregator> for WrapperCacheResolver {
+    fn from(resolver: UriResolverAggregator) -> Self {
+        WrapperCacheResolver::new(
+            Arc::new(resolver),
+            Mutex::new(Box::new(BasicWrapperCache::new()))
+        )
+    }
+}
+
+impl From<Box<dyn UriResolver>> for WrapperCacheResolver {
+    fn from(resolver: Box<dyn UriResolver>) -> Self {
+        WrapperCacheResolver::new(
+            Arc::from(resolver),
+            Mutex::new(Box::new(BasicWrapperCache::new()))
+        )
     }
 }
