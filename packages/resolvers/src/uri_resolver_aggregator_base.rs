@@ -30,9 +30,10 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
         resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
         let sub_context = resolution_context.lock().unwrap().create_sub_history_context();
+        let sub_context = Arc::new(Mutex::new(sub_context));
         for resolver in resolvers.into_iter() {
             let result = resolver
-                .try_resolve_uri(uri, invoker.clone(), resolution_context.clone());
+                .try_resolve_uri(uri, invoker.clone(), sub_context.clone());
             let track_and_return = if let Ok(UriPackageOrWrapper::Uri(result_uri)) = &result {
                 uri.to_string() != result_uri.to_string()
             } else {
@@ -43,7 +44,7 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
                 resolution_context.lock().unwrap().track_step(UriResolutionStep {
                     source_uri: uri.clone(),
                     result: result.clone(),
-                    sub_history: Some(sub_context.get_history().clone()),
+                    sub_history: Some(sub_context.lock().unwrap().get_history().clone()),
                     description: Some(self.get_step_description(uri, &result)),
                 });
 
@@ -56,7 +57,7 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
         resolution_context.lock().unwrap().track_step(UriResolutionStep {
             source_uri: uri.clone(),
             result: result.clone(),
-            sub_history: Some(sub_context.get_history().clone()),
+            sub_history: Some(sub_context.lock().unwrap().get_history().clone()),
             description: Some(self.get_step_description(uri, &result)),
         });
 
