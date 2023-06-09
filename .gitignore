@@ -18,3 +18,18 @@ cov.info
 
 node_modules
 yarn-error.log
+
+packages/native/include
+packages/native/PolywrapClient.xcframework/ios-arm64/PolywrapClient.framework/*
+packages/native/PolywrapClient.xcframework/ios-arm64/PolywrapClient.framework/Headers/*
+!packages/native/PolywrapClient.xcframework/ios-arm64/PolywrapClient.framework/Info.plist
+!packages/native/PolywrapClient.xcframework/ios-arm64/PolywrapClient.framework/Modules
+!packages/native/PolywrapClient.xcframework/ios-arm64/PolywrapClient.framework/Headers
+!packages/native/PolywrapClient.xcframework/ios-arm64/PolywrapClient.framework/Headers/polywrap_nativeFFI.h
+
+packages/native/PolywrapClient.xcframework/ios-arm64_x86_64-simulator/PolywrapClient.framework/*
+packages/native/PolywrapClient.xcframework/ios-arm64_x86_64-simulator/PolywrapClient.framework/Headers/*
+!packages/native/PolywrapClient.xcframework/ios-arm64_x86_64-simulator/PolywrapClient.framework/Info.plist
+!packages/native/PolywrapClient.xcframework/ios-arm64_x86_64-simulator/PolywrapClient.framework/Modules
+!packages/native/PolywrapClient.xcframework/ios-arm64_x86_64-simulator/PolywrapClient.framework/Headers
+!packages/native/PolywrapClient.xcframework/ios-arm64_x86_64-simulator/PolywrapClient.framework/Headers/polywrap_nativeFFI.h
