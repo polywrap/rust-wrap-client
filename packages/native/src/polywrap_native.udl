@@ -154,4 +154,4 @@ interface FFIBuilderConfig {
   FFIClient build();
 };
 
-namespace main { };
+namespace polywrap_native { };

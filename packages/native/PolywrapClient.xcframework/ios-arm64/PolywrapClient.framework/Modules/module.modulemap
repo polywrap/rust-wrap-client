@@ -1,0 +1,6 @@
+framework module PolywrapClient {
+  umbrella header "polywrap_nativeFFI.h"
+
+  export *
+  module * { export * }
+}
