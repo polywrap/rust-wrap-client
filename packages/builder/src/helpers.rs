@@ -11,6 +11,7 @@ use polywrap_resolvers::{
     static_resolver::{StaticResolverLike, StaticResolver}, recursive_resolver::RecursiveResolver, resolver_vec
 };
 use polywrap_resolvers::package_to_wrapper_resolver::PackageToWrapperResolver;
+use polywrap_resolvers::resolution_result_cache_resolver::ResolutionResultCacheResolver;
 use polywrap_resolvers::wrapper_cache_resolver::WrapperCacheResolver;
 
 use crate::types::BuilderConfig;
@@ -40,12 +41,10 @@ pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
         envs: builder.envs.clone(),
         interfaces: builder.interfaces.clone(),
         resolver: Arc::new(RecursiveResolver::from(
-            Box::from(WrapperCacheResolver::from(
-                Box::from(PackageToWrapperResolver::from(resolver_vec![
-                    StaticResolver::from(static_resolvers),
-                    ExtendableUriResolver::new(None),
-                ])) as Box<dyn UriResolver>
-            )) as Box<dyn UriResolver>
+            Box::from(ResolutionResultCacheResolver::from(resolver_vec![
+                StaticResolver::from(static_resolvers),
+                ExtendableUriResolver::new(None),
+            ])) as Box<dyn UriResolver>
         )),
     }
 }
