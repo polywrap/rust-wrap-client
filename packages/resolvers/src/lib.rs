@@ -13,3 +13,4 @@ pub mod resolver_with_loop_guard;
 pub mod resolver_vec;
 pub mod cache;
 pub mod wrapper_cache_resolver;
+pub mod package_to_wrapper_resolver;

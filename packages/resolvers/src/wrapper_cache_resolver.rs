@@ -14,7 +14,7 @@ use crate::cache::basic_wrapper_cache::BasicWrapperCache;
 use crate::cache::wrapper_cache::WrapperCache;
 use crate::uri_resolver_aggregator::UriResolverAggregator;
 
-/// A URI resolver that uses a cache to store and retrieve the results of resolved URIs.
+/// A URI resolver that uses a cache to store and retrieve wrappers that pass through.
 pub struct WrapperCacheResolver {
     resolver: Arc<dyn UriResolver>,
     cache: Mutex<Box<dyn WrapperCache>>,
@@ -33,33 +33,6 @@ impl WrapperCacheResolver {
     /// * A new `CacheResolver`.
     pub fn new(resolver: Arc<dyn UriResolver>, cache: Mutex<Box<dyn WrapperCache>>) -> WrapperCacheResolver {
         WrapperCacheResolver { resolver, cache }
-    }
-
-    fn cache_result(
-        &self,
-        uri_package_or_wrapper: UriPackageOrWrapper,
-        sub_context: Arc<Mutex<UriResolutionContext>>
-    ) -> Result<UriPackageOrWrapper, Error> {
-        match uri_package_or_wrapper {
-            UriPackageOrWrapper::Uri(uri_value) => {
-                Ok(UriPackageOrWrapper::Uri(uri_value))
-            }
-
-            UriPackageOrWrapper::Package(resolved_uri, wrap_package) => {
-                match wrap_package.create_wrapper() {
-                    Err(e) => Err(e),
-                    Ok(wrapper) => {
-                        self.cache_resolution_path(sub_context.clone(), wrapper.clone());
-                        Ok(UriPackageOrWrapper::Wrapper(resolved_uri, wrapper))
-                    }
-                }
-            }
-
-            UriPackageOrWrapper::Wrapper(resolved_uri, wrapper) => {
-                self.cache_resolution_path(sub_context.clone(), wrapper.clone());
-                Ok(UriPackageOrWrapper::Wrapper(resolved_uri, wrapper))
-            }
-        }
     }
 
     fn cache_resolution_path(&self, resolution_context: Arc<Mutex<UriResolutionContext>>, wrapper: Arc<dyn Wrapper>) {
@@ -104,21 +77,23 @@ impl UriResolver for WrapperCacheResolver {
         let sub_context = resolution_context.lock().unwrap().create_sub_history_context();
         let sub_context = Arc::new(Mutex::new(sub_context));
         let result = self.resolver.try_resolve_uri(uri, invoker.clone(), sub_context.clone());
-        let final_result = match result {
-            Ok(uri_package_or_wrapper) => self.cache_result(uri_package_or_wrapper, sub_context.clone()),
-            Err(_) => result,
-        };
+
+        if result.is_ok() {
+            if let UriPackageOrWrapper::Wrapper(_, wrapper) = result.clone().unwrap() {
+                self.cache_resolution_path(sub_context.clone(), wrapper.clone());
+            }
+        }
 
         resolution_context.lock().unwrap().track_step(
             UriResolutionStep {
                 source_uri: uri.clone(),
-                result: final_result.clone(),
+                result: result.clone(),
                 sub_history: Some(sub_context.lock().unwrap().get_history().clone()),
                 description: Some("CacheResolver".to_string()),
             }
         );
 
-        return final_result;
+        return result;
     }
 }
 
