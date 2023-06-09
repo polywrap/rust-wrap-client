@@ -18,7 +18,7 @@ cov.info
 
 node_modules
 yarn-error.log
-
+.DS_Store
 packages/native/include
 packages/native/PolywrapClient.xcframework/ios-arm64/PolywrapClient.framework/*
 packages/native/PolywrapClient.xcframework/ios-arm64/PolywrapClient.framework/Headers/*
