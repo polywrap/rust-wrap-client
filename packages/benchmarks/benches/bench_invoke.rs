@@ -89,5 +89,9 @@ fn bench_subinvoke(c: &mut Criterion) {
     }));
 }
 
-criterion_group!(benches, bench_invoke, bench_subinvoke);
+criterion_group!{
+    name = benches;
+    config = Criterion::default().sample_size(60);
+    targets = bench_invoke, bench_subinvoke
+}
 criterion_main!(benches);

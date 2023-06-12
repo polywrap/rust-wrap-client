@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::{path::Path, collections::HashMap, sync::Mutex};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
-use polywrap_benchmarks::get_tests_path_string;
+use polywrap_benchmarks::{get_fibonacci_wrap, get_tests_path_string};
 use polywrap_core::{
     invoker::{Invoker},
     uri::Uri,
@@ -12,31 +12,7 @@ use polywrap_core::{
 use polywrap_msgpack::msgpack;
 use std::sync::{Arc};
 use std::fs;
-
-#[derive(Clone)]
-struct MockInvoker {}
-
-impl MockInvoker {
-    fn new() -> Self { Self {} }
-}
-
-impl Invoker for MockInvoker {
-    fn invoke_raw(
-        &self,
-        _uri: &Uri,
-        _method: &str,
-        _args: Option<&[u8]>,
-        _env: Option<&[u8]>,
-        _resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
-    ) -> Result<Vec<u8>, Error> { Ok(vec![]) }
-    fn get_implementations(&self, _uri: &Uri) -> Result<Vec<Uri>, Error> {
-        Ok(vec![])
-    }
-    fn get_interfaces(&self) -> Option<InterfaceImplementations> { Some(HashMap::new()) }
-    fn get_env_by_uri(&self, _: &Uri) -> Option<Vec<u8>> {
-        None
-    }
-}
+use polywrap_tests_utils::mocks::MockInvoker;
 
 fn bench_invoke(c: &mut Criterion) {
     // Note: this is using the correct URI for invoke, which is in the 00-subinvoke wrapper
@@ -61,23 +37,9 @@ fn bench_invoke(c: &mut Criterion) {
     }));
 }
 
-fn get_fibonacci_wrap(implementation: &str) -> WasmWrapper {
-    let relative_path = format!("fibonacci/{}/build/wrap.wasm", implementation);
-    let path = Path::new(&relative_path)
-        .canonicalize()
-        .unwrap()
-        .into_os_string()
-        .into_string()
-        .unwrap();
-    let module_bytes = fs::read(Path::new(&path)).unwrap();
-    let file_reader = SimpleFileReader::new();
-    let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader));
-    wrapper
-}
-
 fn bench_fibonacci_loop(c: &mut Criterion) {
     let mock_invoker = Arc::new(MockInvoker::new());
-    let n = 42;
+    let n = 10;
 
     let mut group = c.benchmark_group("wasm/fibonacci_loop");
 
@@ -106,7 +68,7 @@ fn bench_fibonacci_loop(c: &mut Criterion) {
 
 fn bench_fibonacci_recursive(c: &mut Criterion) {
     let mock_invoker = Arc::new(MockInvoker::new());
-    let n = 42;
+    let n = 10;
 
     let mut group = c.benchmark_group("wasm/fibonacci_recursive");
 
@@ -133,6 +95,9 @@ fn bench_fibonacci_recursive(c: &mut Criterion) {
     }));
 }
 
-criterion_group!(benches, bench_invoke, bench_fibonacci_loop, bench_fibonacci_recursive);
-
+criterion_group!{
+    name = benches;
+    config = Criterion::default().sample_size(10);
+    targets = bench_invoke, bench_fibonacci_loop, bench_fibonacci_recursive
+}
 criterion_main!(benches);
