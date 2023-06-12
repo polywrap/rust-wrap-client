@@ -61,9 +61,78 @@ fn bench_invoke(c: &mut Criterion) {
     }));
 }
 
-criterion_group!{
-    name = benches;
-    config = Criterion::default().sample_size(100);
-    targets = bench_invoke
+fn get_fibonacci_wrap(implementation: &str) -> WasmWrapper {
+    let relative_path = format!("fibonacci/{}/build/wrap.wasm", implementation);
+    let path = Path::new(&relative_path)
+        .canonicalize()
+        .unwrap()
+        .into_os_string()
+        .into_string()
+        .unwrap();
+    let module_bytes = fs::read(Path::new(&path)).unwrap();
+    let file_reader = SimpleFileReader::new();
+    let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader));
+    wrapper
 }
+
+fn bench_fibonacci_loop(c: &mut Criterion) {
+    let mock_invoker = Arc::new(MockInvoker::new());
+    let n = 42;
+
+    let mut group = c.benchmark_group("wasm/fibonacci_loop");
+
+    let wrapper = get_fibonacci_wrap("as");
+    group.bench_function("as", |b| b.iter(|| {
+        let result = wrapper.invoke(
+            "fibonacci_loop",
+            Some(&msgpack!({ "n": n })),
+            None,
+            mock_invoker.clone(),
+            None
+        ).unwrap();
+    }));
+
+    let wrapper = get_fibonacci_wrap("rs");
+    group.bench_function("rs", |b| b.iter(|| {
+        let result = wrapper.invoke(
+            "fibonacci_loop",
+            Some(&msgpack!({ "n": n })),
+            None,
+            mock_invoker.clone(),
+            None
+        ).unwrap();
+    }));
+}
+
+fn bench_fibonacci_recursive(c: &mut Criterion) {
+    let mock_invoker = Arc::new(MockInvoker::new());
+    let n = 42;
+
+    let mut group = c.benchmark_group("wasm/fibonacci_recursive");
+
+    let wrapper = get_fibonacci_wrap("as");
+    group.bench_function("as", |b| b.iter(|| {
+        let result = wrapper.invoke(
+            "fibonacci_recursive",
+            Some(&msgpack!({ "n": n })),
+            None,
+            mock_invoker.clone(),
+            None
+        ).unwrap();
+    }));
+
+    let wrapper = get_fibonacci_wrap("rs");
+    group.bench_function("rs", |b| b.iter(|| {
+        let result = wrapper.invoke(
+            "fibonacci_recursive",
+            Some(&msgpack!({ "n": n })),
+            None,
+            mock_invoker.clone(),
+            None
+        ).unwrap();
+    }));
+}
+
+criterion_group!(benches, bench_invoke, bench_fibonacci_loop, bench_fibonacci_recursive);
+
 criterion_main!(benches);

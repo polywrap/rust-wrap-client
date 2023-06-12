@@ -70,9 +70,5 @@ fn bench_load_wrapper(c: &mut Criterion) {
     }
 }
 
-criterion_group!{
-    name = benches;
-    config = Criterion::default().sample_size(30);
-    targets = bench_try_resolve_uri, bench_load_wrapper
-}
+criterion_group!(benches, bench_try_resolve_uri, bench_load_wrapper);
 criterion_main!(benches);

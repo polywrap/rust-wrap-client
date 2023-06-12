@@ -35,6 +35,6 @@ harness = false
 name = "bench_runtime"
 harness = false
 
-[[bench]]
-name = "bench_load_wrapper"
-harness = false
+#[[bench]]
+#name = "bench_load_wrapper"
+#harness = false
