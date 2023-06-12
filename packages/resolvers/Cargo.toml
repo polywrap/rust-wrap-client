@@ -14,5 +14,6 @@ polywrap_core.workspace = true
 polywrap_wasm.workspace = true
 polywrap_msgpack.workspace = true
 serde.workspace = true
+serde_bytes.workspace = true
 
 pathdiff = "0.2.1"
