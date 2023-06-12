@@ -13,7 +13,8 @@ struct BytesMethodArgs {
 
 #[derive(Serialize, Deserialize)]
 struct Args {
-    prop: ByteBuf,
+    #[serde(with = "serde_bytes")]
+    prop: Vec<u8>,
 }
 
 #[test]
@@ -25,7 +26,7 @@ fn bytes_method() {
     let client = get_client(None);
     let args = BytesMethodArgs {
         arg: Args {
-            prop: ByteBuf::from("Argument Value".as_bytes()),
+            prop: "Argument Value".as_bytes().to_vec(),
         },
     };
     let response = client
