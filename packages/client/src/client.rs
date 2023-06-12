@@ -109,7 +109,7 @@ impl Invoker for PolywrapClient {
                     sub_history: Some(loaded_wrapper_context.lock().unwrap().get_history().clone()),
                 });
 
-            return Err(Error::LoadWrapperError(error.to_string()));
+            return Err(Error::LoadWrapperError(uri.to_string(), error.to_string()));
         }
 
         let resolution_path = loaded_wrapper_context.lock().unwrap().get_resolution_path();
