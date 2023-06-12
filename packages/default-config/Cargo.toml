@@ -21,7 +21,5 @@ polywrap_wasm = { version = "0.1.6-beta.4" }
 polywrap_resolvers = { version = "0.1.6-beta.4" }
 wrap_manifest_schemas = { version = "0.1.6-beta.4" }
 
-polywrap_fs_plugin = { version  = "0.0.1-beta.1" }
-polywrap_http_plugin = { version  = "0.0.1-beta.1" }
-
-[workspace]
+polywrap_fs_plugin = { version  = "0.0.1-beta.2" }
+polywrap_http_plugin = { version  = "0.0.1-beta.2" }

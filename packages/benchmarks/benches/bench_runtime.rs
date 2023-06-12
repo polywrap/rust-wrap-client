@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::{path::Path, collections::HashMap, sync::Mutex};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
-use polywrap_tests_utils::helpers::get_tests_path_string;
+use polywrap_benchmarks::get_tests_path_string;
 use polywrap_core::{
     invoker::{Invoker},
     uri::Uri,

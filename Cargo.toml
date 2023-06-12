@@ -16,8 +16,7 @@ members = [
     "packages/builder",
     "packages/plugin",
     "packages/native",
-    "packages/benchmarks",
-    "packages/default-config"
+    "packages/benchmarks"
 ]
 
 # Do not include test utils & default config crates in default members
@@ -45,8 +44,6 @@ polywrap_plugin = { version = "0.1.6-beta.4", path = "packages/plugin" }
 
 polywrap_plugin_implementor = { version = "0.1.6-beta.4", path = "packages/plugin/implementor" }
 polywrap_tests_utils = { version = "0.1.6-beta.4", path = "packages/tests-utils" }
-polywrap_benchmarks = { version = "0.1.6-beta.4", path = "packages/benchmarks" }
-polywrap_client_default_config = { version = "0.1.6-beta.4", path = "packages/default-config" }
 
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"
