@@ -34,13 +34,6 @@ impl ResolutionResultCacheResolver {
     pub fn new(resolver: Arc<dyn UriResolver>, cache: Mutex<Box<dyn ResolutionResultCache>>) -> ResolutionResultCacheResolver {
         ResolutionResultCacheResolver { resolver, cache }
     }
-
-    fn cache_resolution_path(&self, resolution_context: Arc<Mutex<UriResolutionContext>>, result: Arc<Result<UriPackageOrWrapper, Error>>) {
-        let resolution_path = resolution_context.lock().unwrap().get_resolution_path();
-        for uri in resolution_path {
-            self.cache.lock().unwrap().set(uri, result.clone());
-        }
-    }
 }
 
 impl UriResolver for ResolutionResultCacheResolver {
@@ -79,7 +72,7 @@ impl UriResolver for ResolutionResultCacheResolver {
         let result = self.resolver.try_resolve_uri(uri, invoker.clone(), sub_context.clone());
 
         if result.is_ok() {
-            self.cache_resolution_path(sub_context.clone(), Arc::from(result.clone()));
+            self.cache.lock().unwrap().set(uri.clone(), Arc::from(result.clone()));
         }
 
         resolution_context.lock().unwrap().track_step(
