@@ -5,7 +5,7 @@ interface FFIError {
   WrapperError(string err);
   WrapperCreateError(string err);
   InvokeError(string uri, string method, string err);
-  LoadWrapperError(string err);
+  LoadWrapperError(string uri, string err);
   WasmWrapperError(string err);
   ResolutionError(string err);
   MsgpackError(string err);

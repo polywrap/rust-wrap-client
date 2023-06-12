@@ -13,7 +13,7 @@ pub enum FFIError {
   #[error("Failed to invoke wrapper, uri: `{uri}`, method: `{method}`: `{err}`")]
   InvokeError{ uri: String, method: String, err: String },
   #[error("Error loading wrapper: `{err}`")]
-  LoadWrapperError{ err: String },
+  LoadWrapperError{ uri: String, err: String },
   #[error("WasmWrapper error: `{err}`")]
   WasmWrapperError{ err: String },
   #[error("Failed to resolve wrapper: `{err}`")]
@@ -42,7 +42,7 @@ impl From<polywrap_client::core::error::Error> for FFIError {
             polywrap_client::core::error::Error::WrapperError(err) => FFIError::WrapperError { err },
             polywrap_client::core::error::Error::WrapperCreateError(err) => FFIError::WrapperCreateError { err },
             polywrap_client::core::error::Error::InvokeError(uri, method, err) => FFIError::InvokeError { uri, method, err },
-            polywrap_client::core::error::Error::LoadWrapperError(err) => FFIError::LoadWrapperError { err },
+            polywrap_client::core::error::Error::LoadWrapperError(uri, err) => FFIError::LoadWrapperError { uri, err },
             polywrap_client::core::error::Error::WasmWrapperError(err) => FFIError::WasmWrapperError { err },
             polywrap_client::core::error::Error::ResolutionError(err) => FFIError::ResolutionError { err },
             polywrap_client::core::error::Error::MsgpackError(err) => FFIError::MsgpackError { err },
@@ -64,7 +64,7 @@ impl From<FFIError> for polywrap_client::core::error::Error {
             FFIError::WrapperError { err } => polywrap_client::core::error::Error::WrapperError(err),
             FFIError::WrapperCreateError { err } => polywrap_client::core::error::Error::WrapperCreateError(err),
             FFIError::InvokeError { uri, method, err } => polywrap_client::core::error::Error::InvokeError(uri, method, err),
-            FFIError::LoadWrapperError { err } => polywrap_client::core::error::Error::LoadWrapperError(err),
+            FFIError::LoadWrapperError { uri, err } => polywrap_client::core::error::Error::LoadWrapperError(uri, err),
             FFIError::WasmWrapperError { err } => polywrap_client::core::error::Error::WasmWrapperError(err),
             FFIError::ResolutionError { err } => polywrap_client::core::error::Error::ResolutionError(err),
             FFIError::MsgpackError { err } => polywrap_client::core::error::Error::MsgpackError(err),

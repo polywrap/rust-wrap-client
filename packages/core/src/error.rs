@@ -14,8 +14,8 @@ pub enum Error {
   WrapperCreateError(String),
   #[error("Failed to invoke wrapper, uri: `{0}`, method: `{1}`: `{2}`")]
   InvokeError(String, String, String),
-  #[error("Error loading wrapper: `{0}`")]
-  LoadWrapperError(String),
+  #[error("Error loading wrapper, uri: {0}: `{1}`")]
+  LoadWrapperError(String, String),
   #[error("WasmWrapper error: `{0}`")]
   WasmWrapperError(String),
   #[error("Failed to resolve wrapper: `{0}`")]
