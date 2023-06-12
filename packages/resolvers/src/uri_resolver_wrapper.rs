@@ -17,6 +17,7 @@ pub struct UriResolverWrapper {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MaybeUriOrManifest {
     pub uri: Option<String>,
+    #[serde(with = "serde_bytes")]
     pub manifest: Option<Vec<u8>>,
 }
 
