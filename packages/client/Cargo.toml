@@ -23,8 +23,3 @@ rmp-serde.workspace = true
 
 [dev-dependencies]
 polywrap_tests_utils.workspace = true
-criterion = { version = "0.4", features = ["html_reports"] }
-
-[[bench]]
-name = "benchmark_invoke"
-harness = false

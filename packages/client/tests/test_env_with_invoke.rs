@@ -11,16 +11,13 @@ use polywrap_resolvers::recursive_resolver::RecursiveResolver;
 use polywrap_resolvers::resolver_vec;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
-use polywrap_tests_utils::helpers::get_tests_path;
+use polywrap_tests_utils::helpers::get_tests_path_string;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 
 fn get_env_wrapper_uri() -> Uri {
-    let test_path = get_tests_path().unwrap();
-    let path = test_path.into_os_string().into_string().unwrap();
-
-    
+    let path = get_tests_path_string();
 
     Uri::try_from(format!(
         "fs/{path}/env-type/00-main/implementations/rs"

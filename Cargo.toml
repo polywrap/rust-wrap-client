@@ -15,7 +15,9 @@ members = [
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
-    "packages/native"
+    "packages/native",
+    "packages/benchmarks",
+    "packages/default-config"
 ]
 
 # Do not include test utils & default config crates in default members
@@ -39,10 +41,12 @@ polywrap_core = { version = "0.1.6-beta.4", path = "packages/core" }
 wrap_manifest_schemas = { version = "0.1.6-beta.4", path = "packages/manifest" }
 polywrap_resolvers = { version = "0.1.6-beta.4", path = "packages/resolvers" }
 polywrap_msgpack = { version = "0.1.6-beta.4", path = "packages/msgpack" }
-polywrap_tests_utils = { version = "0.1.6-beta.4", path = "packages/tests-utils" }
 polywrap_plugin = { version = "0.1.6-beta.4", path = "packages/plugin" }
 
 polywrap_plugin_implementor = { version = "0.1.6-beta.4", path = "packages/plugin/implementor" }
+polywrap_tests_utils = { version = "0.1.6-beta.4", path = "packages/tests-utils" }
+polywrap_benchmarks = { version = "0.1.6-beta.4", path = "packages/benchmarks" }
+polywrap_client_default_config = { version = "0.1.6-beta.4", path = "packages/default-config" }
 
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"
@@ -55,3 +59,4 @@ proc-macro2 = "1.0"
 quote = "1.0"
 syn = { version = "1.0.105", features=["full", "extra-traits", "visit"] }
 base64 = "0.13.1"
+

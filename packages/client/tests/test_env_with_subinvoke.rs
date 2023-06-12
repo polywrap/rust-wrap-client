@@ -8,16 +8,13 @@ use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
-use polywrap_tests_utils::helpers::get_tests_path;
+use polywrap_tests_utils::helpers::get_tests_path_string;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 
 fn get_subinvoker_uri() -> Uri {
-    let test_path = get_tests_path().unwrap();
-    let path = test_path.into_os_string().into_string().unwrap();
-
-    
+    let path = get_tests_path_string();
 
     Uri::try_from(format!(
         "fs/{path}/env-type/01-subinvoker/implementations/rs"
@@ -26,10 +23,7 @@ fn get_subinvoker_uri() -> Uri {
 }
 
 fn get_subinvoker_with_env_uri() -> Uri {
-    let test_path = get_tests_path().unwrap();
-    let path = test_path.into_os_string().into_string().unwrap();
-    
-    
+    let path = get_tests_path_string();
 
     Uri::try_from(format!(
         "fs/{path}/env-type/02-subinvoker-with-env/implementations/rs"
@@ -38,10 +32,7 @@ fn get_subinvoker_with_env_uri() -> Uri {
 }
 
 fn get_subinvoked_uri() -> Uri {
-    let test_path = get_tests_path().unwrap();
-    let path = test_path.into_os_string().into_string().unwrap();
-    
-    
+    let path = get_tests_path_string();
 
     Uri::try_from(format!(
         "fs/{path}/env-type/00-main/implementations/rs"
