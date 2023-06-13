@@ -9,7 +9,6 @@ repository = "https://github.com/polywrap/rust-client"
 
 [lib]
 crate-type = ["rlib"]
-test = false
 
 [dependencies]
 polywrap_client = { version = "0.1.6-beta.5" }
@@ -23,13 +22,14 @@ polywrap_tests_utils = { version = "0.1.6-beta.5" }
 polywrap_plugin = { version = "0.1.6-beta.5" }
 polywrap_plugin_implementor = { version = "0.1.6-beta.5" }
 polywrap_client_default_config = { version = "0.1.6-beta.5", path="../default-config" }
+polywrap-wasm-rs = "0.10.3"
 
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }
 
-[[bench]]
-name = "bench_invoke"
-harness = false
+#[[bench]]
+#name = "bench_invoke"
+#harness = false
 
 [[bench]]
 name = "bench_runtime"

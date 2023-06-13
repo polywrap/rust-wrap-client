@@ -8,7 +8,7 @@ use polywrap_core::{
 };
 use polywrap_client_builder::types::{ClientConfigHandler};
 use polywrap_core::uri_resolver_handler::UriResolverHandler;
-use polywrap_benchmarks::get_tests_path_string;
+use polywrap_benchmarks::{get_fibonacci_dir};
 
 fn prepare_client() -> PolywrapClient {
     let builder = polywrap_client_default_config::build();
@@ -22,18 +22,19 @@ pub struct UriCase {
 }
 
 pub fn prepare_uris() -> Vec<UriCase> {
-    let path = get_tests_path_string();
     let fs_uri = UriCase {
         id: "fs_uri".to_string(),
-        uri: Uri::try_from(format!("fs/{path}/subinvoke/00-subinvoke/implementations/rs")).unwrap(),
+        uri: Uri::try_from(format!("fs/{}", get_fibonacci_dir("rs"))).unwrap(),
     };
     let http_uri = UriCase {
         id: "http_uri".to_string(),
-        uri: Uri::try_from(format!("http/https://raw.githubusercontent.com/polywrap/wrap-test-harness/master/cases/subinvoke/00-subinvoke/implementations/rs")).unwrap(),
+        uri: Uri::try_from(format!(
+            "http/https://raw.githubusercontent.com/polywrap/rust-client/kris/debug-slow-invocation/packages/benchmarks/fibonacci/rs/build"
+        )).unwrap(),
     };
     let ipfs_uri = UriCase {
         id: "ipfs_uri".to_string(),
-        uri: Uri::try_from("/ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS").unwrap(),
+        uri: Uri::try_from("ipfs/QmXTYY4HAhurxZURrnRM8uD2oBCog8ATYDruVekuXQB192").unwrap(),
     };
     vec![fs_uri, http_uri, ipfs_uri]
 }

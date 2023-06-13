@@ -1,18 +1,17 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use std::{path::Path, collections::HashMap, sync::Mutex};
+use std::{path::Path};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
 use polywrap_benchmarks::{get_fibonacci_wrap, get_tests_path_string};
 use polywrap_core::{
-    invoker::{Invoker},
-    uri::Uri,
-    error::Error,
-    file_reader::{SimpleFileReader}, resolution::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, interface_implementation::InterfaceImplementations
+    file_reader::{SimpleFileReader},
+    wrapper::Wrapper,
 };
 
 use polywrap_msgpack::msgpack;
 use std::sync::{Arc};
 use std::fs;
 use polywrap_tests_utils::mocks::MockInvoker;
+use polywrap_benchmarks::fibonacci::{fibonacci_loop, fibonacci_recursive};
 
 fn bench_invoke(c: &mut Criterion) {
     // Note: this is using the correct URI for invoke, which is in the 00-subinvoke wrapper
@@ -23,7 +22,7 @@ fn bench_invoke(c: &mut Criterion) {
     let file_reader = SimpleFileReader::new();
     let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader));
 
-    let mock_invoker = Arc::new(MockInvoker::new());
+    let mock_invoker = Arc::new(MockInvoker {});
 
     c.bench_function("wasm/invoke", |b| b.iter(|| {
         let result = wrapper.invoke(
@@ -38,14 +37,18 @@ fn bench_invoke(c: &mut Criterion) {
 }
 
 fn bench_fibonacci_loop(c: &mut Criterion) {
-    let mock_invoker = Arc::new(MockInvoker::new());
-    let n = 10;
+    let mock_invoker = Arc::new(MockInvoker {});
+    let n = 10_000;
 
     let mut group = c.benchmark_group("wasm/fibonacci_loop");
 
+    group.bench_function("native", |b| b.iter(|| {
+        fibonacci_loop(n).unwrap()
+    }));
+
     let wrapper = get_fibonacci_wrap("as");
     group.bench_function("as", |b| b.iter(|| {
-        let result = wrapper.invoke(
+        wrapper.invoke(
             "fibonacci_loop",
             Some(&msgpack!({ "n": n })),
             None,
@@ -56,7 +59,7 @@ fn bench_fibonacci_loop(c: &mut Criterion) {
 
     let wrapper = get_fibonacci_wrap("rs");
     group.bench_function("rs", |b| b.iter(|| {
-        let result = wrapper.invoke(
+        wrapper.invoke(
             "fibonacci_loop",
             Some(&msgpack!({ "n": n })),
             None,
@@ -67,14 +70,20 @@ fn bench_fibonacci_loop(c: &mut Criterion) {
 }
 
 fn bench_fibonacci_recursive(c: &mut Criterion) {
-    let mock_invoker = Arc::new(MockInvoker::new());
-    let n = 10;
+    let mock_invoker = Arc::new(MockInvoker {});
+
+    // AS wrap crashes at higher N
+    let n = 30;
 
     let mut group = c.benchmark_group("wasm/fibonacci_recursive");
 
+    group.bench_function("native", |b| b.iter(|| {
+        fibonacci_recursive(n).unwrap()
+    }));
+
     let wrapper = get_fibonacci_wrap("as");
     group.bench_function("as", |b| b.iter(|| {
-        let result = wrapper.invoke(
+        wrapper.invoke(
             "fibonacci_recursive",
             Some(&msgpack!({ "n": n })),
             None,
@@ -85,7 +94,7 @@ fn bench_fibonacci_recursive(c: &mut Criterion) {
 
     let wrapper = get_fibonacci_wrap("rs");
     group.bench_function("rs", |b| b.iter(|| {
-        let result = wrapper.invoke(
+        wrapper.invoke(
             "fibonacci_recursive",
             Some(&msgpack!({ "n": n })),
             None,
