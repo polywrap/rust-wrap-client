@@ -3,7 +3,7 @@ use regex::Regex;
 
 use crate::error::Error;
 
-#[derive(Clone,Serialize,Debug)]
+#[derive(Clone,Serialize,Debug,Hash,Eq)]
 pub struct Uri {
     pub authority: String,
     pub path: String,
