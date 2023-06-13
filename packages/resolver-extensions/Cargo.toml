@@ -1,0 +1,20 @@
+[package]
+name = "polywrap_resolver_extensions"
+description = "Extendable resolver for Polywrap Client"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+regex.workspace = true
+polywrap_core.workspace = true
+polywrap_wasm.workspace = true
+polywrap_msgpack.workspace = true
+polywrap_resolvers.workspace = true
+serde.workspace = true
+serde_bytes.workspace = true
+
+pathdiff = "0.2.1"
