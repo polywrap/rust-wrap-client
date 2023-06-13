@@ -67,6 +67,8 @@ fn bench_fibonacci_loop(c: &mut Criterion) {
             None
         ).unwrap();
     }));
+
+    group.finish();
 }
 
 fn bench_fibonacci_recursive(c: &mut Criterion) {
@@ -102,6 +104,8 @@ fn bench_fibonacci_recursive(c: &mut Criterion) {
             None
         ).unwrap();
     }));
+
+    group.finish();
 }
 
 criterion_group!{
