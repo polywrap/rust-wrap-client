@@ -2,11 +2,10 @@ set -e # Helps to give error info
 
 # Project paths
 RUST_PROJ="/Users/cesar/dev/polywrap/rust-client/packages/native"
-IOS_LIB="/Users/cesar/dev/polywrap/swift/PolywrapApp/Lib"
 
 LOCAL_UDL="src/polywrap_native.udl"
 UDL_NAME="polywrap_native"
-FRAMEWORK_NAME="PolywrapClient"
+FRAMEWORK_NAME="PolywrapClientNative"
 SWIFT_INTERFACE="PolywrapClientLib"
 
 # Binary paths
@@ -45,9 +44,9 @@ lipo -create \
 
 # Move binaries
 cp "../../target/aarch64-apple-ios/debug/lib${UDL_NAME}.a" \
-    "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME"
+    "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME.a"
 cp ../../target/universal.a \
-    "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME"
+    "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME.a"
 
 # Move headers
 cp "include/ios/${UDL_NAME}FFI.h" \
@@ -55,9 +54,5 @@ cp "include/ios/${UDL_NAME}FFI.h" \
 cp "include/ios/${UDL_NAME}FFI.h" \
     "$IOS_SIM_FRAMEWORK/Headers/${UDL_NAME}FFI.h"
 
-# Move swift interface
-sed "s/${UDL_NAME}FFI/$FRAMEWORK_NAME/g" "include/ios/$UDL_NAME.swift" > "include/ios/$SWIFT_INTERFACE.swift"
-rm -f "$IOS_LIB/$SWIFT_INTERFACE.swift"
-cp "include/ios/$SWIFT_INTERFACE.swift" "$IOS_LIB/"
 
 

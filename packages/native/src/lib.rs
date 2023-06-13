@@ -24,4 +24,4 @@ use resolvers::{
 };
 use error::*;
 
-uniffi::include_scaffolding!("main");
+uniffi::include_scaffolding!("polywrap_native");
