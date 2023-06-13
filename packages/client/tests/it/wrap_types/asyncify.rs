@@ -5,7 +5,7 @@ use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_msgpack::serialize;
 use polywrap_plugin::package::PluginPackage;
 use polywrap_tests_utils::helpers::get_tests_path;
-use polywrap_tests_utils::memory_storage_plugin::MemoryStoragePlugin;
+use polywrap_tests_utils::mocks::MemoryStoragePlugin;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
