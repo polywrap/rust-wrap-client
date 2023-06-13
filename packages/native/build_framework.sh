@@ -44,9 +44,9 @@ lipo -create \
 
 # Move binaries
 cp "../../target/aarch64-apple-ios/debug/lib${UDL_NAME}.a" \
-    "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME.a"
+    "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME"
 cp ../../target/universal.a \
-    "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME.a"
+    "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME"
 
 # Move headers
 cp "include/ios/${UDL_NAME}FFI.h" \
@@ -54,5 +54,7 @@ cp "include/ios/${UDL_NAME}FFI.h" \
 cp "include/ios/${UDL_NAME}FFI.h" \
     "$IOS_SIM_FRAMEWORK/Headers/${UDL_NAME}FFI.h"
 
+# Move swift interface
+sed "s/${UDL_NAME}FFI/$FRAMEWORK_NAME/g" "include/ios/$UDL_NAME.swift" > "include/ios/$SWIFT_INTERFACE.swift"
 
 
