@@ -61,3 +61,10 @@ base64 = "0.13.1"
 bigdecimal = "0.3.0"
 num-bigint = "0.4.3"
 serde_bytes = "0.11.5"
+
+[patch.crates-io]
+polywrap_core = { path = "packages/core" }
+polywrap_client = { path = "packages/client" }
+polywrap_plugin = { path = "packages/plugin" }
+wrap_manifest_schemas = { path = "packages/manifest" }
+polywrap_msgpack = { path = "packages/msgpack" }
