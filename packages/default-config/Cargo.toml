@@ -1,27 +1,23 @@
 [package]
 name = "polywrap_client_default_config"
 description = "Default configuration for Polywrap Client"
-version = "0.1.6-beta.4"
 
-license = "MIT"
-edition = "2021"
-rust-version = "1.67"
-repository = "https://github.com/polywrap/rust-client"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [dependencies]
-serde = { version = "1.0.145", features = ["derive"] }
-serde_json = "1.0.87"
-base64 = "0.13.1"
+serde_json.workspace = true
+serde.workspace = true
+polywrap_core.workspace = true
+polywrap_resolvers.workspace = true
+polywrap_msgpack.workspace = true
+polywrap_plugin.workspace = true
+polywrap_client_builder.workspace = true
+polywrap_wasm.workspace = true
+wrap_manifest_schemas.workspace = true
+base64.workspace = true
 
-polywrap_core = { version = "0.1.6-beta.4" }
-polywrap_plugin = { version = "0.1.6-beta.4" }
-polywrap_client_builder = { version = "0.1.6-beta.4" }
-polywrap_msgpack = { version = "0.1.6-beta.4" }
-polywrap_wasm = { version = "0.1.6-beta.4" }
-polywrap_resolvers = { version = "0.1.6-beta.4" }
-wrap_manifest_schemas = { version = "0.1.6-beta.4" }
-
-polywrap_fs_plugin = { version  = "0.0.1-beta.1" }
-polywrap_http_plugin = { version  = "0.0.1-beta.1" }
-
-[workspace]
+polywrap_fs_plugin = { version  = "0.0.1-beta.3" }
+polywrap_http_plugin = { version  = "0.0.1-beta.3" }
