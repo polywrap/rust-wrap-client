@@ -20,5 +20,6 @@ serde_bytes.workspace = true
 [dev-dependencies]
 polywrap_client.workspace = true
 wrap_manifest_schemas.workspace = true
+polywrap_tests_utils.workspace = true
 
 pathdiff = "0.2.1"
