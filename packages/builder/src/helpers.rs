@@ -6,14 +6,11 @@ use polywrap_core::{
         uri_resolver::UriResolver,
     },
 };
+use polywrap_resolver_extensions::extendable_uri_resolver::ExtendableUriResolver;
 use polywrap_resolvers::{
-    extendable_uri_resolver::ExtendableUriResolver, 
     static_resolver::{StaticResolverLike, StaticResolver}, recursive_resolver::RecursiveResolver, resolver_vec
 };
-use polywrap_resolvers::package_to_wrapper_resolver::PackageToWrapperResolver;
 use polywrap_resolvers::resolution_result_cache_resolver::ResolutionResultCacheResolver;
-use polywrap_resolvers::wrapper_cache_resolver::WrapperCacheResolver;
-
 use crate::types::BuilderConfig;
 
 pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
