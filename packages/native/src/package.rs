@@ -37,17 +37,19 @@ impl WrapPackage for WrapPackageWrapping {
 
 #[cfg(test)]
 mod test {
+    use std::sync::Arc;
+
     use polywrap_client::msgpack::decode;
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_package};
 
-    use crate::invoker::InvokerWrapping;
+    use crate::invoker::FFIInvoker;
 
     use super::FFIWrapPackage;
 
-    fn get_mocks() -> (Box<dyn FFIWrapPackage>, InvokerWrapping) {
+    fn get_mocks() -> (Box<dyn FFIWrapPackage>, FFIInvoker) {
         (
             Box::new(get_mock_package()),
-            InvokerWrapping(get_mock_invoker()),
+            FFIInvoker(get_mock_invoker()),
         )
     }
 
@@ -56,7 +58,7 @@ mod test {
         let (ffi_package, ffi_invoker) = get_mocks();
         let ffi_wrapper = ffi_package.create_wrapper().unwrap();
         let response =
-            ffi_wrapper.invoke("foo".to_string(), None, None, Box::new(ffi_invoker), None);
+            ffi_wrapper.invoke("foo".to_string(), None, None, Arc::new(ffi_invoker), None);
         assert!(decode::<bool>(&response.unwrap()).unwrap());
     }
 }

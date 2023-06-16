@@ -125,7 +125,7 @@ mod test {
 
     use polywrap_tests_utils::mocks::{get_mock_client, get_mock_invoker, get_mock_wrapper};
 
-    use crate::{client::FFIClient, invoker::InvokerWrapping, uri::FFIUri, wrapper::FFIWrapper};
+    use crate::{client::FFIClient, uri::FFIUri, wrapper::FFIWrapper, invoker::FFIInvoker};
 
     #[test]
     fn ffi_invoke_raw() {
@@ -138,10 +138,10 @@ mod test {
     #[test]
     fn ffi_load_wrapper() {
         let ffi_client = FFIClient::new(get_mock_client());
-        let ffi_invoker = InvokerWrapping(get_mock_invoker());
+        let ffi_invoker = Arc::new(FFIInvoker(get_mock_invoker()));
         let uri = Arc::new(FFIUri::from_string("mock/a"));
         let wrapper = ffi_client.load_wrapper(uri, None).unwrap();
-        let response = wrapper.invoke("foo".to_string(), None, None, Box::new(ffi_invoker), None);
+        let response = wrapper.invoke("foo".to_string(), None, None, ffi_invoker, None);
 
         assert_eq!(response.unwrap(), vec![195]);
     }
