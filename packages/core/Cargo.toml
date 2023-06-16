@@ -13,5 +13,5 @@ regex.workspace = true
 wrap_manifest_schemas.workspace = true
 polywrap_msgpack.workspace = true
 serde.workspace = true
-serde_json.workspace = true
 jsonschema.workspace = true
+serde_bytes.workspace = true

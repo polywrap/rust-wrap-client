@@ -2,30 +2,16 @@ use std::sync::Arc;
 
 use polywrap_core::{
     client::ClientConfig,
-    resolvers::{
-        recursive_resolver::RecursiveResolver,
-        static_resolver::{StaticResolver, StaticResolverLike},
+    resolution::{
         uri_resolver::UriResolver,
-        uri_resolver_like::UriResolverLike,
     },
 };
-use polywrap_resolvers::extendable_uri_resolver::ExtendableUriResolver;
-use serde_json::Value;
-
+use polywrap_resolver_extensions::extendable_uri_resolver::ExtendableUriResolver;
+use polywrap_resolvers::{
+    static_resolver::{StaticResolverLike, StaticResolver}, recursive_resolver::RecursiveResolver, resolver_vec
+};
+use polywrap_resolvers::resolution_result_cache_resolver::ResolutionResultCacheResolver;
 use crate::types::BuilderConfig;
-
-pub fn merge(a: &mut Value, b: &Value) {
-    match (a, b) {
-        (&mut Value::Object(ref mut a), Value::Object(b)) => {
-            for (k, v) in b {
-                merge(a.entry(k.clone()).or_insert(Value::Null), v);
-            }
-        }
-        (a, b) => {
-            *a = b.clone();
-        }
-    }
-}
 
 pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
     let mut static_resolvers: Vec<StaticResolverLike> = vec![];
@@ -47,17 +33,15 @@ pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
             static_resolvers.push(StaticResolverLike::Redirect(r));
         }
     }
-    let static_resolver = StaticResolver::from(static_resolvers);
-    let extendable_resolver = ExtendableUriResolver::new(None);
-
-    let resolvers = vec![
-        UriResolverLike::Resolver(Arc::new(static_resolver)),
-        UriResolverLike::Resolver(Arc::new(extendable_resolver)),
-    ];
 
     ClientConfig {
         envs: builder.envs.clone(),
         interfaces: builder.interfaces.clone(),
-        resolver: Arc::new(RecursiveResolver::from(resolvers)) as Arc<dyn UriResolver>,
+        resolver: Arc::new(RecursiveResolver::from(
+            Box::from(ResolutionResultCacheResolver::from(resolver_vec![
+                StaticResolver::from(static_resolvers),
+                ExtendableUriResolver::new(None),
+            ])) as Box<dyn UriResolver>
+        )),
     }
 }

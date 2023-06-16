@@ -1,11 +1,10 @@
-use std::{fs, path::Path, sync::{Arc}, fmt};
+use std::{fs, path::Path, sync::{Arc, Mutex}, fmt};
 
 use polywrap_core::{
     error::Error,
     file_reader::FileReader,
     uri::Uri,
-    resolvers::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
-    resolvers::uri_resolver::UriResolver, client::Client,
+    resolution::{uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext}, uri_resolver::UriResolver}, invoker::Invoker,
 };
 use polywrap_wasm::{
     wasm_package::WasmPackage,
@@ -25,8 +24,8 @@ impl UriResolver for FilesystemResolver {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        _client: Arc<dyn Client>,
-        _: &mut UriResolutionContext,
+        _invoker: Arc<dyn Invoker>,
+        _: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority != "fs" && uri.authority != "file" {
            return Ok(UriPackageOrWrapper::Uri(uri.clone()));

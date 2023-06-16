@@ -19,8 +19,8 @@ Inflector = "0.11.4"
 polywrap_plugin_implementor = { workspace = true, optional = true }
 
 serde.workspace = true
-num-bigint = "0.4.3"
-bigdecimal = "0.3.0"
+bigdecimal.workspace = true
+num-bigint.workspace = true
 
 [features]
 default = ["implementor"]

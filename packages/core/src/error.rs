@@ -12,10 +12,10 @@ pub enum Error {
   WrapperError(String),
   #[error("Failed to create wrapper: `{0}`")]
   WrapperCreateError(String),
-  #[error("Failed to invoke wrapper: `{0}`")]
-  InvokeError(String),
-  #[error("Error loading wrapper: `{0}`")]
-  LoadWrapperError(String),
+  #[error("Failed to invoke wrapper, uri: `{0}`, method: `{1}`: `{2}`")]
+  InvokeError(String, String, String),
+  #[error("Error loading wrapper, uri: {0}: `{1}`")]
+  LoadWrapperError(String, String),
   #[error("WasmWrapper error: `{0}`")]
   WasmWrapperError(String),
   #[error("Failed to resolve wrapper: `{0}`")]
@@ -30,6 +30,10 @@ pub enum Error {
   ResolverError(String),
   #[error("`{0}`")]
   PluginError(String),
+  #[error("`{0}`")]
+  RuntimeError(String),
+  #[error("`{0}`")]
+  OtherError(String),
 }
 
 impl From<MsgpackError> for Error {

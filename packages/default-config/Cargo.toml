@@ -1,8 +1,8 @@
 [package]
 name = "polywrap_client_default_config"
 description = "Default configuration for Polywrap Client"
-version = "0.0.2"
 
+version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
@@ -10,8 +10,14 @@ license.workspace = true
 [dependencies]
 serde_json.workspace = true
 serde.workspace = true
+polywrap_core.workspace = true
+polywrap_resolvers.workspace = true
+polywrap_msgpack.workspace = true
+polywrap_plugin.workspace = true
+polywrap_client_builder.workspace = true
+polywrap_wasm.workspace = true
+wrap_manifest_schemas.workspace = true
 base64.workspace = true
 
-polywrap_client = { version = "0.1.6-beta.1" }
-fs_plugin_rs = { version  = "0.0.1-beta.2" }
-http_plugin_rs = { version  = "0.0.1-beta.2" }
+polywrap_fs_plugin = { version  = "0.0.1-beta.3" }
+polywrap_http_plugin = { version  = "0.0.1-beta.3" }

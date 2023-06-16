@@ -1,15 +1,15 @@
+use std::collections::HashMap;
 use std::sync::{Arc};
 
-use crate::error::Error;
-use crate::invoke::Invoker;
-use crate::resolvers::uri_resolution_context::UriResolutionContext;
 use crate::uri::Uri;
 use crate::interface_implementation::InterfaceImplementations;
-use crate::resolvers::uri_resolver::{UriResolverHandler, UriResolver};
-use crate::env::{Envs, Env};
-use crate::wrapper::Wrapper;
+use crate::resolution::uri_resolver::UriResolver;
+use crate::invoker::Invoker;
+use crate::uri_resolver_handler::UriResolverHandler;
+use crate::wrap_invoker::WrapInvoker;
+use crate::wrap_loader::WrapLoader;
 
-#[derive(Clone,Debug)]
+#[derive(Clone,Debug,PartialEq)]
 pub struct UriRedirect {
   pub from: Uri,
   pub to: Uri,
@@ -24,15 +24,8 @@ impl UriRedirect {
 #[derive(Debug)]
 pub struct ClientConfig {
   pub resolver: Arc<dyn UriResolver>,
-  pub envs: Option<Envs>,
+  pub envs: Option<HashMap<String, Vec<u8>>>,
   pub interfaces: Option<InterfaceImplementations>
 }
 
-pub trait Client: Invoker + UriResolverHandler {
-  fn get_env_by_uri(&self, uri: &Uri) -> Option<&Env>;
-  fn load_wrapper(
-    &self,
-    uri: &Uri,
-    resolution_context: Option<&mut UriResolutionContext>,
-  ) -> Result<Arc<dyn Wrapper>, Error>;
-}
+pub trait Client: Invoker + WrapLoader + WrapInvoker + UriResolverHandler {}

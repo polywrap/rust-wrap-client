@@ -4,11 +4,8 @@ use std::{
 };
 
 use polywrap_core::{
-    env::Env,
-    invoke::Invoker,
-    resolvers::uri_resolution_context::UriResolutionContext,
-    uri::Uri,
-    wrapper::{GetFileOptions, Wrapper},
+    invoker::Invoker,
+    wrapper::{GetFileOptions, Wrapper}, error::Error,
 };
 use polywrap_msgpack::msgpack;
 
@@ -30,13 +27,12 @@ impl PluginWrapper {
 impl Wrapper for PluginWrapper {
     fn invoke(
         &self,
-        invoker: Arc<dyn Invoker>,
-        uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
-        _: Option<&mut UriResolutionContext>,
-    ) -> Result<Vec<u8>, polywrap_core::error::Error> {
+        env: Option<&[u8]>,
+        invoker: Arc<dyn Invoker>,
+        _: Option<Box<dyn Fn(String) + Send + Sync>>,
+    ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),
             None => msgpack!({}),
@@ -51,12 +47,6 @@ impl Wrapper for PluginWrapper {
         match result {
             Ok(result) => Ok(result),
             Err(e) => Err(crate::error::PluginError::InvocationError {
-                uri: uri.to_string(),
-                method: method.to_string(),
-                // TODO: Add helper to decode the args from msgpack to JSON for better error logging
-                args: polywrap_msgpack::decode::<polywrap_msgpack::Value>(&args)
-                    .unwrap()
-                    .to_string(),
                 exception: e.to_string(),
             }
             .into()),

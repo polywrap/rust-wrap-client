@@ -1,10 +1,10 @@
-use std::{path::Path, collections::HashMap};
+use std::{path::Path, collections::HashMap, sync::Mutex};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
 use polywrap_core::{
-    invoke::{Invoker},
+    invoker::{Invoker},
     uri::Uri,
     error::Error,
-    file_reader::{SimpleFileReader}, resolvers::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, env::Env, interface_implementation::InterfaceImplementations
+    file_reader::{SimpleFileReader}, resolution::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, interface_implementation::InterfaceImplementations
 };
 use wrap_manifest_schemas::{
     deserialize::deserialize_wrap_manifest
@@ -24,64 +24,43 @@ impl MockInvoker {
     fn new(wrapper: WasmWrapper) -> Self {
         Self { wrapper }
     }
+
+    fn invoke_wrapper_raw(
+      &self,
+      wrapper: Arc<dyn Wrapper>,
+      _: &Uri,
+      method: &str,
+      args: Option<&[u8]>,
+      env: Option<&[u8]>,
+      _: Option<Arc<Mutex<UriResolutionContext>>>
+  ) -> Result<Vec<u8>, Error> {
+      wrapper.invoke(
+          method,
+          args,
+          env,
+          Arc::new(self.clone()),
+          None,
+      )
+  }
 }
 
 impl Invoker for MockInvoker {
-    fn invoke_wrapper_raw(
-        &self,
-        wrapper: Arc<dyn Wrapper>,
-        uri: &Uri,
-        method: &str,
-        args: Option<&[u8]>,
-        env: Option<&Env>,
-        resolution_context: Option<&mut UriResolutionContext>
-    ) -> Result<Vec<u8>, Error> {
-        let result = wrapper.invoke(
-            Arc::new(self.clone()),
-            uri,
-            method,
-            args,
-            env,
-            resolution_context
-        );
-
-        if result.is_err() {
-            return Err(Error::InvokeError(format!(
-                "Failed to invoke wrapper: {}",
-                result.err().unwrap()
-            )));
-        };
-
-        let result = result.unwrap();
-
-        Ok(result)    
-    }
-
     fn invoke_raw(
         &self,
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&Env>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        env: Option<&[u8]>,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
-        let invoke_result = self.clone().invoke_wrapper_raw(
+        self.clone().invoke_wrapper_raw(
             Arc::new(self.wrapper.clone()),
             uri,
             method,
             args,
             env,
             resolution_context,
-        );
-
-        if invoke_result.is_err() {
-            return Err(Error::InvokeError(format!(
-                "Failed to invoke wrapper: {}",
-                invoke_result.err().unwrap()
-            )));
-        };
-
-        Ok(invoke_result.unwrap())
+        )
     }
 
     fn get_implementations(&self, _uri: &Uri) -> Result<Vec<Uri>, Error> {
@@ -91,6 +70,10 @@ impl Invoker for MockInvoker {
     fn get_interfaces(&self) -> Option<InterfaceImplementations> {
         let i = HashMap::new();
         Some(i)
+    }
+
+    fn get_env_by_uri(&self, _: &Uri) -> Option<Vec<u8>> {
+        None
     }
 }
 

@@ -1,111 +1,182 @@
-use polywrap_client::core::{invoke::Invoker, uri::Uri};
-use serde_json::Value;
-use std::{collections::HashMap, sync::Arc};
+use polywrap_client::core::{
+    invoker::Invoker, resolution::uri_resolution_context::UriResolutionContext, uri::Uri,
+};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
-pub struct FFIInvoker {
-    pub inner_invoker: Arc<dyn Invoker>,
+use crate::{error::FFIError, resolvers::resolution_context::FFIUriResolutionContext, uri::FFIUri};
+
+pub trait FFIInvoker: Send + Sync {
+    fn invoke_raw(
+        &self,
+        uri: Arc<FFIUri>,
+        method: String,
+        args: Option<Vec<u8>>,
+        env: Option<Vec<u8>>,
+        resolution_context: Option<Arc<FFIUriResolutionContext>>,
+    ) -> Result<Vec<u8>, FFIError>;
+
+    fn get_implementations(&self, uri: Arc<FFIUri>) -> Result<Vec<Arc<FFIUri>>, FFIError>;
+
+    fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<FFIUri>>>>;
+
+    fn get_env_by_uri(&self, uri: Arc<FFIUri>) -> Option<Vec<u8>>;
 }
 
-impl FFIInvoker {
-    pub fn new(invoker: Arc<dyn Invoker>) -> Self {
-        Self {
-            inner_invoker: invoker,
-        }
+pub struct InvokerWrapping(pub Arc<dyn Invoker>);
+
+impl FFIInvoker for InvokerWrapping {
+    fn invoke_raw(
+        &self,
+        uri: Arc<FFIUri>,
+        method: String,
+        args: Option<Vec<u8>>,
+        env: Option<Vec<u8>>,
+        resolution_context: Option<Arc<FFIUriResolutionContext>>,
+    ) -> Result<Vec<u8>, FFIError> {
+        Ok(self.0.invoke_raw(
+            &uri.0,
+            &method,
+            args.as_deref(),
+            env.as_deref(),
+            resolution_context.map(|ctx| ctx.0.clone()),
+        )?)
     }
 
-    pub fn invoke_raw(
-        &self,
-        uri: Arc<Uri>,
-        method: &str,
-        args: Option<Vec<u8>>,
-        env: Option<String>,
-    ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
-        let args = args.as_deref();
+    fn get_implementations(&self, uri: Arc<FFIUri>) -> Result<Vec<Arc<FFIUri>>, FFIError> {
+        let uris = self.0.get_implementations(&uri.0)?;
+        let uris: Vec<Arc<FFIUri>> = uris
+            .into_iter()
+            .map(|uri| Arc::new(FFIUri(uri.clone())))
+            .collect();
 
-        let mut _decoded_env = serde_json::Value::Null;
-        let env = env.map(|env| {
-          _decoded_env = serde_json::from_str::<Value>(&env).unwrap();
-          &_decoded_env
+        Ok(uris)
+    }
+
+    fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<FFIUri>>>> {
+        let interfaces = self.0.get_interfaces();
+        let interfaces: Option<HashMap<String, Vec<Arc<FFIUri>>>> = interfaces.map(|interfaces| {
+            interfaces
+                .into_iter()
+                .map(|(key, value)| {
+                    (
+                        key,
+                        value
+                            .into_iter()
+                            .map(|uri| Arc::new(FFIUri(uri.clone())))
+                            .collect(),
+                    )
+                })
+                .collect()
         });
 
-        self.inner_invoker.invoke_raw(
-            &uri.to_string().try_into().unwrap(),
-            method,
-            args,
-            env,
-            None,
-        )
+        interfaces
     }
 
-    pub fn get_implementations(
-        &self,
-        uri: Arc<Uri>,
-    ) -> Result<Vec<Arc<Uri>>, polywrap_client::core::error::Error> {
-        Ok(self
-            .inner_invoker
-            .get_implementations(uri.as_ref())?
-            .into_iter()
-            .map(|uri| uri.into())
-            .collect())
-    }
-
-    pub fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<Uri>>>> {
-        if let Some(interfaces) = self.inner_invoker.get_interfaces() {
-            let interfaces = interfaces
-                .into_iter()
-                .map(|(key, uris)| {
-                    let uris = uris.into_iter().map(|uri| uri.into()).collect();
-                    (key, uris)
-                })
-                .collect();
-
-            Some(interfaces)
-        } else {
-            None
-        }
+    fn get_env_by_uri(&self, uri: Arc<FFIUri>) -> Option<Vec<u8>> {
+        self.0.get_env_by_uri(&uri.0).map(|env| env.to_vec())
     }
 }
 
-impl Invoker for FFIInvoker {
-  fn invoke_wrapper_raw(
-      &self,
-      wrapper: Arc<dyn polywrap_client::core::wrapper::Wrapper>,
-      uri: &Uri,
-      method: &str,
-      args: Option<&[u8]>,
-      env: Option<&polywrap_client::core::env::Env>,
-      resolution_context: Option<
-          &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
-      >,
-  ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
-      self.inner_invoker
-          .invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)
-  }
+pub struct FFIInvokerWrapping(pub Box<dyn FFIInvoker>);
 
-  fn invoke_raw(
-      &self,
-      uri: &Uri,
-      method: &str,
-      args: Option<&[u8]>,
-      env: Option<&polywrap_client::core::env::Env>,
-      resolution_context: Option<
-          &mut polywrap_client::core::resolvers::uri_resolution_context::UriResolutionContext,
-      >,
-  ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
-      self.inner_invoker
-          .invoke_raw(uri, method, args, env, resolution_context)
-  }
+impl Invoker for FFIInvokerWrapping {
+    fn invoke_raw(
+        &self,
+        uri: &Uri,
+        method: &str,
+        args: Option<&[u8]>,
+        env: Option<&[u8]>,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
+    ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
+        Ok(self.0.invoke_raw(
+            Arc::new(FFIUri(uri.clone())),
+            method.to_string(),
+            args.map(|a| a.to_vec()),
+            env.map(|e| e.to_vec()),
+            resolution_context.map(|ctx| Arc::new(FFIUriResolutionContext(ctx))),
+        )?)
+    }
 
-  fn get_implementations(
-      &self,
-      uri: &Uri,
-  ) -> Result<Vec<Uri>, polywrap_client::core::error::Error> {
-      self.inner_invoker.get_implementations(uri)
-  }
+    fn get_implementations(
+        &self,
+        uri: &Uri,
+    ) -> Result<Vec<Uri>, polywrap_client::core::error::Error> {
+        let uris = self.0.get_implementations(Arc::new(FFIUri(uri.clone())))?;
+        let uris: Vec<Uri> = uris.into_iter().map(|uri| uri.0.clone()).collect();
 
-  fn get_interfaces(
-      &self,
-  ) -> Option<polywrap_client::core::interface_implementation::InterfaceImplementations> {
-      self.inner_invoker.get_interfaces()
-  }
+        Ok(uris)
+    }
+
+    fn get_interfaces(
+        &self,
+    ) -> Option<polywrap_client::core::interface_implementation::InterfaceImplementations> {
+        let interfaces = self.0.get_interfaces();
+        let interfaces: Option<HashMap<String, Vec<Uri>>> = interfaces.map(|interfaces| {
+            interfaces
+                .into_iter()
+                .map(|(key, value)| (key, value.into_iter().map(|uri| uri.0.clone()).collect()))
+                .collect()
+        });
+
+        interfaces
+    }
+
+    fn get_env_by_uri(&self, uri: &Uri) -> Option<Vec<u8>> {
+        self.0.get_env_by_uri(Arc::new(FFIUri(uri.clone())))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::{collections::HashMap, sync::Arc};
+
+    use polywrap_tests_utils::mocks::get_mock_invoker;
+
+    use crate::{
+        invoker::{FFIInvoker, InvokerWrapping},
+        uri::FFIUri,
+    };
+
+    #[test]
+    fn test_ffi_invoker() {
+        let ffi_invoker = InvokerWrapping(get_mock_invoker());
+
+        let uri = Arc::new(FFIUri::from_string("mock/a"));
+        let response = ffi_invoker.invoke_raw(uri, "foo".to_string(), None, None, None);
+        assert_eq!(response.unwrap(), vec![3]);
+    }
+
+    #[test]
+    fn test_ffi_get_implementations() {
+        let ffi_invoker = InvokerWrapping(get_mock_invoker());
+
+        let uri = Arc::new(FFIUri::from_string("mock/a"));
+        let response = ffi_invoker.get_implementations(uri.clone());
+        assert_eq!(response.unwrap(), vec![uri]);
+    }
+
+    #[test]
+    fn test_ffi_get_interfaces() {
+        let ffi_invoker = InvokerWrapping(get_mock_invoker());
+
+        let response = ffi_invoker.get_interfaces();
+        assert_eq!(
+            response.unwrap(),
+            HashMap::from([(
+                ("mock/a".to_string()),
+                vec![Arc::new(FFIUri::from_string("mock/b"))]
+            )])
+        );
+    }
+
+    #[test]
+    fn test_get_env_by_uri() {
+        let ffi_invoker = InvokerWrapping(get_mock_invoker());
+        let ffi_uri = FFIUri::from_string("mock/a");
+        let response = ffi_invoker.get_env_by_uri(Arc::new(ffi_uri));
+        assert_eq!(response.unwrap(), [0, 4]);
+    }
 }
