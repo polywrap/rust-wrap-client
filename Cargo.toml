@@ -2,7 +2,7 @@
 version = "0.1.6-beta.5"
 license = "MIT"
 edition = "2021"
-rust-version = "1.67"
+rust-version = "1.69"
 repository = "https://github.com/polywrap/rust-client"
 
 [workspace]
@@ -63,6 +63,7 @@ base64 = "0.13.1"
 bigdecimal = "0.3.0"
 num-bigint = "0.4.3"
 serde_bytes = "0.11.5"
+pathdiff = "0.2.1"
 
 [patch.crates-io]
 polywrap_core = { path = "packages/core" }

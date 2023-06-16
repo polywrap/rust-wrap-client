@@ -8,11 +8,11 @@ packages=(
   "tests-utils"
   "wasm"
   "resolvers"
+  "resolver-extensions"
   "builder"
   "plugin/implementor"
   "plugin"
   "client"
-  "resolver-extensions"
 )
 
 # Iterate through the packages and publish them one by one
