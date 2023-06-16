@@ -8,6 +8,7 @@ use crate::{
     interface_implementation::InterfaceImplementations, client::Client, invoker::Invoker
 };
 use polywrap_msgpack::{msgpack};
+use serde_bytes::ByteBuf;
 
 fn combine_paths(a: &str, b: &str) -> String {
   let mut a = a.to_string();
@@ -65,8 +66,8 @@ impl FileReader for UriResolverExtensionFileReader {
             None
         )?;
         
-        let result: Vec<u8> = polywrap_msgpack::decode(&result)?;
-        Ok(result)
+        let result: ByteBuf = polywrap_msgpack::decode(&result)?;
+        Ok(result.into_vec())
     }
 }
 

@@ -14,3 +14,4 @@ wrap_manifest_schemas.workspace = true
 polywrap_msgpack.workspace = true
 serde.workspace = true
 jsonschema.workspace = true
+serde_bytes.workspace = true
