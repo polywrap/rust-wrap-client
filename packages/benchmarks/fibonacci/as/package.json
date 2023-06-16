@@ -1,0 +1,15 @@
+{
+  "name": "test-cases-default",
+  "private": true,
+  "scripts": {
+    "build": "npx polywrap build",
+    "codegen": "npx polywrap codegen"
+  },
+  "dependencies": {
+    "@polywrap/wasm-as": "latest",
+    "assemblyscript": "0.19.23"
+  },
+  "devDependencies": {
+    "polywrap": "latest"
+  }
+}

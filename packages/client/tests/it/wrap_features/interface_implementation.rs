@@ -7,7 +7,7 @@ use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
-use polywrap_tests_utils::helpers::get_tests_path;
+use polywrap_tests_utils::helpers::get_tests_path_string;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -20,8 +20,7 @@ struct ModuleMethodResponse {
 
 #[test]
 fn test_interface_implementation() {
-    let test_path = get_tests_path().unwrap();
-    let path = test_path.into_os_string().into_string().unwrap();
+    let path = get_tests_path_string();
     let implementation_uri = Uri::try_from(format!(
         "fs/{path}/interface-invoke/01-implementation/implementations/as"
     ))

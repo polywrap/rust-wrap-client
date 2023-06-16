@@ -1,0 +1,4 @@
+type Module {
+  fibonacci_loop(n: Int!): BigInt!
+  fibonacci_recursive(n: Int!): BigInt!
+}

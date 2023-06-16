@@ -6,14 +6,11 @@ use polywrap_core::{
     error::Error,
     file_reader::{SimpleFileReader}, resolution::uri_resolution_context::UriResolutionContext, wrapper::Wrapper, interface_implementation::InterfaceImplementations
 };
-use wrap_manifest_schemas::{
-    deserialize::deserialize_wrap_manifest
-};
 
 use polywrap_msgpack::msgpack;
 use std::sync::{Arc};
 use std::fs;
-use polywrap_tests_utils::helpers::get_tests_path;
+use polywrap_tests_utils::helpers::get_tests_path_string;
 
 #[derive(Clone)]
 struct MockInvoker {
@@ -79,16 +76,12 @@ impl Invoker for MockInvoker {
 
 #[test]
 fn invoke_test() {
-    let test_path = get_tests_path().unwrap();
-    let path = test_path.into_os_string().into_string().unwrap();
+    let path = get_tests_path_string();
 
     let module_path = format!("{path}/subinvoke/00-subinvoke/implementations/as/wrap.wasm");
-    let manifest_path = format!("{path}/subinvoke/00-subinvoke/implementations/as/wrap.info");
 
     let module_bytes = fs::read(Path::new(&module_path)).unwrap();
-    let manifest_bytes = fs::read(Path::new(&manifest_path)).unwrap();
-    
-    let _manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
+
     let file_reader = SimpleFileReader::new();
 
     let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader));

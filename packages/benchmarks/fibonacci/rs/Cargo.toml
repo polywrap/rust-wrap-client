@@ -1,0 +1,22 @@
+[package]
+name = "module"
+version = "0.1.0"
+description = "Default dependencies for test harness"
+repository = "https://github.com/polywrap/monorepo"
+license = "MIT"
+edition = "2021"
+
+[dependencies]
+polywrap-wasm-rs = "*"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", features = ["preserve_order"]}
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+opt-level = 's'
+lto = true
+panic = 'abort'
+
+[workspace]

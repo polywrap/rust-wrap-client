@@ -6,3 +6,9 @@ pub fn get_tests_path() -> Result<PathBuf, ()> {
         .unwrap();
     Ok(path)
 }
+
+pub fn get_tests_path_string() -> String {
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
+    path
+}

@@ -1,0 +1,7 @@
+format: 0.3.0
+project:
+  name: fibonacci-rs
+  type: wasm/rust
+source:
+  schema: ../polywrap.graphql
+  module: ./Cargo.toml

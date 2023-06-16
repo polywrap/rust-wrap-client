@@ -17,7 +17,8 @@ members = [
     "packages/plugin",
     "packages/native",
     "packages/resolver-extensions",
-    "packages/default-config"
+    "packages/default-config",
+    "packages/benchmarks"
 ]
 
 # Do not include test utils & default config crates in default members
@@ -35,7 +36,7 @@ default-members = [
 ]
 
 [workspace.dependencies]
-polywrap_client = { version = "0.1.6-beta.7", path = "packages/client" } 
+polywrap_client = { version = "0.1.6-beta.7", path = "packages/client" }
 polywrap_wasm = { version = "0.1.6-beta.7", path = "packages/wasm" }
 polywrap_client_builder = { version = "0.1.6-beta.7", path = "packages/builder" }
 polywrap_core = { version = "0.1.6-beta.7", path = "packages/core" }

@@ -1,0 +1,41 @@
+[package]
+name = "polywrap_benchmarks"
+description = "Polywrap Client benchmarks in rust"
+repository = "https://github.com/polywrap/rust-client"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+polywrap_client.workspace = true
+polywrap_wasm.workspace = true
+polywrap_client_builder.workspace = true
+polywrap_core.workspace = true
+wrap_manifest_schemas.workspace = true
+polywrap_resolvers.workspace = true
+polywrap_msgpack.workspace = true
+polywrap_tests_utils.workspace = true
+polywrap_plugin.workspace = true
+polywrap_plugin_implementor.workspace = true
+polywrap_client_default_config.workspace = true
+polywrap-wasm-rs = "*"
+
+[dev-dependencies]
+criterion = { version = "0.5.1", features = ["html_reports"] }
+
+[[bench]]
+name = "bench_invoke"
+harness = false
+
+[[bench]]
+name = "bench_runtime"
+harness = false
+
+[[bench]]
+name = "bench_load_wrapper"
+harness = false

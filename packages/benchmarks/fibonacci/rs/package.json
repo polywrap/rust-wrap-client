@@ -1,0 +1,11 @@
+{
+  "name": "polywrap_fibonacci_wrap",
+  "version": "0.1.1",
+  "scripts": {
+    "build": "npx polywrap build",
+    "codegen": "npx polywrap codegen"
+  },
+  "dependencies": {
+    "polywrap": "latest"
+  }
+}
