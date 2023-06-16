@@ -1,16 +1,19 @@
 use polywrap_client::{client::PolywrapClient, builder::types::ClientConfigHandler};
 use polywrap_core::uri::Uri;
 use polywrap_msgpack::msgpack;
-
-const SUBINVOKE_WRAP_IPFS_URI: &str = "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS";
+use polywrap_tests_utils::helpers::get_tests_path;
 
 #[test]
 fn sanity() {
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
+
+    let subinvoke_wrap_uri =  format!("fs/{path}/subinvoke/00-subinvoke/implementations/rs");
     let config = polywrap_client_default_config::build();
     let client = PolywrapClient::new(config.build());
 
     let result = client.invoke::<u32>(
-        &Uri::try_from(SUBINVOKE_WRAP_IPFS_URI).unwrap(),
+        &Uri::try_from(subinvoke_wrap_uri).unwrap(),
         "add", 
         Some(&msgpack!({
             "a": 2,

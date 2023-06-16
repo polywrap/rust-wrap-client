@@ -75,7 +75,14 @@ impl UriResolverWrapper {
                 manifest: None,
             })
         } else {
-            Ok(decode::<MaybeUriOrManifest>(result.as_slice())?)
+            let result = decode::<Option<MaybeUriOrManifest>>(result.as_slice())?;
+
+            let result = result.unwrap_or(MaybeUriOrManifest {
+                uri: None,
+                manifest: None,
+            });
+
+            Ok(result)
         }
     }
 }

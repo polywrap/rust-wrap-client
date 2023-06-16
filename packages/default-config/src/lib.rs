@@ -83,6 +83,10 @@ pub fn build() -> BuilderConfig {
             from: Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
             to: Uri::try_from("plugin/http@1.1.0").unwrap(),
         },
+        UriRedirect {
+            from: Uri::try_from("wrap://ens/wraps.eth:file-system@1.0.0").unwrap(),
+            to: Uri::try_from("plugin/file-system@1.0.0").unwrap(),
+        },
     ];
 
     BuilderConfig {
