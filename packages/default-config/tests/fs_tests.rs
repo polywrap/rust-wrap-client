@@ -2,7 +2,7 @@ use polywrap_client::{client::PolywrapClient, builder::types::ClientConfigHandle
 use polywrap_core::uri::Uri;
 use polywrap_msgpack::msgpack;
 
-const SUBINVOKE_WRAP_URI: &str = "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS";
+const SUBINVOKE_WRAP_URI: &str = "wrap://fs/./tests/wraps/subinvoke";
 
 #[test]
 fn sanity() {
