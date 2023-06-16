@@ -8,7 +8,7 @@ use polywrap_client::{
 };
 use std::{sync::Arc};
 
-use crate::{uri::FFIUri, invoker::{FFIInvoker, FFIInvokerWrapping}, error::FFIError};
+use crate::{uri::FFIUri, invoker::{FFIInvoker}, error::FFIError};
 
 use super::{
     ffi_resolver::{FFIUriResolver, UriResolverWrapping}, resolution_context::FFIUriResolutionContext,
@@ -32,13 +32,13 @@ impl FFIUriResolver for FFIRecursiveUriResolver {
     fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
-        invoker: Box<dyn FFIInvoker>,
+        invoker: Arc<FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
     ) -> Result<Box<dyn FFIUriPackageOrWrapper>, FFIError> {
 
         let result = self
             .inner_resolver
-            .try_resolve_uri(&uri.0, Arc::new(FFIInvokerWrapping(invoker)), resolution_context.0.clone())?;
+            .try_resolve_uri(&uri.0, invoker.0.clone(), resolution_context.0.clone())?;
 
         Ok(Box::new(result))
     }
