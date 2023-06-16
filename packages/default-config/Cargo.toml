@@ -23,3 +23,4 @@ polywrap_http_plugin.workspace = true
 
 [dev-dependencies]
 polywrap_client.workspace = true
+polywrap_tests_utils.workspace = true
