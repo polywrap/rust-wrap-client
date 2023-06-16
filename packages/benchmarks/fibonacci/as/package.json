@@ -6,10 +6,10 @@
     "codegen": "npx polywrap codegen"
   },
   "dependencies": {
-    "@polywrap/wasm-as": "0.10.3",
+    "@polywrap/wasm-as": "latest",
     "assemblyscript": "0.19.23"
   },
   "devDependencies": {
-    "polywrap": "0.10.3"
+    "polywrap": "latest"
   }
 }

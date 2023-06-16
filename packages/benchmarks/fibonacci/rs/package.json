@@ -6,6 +6,6 @@
     "codegen": "npx polywrap codegen"
   },
   "dependencies": {
-    "polywrap": "0.10.3"
+    "polywrap": "latest"
   }
 }

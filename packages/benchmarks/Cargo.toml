@@ -1,7 +1,7 @@
 [package]
 name = "polywrap_benchmarks"
 description = "Polywrap Client benchmarks in rust"
-version = "0.1.6-beta.5"
+version = "0.1.6-beta.6"
 license = "MIT"
 edition = "2021"
 rust-version = "1.67"
@@ -11,21 +11,21 @@ repository = "https://github.com/polywrap/rust-client"
 crate-type = ["rlib"]
 
 [dependencies]
-polywrap_client = { version = "0.1.6-beta.5" }
-polywrap_wasm = { version = "0.1.6-beta.5" }
-polywrap_client_builder = { version = "0.1.6-beta.5" }
-polywrap_core = { version = "0.1.6-beta.5" }
-wrap_manifest_schemas = { version = "0.1.6-beta.5" }
-polywrap_resolvers = { version = "0.1.6-beta.5" }
-polywrap_msgpack = { version = "0.1.6-beta.5" }
-polywrap_tests_utils = { version = "0.1.6-beta.5" }
-polywrap_plugin = { version = "0.1.6-beta.5" }
-polywrap_plugin_implementor = { version = "0.1.6-beta.5" }
-polywrap_client_default_config = { version = "0.1.6-beta.5", path="../default-config" }
-polywrap-wasm-rs = "0.10.3"
+polywrap_client.workspace = true
+polywrap_wasm.workspace = true
+polywrap_client_builder.workspace = true
+polywrap_core.workspace = true
+wrap_manifest_schemas.workspace = true
+polywrap_resolvers.workspace = true
+polywrap_msgpack.workspace = true
+polywrap_tests_utils.workspace = true
+polywrap_plugin.workspace = true
+polywrap_plugin_implementor.workspace = true
+polywrap_client_default_config.workspace = true
+polywrap-wasm-rs = "*"
 
 [dev-dependencies]
-criterion = { version = "0.4", features = ["html_reports"] }
+criterion = { version = "0.5.1", features = ["html_reports"] }
 
 [[bench]]
 name = "bench_invoke"
@@ -38,5 +38,3 @@ harness = false
 [[bench]]
 name = "bench_load_wrapper"
 harness = false
-
-[workspace]
