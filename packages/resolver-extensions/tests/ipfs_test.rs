@@ -1,26 +1,30 @@
-use polywrap_core::uri::Uri;
-use polywrap_msgpack::msgpack;
-use polywrap_resolver_extensions::uri_resolver_wrapper::MaybeUriOrManifest;
-mod utils;
-use utils::get_client_with_module;
+use std::sync::{Mutex, Arc};
 
-use crate::utils::load_wrap;
+use polywrap_client::{client::PolywrapClient, builder::types::ClientConfigHandler};
+use polywrap_core::{uri::Uri, resolution::uri_resolution_context::UriResolutionContext};
+use polywrap_msgpack::msgpack;
+mod utils;
 
 #[test]
 fn client_sanity() {
-    let (_manifest, module) = load_wrap("./build");
-    let client = get_client_with_module(&module);
+    let config = polywrap_client_default_config::build();
+    let client = PolywrapClient::new(config.build());
 
-    let result = client.invoke::<Option<MaybeUriOrManifest>>(
-        &Uri::try_from("wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1").unwrap(),
-        "tryResolveUri", 
+    let context = UriResolutionContext::new();
+    let context = Arc::new(Mutex::new(context));
+    let result = client.invoke::<u32>(
+        &Uri::try_from("wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS").unwrap(),
+        "add", 
         Some(&msgpack!({
-            "authority": "ipfs",
-            "path": "QmfVRmLRPt6A3tLW7dgsPztUULUjFWys7Kz7Ytjenc2rHV"
+            "a": 2,
+            "b": 40
         })),
         None,
-        None,
+        Some(context.clone())
     ).unwrap();
 
-    assert_eq!(result.unwrap().manifest, None);
+    // println!("Result: {:?}", context.lock().unwrap().get_history());
+    assert_eq!(result, 43);
+
+    panic!("Test")
 }

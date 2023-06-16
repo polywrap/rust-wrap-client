@@ -20,6 +20,7 @@ serde_bytes.workspace = true
 [dev-dependencies]
 wrap_manifest_schemas.workspace = true
 polywrap_client.workspace = true
+polywrap_client_default_config.workspace = true
 polywrap_fs_plugin = { version  = "0.0.1-beta.3" }
 
 pathdiff = "0.2.1"
