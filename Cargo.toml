@@ -16,7 +16,8 @@ members = [
     "packages/builder",
     "packages/plugin",
     "packages/native",
-    "packages/resolver-extensions"
+    "packages/resolver-extensions",
+    "packages/default-config"
 ]
 
 # Do not include test utils & default config crates in default members
@@ -44,6 +45,7 @@ polywrap_resolver_extensions = { version = "0.1.6-beta.5", path = "packages/reso
 polywrap_msgpack = { version = "0.1.6-beta.5", path = "packages/msgpack" }
 polywrap_tests_utils = { version = "0.1.6-beta.5", path = "packages/tests-utils" }
 polywrap_plugin = { version = "0.1.6-beta.5", path = "packages/plugin" }
+polywrap_client_default_config = { version = "0.1.6-beta.5", path = "packages/default-config" }
 
 polywrap_plugin_implementor = { version = "0.1.6-beta.5", path = "packages/plugin/implementor" }
 
@@ -61,3 +63,10 @@ base64 = "0.13.1"
 bigdecimal = "0.3.0"
 num-bigint = "0.4.3"
 serde_bytes = "0.11.5"
+
+[patch.crates-io]
+polywrap_core = { path = "packages/core" }
+polywrap_client = { path = "packages/client" }
+polywrap_plugin = { path = "packages/plugin" }
+wrap_manifest_schemas = { path = "packages/manifest" }
+polywrap_msgpack = { path = "packages/msgpack" }
