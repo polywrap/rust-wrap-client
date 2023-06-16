@@ -16,8 +16,8 @@ members = [
     "packages/builder",
     "packages/plugin",
     "packages/native",
-    "packages/default-config",
-    "packages/resolver-extensions"
+    "packages/resolver-extensions",
+    "packages/default-config"
 ]
 
 # Do not include test utils & default config crates in default members
