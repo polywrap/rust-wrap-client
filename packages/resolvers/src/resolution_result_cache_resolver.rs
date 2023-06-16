@@ -18,6 +18,13 @@ use crate::uri_resolver_aggregator::UriResolverAggregator;
 pub struct ResolutionResultCacheResolver {
     resolver: Arc<dyn UriResolver>,
     cache: Mutex<Box<dyn ResolutionResultCache>>,
+    skip_cache: fn(&Uri) -> bool,
+}
+
+#[derive(Default)]
+pub struct ResolutionResultCacheResolverOptions {
+    pub cache: Option<Mutex<Box<dyn ResolutionResultCache>>>,
+    pub skip_cache: Option<fn(&Uri) -> bool>,
 }
 
 impl ResolutionResultCacheResolver {
@@ -31,8 +38,12 @@ impl ResolutionResultCacheResolver {
     /// # Returns
     ///
     /// * A new `ResolutionResultCacheResolver`.
-    pub fn new(resolver: Arc<dyn UriResolver>, cache: Mutex<Box<dyn ResolutionResultCache>>) -> ResolutionResultCacheResolver {
-        ResolutionResultCacheResolver { resolver, cache }
+    pub fn new(resolver: Arc<dyn UriResolver>, options: ResolutionResultCacheResolverOptions) -> ResolutionResultCacheResolver {
+        ResolutionResultCacheResolver {
+            resolver, 
+            cache: options.cache.unwrap_or(Mutex::new(Box::new(BasicResolutionResultCache::new()))),
+            skip_cache: options.skip_cache.unwrap_or(|_| false),
+        }
     }
 }
 
@@ -72,7 +83,11 @@ impl UriResolver for ResolutionResultCacheResolver {
         let result = self.resolver.try_resolve_uri(uri, invoker.clone(), sub_context.clone());
 
         if result.is_ok() {
-            self.cache.lock().unwrap().set(uri.clone(), Arc::from(result.clone()));
+            let skip_cache = (self.skip_cache)(uri);
+
+            if !skip_cache {
+                self.cache.lock().unwrap().set(uri.clone(), Arc::from(result.clone()));
+            }
         }
 
         resolution_context.lock().unwrap().track_step(
@@ -102,11 +117,19 @@ impl From<Vec<Box<dyn UriResolver>>> for ResolutionResultCacheResolver {
     }
 }
 
+impl From<Vec<Arc<dyn UriResolver>>> for ResolutionResultCacheResolver {
+    fn from(resolvers: Vec<Arc<dyn UriResolver>>) -> Self {
+        ResolutionResultCacheResolver::from(
+            UriResolverAggregator::from(resolvers)
+        )
+    }
+}
+
 impl From<UriResolverAggregator> for ResolutionResultCacheResolver {
     fn from(resolver: UriResolverAggregator) -> Self {
         ResolutionResultCacheResolver::new(
             Arc::new(resolver),
-            Mutex::new(Box::new(BasicResolutionResultCache::new()))
+            Default::default()
         )
     }
 }
@@ -115,7 +138,16 @@ impl From<Box<dyn UriResolver>> for ResolutionResultCacheResolver {
     fn from(resolver: Box<dyn UriResolver>) -> Self {
         ResolutionResultCacheResolver::new(
             Arc::from(resolver),
-            Mutex::new(Box::new(BasicResolutionResultCache::new()))
+            Default::default()
+        )
+    }
+}
+
+impl From<Arc<dyn UriResolver>> for ResolutionResultCacheResolver {
+    fn from(resolver: Arc<dyn UriResolver>) -> Self {
+        ResolutionResultCacheResolver::new(
+            Arc::from(resolver),
+            Default::default()
         )
     }
 }
