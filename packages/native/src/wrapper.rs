@@ -56,6 +56,10 @@ impl FFIAbortHandlerWrapping {
   pub fn new(abort_handler: Box<dyn FFIAbortHandler>) -> Self {
     Self(abort_handler)
   }
+
+  pub fn abort(&self, msg: String) {
+    self.0.abort(msg)
+  }
 }
 
 pub struct AbortHandler(Box<dyn Fn(String) + Send + Sync>);

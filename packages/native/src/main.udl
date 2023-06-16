@@ -44,6 +44,7 @@ callback interface FFIAbortHandler {
 
 interface FFIAbortHandlerWrapping {
   constructor(FFIAbortHandler abort_handler);
+  void abort(string msg);
 };
 
 callback interface FFIWrapper {
