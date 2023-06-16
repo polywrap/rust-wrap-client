@@ -20,6 +20,9 @@ thiserror.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 rmp-serde.workspace = true
+serde_bytes.workspace = true
 
 [dev-dependencies]
 polywrap_tests_utils.workspace = true
+bigdecimal.workspace = true
+num-bigint.workspace = true

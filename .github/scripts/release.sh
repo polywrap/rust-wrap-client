@@ -8,6 +8,7 @@ packages=(
   "tests-utils"
   "wasm"
   "resolvers"
+  "resolver-extensions"
   "builder"
   "plugin/implementor"
   "plugin"
