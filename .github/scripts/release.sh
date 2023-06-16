@@ -5,14 +5,14 @@ packages=(
   "msgpack"
   "manifest"
   "core"
+  "plugin/implementor"
+  "plugin"
   "tests-utils"
   "wasm"
   "resolvers"
-  "builder"
-  "plugin/implementor"
-  "plugin"
-  "client"
   "resolver-extensions"
+  "builder"
+  "client"
 )
 
 # Iterate through the packages and publish them one by one
