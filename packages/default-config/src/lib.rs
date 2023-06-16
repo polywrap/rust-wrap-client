@@ -70,7 +70,7 @@ pub fn build() -> BuilderConfig {
 
     let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
     envs.insert(
-        "ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1".to_string(),
+        "wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1".to_string(),
         msgpack!({
             "provider": "https://ipfs.wrappers.io",
             "fallbackProviders": ["https://ipfs.io"],
