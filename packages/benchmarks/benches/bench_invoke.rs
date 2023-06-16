@@ -11,7 +11,7 @@ use polywrap_msgpack::msgpack;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
-use polywrap_benchmarks::get_tests_path_string;
+use polywrap_tests_utils::helpers::get_tests_path_string;
 
 fn prepare_client() -> PolywrapClient {
     let path = get_tests_path_string();

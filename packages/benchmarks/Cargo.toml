@@ -1,11 +1,12 @@
 [package]
 name = "polywrap_benchmarks"
 description = "Polywrap Client benchmarks in rust"
-version = "0.1.6-beta.6"
-license = "MIT"
-edition = "2021"
-rust-version = "1.67"
 repository = "https://github.com/polywrap/rust-client"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
 
 [lib]
 crate-type = ["rlib"]

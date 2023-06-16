@@ -1,7 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use std::{path::Path};
 use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
-use polywrap_benchmarks::{get_fibonacci_wrap, get_tests_path_string};
 use polywrap_core::{
     file_reader::{SimpleFileReader},
     wrapper::Wrapper,
@@ -11,7 +10,9 @@ use polywrap_msgpack::msgpack;
 use std::sync::{Arc};
 use std::fs;
 use polywrap_tests_utils::mocks::MockInvoker;
+use polywrap_benchmarks::{get_fibonacci_wrap};
 use polywrap_benchmarks::fibonacci::{fibonacci_loop, fibonacci_recursive};
+use polywrap_tests_utils::helpers::get_tests_path_string;
 
 fn bench_invoke(c: &mut Criterion) {
     // Note: this is using the correct URI for invoke, which is in the 00-subinvoke wrapper
