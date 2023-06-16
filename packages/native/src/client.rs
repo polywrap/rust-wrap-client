@@ -1,14 +1,15 @@
 use std::{collections::HashMap, ops::DerefMut, sync::Arc};
 
-use polywrap_client::core::client::Client;
+use polywrap_client::core::{client::Client, invoker::Invoker};
 
 use crate::{
     error::FFIError,
     resolvers::resolution_context::FFIUriResolutionContext,
     uri::FFIUri,
-    wrapper::{FFIWrapper, WrapperWrapping},
+    wrapper::{FFIWrapper, WrapperWrapping}, invoker::FFIInvoker,
 };
 
+#[derive(Clone)]
 pub struct FFIClient {
     inner_client: Arc<dyn Client>,
 }
@@ -18,6 +19,11 @@ impl FFIClient {
         Self {
             inner_client: client,
         }
+    }
+
+    pub fn as_invoker(&self) -> Arc<FFIInvoker>{
+      let invoker = Arc::new(self.clone()) as Arc<dyn Invoker>;
+      Arc::new(FFIInvoker(invoker))
     }
 
     pub fn invoke_raw(
@@ -117,6 +123,31 @@ impl FFIClient {
 
         Ok(Box::new(wrapper))
     }
+}
+
+impl Invoker for FFIClient {
+  fn invoke_raw(
+      &self,
+      uri: &polywrap_client::core::uri::Uri,
+      method: &str,
+      args: Option<&[u8]>,
+      env: Option<&[u8]>,
+      resolution_context: Option<Arc<std::sync::Mutex<polywrap_client::core::resolution::uri_resolution_context::UriResolutionContext>>>,
+  ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
+      self.inner_client.invoke_raw(uri, method, args, env, resolution_context)
+  }
+
+  fn get_implementations(&self, uri: &polywrap_client::core::uri::Uri) -> Result<Vec<polywrap_client::core::uri::Uri>, polywrap_client::core::error::Error> {
+      self.inner_client.get_implementations(uri)
+  }
+
+  fn get_interfaces(&self) -> Option<polywrap_client::core::interface_implementation::InterfaceImplementations> {
+      self.inner_client.get_interfaces()
+  }
+
+  fn get_env_by_uri(&self, uri: &polywrap_client::core::uri::Uri) -> Option<Vec<u8>> {
+      self.inner_client.get_env_by_uri(uri)
+  }
 }
 
 #[cfg(test)]

@@ -135,6 +135,8 @@ interface FFIClient {
 
   sequence<u8>? get_env_by_uri(FFIUri uri);
 
+  FFIInvoker as_invoker();
+
   [Throws=FFIError]
   sequence<u8> invoke_wrapper_raw(FFIWrapper wrapper, FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
 
