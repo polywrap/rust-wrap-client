@@ -18,10 +18,5 @@ serde.workspace = true
 serde_bytes.workspace = true
 
 [dev-dependencies]
-polywrap_client_default_config.workspace = true
-polywrap_client.workspace = true
-wrap_manifest_schemas.workspace = true
 polywrap_tests_utils.workspace = true
-polywrap_fs_plugin.workspace = true
-
-pathdiff = "0.2.1"
+wrap_manifest_schemas.workspace = true
