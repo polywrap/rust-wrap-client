@@ -6,9 +6,9 @@ use polywrap_client::core::{
 };
 
 use crate::{
-    package::{WrapPackageWrapping, FFIWrapPackage},
+    package::{FFIWrapPackage, WrapPackageWrapping},
     uri::FFIUri,
-    wrapper::{WrapperWrapping, FFIWrapper},
+    wrapper::{FFIWrapper, WrapperWrapping},
 };
 
 #[derive(Debug)]

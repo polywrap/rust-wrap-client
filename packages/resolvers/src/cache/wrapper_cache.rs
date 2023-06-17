@@ -1,9 +1,9 @@
-use std::sync::Arc;
 use polywrap_core::uri::Uri;
 use polywrap_core::wrapper::Wrapper;
+use std::sync::Arc;
 
 /// A cache for storing `Wrapper` instances.
-pub trait WrapperCache : Send + Sync {
+pub trait WrapperCache: Send + Sync {
     /// Gets the `Wrapper` instance for the given `Uri`.
     ///
     /// # Arguments

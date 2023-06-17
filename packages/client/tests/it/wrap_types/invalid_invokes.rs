@@ -1,6 +1,6 @@
-use polywrap_client::client::PolywrapClient;
 use polywrap_client::builder::types::{BuilderConfig, ClientConfigHandler};
-use polywrap_client::core::{uri::Uri};
+use polywrap_client::client::PolywrapClient;
+use polywrap_client::core::uri::Uri;
 use polywrap_client::msgpack::msgpack;
 use polywrap_tests_utils::helpers::get_tests_path;
 
@@ -13,60 +13,80 @@ fn invalid_test_case() {
 
     let client = PolywrapClient::new(BuilderConfig::new(None).build());
 
-    let invalid_bool_int_sent = client.invoke::<bool>(
-        &uri,
-        "boolMethod",
-        Some(&msgpack!({
-            "arg": 10,
-        })),
-        None,
-        None
-    ).unwrap_err();
-    assert!(invalid_bool_int_sent.to_string().contains("Property must be of type 'bool'. Found 'int'."));
+    let invalid_bool_int_sent = client
+        .invoke::<bool>(
+            &uri,
+            "boolMethod",
+            Some(&msgpack!({
+                "arg": 10,
+            })),
+            None,
+            None,
+        )
+        .unwrap_err();
+    assert!(invalid_bool_int_sent
+        .to_string()
+        .contains("Property must be of type 'bool'. Found 'int'."));
 
-    let invalid_int_bool_sent = client.invoke::<i32>(
-        &uri,
-        "intMethod",
-        Some(&msgpack!({
-            "arg": true,
-        })),
-        None,
-        None
-    ).unwrap_err();
-    assert!(invalid_int_bool_sent.to_string().contains("Property must be of type 'int'. Found 'bool'."));
+    let invalid_int_bool_sent = client
+        .invoke::<i32>(
+            &uri,
+            "intMethod",
+            Some(&msgpack!({
+                "arg": true,
+            })),
+            None,
+            None,
+        )
+        .unwrap_err();
+    assert!(invalid_int_bool_sent
+        .to_string()
+        .contains("Property must be of type 'int'. Found 'bool'."));
 
-    let invalid_uint_array_sent = client.invoke::<u32>(
-        &uri,
-        "uIntMethod",
-        Some(&msgpack!({
-            "arg": [10],
-        })),
-        None,
-        None
-    ).unwrap_err();
-    assert!(invalid_uint_array_sent.to_string().contains("Property must be of type 'uint'. Found 'array'."));
+    let invalid_uint_array_sent = client
+        .invoke::<u32>(
+            &uri,
+            "uIntMethod",
+            Some(&msgpack!({
+                "arg": [10],
+            })),
+            None,
+            None,
+        )
+        .unwrap_err();
+    assert!(invalid_uint_array_sent
+        .to_string()
+        .contains("Property must be of type 'uint'. Found 'array'."));
 
-    let invalid_bytes_float_sent = client.invoke::<Vec<u8>>(
-        &uri,
-        "bytesMethod",
-        Some(&msgpack!({
-            "arg": 10.15,
-        })),
-        None,
-        None
-    ).unwrap_err();
-    assert!(invalid_bytes_float_sent.to_string().contains("Property must be of type 'bytes'. Found 'float64'."));
+    let invalid_bytes_float_sent = client
+        .invoke::<Vec<u8>>(
+            &uri,
+            "bytesMethod",
+            Some(&msgpack!({
+                "arg": 10.15,
+            })),
+            None,
+            None,
+        )
+        .unwrap_err();
+    assert!(invalid_bytes_float_sent
+        .to_string()
+        .contains("Property must be of type 'bytes'. Found 'float64'."));
 
-    let invalid_array_map_sent = client.invoke::<Vec<i32>>(
-        &uri,
-        "arrayMethod",
-        Some(&msgpack!({
-            "arg": {
-                "prop": "prop",
-            },
-        })),
-        None,
-        None
-    ).unwrap_err();
-    assert!(invalid_array_map_sent.to_string().contains("Property must be of type 'array'. Found 'map'."));
+    let invalid_array_map_sent = client
+        .invoke::<Vec<i32>>(
+            &uri,
+            "arrayMethod",
+            Some(&msgpack!({
+                "arg": {
+                    "prop": "prop",
+                },
+            })),
+            None,
+            None,
+        )
+        .unwrap_err();
+    assert!(invalid_array_map_sent
+        .to_string()
+        .contains("Property must be of type 'array'. Found 'map'."));
 }

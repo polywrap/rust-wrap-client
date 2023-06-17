@@ -1,6 +1,6 @@
-use std::{sync::{Arc, Mutex}};
-use polywrap_core::invoker::{Invoker};
-use wasmer::{Module, Instance, Store, Memory, MemoryType, Value};
+use polywrap_core::invoker::Invoker;
+use std::sync::{Arc, Mutex};
+use wasmer::{Instance, Memory, MemoryType, Module, Store, Value};
 
 use crate::error::WrapperError;
 
@@ -22,7 +22,7 @@ pub struct InvokeState {
 pub struct SubinvokeImplementationState {
     pub result: Option<Vec<u8>>,
     pub error: Option<String>,
-    pub args: Vec<u8>
+    pub args: Vec<u8>,
 }
 
 pub struct State {
@@ -44,7 +44,7 @@ impl State {
         abort: Box<dyn Fn(String) + Send + Sync>,
         method: &str,
         args: Vec<u8>,
-        env: Vec<u8>
+        env: Vec<u8>,
     ) -> Self {
         Self {
             method: method.as_bytes().to_vec(),
@@ -72,11 +72,7 @@ impl WasmInstance {
         let mut store = Store::default();
         let module = Module::new(&store, wasm_module).unwrap();
         let memory = WasmInstance::create_memory(&mut store, wasm_module)?;
-        let imports = create_imports(
-            memory.clone(),
-            &mut store,
-            state.clone()
-        );
+        let imports = create_imports(memory.clone(), &mut store, state.clone());
 
         let instance = Instance::new(&mut store, &module, &imports)
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
@@ -95,32 +91,31 @@ impl WasmInstance {
             0x65, 0x6e, 0x76, 0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02,
         ];
 
-        let idx = module.windows(
-            ENV_MEMORY_IMPORTS_SIGNATURE.len()
-        ).position(|window| window == ENV_MEMORY_IMPORTS_SIGNATURE);
+        let idx = module
+            .windows(ENV_MEMORY_IMPORTS_SIGNATURE.len())
+            .position(|window| window == ENV_MEMORY_IMPORTS_SIGNATURE);
 
         if idx.is_none() {
             return Err(WrapperError::ModuleReadError(
                 r#"Unable to find Wasm memory import section.
                 Modules must import memory from the "env" module's
                 "memory" field like so:
-                (import "env" "memory" (memory (;0;) #))"#.to_string(),
+                (import "env" "memory" (memory (;0;) #))"#
+                    .to_string(),
             ));
         }
 
         let memory_initial_limits = module[idx.unwrap() + ENV_MEMORY_IMPORTS_SIGNATURE.len() + 1];
-        let memory = Memory::new(store, 
-            MemoryType::new(memory_initial_limits as u32, None, false)
-        ).unwrap();
+        let memory = Memory::new(
+            store,
+            MemoryType::new(memory_initial_limits as u32, None, false),
+        )
+        .unwrap();
 
         Ok(memory)
     }
 
-    pub fn call_export(
-        &mut self,
-        name: &str,
-        params: &[Value]
-    ) -> Result<bool, WrapperError> {
+    pub fn call_export(&mut self, name: &str, params: &[Value]) -> Result<bool, WrapperError> {
         let export = self.instance.exports.get_function(name);
         if export.is_err() {
             return Err(WrapperError::WasmRuntimeError(format!(

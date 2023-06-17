@@ -1,6 +1,6 @@
-use std::{sync::{Arc}, fmt::Debug, any::Any};
+use std::{any::Any, fmt::Debug, sync::Arc};
 
-use wrap_manifest_schemas::{versions::WrapManifest};
+use wrap_manifest_schemas::versions::WrapManifest;
 
 use crate::{error::Error, wrapper::Wrapper};
 
@@ -13,11 +13,6 @@ pub struct SerializeManifestOptions {
 }
 
 pub trait WrapPackage: Send + Sync + Debug + Any {
-    fn create_wrapper(
-        &self
-    ) -> Result<Arc<dyn Wrapper>, Error>;
-    fn get_manifest(
-        &self,
-        options: Option<&GetManifestOptions>,
-    ) -> Result<WrapManifest, Error>;
+    fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error>;
+    fn get_manifest(&self, options: Option<&GetManifestOptions>) -> Result<WrapManifest, Error>;
 }

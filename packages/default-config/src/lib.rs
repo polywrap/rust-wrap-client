@@ -78,12 +78,10 @@ pub fn build() -> BuilderConfig {
         }),
     );
 
-    let redirects: Vec<UriRedirect> = vec![
-        UriRedirect {
-            from: Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
-            to: Uri::try_from("plugin/http@1.1.0").unwrap(),
-        },
-    ];
+    let redirects: Vec<UriRedirect> = vec![UriRedirect {
+        from: Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
+        to: Uri::try_from("plugin/http@1.1.0").unwrap(),
+    }];
 
     BuilderConfig {
         interfaces: Some(interfaces),

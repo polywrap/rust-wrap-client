@@ -3,10 +3,7 @@ use std::sync::Arc;
 use polywrap_client::core::{file_reader::SimpleFileReader, wrapper::Wrapper};
 use polywrap_wasm::wasm_wrapper::WasmWrapper;
 
-use crate::{
-    error::FFIError,
-    wrapper::{FFIAbortHandlerWrapping}, invoker::FFIInvoker,
-};
+use crate::{error::FFIError, invoker::FFIInvoker, wrapper::FFIAbortHandlerWrapping};
 
 pub struct FFIWasmWrapper {
     pub inner_wasm_wrapper: Arc<dyn Wrapper>,
@@ -49,7 +46,7 @@ mod test {
     use polywrap_client::msgpack::decode;
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
 
-    use crate::invoker::{FFIInvoker};
+    use crate::invoker::FFIInvoker;
 
     use super::FFIWasmWrapper;
 

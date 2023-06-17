@@ -1,8 +1,13 @@
-use std::{sync::{Arc, Mutex}, fmt::{Formatter,Debug}};
-use wrap_manifest_schemas::{
-    versions::WrapManifest,
+use polywrap_core::{
+    error::Error,
+    package::{GetManifestOptions, WrapPackage},
+    wrapper::Wrapper,
 };
-use polywrap_core::{error::Error, package::{GetManifestOptions, WrapPackage}, wrapper::Wrapper};
+use std::{
+    fmt::{Debug, Formatter},
+    sync::{Arc, Mutex},
+};
+use wrap_manifest_schemas::versions::WrapManifest;
 
 use crate::{module::PluginModule, wrapper::PluginWrapper};
 
@@ -12,10 +17,7 @@ pub struct PluginPackage {
 }
 
 impl PluginPackage {
-    pub fn new(
-        plugin_module: Arc<Mutex<Box<dyn PluginModule>>>,
-        manifest: WrapManifest
-    ) -> Self {
+    pub fn new(plugin_module: Arc<Mutex<Box<dyn PluginModule>>>, manifest: WrapManifest) -> Self {
         Self {
             plugin_module,
             manifest,
@@ -31,20 +33,21 @@ impl PartialEq for PluginPackage {
 
 impl Debug for PluginPackage {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-      write!(f, r#"
+        write!(
+            f,
+            r#"
       Plugin Package
       
       -Plugin Module: {:?}
       -Manifest: {:?}
-      "#, self.plugin_module, self.manifest)
+      "#,
+            self.plugin_module, self.manifest
+        )
     }
 }
 
 impl WrapPackage for PluginPackage {
-    fn get_manifest(
-        &self,
-        _: Option<&GetManifestOptions>,
-    ) -> Result<WrapManifest, Error> {
+    fn get_manifest(&self, _: Option<&GetManifestOptions>) -> Result<WrapManifest, Error> {
         Ok(self.manifest.clone())
     }
 
