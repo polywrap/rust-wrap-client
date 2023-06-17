@@ -20,7 +20,7 @@ members = [
     "packages/default-config"
 ]
 
-# Do not include test utils & default config crates in default members
+# Do not include test utils
 default-members = [
     "packages/client",
     "packages/core",
@@ -31,7 +31,8 @@ default-members = [
     "packages/builder",
     "packages/plugin",
     "packages/native",
-    "packages/resolver-extensions"
+    "packages/resolver-extensions",
+    "packages/default-config"
 ]
 
 [workspace.dependencies]
@@ -49,6 +50,9 @@ polywrap_client_default_config = { version = "0.1.6-beta.7", path = "packages/de
 
 polywrap_plugin_implementor = { version = "0.1.6-beta.7", path = "packages/plugin/implementor" }
 
+polywrap_fs_plugin = { version  = "0.0.1-beta.4" }
+polywrap_http_plugin = { version  = "0.0.1-beta.4" }
+
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"
 thiserror = "1.0.37"
@@ -63,7 +67,6 @@ base64 = "0.13.1"
 bigdecimal = "0.3.0"
 num-bigint = "0.4.3"
 serde_bytes = "0.11.5"
-pathdiff = "0.2.1"
 
 [patch.crates-io]
 polywrap_core = { path = "packages/core" }

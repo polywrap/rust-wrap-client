@@ -18,7 +18,5 @@ serde.workspace = true
 serde_bytes.workspace = true
 
 [dev-dependencies]
-wrap_manifest_schemas.workspace = true
 polywrap_tests_utils.workspace = true
-pathdiff.workspace = true
-
+wrap_manifest_schemas.workspace = true

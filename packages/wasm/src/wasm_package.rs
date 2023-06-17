@@ -109,7 +109,7 @@ impl WrapPackage for WasmPackage {
 
     fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
         let wasm_bytes = self.get_wasm_module()?;
-
+        let wasm_module = self.get_wasm_module()?;
 
         let mut o_wasm_module = self.wasm_module.lock().unwrap();
         let wasm_module = o_wasm_module.clone();

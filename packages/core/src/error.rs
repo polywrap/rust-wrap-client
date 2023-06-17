@@ -20,6 +20,8 @@ pub enum Error {
     WasmWrapperError(String),
     #[error("Failed to resolve wrapper: `{0}`")]
     ResolutionError(String),
+    #[error("URI not found: `{0}`")]
+    UriNotFoundError(String),
     #[error("`{0}`")]
     MsgpackError(String),
     #[error("`{0}`")]
