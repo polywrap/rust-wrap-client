@@ -3,10 +3,10 @@ use std::sync::{Arc, Mutex};
 
 use polywrap_core::resolution::uri_resolution_context::UriResolutionStep;
 use polywrap_core::resolution::uri_resolver::UriResolver;
-use polywrap_core::{uri::Uri, error::Error, wrapper::Wrapper, invoker::Invoker};
+use polywrap_core::{error::Error, invoker::Invoker, uri::Uri, wrapper::Wrapper};
 
-use polywrap_core::resolution::{
-    uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+use polywrap_core::resolution::uri_resolution_context::{
+    UriPackageOrWrapper, UriResolutionContext,
 };
 
 pub struct WrapperResolver {
@@ -23,7 +23,7 @@ impl UriResolver for WrapperResolver {
         _: Arc<dyn Invoker>,
         resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
-        let result: Result<UriPackageOrWrapper, Error> = { 
+        let result: Result<UriPackageOrWrapper, Error> = {
             if uri.to_string() != self.uri.to_string() {
                 Ok(UriPackageOrWrapper::Uri(uri.clone()))
             } else {
@@ -34,15 +34,18 @@ impl UriResolver for WrapperResolver {
             }
         };
 
-        resolution_context.lock().unwrap().track_step(UriResolutionStep {
-            source_uri: uri.clone(),
-            description: Some(format!("Wrapper ({uri})")),
-            result: match &result {
-                Ok(r) => Ok(r.clone()),
-                Err(e) => Err(Error::ResolutionError(e.to_string()))
-            },
-            sub_history: None,
-        });
+        resolution_context
+            .lock()
+            .unwrap()
+            .track_step(UriResolutionStep {
+                source_uri: uri.clone(),
+                description: Some(format!("Wrapper ({uri})")),
+                result: match &result {
+                    Ok(r) => Ok(r.clone()),
+                    Err(e) => Err(Error::ResolutionError(e.to_string())),
+                },
+                sub_history: None,
+            });
 
         result
     }

@@ -1,64 +1,55 @@
-use fs_plugin_rs::FileSystemPlugin;
-use http_plugin_rs::HttpPlugin;
+use polywrap_fs_plugin::FileSystemPlugin;
+use polywrap_http_plugin::HttpPlugin;
 
 use polywrap_client_builder::types::BuilderConfig;
-use polywrap_core::{
-    client::UriRedirect, resolvers::uri_resolution_context::UriPackage,
-    resolvers::uri_resolution_context::UriWrapper, uri::Uri,
-};
+use polywrap_core::{client::UriRedirect, package::WrapPackage, uri::Uri, wrapper::Wrapper};
 use polywrap_msgpack::msgpack;
 use polywrap_plugin::package::PluginPackage;
-use std::{
-    collections::HashMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::HashMap, sync::Arc};
 
 pub mod embeds;
 
-pub fn get_default_wrappers() -> Vec<UriWrapper> {
-    let ipfs_http_client_package = Arc::new(Mutex::new(embeds::ipfs_http_client::wasm_wrapper()));
-    let ipfs_resolver_package = Arc::new(Mutex::new(embeds::ipfs_resolver::wasm_wrapper()));
-    let fs_resolver_package = Arc::new(Mutex::new(embeds::fs_resolver::wasm_wrapper()));
-    let http_resolver_package = Arc::new(Mutex::new(embeds::http_resolver::wasm_wrapper()));
+pub fn get_default_wrappers() -> Vec<(Uri, Arc<dyn Wrapper>)> {
+    let ipfs_http_client_package = Arc::new(embeds::ipfs_http_client::wasm_wrapper());
+    let ipfs_resolver_package = Arc::new(embeds::ipfs_resolver::wasm_wrapper());
+    let fs_resolver_package = Arc::new(embeds::fs_resolver::wasm_wrapper());
+    let http_resolver_package = Arc::new(embeds::http_resolver::wasm_wrapper());
 
     vec![
-        UriWrapper {
-            uri: Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0").unwrap(),
-            wrapper: ipfs_http_client_package,
-        },
-        UriWrapper {
-            uri: Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1").unwrap(),
-            wrapper: ipfs_resolver_package,
-        },
-        UriWrapper {
-            uri: Uri::try_from("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1").unwrap(),
-            wrapper: fs_resolver_package,
-        },
-        UriWrapper {
-            uri: Uri::try_from("ens/wraps.eth:http-uri-resolver-ext@1.0.1").unwrap(),
-            wrapper: http_resolver_package,
-        },
+        (
+            Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0").unwrap(),
+            ipfs_http_client_package,
+        ),
+        (
+            Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1").unwrap(),
+            ipfs_resolver_package,
+        ),
+        (
+            Uri::try_from("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1").unwrap(),
+            fs_resolver_package,
+        ),
+        (
+            Uri::try_from("ens/wraps.eth:http-uri-resolver-ext@1.0.1").unwrap(),
+            http_resolver_package,
+        ),
     ]
 }
 
-pub fn get_default_plugins() -> Vec<UriPackage> {
+pub fn get_default_plugins() -> Vec<(Uri, Arc<dyn WrapPackage>)> {
     let fs = FileSystemPlugin {};
     let fs_plugin_package: PluginPackage = fs.into();
-    let fs_package = Arc::new(Mutex::new(fs_plugin_package));
+    let fs_package = Arc::new(fs_plugin_package);
 
     let http = HttpPlugin {};
     let http_plugin_package: PluginPackage = http.into();
-    let http_package = Arc::new(Mutex::new(http_plugin_package));
+    let http_package = Arc::new(http_plugin_package);
 
     vec![
-        UriPackage {
-            uri: Uri::try_from("plugin/file-system@1.0.0").unwrap(),
-            package: fs_package,
-        },
-        UriPackage {
-            uri: Uri::try_from("plugin/http@1.1.0").unwrap(),
-            package: http_package,
-        },
+        (
+            Uri::try_from("plugin/file-system@1.0.0").unwrap(),
+            fs_package,
+        ),
+        (Uri::try_from("plugin/http@1.1.0").unwrap(), http_package),
     ]
 }
 
@@ -79,7 +70,7 @@ pub fn build() -> BuilderConfig {
 
     let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
     envs.insert(
-        "ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1".to_string(),
+        "wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1".to_string(),
         msgpack!({
             "provider": "https://ipfs.wrappers.io",
             "fallbackProviders": ["https://ipfs.io"],
@@ -93,8 +84,8 @@ pub fn build() -> BuilderConfig {
             to: Uri::try_from("plugin/http@1.1.0").unwrap(),
         },
         UriRedirect {
-            from: Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
-            to: Uri::try_from("plugin/http@1.1.0").unwrap(),
+            from: Uri::try_from("wrap://ens/wraps.eth:file-system@1.0.0").unwrap(),
+            to: Uri::try_from("plugin/file-system@1.0.0").unwrap(),
         },
     ];
 

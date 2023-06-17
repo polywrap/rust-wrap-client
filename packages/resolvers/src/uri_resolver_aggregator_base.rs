@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use polywrap_core::error::Error;
 
-use polywrap_core::{uri::Uri, invoker::Invoker};
+use polywrap_core::{invoker::Invoker, uri::Uri};
 
 use polywrap_core::resolution::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext, UriResolutionStep},
@@ -29,10 +29,13 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
         resolvers: Vec<Arc<dyn UriResolver>>,
         resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
-        let sub_context = resolution_context.lock().unwrap().create_sub_history_context();
+        let sub_context = resolution_context
+            .lock()
+            .unwrap()
+            .create_sub_history_context();
+        let sub_context = Arc::new(Mutex::new(sub_context));
         for resolver in resolvers.into_iter() {
-            let result = resolver
-                .try_resolve_uri(uri, invoker.clone(), resolution_context.clone());
+            let result = resolver.try_resolve_uri(uri, invoker.clone(), sub_context.clone());
             let track_and_return = if let Ok(UriPackageOrWrapper::Uri(result_uri)) = &result {
                 uri.to_string() != result_uri.to_string()
             } else {
@@ -40,12 +43,15 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
             };
 
             if track_and_return {
-                resolution_context.lock().unwrap().track_step(UriResolutionStep {
-                    source_uri: uri.clone(),
-                    result: result.clone(),
-                    sub_history: Some(sub_context.get_history().clone()),
-                    description: Some(self.get_step_description(uri, &result)),
-                });
+                resolution_context
+                    .lock()
+                    .unwrap()
+                    .track_step(UriResolutionStep {
+                        source_uri: uri.clone(),
+                        result: result.clone(),
+                        sub_history: Some(sub_context.lock().unwrap().get_history().clone()),
+                        description: Some(self.get_step_description(uri, &result)),
+                    });
 
                 return result;
             }
@@ -53,12 +59,15 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
 
         let result = Ok(UriPackageOrWrapper::Uri(uri.clone()));
 
-        resolution_context.lock().unwrap().track_step(UriResolutionStep {
-            source_uri: uri.clone(),
-            result: result.clone(),
-            sub_history: Some(sub_context.get_history().clone()),
-            description: Some(self.get_step_description(uri, &result)),
-        });
+        resolution_context
+            .lock()
+            .unwrap()
+            .track_step(UriResolutionStep {
+                source_uri: uri.clone(),
+                result: result.clone(),
+                sub_history: Some(sub_context.lock().unwrap().get_history().clone()),
+                description: Some(self.get_step_description(uri, &result)),
+            });
 
         result
     }

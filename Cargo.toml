@@ -1,8 +1,8 @@
 [workspace.package]
-version = "0.1.6-beta.4"
+version = "0.1.6-beta.7"
 license = "MIT"
 edition = "2021"
-rust-version = "1.67"
+rust-version = "1.69"
 repository = "https://github.com/polywrap/rust-client"
 
 [workspace]
@@ -15,7 +15,9 @@ members = [
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
-    "packages/native"
+    "packages/native",
+    "packages/resolver-extensions",
+    "packages/default-config"
 ]
 
 # Do not include test utils & default config crates in default members
@@ -28,21 +30,27 @@ default-members = [
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
-    "packages/native"
+    "packages/native",
+    "packages/resolver-extensions"
 ]
 
 [workspace.dependencies]
-polywrap_client = { version = "0.1.6-beta.4", path = "packages/client" } 
-polywrap_wasm = { version = "0.1.6-beta.4", path = "packages/wasm" }
-polywrap_client_builder = { version = "0.1.6-beta.4", path = "packages/builder" }
-polywrap_core = { version = "0.1.6-beta.4", path = "packages/core" }
-wrap_manifest_schemas = { version = "0.1.6-beta.4", path = "packages/manifest" }
-polywrap_resolvers = { version = "0.1.6-beta.4", path = "packages/resolvers" }
-polywrap_msgpack = { version = "0.1.6-beta.4", path = "packages/msgpack" }
-polywrap_tests_utils = { version = "0.1.6-beta.4", path = "packages/tests-utils" }
-polywrap_plugin = { version = "0.1.6-beta.4", path = "packages/plugin" }
+polywrap_client = { version = "0.1.6-beta.7", path = "packages/client" } 
+polywrap_wasm = { version = "0.1.6-beta.7", path = "packages/wasm" }
+polywrap_client_builder = { version = "0.1.6-beta.7", path = "packages/builder" }
+polywrap_core = { version = "0.1.6-beta.7", path = "packages/core" }
+wrap_manifest_schemas = { version = "0.1.6-beta.7", path = "packages/manifest" }
+polywrap_resolvers = { version = "0.1.6-beta.7", path = "packages/resolvers" }
+polywrap_resolver_extensions = { version = "0.1.6-beta.7", path = "packages/resolver-extensions" }
+polywrap_msgpack = { version = "0.1.6-beta.7", path = "packages/msgpack" }
+polywrap_tests_utils = { version = "0.1.6-beta.7", path = "packages/tests-utils" }
+polywrap_plugin = { version = "0.1.6-beta.7", path = "packages/plugin" }
+polywrap_client_default_config = { version = "0.1.6-beta.7", path = "packages/default-config" }
 
-polywrap_plugin_implementor = { version = "0.1.6-beta.4", path = "packages/plugin/implementor" }
+polywrap_plugin_implementor = { version = "0.1.6-beta.7", path = "packages/plugin/implementor" }
+
+polywrap_fs_plugin = { version  = "0.0.1-beta.4" }
+polywrap_http_plugin = { version  = "0.0.1-beta.4" }
 
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"
@@ -55,3 +63,13 @@ proc-macro2 = "1.0"
 quote = "1.0"
 syn = { version = "1.0.105", features=["full", "extra-traits", "visit"] }
 base64 = "0.13.1"
+bigdecimal = "0.3.0"
+num-bigint = "0.4.3"
+serde_bytes = "0.11.5"
+
+[patch.crates-io]
+polywrap_core = { path = "packages/core" }
+polywrap_client = { path = "packages/client" }
+polywrap_plugin = { path = "packages/plugin" }
+wrap_manifest_schemas = { path = "packages/manifest" }
+polywrap_msgpack = { path = "packages/msgpack" }

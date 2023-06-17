@@ -4,11 +4,7 @@ use polywrap_client::{
 };
 use std::{collections::HashMap, sync::Arc};
 
-use crate::{
-    error::FFIError,
-    invoker::{FFIInvoker, FFIInvokerWrapping},
-    uri::FFIUri,
-};
+use crate::{error::FFIError, invoker::FFIInvoker, uri::FFIUri};
 
 use super::{
     ffi_resolver::FFIUriResolver, resolution_context::FFIUriResolutionContext,
@@ -40,12 +36,12 @@ impl FFIUriResolver for FFIStaticUriResolver {
     fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
-        invoker: Box<dyn FFIInvoker>,
+        invoker: Arc<FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
     ) -> Result<Box<dyn FFIUriPackageOrWrapper>, FFIError> {
         let result = self.inner_resolver.try_resolve_uri(
             &uri.0,
-            Arc::new(FFIInvokerWrapping(invoker)),
+            invoker.0.clone(),
             resolution_context.0.clone(),
         )?;
 
@@ -60,7 +56,7 @@ mod test {
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_uri_package_or_wrapper};
 
     use crate::{
-        invoker::InvokerWrapping,
+        invoker::FFIInvoker,
         resolvers::{
             ffi_resolver::FFIUriResolver,
             resolution_context::FFIUriResolutionContext,
@@ -87,7 +83,7 @@ mod test {
 
         let response = ffi_static_resolver.try_resolve_uri(
             ffi_uri,
-            Box::new(InvokerWrapping(get_mock_invoker())),
+            Arc::new(FFIInvoker(get_mock_invoker())),
             ffi_uri_resolution_context,
         );
 
@@ -101,7 +97,7 @@ mod test {
                     "foo".to_string(),
                     None,
                     None,
-                    Box::new(InvokerWrapping(get_mock_invoker())),
+                    Arc::new(FFIInvoker(get_mock_invoker())),
                     None,
                 );
                 assert_eq!(response.unwrap(), [195])

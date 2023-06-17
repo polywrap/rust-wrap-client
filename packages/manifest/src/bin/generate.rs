@@ -67,9 +67,7 @@ fn generate_schemas() -> Result<(), Error> {
         let mut jsonref = JsonRef::new();
         jsonref
             .deref_value(&mut schema)
-            .map_err(|e| {
-                Error::SchemaFetch(format!("Error dereferencing Schema. {e}"))
-            })
+            .map_err(|e| Error::SchemaFetch(format!("Error dereferencing Schema. {e}")))
             .unwrap();
 
         let schema = serde_json::to_string_pretty(&schema).unwrap();

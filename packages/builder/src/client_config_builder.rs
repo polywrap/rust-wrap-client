@@ -1,13 +1,15 @@
-use std::{collections::HashMap, sync::{Arc}};
+use std::{collections::HashMap, sync::Arc};
 
 use polywrap_core::{
     client::{ClientConfig, UriRedirect},
-    resolution::uri_resolver::UriResolver, 
-    uri::Uri, wrapper::Wrapper, package::WrapPackage
+    package::WrapPackage,
+    resolution::uri_resolver::UriResolver,
+    uri::Uri,
+    wrapper::Wrapper,
 };
 
 use crate::{
-    helpers::{build_resolver},
+    helpers::build_resolver,
     types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
 };
 
@@ -72,18 +74,18 @@ impl ClientBuilder for BuilderConfig {
     }
 
     fn add_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self {
-      match self.envs.as_mut() {
-          Some(envs) => {
-              envs.insert(uri.to_string(), env);
-          }
-          None => {
-              let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
-              envs.insert(uri.to_string(), env);
-              self.envs = Some(envs);
-          }
-      };
-      self
-  }
+        match self.envs.as_mut() {
+            Some(envs) => {
+                envs.insert(uri.to_string(), env);
+            }
+            None => {
+                let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
+                envs.insert(uri.to_string(), env);
+                self.envs = Some(envs);
+            }
+        };
+        self
+    }
 
     fn add_envs(&mut self, envs: HashMap<String, Vec<u8>>) -> &mut Self {
         for (uri, env) in envs.into_iter() {
@@ -165,9 +167,7 @@ impl ClientBuilder for BuilderConfig {
         if let Some(interfaces) = self.interfaces.as_mut() {
             let implementations = interfaces.get_mut(&interface_uri.to_string());
             if let Some(implementations) = implementations {
-                let index = implementations
-                    .iter()
-                    .position(|i| i == implementation_uri);
+                let index = implementations.iter().position(|i| i == implementation_uri);
                 if let Some(i) = index {
                     implementations.remove(i);
                 };
@@ -180,9 +180,9 @@ impl ClientBuilder for BuilderConfig {
     fn add_wrapper(&mut self, uri: Uri, wrapper: Arc<dyn Wrapper>) -> &mut Self {
         if let Some(wrappers) = self.wrappers.as_mut() {
             let existing_wrapper = wrappers
-            .iter_mut()
-            .find(|i: &&mut (Uri, Arc<dyn Wrapper>)| i.0 == uri);
-            
+                .iter_mut()
+                .find(|i: &&mut (Uri, Arc<dyn Wrapper>)| i.0 == uri);
+
             if let Some(p) = existing_wrapper {
                 p.1 = wrapper;
             } else {
@@ -203,7 +203,10 @@ impl ClientBuilder for BuilderConfig {
 
     fn remove_wrapper(&mut self, uri: &Uri) -> &mut Self {
         if let Some(wrappers) = self.wrappers.as_mut() {
-            if let Some(index) = wrappers.iter().position(|(current_uri, _)| current_uri == uri) {
+            if let Some(index) = wrappers
+                .iter()
+                .position(|(current_uri, _)| current_uri == uri)
+            {
                 wrappers.remove(index);
             }
         }
@@ -212,10 +215,8 @@ impl ClientBuilder for BuilderConfig {
 
     fn add_package(&mut self, uri: Uri, package: Arc<dyn WrapPackage>) -> &mut Self {
         if let Some(packages) = self.packages.as_mut() {
-            let existing_package = packages
-            .iter_mut()
-            .find(|i| i.0 == uri);
-            
+            let existing_package = packages.iter_mut().find(|i| i.0 == uri);
+
             if let Some(p) = existing_package {
                 p.1 = package;
             } else {
@@ -236,7 +237,10 @@ impl ClientBuilder for BuilderConfig {
 
     fn remove_package(&mut self, uri: &Uri) -> &mut Self {
         if let Some(packages) = self.packages.as_mut() {
-            if let Some(index) = packages.iter().position(|(current_uri, _)| current_uri == uri) {
+            if let Some(index) = packages
+                .iter()
+                .position(|(current_uri, _)| current_uri == uri)
+            {
                 packages.remove(index);
             }
         }

@@ -5,12 +5,13 @@ packages=(
   "msgpack"
   "manifest"
   "core"
+  "plugin/implementor"
+  "plugin"
   "tests-utils"
   "wasm"
   "resolvers"
+  "resolver-extensions"
   "builder"
-  "plugin/implementor"
-  "plugin"
   "client"
 )
 

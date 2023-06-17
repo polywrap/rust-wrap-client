@@ -109,7 +109,7 @@ impl Invoker for PolywrapClient {
                     sub_history: Some(loaded_wrapper_context.lock().unwrap().get_history().clone()),
                 });
 
-            return Err(Error::LoadWrapperError(error.to_string()));
+            return Err(Error::LoadWrapperError(uri.to_string(), error.to_string()));
         }
 
         let resolution_path = loaded_wrapper_context.lock().unwrap().get_resolution_path();
@@ -144,14 +144,16 @@ impl Invoker for PolywrapClient {
 
         let mut res_context_guard = resolution_context.lock().unwrap();
 
-        self.invoke_wrapper_raw(
+        let result = self.invoke_wrapper_raw(
             &*wrapper,
             uri,
             method,
             args,
             env.as_deref(),
             Some(res_context_guard.borrow_mut()),
-        )
+        );
+
+        result
     }
 
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
@@ -191,9 +193,7 @@ impl WrapLoader for PolywrapClient {
             .map_err(|e| Error::ResolutionError(e.to_string()))?;
 
         match uri_package_or_wrapper {
-            UriPackageOrWrapper::Uri(uri) => Err(Error::ResolutionError(format!(
-                "Failed to resolve wrapper: {uri}"
-            ))),
+            UriPackageOrWrapper::Uri(uri) => Err(Error::UriNotFoundError(uri.to_string())),
             UriPackageOrWrapper::Wrapper(_, wrapper) => Ok(wrapper),
             UriPackageOrWrapper::Package(_, package) => {
                 let wrapper = package
@@ -291,13 +291,7 @@ mod client_tests {
         });
 
         let result = client
-            .invoke::<bool>(
-                &"wrap/mock".try_into().unwrap(),
-                "foo",
-                None,
-                None,
-                None,
-            )
+            .invoke::<bool>(&"wrap/mock".try_into().unwrap(), "foo", None, None, None)
             .unwrap();
 
         assert!(result);

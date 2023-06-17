@@ -1,10 +1,12 @@
+pub mod client;
 pub mod invoker;
 pub mod package;
-pub mod wrapper;
+pub mod plugin;
 pub mod resolver;
-pub mod client;
+pub mod wrapper;
+pub use client::*;
 pub use invoker::*;
 pub use package::*;
-pub use wrapper::*;
+pub use plugin::*;
 pub use resolver::*;
-pub use client::*;
+pub use wrapper::*;

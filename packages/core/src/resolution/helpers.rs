@@ -1,72 +1,64 @@
-
 use std::sync::Arc;
 
 use crate::{
-    file_reader::FileReader,
-    uri::Uri,
-    error::Error,
-    interface_implementation::InterfaceImplementations, client::Client, invoker::Invoker
+    client::Client, error::Error, file_reader::FileReader,
+    interface_implementation::InterfaceImplementations, invoker::Invoker, uri::Uri,
 };
-use polywrap_msgpack::{msgpack};
+use polywrap_msgpack::msgpack;
+use serde_bytes::ByteBuf;
 
 fn combine_paths(a: &str, b: &str) -> String {
-  let mut a = a.to_string();
-  let mut b = b.to_string();
+    let mut a = a.to_string();
+    let mut b = b.to_string();
 
-  a = a.replace('\\', "/");
-  b = b.replace('\\', "/");
+    a = a.replace('\\', "/");
+    b = b.replace('\\', "/");
 
-  if !a.ends_with('/') {
-      a.push('/');
-  };
+    if !a.ends_with('/') {
+        a.push('/');
+    };
 
-  while b.chars().rev().last().unwrap() == '/' || b.chars().rev().last().unwrap() == '.' {
-      b = b.split_off(1);
-  }
+    while b.chars().rev().last().unwrap() == '/' || b.chars().rev().last().unwrap() == '.' {
+        b = b.split_off(1);
+    }
 
-  a.push_str(&b);
+    a.push_str(&b);
 
-  a
+    a
 }
 
 pub struct UriResolverExtensionFileReader {
     pub resolver_extension_uri: Uri,
     pub wrapper_uri: Uri,
-    invoker: Arc<dyn Invoker>
+    invoker: Arc<dyn Invoker>,
 }
 
 impl UriResolverExtensionFileReader {
-    pub fn new(
-        resolver_extension_uri: Uri, 
-        wrapper_uri: Uri,
-        invoker: Arc<dyn Invoker>
-    ) -> Self {
+    pub fn new(resolver_extension_uri: Uri, wrapper_uri: Uri, invoker: Arc<dyn Invoker>) -> Self {
         UriResolverExtensionFileReader {
             resolver_extension_uri,
             wrapper_uri,
-            invoker
-        } 
-    } 
+            invoker,
+        }
+    }
 }
 
 impl FileReader for UriResolverExtensionFileReader {
     fn read_file(&self, file_path: &str) -> Result<Vec<u8>, Error> {
         let path = combine_paths(&self.wrapper_uri.path, file_path);
 
-        let invoker_args = msgpack!({
-            "path": path
-        });
+        let invoker_args = msgpack!({ "path": path });
         // TODO: This vec<u8> isn't the file but the msgpack representation of it
         let result = self.invoker.invoke_raw(
             &self.resolver_extension_uri,
             "getFile",
             Some(&invoker_args),
             None,
-            None
+            None,
         )?;
-        
-        let result: Vec<u8> = polywrap_msgpack::decode(&result)?;
-        Ok(result)
+
+        let result: ByteBuf = polywrap_msgpack::decode(&result)?;
+        Ok(result.into_vec())
     }
 }
 
@@ -92,7 +84,6 @@ pub fn get_implementations(
     Ok(implementation_uris)
     // for interface in interfaces.keys() {
 
-      
     //     let mut fully_resolved_uri = implementation.clone();
     //     if let Some(l) = loader {
     //         let redirect_uri = l.try_resolve_uri(
@@ -107,16 +98,15 @@ pub fn get_implementations(
 
 pub fn get_env_from_resolution_path(
     resolution_path: &[Uri],
-    client: &dyn Client
+    client: &dyn Client,
 ) -> Option<Vec<u8>> {
     for uri in resolution_path.iter() {
-      let env = client.get_env_by_uri(uri);
-  
-      if env.is_some() {
-        return env;
-      }
+        let env = client.get_env_by_uri(uri);
+
+        if env.is_some() {
+            return env;
+        }
     }
-  
+
     None
 }
-  

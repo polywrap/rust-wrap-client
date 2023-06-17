@@ -1,9 +1,9 @@
-use serde::Serialize;
 use regex::Regex;
+use serde::Serialize;
 
 use crate::error::Error;
 
-#[derive(Clone,Serialize,Debug)]
+#[derive(Clone, Serialize, Debug, Hash, Eq)]
 pub struct Uri {
     pub authority: String,
     pub path: String,
@@ -15,7 +15,7 @@ impl Uri {
         let parsed_uri = Uri::from_string(uri);
 
         if let Ok(result_uri) = parsed_uri {
-          result_uri
+            result_uri
         } else {
             panic!("Error parsing URI: `{uri}`");
         }
@@ -35,13 +35,12 @@ impl Uri {
         }
 
         if wrap_scheme_idx.is_some() && wrap_scheme_idx.unwrap() != 0 {
-            return Err(Error::UriParseError("The wrap:// scheme must be at the beginning of the URI string".to_string()));
+            return Err(Error::UriParseError(
+                "The wrap:// scheme must be at the beginning of the URI string".to_string(),
+            ));
         }
 
-        let reg = Regex::new(
-            "wrap://([a-z][a-z0-9-_]+)/(.*)",
-        )
-        .unwrap();
+        let reg = Regex::new("wrap://([a-z][a-z0-9-_]+)/(.*)").unwrap();
 
         let captures = reg.captures(&processed);
 
@@ -51,7 +50,7 @@ impl Uri {
             wrap://ipfs/QmHASH
             wrap://ens/domain.eth
             ens/domain.eth
-            Invalid URI Received: ${uri}"#
+            Invalid URI Received: {uri}"#
             )));
         }
 
@@ -86,11 +85,11 @@ impl TryFrom<String> for Uri {
 }
 
 impl TryFrom<&str> for Uri {
-  type Error = Error;
+    type Error = Error;
 
-  fn try_from(uri: &str) -> Result<Self, Self::Error> {
-      Uri::from_string(uri)
-  }
+    fn try_from(uri: &str) -> Result<Self, Self::Error> {
+        Uri::from_string(uri)
+    }
 }
 
 impl std::fmt::Display for Uri {
