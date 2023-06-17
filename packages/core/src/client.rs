@@ -28,4 +28,8 @@ pub struct ClientConfig {
   pub interfaces: Option<InterfaceImplementations>
 }
 
+pub trait ClientConfigBuilder {
+  fn build(self) -> ClientConfig;
+}
+
 pub trait Client: Invoker + WrapLoader + WrapInvoker + UriResolverHandler {}

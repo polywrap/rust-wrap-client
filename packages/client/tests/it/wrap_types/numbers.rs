@@ -1,7 +1,7 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_client::builder::types::{BuilderConfig, ClientConfigHandler};
-use polywrap_client::core::{uri::Uri};
+use polywrap_client::core::uri::Uri;
 use polywrap_client::msgpack::msgpack;
+use polywrap_client_builder::PolywrapClientConfig;
 use polywrap_tests_utils::helpers::get_tests_path;
 
 #[test]
@@ -11,7 +11,7 @@ fn numbers_test_case() {
     let path = test_path.into_os_string().into_string().unwrap();
     let uri = Uri::try_from(format!("fs/{}/numbers-type/implementations/rs", path)).unwrap();
 
-    let client = PolywrapClient::new(BuilderConfig::new(None).build());
+    let client = PolywrapClient::new(PolywrapClientConfig::new().into());
 
     let i8_underflow = client.invoke::<i8>(
         &uri,

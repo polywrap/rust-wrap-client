@@ -1,46 +1,40 @@
-use std::{collections::HashMap, sync::{Arc}};
+use std::{sync::{Arc}, collections::HashMap};
 
 use polywrap_core::{
-    client::{ClientConfig, UriRedirect},
-    resolution::uri_resolver::UriResolver, 
-    uri::Uri, wrapper::Wrapper, package::WrapPackage
+    interface_implementation::InterfaceImplementations,
+    uri::Uri, 
+    client::{UriRedirect, ClientConfig, ClientConfigBuilder}, package::WrapPackage, wrapper::Wrapper, resolution::uri_resolver::UriResolver
 };
 
-use crate::{
-    helpers::{build_resolver},
-    types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
-};
+use crate::{PolywrapBaseResolver, PolywrapBaseResolverOptions, build_static_resolver, PolywrapClientConfigBuilder};
 
-impl BuilderConfig {
-    pub fn new(config: Option<BuilderConfig>) -> Self {
-        if let Some(c) = config {
-            c
-        } else {
-            BuilderConfig {
-                interfaces: None,
-                envs: None,
-                wrappers: None,
-                packages: None,
-                redirects: None,
-                resolvers: None,
-            }
-        }
-    }
+#[derive(Default, Clone)]
+pub struct PolywrapClientConfig {
+    pub interfaces: Option<InterfaceImplementations>,
+    pub envs: Option<HashMap<String, Vec<u8>>>,
+    pub wrappers: Option<Vec<(Uri, Arc<dyn Wrapper>)>>,
+    pub packages: Option<Vec<(Uri, Arc<dyn WrapPackage>)>>,
+    pub redirects: Option<Vec<UriRedirect>>,
+    pub resolvers: Option<Vec<Arc<dyn UriResolver>>>,
+}
 
-    pub fn config(self) -> BuilderConfig {
-        BuilderConfig {
-            interfaces: self.interfaces,
-            envs: self.envs,
-            wrappers: self.wrappers,
-            packages: self.packages,
-            redirects: self.redirects,
-            resolvers: self.resolvers,
+impl PolywrapClientConfig {
+    pub fn new() -> Self {
+        // We don't want to use the default constructor here because it may change
+        // and then `new` would no longer create an empty config.
+        Self {
+            interfaces: None,
+            envs: None,
+            wrappers: None,
+            packages: None,
+            redirects: None,
+            resolvers: None,
         }
     }
 }
 
-impl ClientBuilder for BuilderConfig {
-    fn add(&mut self, config: BuilderConfig) -> &mut Self {
+impl PolywrapClientConfigBuilder for PolywrapClientConfig {
+    fn add(&mut self, config: PolywrapClientConfig) -> &mut Self {
         if let Some(e) = config.envs {
             self.add_envs(e);
         };
@@ -303,10 +297,24 @@ impl ClientBuilder for BuilderConfig {
     }
 }
 
-impl ClientConfigHandler for BuilderConfig {
+impl ClientConfigBuilder for PolywrapClientConfig {
     fn build(self) -> ClientConfig {
-        let mut builder = BuilderConfig::new(None);
-        builder.add(self.config());
-        build_resolver(builder)
+        // We first build the resolver because it needs a reference to self
+        // this way we don't need to clone `resolvers`, `envs`, and `interfaces`.
+        ClientConfig {
+            resolver: PolywrapBaseResolver::new(PolywrapBaseResolverOptions {
+                static_resolver: build_static_resolver(&self),
+                dynamic_resolvers: self.resolvers,
+                ..Default::default()
+            }),
+            envs: self.envs,
+            interfaces: self.interfaces,
+        }
+    }
+}
+
+impl Into<ClientConfig> for PolywrapClientConfig {
+    fn into(self) -> ClientConfig {
+        self.build()
     }
 }
