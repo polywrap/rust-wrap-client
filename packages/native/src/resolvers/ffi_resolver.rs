@@ -11,11 +11,7 @@ use polywrap_client::core::{
     },
 };
 
-use crate::{
-    error::FFIError,
-    invoker::{FFIInvoker, InvokerWrapping},
-    uri::FFIUri,
-};
+use crate::{error::FFIError, invoker::FFIInvoker, uri::FFIUri};
 
 use super::{
     resolution_context::FFIUriResolutionContext, uri_package_or_wrapper::FFIUriPackageOrWrapper,
@@ -25,7 +21,7 @@ pub trait FFIUriResolver: Send + Sync + Debug {
     fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
-        invoker: Box<dyn FFIInvoker>,
+        invoker: Arc<FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
     ) -> Result<Box<dyn FFIUriPackageOrWrapper>, FFIError>;
 }
@@ -43,7 +39,7 @@ impl UriResolver for UriResolverWrapping {
         let ffi_resolution_context = FFIUriResolutionContext(resolution_context);
         let result = self.0.try_resolve_uri(
             Arc::new(uri.clone().into()),
-            Box::new(InvokerWrapping(invoker)),
+            Arc::new(FFIInvoker(invoker)),
             Arc::new(ffi_resolution_context),
         )?;
 
