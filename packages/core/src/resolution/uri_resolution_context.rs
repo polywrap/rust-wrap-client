@@ -1,23 +1,23 @@
-use crate::{package::WrapPackage, wrapper::Wrapper, error::Error};
+use crate::{error::Error, package::WrapPackage, wrapper::Wrapper};
 use std::{collections::HashMap, sync::Arc, vec};
 
 use crate::uri::Uri;
 
 #[derive(Clone, Debug)]
 pub enum UriPackageOrWrapper {
-  Uri(Uri),
-  Wrapper(Uri, Arc<dyn Wrapper>),
-  Package(Uri, Arc<dyn WrapPackage>),
+    Uri(Uri),
+    Wrapper(Uri, Arc<dyn Wrapper>),
+    Package(Uri, Arc<dyn WrapPackage>),
 }
 
 impl UriPackageOrWrapper {
-  pub fn uri(&self) -> Uri {
-    match self {
-        UriPackageOrWrapper::Uri(uri) => uri.clone(),
-        UriPackageOrWrapper::Wrapper(uri, _) => uri.clone(),
-        UriPackageOrWrapper::Package(uri, _) => uri.clone(),
+    pub fn uri(&self) -> Uri {
+        match self {
+            UriPackageOrWrapper::Uri(uri) => uri.clone(),
+            UriPackageOrWrapper::Wrapper(uri, _) => uri.clone(),
+            UriPackageOrWrapper::Package(uri, _) => uri.clone(),
+        }
     }
-  }
 }
 
 #[derive(Clone)]
@@ -87,7 +87,7 @@ impl UriResolutionContext {
         UriResolutionContext {
             resolving_uri_map: self.resolving_uri_map.clone(),
             resolution_path: self.resolution_path.clone(),
-            history: vec![]
+            history: vec![],
         }
     }
 
@@ -95,8 +95,7 @@ impl UriResolutionContext {
         UriResolutionContext {
             resolving_uri_map: self.resolving_uri_map.clone(),
             resolution_path: vec![],
-            history: vec![]
+            history: vec![],
         }
     }
 }
-

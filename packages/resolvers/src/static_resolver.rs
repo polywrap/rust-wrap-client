@@ -1,13 +1,19 @@
 use core::fmt;
-use std::{collections::HashMap, sync::{Arc, Mutex}};
 use polywrap_core::{
     client::UriRedirect,
     error::Error,
-    uri::Uri,
+    invoker::Invoker,
+    package::WrapPackage,
     resolution::uri_resolution_context::{
-      UriPackageOrWrapper, UriResolutionContext, UriResolutionStep,
+        UriPackageOrWrapper, UriResolutionContext, UriResolutionStep,
     },
-    resolution::uri_resolver::UriResolver, package::WrapPackage, wrapper::Wrapper, invoker::Invoker,
+    resolution::uri_resolver::UriResolver,
+    uri::Uri,
+    wrapper::Wrapper,
+};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
 };
 
 pub enum StaticResolverLike {
@@ -42,10 +48,7 @@ impl StaticResolver {
                     );
                 }
                 StaticResolverLike::Package(uri, package) => {
-                    uri_map.insert(
-                        uri.to_string(),
-                        UriPackageOrWrapper::Package(uri, package),
-                    );
+                    uri_map.insert(uri.to_string(), UriPackageOrWrapper::Package(uri, package));
                 }
                 StaticResolverLike::Wrapper(uri, wrapper) => {
                     uri_map.insert(
@@ -72,15 +75,15 @@ impl UriResolver for StaticResolver {
             match found {
                 UriPackageOrWrapper::Package(uri, package) => (
                     format!("StaticResolver - Package ({uri})"),
-                    UriPackageOrWrapper::Package(uri.clone(), package.clone())
+                    UriPackageOrWrapper::Package(uri.clone(), package.clone()),
                 ),
                 UriPackageOrWrapper::Wrapper(uri, wrapper) => (
                     format!("StaticResolver - Wrapper ({uri})"),
-                    UriPackageOrWrapper::Wrapper(uri.clone(), wrapper.clone())
+                    UriPackageOrWrapper::Wrapper(uri.clone(), wrapper.clone()),
                 ),
                 UriPackageOrWrapper::Uri(uri) => (
                     format!("StaticResolver - Redirect ({uri})"),
-                    UriPackageOrWrapper::Uri(uri.clone())
+                    UriPackageOrWrapper::Uri(uri.clone()),
                 ),
             }
         } else {
@@ -90,19 +93,22 @@ impl UriResolver for StaticResolver {
             )
         };
 
-        resolution_context.lock().unwrap().track_step(UriResolutionStep {
-            description: Some(description),
-            source_uri: uri.clone(),
-            result: Ok(result.clone()),
-            sub_history: None,
-        });
+        resolution_context
+            .lock()
+            .unwrap()
+            .track_step(UriResolutionStep {
+                description: Some(description),
+                source_uri: uri.clone(),
+                result: Ok(result.clone()),
+                sub_history: None,
+            });
 
         Ok(result)
     }
 }
 
 impl fmt::Debug for StaticResolver {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "StaticResolver")
-  }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "StaticResolver")
+    }
 }

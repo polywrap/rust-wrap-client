@@ -1,9 +1,12 @@
-use std::{sync::{Arc}, collections::HashMap};
+use std::{collections::HashMap, sync::Arc};
 
 use polywrap_core::{
+    client::{ClientConfig, UriRedirect},
     interface_implementation::InterfaceImplementations,
-    uri::Uri, 
-    client::{UriRedirect, ClientConfig}, package::WrapPackage, wrapper::Wrapper, resolution::uri_resolver::UriResolver
+    package::WrapPackage,
+    resolution::uri_resolver::UriResolver,
+    uri::Uri,
+    wrapper::Wrapper,
 };
 
 #[derive(Clone)]
@@ -22,19 +25,19 @@ pub trait ClientBuilder {
     fn add_envs(&mut self, env: HashMap<String, Vec<u8>>) -> &mut Self;
     fn remove_env(&mut self, uri: &Uri) -> &mut Self;
     fn add_interface_implementation(
-        &mut self, 
+        &mut self,
         interface_uri: Uri,
-        implementation_uri: Uri
+        implementation_uri: Uri,
     ) -> &mut Self;
     fn add_interface_implementations(
-        &mut self, 
+        &mut self,
         interface_uri: Uri,
-        implementation_uris: Vec<Uri>
+        implementation_uris: Vec<Uri>,
     ) -> &mut Self;
     fn remove_interface_implementation(
         &mut self,
         interface_uri: &Uri,
-        implementation_uri: &Uri
+        implementation_uri: &Uri,
     ) -> &mut Self;
     fn add_wrapper(&mut self, uri: Uri, wrapper: Arc<dyn Wrapper>) -> &mut Self;
     fn add_wrappers(&mut self, wrappers: Vec<(Uri, Arc<dyn Wrapper>)>) -> &mut Self;
@@ -52,4 +55,3 @@ pub trait ClientBuilder {
 pub trait ClientConfigHandler {
     fn build(self) -> ClientConfig;
 }
-

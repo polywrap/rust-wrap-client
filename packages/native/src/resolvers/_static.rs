@@ -4,11 +4,7 @@ use polywrap_client::{
 };
 use std::{collections::HashMap, sync::Arc};
 
-use crate::{
-    error::FFIError,
-    invoker::{FFIInvoker},
-    uri::FFIUri,
-};
+use crate::{error::FFIError, invoker::FFIInvoker, uri::FFIUri};
 
 use super::{
     ffi_resolver::FFIUriResolver, resolution_context::FFIUriResolutionContext,
@@ -60,12 +56,13 @@ mod test {
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_uri_package_or_wrapper};
 
     use crate::{
+        invoker::FFIInvoker,
         resolvers::{
             ffi_resolver::FFIUriResolver,
             resolution_context::FFIUriResolutionContext,
             uri_package_or_wrapper::{FFIUriPackageOrWrapper, FFIUriPackageOrWrapperKind},
         },
-        uri::FFIUri, invoker::FFIInvoker,
+        uri::FFIUri,
     };
 
     use super::FFIStaticUriResolver;

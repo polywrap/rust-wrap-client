@@ -1,9 +1,9 @@
-use std::collections::HashMap;
-use std::sync::Arc;
+use crate::cache::resolution_result_cache::ResolutionResultCache;
 use polywrap_core::error::Error;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_core::uri::Uri;
-use crate::cache::resolution_result_cache::ResolutionResultCache;
+use std::collections::HashMap;
+use std::sync::Arc;
 
 /// A simple cache for storing `Result<UriPackageOrWrapper, Error>` instances.
 pub struct BasicResolutionResultCache {

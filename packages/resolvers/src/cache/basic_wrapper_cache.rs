@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-use std::sync::Arc;
+use crate::cache::wrapper_cache::WrapperCache;
 use polywrap_core::uri::Uri;
 use polywrap_core::wrapper::Wrapper;
-use crate::cache::wrapper_cache::WrapperCache;
+use std::collections::HashMap;
+use std::sync::Arc;
 
 /// A simple cache for storing `Wrapper` instances.
 pub struct BasicWrapperCache {

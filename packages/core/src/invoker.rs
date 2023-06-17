@@ -1,8 +1,8 @@
-use std::sync::{Mutex, Arc};
+use std::sync::{Arc, Mutex};
 
 use crate::{
-    error::Error, uri::Uri, resolution::uri_resolution_context::UriResolutionContext, 
-    interface_implementation::InterfaceImplementations,
+    error::Error, interface_implementation::InterfaceImplementations,
+    resolution::uri_resolution_context::UriResolutionContext, uri::Uri,
 };
 pub trait Invoker: Send + Sync {
     fn invoke_raw(

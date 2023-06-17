@@ -42,15 +42,13 @@ async fn fetch_from_github(
     fs::create_dir_all(source_folder.join("tmp").as_path())?;
     if response.status().is_success() {
         let file_content = response.bytes().await?.to_vec();
-        fs::write(
-            source_folder.join("tmp").join("cases.zip"),
-            file_content,
-        )?;
+        fs::write(source_folder.join("tmp").join("cases.zip"), file_content)?;
         Ok(())
     } else {
-        Err(FetchError::FailedToFetchFile(
-            format!("Failed to fetch file from {}", url),
-        ))
+        Err(FetchError::FailedToFetchFile(format!(
+            "Failed to fetch file from {}",
+            url
+        )))
     }
 }
 

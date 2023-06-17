@@ -1,6 +1,6 @@
 use std::{fmt::Debug, sync::Arc};
 
-use polywrap_core::{invoker::Invoker};
+use polywrap_core::invoker::Invoker;
 
 use crate::error::PluginError;
 

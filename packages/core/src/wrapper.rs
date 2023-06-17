@@ -1,6 +1,6 @@
-use std::{sync::Arc, fmt::Debug, any::Any};
+use std::{any::Any, fmt::Debug, sync::Arc};
 
-use crate::{error::Error, invoker::{Invoker}};
+use crate::{error::Error, invoker::Invoker};
 pub enum Encoding {
     Base64,
     UTF8,
