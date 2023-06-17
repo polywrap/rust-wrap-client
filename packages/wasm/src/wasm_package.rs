@@ -1,6 +1,6 @@
 use std::{
     fmt::{Debug, Formatter},
-    sync::Arc,
+    sync::{Arc, Mutex},
 };
 
 use polywrap_core::{
@@ -13,37 +13,54 @@ use wrap_manifest_schemas::{
     versions::WrapManifest,
 };
 
-use crate::{wasm_module::CompiledWasmModule, wasm_wrapper::WasmWrapper};
+use crate::{wasm_module::{CompiledWasmModule, WasmModule}, wasm_wrapper::WasmWrapper, error::WrapperError};
 
 use super::file_reader::InMemoryFileReader;
 
 pub struct WasmPackage {
     file_reader: Arc<dyn FileReader>,
     manifest: Option<Vec<u8>>,
-    wasm_module: Option<Vec<u8>>,
+    wasm_module: Arc<Mutex<Option<WasmModule>>>,
 }
 
 impl WasmPackage {
-    pub fn new(
+    pub fn from_byte_code(
+        wasm_bytes: Vec<u8>,
         file_reader: Arc<dyn FileReader>,
         manifest: Option<Vec<u8>>,
-        wasm_module: Option<Vec<u8>>,
     ) -> Self {
         Self {
-            file_reader: match wasm_module.clone() {
-                Some(module) => Arc::new(InMemoryFileReader::new(file_reader, None, Some(module))),
-                None => file_reader,
-            },
+            file_reader: Arc::new(InMemoryFileReader::new(file_reader, None, Some(wasm_bytes.clone()))),
             manifest,
-            wasm_module,
+            wasm_module: Arc::new(Mutex::new(Some(WasmModule::WasmByteCode(wasm_bytes)))),
         }
     }
 
-    pub fn get_wasm_module(&self) -> Result<Vec<u8>, polywrap_core::error::Error> {
-        if self.wasm_module.is_some() {
-            return Ok(self.wasm_module.clone().unwrap());
+    pub fn from_file_reader(
+        file_reader: Arc<dyn FileReader>,
+        manifest: Option<Vec<u8>>,
+    ) -> Self {
+        Self {
+            file_reader,
+            manifest,
+            wasm_module: Arc::new(Mutex::new(None)),
         }
+    }
 
+    pub fn from_compiled_module(
+        wasm_module: CompiledWasmModule,
+        wasm_bytes: Vec<u8>,
+        file_reader: Arc<dyn FileReader>,
+        manifest: Option<Vec<u8>>,
+    ) -> Result<Self, WrapperError> {     
+        Ok(Self {
+            file_reader: Arc::new(InMemoryFileReader::new(file_reader, None, Some(wasm_bytes))),
+            manifest,
+            wasm_module: Arc::new(Mutex::new(Some(WasmModule::Compiled(wasm_module)))),
+        })
+    }
+
+    pub fn get_wasm_module(&self) -> Result<Vec<u8>, polywrap_core::error::Error> {
         let file_content = self.file_reader.read_file("wrap.wasm")?;
 
         Ok(file_content)
@@ -63,10 +80,9 @@ impl Debug for WasmPackage {
             r#"
         WasmPackage
         
-        -Wasm Module: {:?}
         -Manifest: {:?}
         "#,
-            self.wasm_module, self.manifest
+        self.manifest
         )
     }
 }
@@ -92,12 +108,28 @@ impl WrapPackage for WasmPackage {
     }
 
     fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
-        let wasm_module = self.get_wasm_module()?;
-        let compiled_module = CompiledWasmModule::from_byte_code(&wasm_module)?;
+        let wasm_bytes = self.get_wasm_module()?;
 
-        Ok(Arc::new(WasmWrapper::new(
-            compiled_module,
-            self.file_reader.clone(),
-        )))
+
+        let mut o_wasm_module = self.wasm_module.lock().unwrap();
+        let wasm_module = o_wasm_module.clone();
+
+        if wasm_module.is_some() {
+            let compiled_module = wasm_module.unwrap().compile()?;
+            *o_wasm_module = Some(WasmModule::Compiled(compiled_module.clone()));
+
+            return Ok(Arc::new(WasmWrapper::new(
+                compiled_module.clone(),
+                self.file_reader.clone(),
+            )));
+        } else {
+            let compiled_module = CompiledWasmModule::from_byte_code(&wasm_bytes)?;
+            *o_wasm_module = Some(WasmModule::Compiled(compiled_module.clone()));
+
+            return Ok(Arc::new(WasmWrapper::new(
+                compiled_module.clone(),
+                self.file_reader.clone(),
+            )));
+        }
     }
 }

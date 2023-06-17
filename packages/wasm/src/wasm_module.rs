@@ -8,6 +8,7 @@ use crate::{
     runtime::instance::{State, WasmInstance},
 };
 
+#[derive(Clone)]
 pub enum WasmModule {
     WasmByteCode(Vec<u8>),
     Serialized {
@@ -32,7 +33,7 @@ impl WasmModule {
                 CompiledWasmModule {
                     module: wasmer_module,
                     memory_initial_limits,
-                    store,
+                    store: Arc::new(store),
                 }
             }
             WasmModule::Compiled(compiled_module) => compiled_module,
@@ -40,10 +41,11 @@ impl WasmModule {
     }
 }
 
+#[derive(Clone)]
 pub struct CompiledWasmModule {
     pub module: Module,
     pub memory_initial_limits: u8,
-    pub store: Store,
+    pub store: Arc<Store>,
 }
 
 impl CompiledWasmModule {
@@ -61,7 +63,7 @@ impl CompiledWasmModule {
         Ok(CompiledWasmModule {
             module: wasmer_module,
             memory_initial_limits,
-            store,
+            store: Arc::new(store),
         })
     }
 }
