@@ -2,6 +2,7 @@ set -e # Helps to give error info
 
 # Project paths
 RUST_PROJ="/Users/cesar/dev/polywrap/rust-client/packages/native"
+IOS_PROJ="/Users/cesar/dev/polywrap/swift/PolywrapClient"
 
 LOCAL_UDL="src/polywrap_native.udl"
 UDL_NAME="polywrap_native"
@@ -44,9 +45,9 @@ lipo -create \
 
 # Move binaries
 cp "../../target/aarch64-apple-ios/debug/lib${UDL_NAME}.a" \
-    "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME"
+    "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME.a"
 cp ../../target/universal.a \
-    "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME"
+    "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME.a"
 
 # Move headers
 cp "include/ios/${UDL_NAME}FFI.h" \
@@ -57,4 +58,7 @@ cp "include/ios/${UDL_NAME}FFI.h" \
 # Move swift interface
 sed "s/${UDL_NAME}FFI/$FRAMEWORK_NAME/g" "include/ios/$UDL_NAME.swift" > "include/ios/$SWIFT_INTERFACE.swift"
 
-
+cp -r "include/ios/" "$IOS_PROJ/Sources/PolywrapClient/include"
+rm "$IOS_PROJ/Sources/PolywrapClient/include/$UDL_NAME.swift"
+cp "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME.a" "$IOS_PROJ/Sources/PolywrapClient/Frameworks/$FRAMEWORK_NAME.xcframework/ios-arm64/$FRAMEWORK_NAME.a"
+cp "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME.a" "$IOS_PROJ/Sources/PolywrapClient/Frameworks/$FRAMEWORK_NAME.xcframework/ios-arm64_x86_64-simulator/$FRAMEWORK_NAME.a"

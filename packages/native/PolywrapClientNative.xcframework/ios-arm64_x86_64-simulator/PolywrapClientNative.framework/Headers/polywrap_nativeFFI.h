@@ -46,235 +46,267 @@ typedef struct RustCallStatus {
 // ⚠️ increment the version suffix in all instances of UNIFFI_SHARED_HEADER_V4 in this file.           ⚠️
 #endif // def UNIFFI_SHARED_H
 
-void ffi_polywrap_native_b3fa_FFIUri_object_free(
+void ffi_polywrap_native_b98b_FFIUri_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void*_Nonnull polywrap_native_b3fa_FFIUri_new(
+void*_Nonnull polywrap_native_b98b_FFIUri_new(
       RustBuffer authority,RustBuffer path,RustBuffer uri,
     RustCallStatus *_Nonnull out_status
     );
-void*_Nonnull polywrap_native_b3fa_FFIUri_from_string(
+void*_Nonnull polywrap_native_b98b_FFIUri_from_string(
       RustBuffer uri,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer polywrap_native_b3fa_FFIUri_to_string_uri(
+RustBuffer polywrap_native_b98b_FFIUri_to_string_uri(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_polywrap_native_b3fa_FFIWasmWrapper_object_free(
+void ffi_polywrap_native_b98b_FFIInvoker_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void*_Nonnull polywrap_native_b3fa_FFIWasmWrapper_new(
-      RustBuffer wasm_module,
-    RustCallStatus *_Nonnull out_status
-    );
-RustBuffer polywrap_native_b3fa_FFIWasmWrapper_invoke(
-      void*_Nonnull ptr,RustBuffer method,RustBuffer args,RustBuffer env,uint64_t invoker,RustBuffer abort_handler,
-    RustCallStatus *_Nonnull out_status
-    );
-void ffi_polywrap_native_b3fa_FFIStaticUriResolver_object_free(
-      void*_Nonnull ptr,
-    RustCallStatus *_Nonnull out_status
-    );
-void*_Nonnull polywrap_native_b3fa_FFIStaticUriResolver_new(
-      RustBuffer uri_map,
-    RustCallStatus *_Nonnull out_status
-    );
-uint64_t polywrap_native_b3fa_FFIStaticUriResolver_try_resolve_uri(
-      void*_Nonnull ptr,void*_Nonnull uri,uint64_t invoker,void*_Nonnull resolution_context,
-    RustCallStatus *_Nonnull out_status
-    );
-void ffi_polywrap_native_b3fa_FFIRecursiveUriResolver_object_free(
-      void*_Nonnull ptr,
-    RustCallStatus *_Nonnull out_status
-    );
-void*_Nonnull polywrap_native_b3fa_FFIRecursiveUriResolver_new(
-      uint64_t uri_resolver,
-    RustCallStatus *_Nonnull out_status
-    );
-uint64_t polywrap_native_b3fa_FFIRecursiveUriResolver_try_resolve_uri(
-      void*_Nonnull ptr,void*_Nonnull uri,uint64_t invoker,void*_Nonnull resolution_context,
-    RustCallStatus *_Nonnull out_status
-    );
-void ffi_polywrap_native_b3fa_FFIUriResolutionContext_object_free(
-      void*_Nonnull ptr,
-    RustCallStatus *_Nonnull out_status
-    );
-void*_Nonnull polywrap_native_b3fa_FFIUriResolutionContext_new(
-      
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIUriResolutionContext_set_resolution_path(
-      void*_Nonnull ptr,RustBuffer resolution_path,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIUriResolutionContext_set_history(
-      void*_Nonnull ptr,RustBuffer history,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIUriResolutionContext_set_resolving_uri_map(
-      void*_Nonnull ptr,RustBuffer resolving_uri_map,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIUriResolutionContext_set_start_resolving(
-      void*_Nonnull ptr,void*_Nonnull uri,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIUriResolutionContext_set_stop_resolving(
-      void*_Nonnull ptr,void*_Nonnull uri,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIUriResolutionContext_track_step(
-      void*_Nonnull ptr,RustBuffer step,
-    RustCallStatus *_Nonnull out_status
-    );
-RustBuffer polywrap_native_b3fa_FFIUriResolutionContext_get_history(
-      void*_Nonnull ptr,
-    RustCallStatus *_Nonnull out_status
-    );
-RustBuffer polywrap_native_b3fa_FFIUriResolutionContext_get_resolution_path(
-      void*_Nonnull ptr,
-    RustCallStatus *_Nonnull out_status
-    );
-void*_Nonnull polywrap_native_b3fa_FFIUriResolutionContext_create_sub_history_context(
-      void*_Nonnull ptr,
-    RustCallStatus *_Nonnull out_status
-    );
-void*_Nonnull polywrap_native_b3fa_FFIUriResolutionContext_create_sub_context(
-      void*_Nonnull ptr,
-    RustCallStatus *_Nonnull out_status
-    );
-void ffi_polywrap_native_b3fa_FFIClient_object_free(
-      void*_Nonnull ptr,
-    RustCallStatus *_Nonnull out_status
-    );
-RustBuffer polywrap_native_b3fa_FFIClient_invoke_raw(
+RustBuffer polywrap_native_b98b_FFIInvoker_invoke_raw(
       void*_Nonnull ptr,void*_Nonnull uri,RustBuffer method,RustBuffer args,RustBuffer env,RustBuffer resolution_context,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer polywrap_native_b3fa_FFIClient_get_implementations(
+RustBuffer polywrap_native_b98b_FFIInvoker_get_implementations(
       void*_Nonnull ptr,void*_Nonnull uri,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer polywrap_native_b3fa_FFIClient_get_interfaces(
+RustBuffer polywrap_native_b98b_FFIInvoker_get_interfaces(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer polywrap_native_b3fa_FFIClient_get_env_by_uri(
+RustBuffer polywrap_native_b98b_FFIInvoker_get_env_by_uri(
       void*_Nonnull ptr,void*_Nonnull uri,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer polywrap_native_b3fa_FFIClient_invoke_wrapper_raw(
-      void*_Nonnull ptr,uint64_t wrapper,void*_Nonnull uri,RustBuffer method,RustBuffer args,RustBuffer env,RustBuffer resolution_context,
-    RustCallStatus *_Nonnull out_status
-    );
-uint64_t polywrap_native_b3fa_FFIClient_load_wrapper(
-      void*_Nonnull ptr,void*_Nonnull uri,RustBuffer resolution_context,
-    RustCallStatus *_Nonnull out_status
-    );
-void ffi_polywrap_native_b3fa_FFIBuilderConfig_object_free(
+void ffi_polywrap_native_b98b_FFIAbortHandlerWrapping_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void*_Nonnull polywrap_native_b3fa_FFIBuilderConfig_new(
+void*_Nonnull polywrap_native_b98b_FFIAbortHandlerWrapping_new(
+      uint64_t abort_handler,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIAbortHandlerWrapping_abort(
+      void*_Nonnull ptr,RustBuffer msg,
+    RustCallStatus *_Nonnull out_status
+    );
+void ffi_polywrap_native_b98b_FFIWasmWrapper_object_free(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull polywrap_native_b98b_FFIWasmWrapper_new(
+      RustBuffer wasm_module,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer polywrap_native_b98b_FFIWasmWrapper_invoke(
+      void*_Nonnull ptr,RustBuffer method,RustBuffer args,RustBuffer env,void*_Nonnull invoker,RustBuffer abort_handler,
+    RustCallStatus *_Nonnull out_status
+    );
+void ffi_polywrap_native_b98b_FFIStaticUriResolver_object_free(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull polywrap_native_b98b_FFIStaticUriResolver_new(
+      RustBuffer uri_map,
+    RustCallStatus *_Nonnull out_status
+    );
+uint64_t polywrap_native_b98b_FFIStaticUriResolver_try_resolve_uri(
+      void*_Nonnull ptr,void*_Nonnull uri,void*_Nonnull invoker,void*_Nonnull resolution_context,
+    RustCallStatus *_Nonnull out_status
+    );
+void ffi_polywrap_native_b98b_FFIRecursiveUriResolver_object_free(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull polywrap_native_b98b_FFIRecursiveUriResolver_new(
+      uint64_t uri_resolver,
+    RustCallStatus *_Nonnull out_status
+    );
+uint64_t polywrap_native_b98b_FFIRecursiveUriResolver_try_resolve_uri(
+      void*_Nonnull ptr,void*_Nonnull uri,void*_Nonnull invoker,void*_Nonnull resolution_context,
+    RustCallStatus *_Nonnull out_status
+    );
+void ffi_polywrap_native_b98b_FFIUriResolutionContext_object_free(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull polywrap_native_b98b_FFIUriResolutionContext_new(
       
     RustCallStatus *_Nonnull out_status
     );
-void polywrap_native_b3fa_FFIBuilderConfig_add_env(
-      void*_Nonnull ptr,void*_Nonnull uri,RustBuffer env,
+void polywrap_native_b98b_FFIUriResolutionContext_set_resolution_path(
+      void*_Nonnull ptr,RustBuffer resolution_path,
     RustCallStatus *_Nonnull out_status
     );
-void polywrap_native_b3fa_FFIBuilderConfig_remove_env(
+void polywrap_native_b98b_FFIUriResolutionContext_set_history(
+      void*_Nonnull ptr,RustBuffer history,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIUriResolutionContext_set_resolving_uri_map(
+      void*_Nonnull ptr,RustBuffer resolving_uri_map,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIUriResolutionContext_set_start_resolving(
       void*_Nonnull ptr,void*_Nonnull uri,
     RustCallStatus *_Nonnull out_status
     );
-void polywrap_native_b3fa_FFIBuilderConfig_add_interface_implementation(
-      void*_Nonnull ptr,void*_Nonnull interface_uri,void*_Nonnull implementation_uri,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIBuilderConfig_remove_interface_implementation(
-      void*_Nonnull ptr,void*_Nonnull interface_uri,void*_Nonnull implementation_uri,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIBuilderConfig_add_wrapper(
-      void*_Nonnull ptr,void*_Nonnull uri,uint64_t wrapper,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIBuilderConfig_remove_wrapper(
+void polywrap_native_b98b_FFIUriResolutionContext_set_stop_resolving(
       void*_Nonnull ptr,void*_Nonnull uri,
     RustCallStatus *_Nonnull out_status
     );
-void polywrap_native_b3fa_FFIBuilderConfig_add_package(
-      void*_Nonnull ptr,void*_Nonnull uri,uint64_t package,
+void polywrap_native_b98b_FFIUriResolutionContext_track_step(
+      void*_Nonnull ptr,RustBuffer step,
     RustCallStatus *_Nonnull out_status
     );
-void polywrap_native_b3fa_FFIBuilderConfig_remove_package(
-      void*_Nonnull ptr,void*_Nonnull uri,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIBuilderConfig_add_redirect(
-      void*_Nonnull ptr,void*_Nonnull from,void*_Nonnull to,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIBuilderConfig_remove_redirect(
-      void*_Nonnull ptr,void*_Nonnull from,
-    RustCallStatus *_Nonnull out_status
-    );
-void polywrap_native_b3fa_FFIBuilderConfig_add_resolver(
-      void*_Nonnull ptr,uint64_t resolver,
-    RustCallStatus *_Nonnull out_status
-    );
-void*_Nonnull polywrap_native_b3fa_FFIBuilderConfig_build(
+RustBuffer polywrap_native_b98b_FFIUriResolutionContext_get_history(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_polywrap_native_b3fa_FFIInvoker_init_callback(
+RustBuffer polywrap_native_b98b_FFIUriResolutionContext_get_resolution_path(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull polywrap_native_b98b_FFIUriResolutionContext_create_sub_history_context(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull polywrap_native_b98b_FFIUriResolutionContext_create_sub_context(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void ffi_polywrap_native_b98b_FFIClient_object_free(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer polywrap_native_b98b_FFIClient_invoke_raw(
+      void*_Nonnull ptr,void*_Nonnull uri,RustBuffer method,RustBuffer args,RustBuffer env,RustBuffer resolution_context,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer polywrap_native_b98b_FFIClient_get_implementations(
+      void*_Nonnull ptr,void*_Nonnull uri,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer polywrap_native_b98b_FFIClient_get_interfaces(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer polywrap_native_b98b_FFIClient_get_env_by_uri(
+      void*_Nonnull ptr,void*_Nonnull uri,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull polywrap_native_b98b_FFIClient_as_invoker(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer polywrap_native_b98b_FFIClient_invoke_wrapper_raw(
+      void*_Nonnull ptr,uint64_t wrapper,void*_Nonnull uri,RustBuffer method,RustBuffer args,RustBuffer env,RustBuffer resolution_context,
+    RustCallStatus *_Nonnull out_status
+    );
+uint64_t polywrap_native_b98b_FFIClient_load_wrapper(
+      void*_Nonnull ptr,void*_Nonnull uri,RustBuffer resolution_context,
+    RustCallStatus *_Nonnull out_status
+    );
+void ffi_polywrap_native_b98b_FFIBuilderConfig_object_free(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull polywrap_native_b98b_FFIBuilderConfig_new(
+      
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_add_env(
+      void*_Nonnull ptr,void*_Nonnull uri,RustBuffer env,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_remove_env(
+      void*_Nonnull ptr,void*_Nonnull uri,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_add_interface_implementation(
+      void*_Nonnull ptr,void*_Nonnull interface_uri,void*_Nonnull implementation_uri,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_remove_interface_implementation(
+      void*_Nonnull ptr,void*_Nonnull interface_uri,void*_Nonnull implementation_uri,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_add_wrapper(
+      void*_Nonnull ptr,void*_Nonnull uri,uint64_t wrapper,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_remove_wrapper(
+      void*_Nonnull ptr,void*_Nonnull uri,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_add_package(
+      void*_Nonnull ptr,void*_Nonnull uri,uint64_t package,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_remove_package(
+      void*_Nonnull ptr,void*_Nonnull uri,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_add_redirect(
+      void*_Nonnull ptr,void*_Nonnull from,void*_Nonnull to,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_remove_redirect(
+      void*_Nonnull ptr,void*_Nonnull from,
+    RustCallStatus *_Nonnull out_status
+    );
+void polywrap_native_b98b_FFIBuilderConfig_add_resolver(
+      void*_Nonnull ptr,uint64_t resolver,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull polywrap_native_b98b_FFIBuilderConfig_build(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void ffi_polywrap_native_b98b_FFIAbortHandler_init_callback(
       ForeignCallback  _Nonnull callback_stub,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_polywrap_native_b3fa_FFIAbortHandler_init_callback(
+void ffi_polywrap_native_b98b_FFIWrapper_init_callback(
       ForeignCallback  _Nonnull callback_stub,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_polywrap_native_b3fa_FFIWrapper_init_callback(
+void ffi_polywrap_native_b98b_FFIWrapPackage_init_callback(
       ForeignCallback  _Nonnull callback_stub,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_polywrap_native_b3fa_FFIWrapPackage_init_callback(
+void ffi_polywrap_native_b98b_FFIUriResolver_init_callback(
       ForeignCallback  _Nonnull callback_stub,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_polywrap_native_b3fa_FFIUriResolver_init_callback(
+void ffi_polywrap_native_b98b_FFIUriWrapper_init_callback(
       ForeignCallback  _Nonnull callback_stub,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_polywrap_native_b3fa_FFIUriWrapper_init_callback(
+void ffi_polywrap_native_b98b_FFIUriWrapPackage_init_callback(
       ForeignCallback  _Nonnull callback_stub,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_polywrap_native_b3fa_FFIUriWrapPackage_init_callback(
+void ffi_polywrap_native_b98b_FFIUriPackageOrWrapper_init_callback(
       ForeignCallback  _Nonnull callback_stub,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_polywrap_native_b3fa_FFIUriPackageOrWrapper_init_callback(
-      ForeignCallback  _Nonnull callback_stub,
-    RustCallStatus *_Nonnull out_status
-    );
-RustBuffer ffi_polywrap_native_b3fa_rustbuffer_alloc(
+RustBuffer ffi_polywrap_native_b98b_rustbuffer_alloc(
       int32_t size,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_polywrap_native_b3fa_rustbuffer_from_bytes(
+RustBuffer ffi_polywrap_native_b98b_rustbuffer_from_bytes(
       ForeignBytes bytes,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_polywrap_native_b3fa_rustbuffer_free(
+void ffi_polywrap_native_b98b_rustbuffer_free(
       RustBuffer buf,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_polywrap_native_b3fa_rustbuffer_reserve(
+RustBuffer ffi_polywrap_native_b98b_rustbuffer_reserve(
       RustBuffer buf,int32_t additional,
     RustCallStatus *_Nonnull out_status
     );
