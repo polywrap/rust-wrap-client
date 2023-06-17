@@ -1,3 +1,3 @@
 mod fs;
-mod ipfs;
 mod http;
+mod ipfs;

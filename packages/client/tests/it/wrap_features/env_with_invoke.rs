@@ -1,5 +1,5 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_client::core::{uri::Uri};
+use polywrap_client::core::uri::Uri;
 use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
@@ -20,12 +20,7 @@ fn get_env_wrapper_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    
-
-    Uri::try_from(format!(
-        "fs/{path}/env-type/00-main/implementations/rs"
-    ))
-    .unwrap()
+    Uri::try_from(format!("fs/{path}/env-type/00-main/implementations/rs")).unwrap()
 }
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -45,31 +40,29 @@ struct Env {
 }
 
 fn get_default_env() -> Env {
-  Env {
-      str: "string".to_string(),
-      optStr: None,
-      optFilledStr: Some("optional string".to_string()),
-      number: 10,
-      optNumber: None,
-      bool: true,
-      optBool: None,
-      en: 0,
-      optEnum: None,
-      object: HashMap::from([
-          ("prop".to_string(), "object string".to_string()),
-      ]),
-      optObject: None,
-      array: vec![32, 23],
-  }
+    Env {
+        str: "string".to_string(),
+        optStr: None,
+        optFilledStr: Some("optional string".to_string()),
+        number: 10,
+        optNumber: None,
+        bool: true,
+        optBool: None,
+        en: 0,
+        optEnum: None,
+        object: HashMap::from([("prop".to_string(), "object string".to_string())]),
+        optObject: None,
+        array: vec![32, 23],
+    }
 }
 
 fn get_default_serialized_env() -> Vec<u8> {
-  polywrap_msgpack::serialize(&get_default_env()).unwrap()
+    polywrap_msgpack::serialize(&get_default_env()).unwrap()
 }
 
 fn build_client(uri: &Uri, env: Option<&[u8]>) -> PolywrapClient {
     let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
-   
+
     if let Some(env) = env {
         envs.insert(uri.to_string(), env.to_vec());
     }
@@ -88,7 +81,7 @@ fn build_client(uri: &Uri, env: Option<&[u8]>) -> PolywrapClient {
         resolver: Arc::new(base_resolver),
         interfaces: None,
     };
-    
+
     PolywrapClient::new(config)
 }
 
@@ -103,7 +96,7 @@ fn invoke_method_without_env_does_not_require_env() {
         .invoke::<String>(
             &wrapper_uri,
             "methodNoEnv",
-            Some(&msgpack!({"arg": test_string})),
+            Some(&msgpack!({ "arg": test_string })),
             None,
             None,
         )
@@ -122,7 +115,7 @@ fn invoke_method_without_env_works_with_env() {
         .invoke::<String>(
             &wrapper_uri,
             "methodNoEnv",
-            Some(&msgpack!({"arg": test_string})),
+            Some(&msgpack!({ "arg": test_string })),
             None,
             None,
         )
@@ -219,19 +212,17 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
     {
         let client = {
             let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
-        
+
             envs.insert(redirect_from_uri.to_string(), get_default_serialized_env());
-        
-            let resolvers = HashMap::from([
-                (
-                    redirect_from_uri.to_string(),
-                    UriPackageOrWrapper::Uri(wrapper_uri.clone())
-                ),
-            ]);
-        
+
+            let resolvers = HashMap::from([(
+                redirect_from_uri.to_string(),
+                UriPackageOrWrapper::Uri(wrapper_uri.clone()),
+            )]);
+
             let file_reader = SimpleFileReader::new();
             let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
-        
+
             let config = ClientConfig {
                 envs: Some(envs),
                 // Use the RecursiveResolver because it tracks resolution path (unlike BaseResolver)
@@ -241,7 +232,7 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
                 ])),
                 interfaces: None,
             };
-            
+
             PolywrapClient::new(config)
         };
 
@@ -262,19 +253,20 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
     {
         let client = {
             let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
-        
-            envs.insert(wrapper_uri.to_string(), polywrap_msgpack::serialize(&env).unwrap());
-        
-            let resolvers = HashMap::from([
-                (
-                    redirect_from_uri.to_string(),
-                    UriPackageOrWrapper::Uri(wrapper_uri)
-                ),
-            ]);
-        
+
+            envs.insert(
+                wrapper_uri.to_string(),
+                polywrap_msgpack::serialize(&env).unwrap(),
+            );
+
+            let resolvers = HashMap::from([(
+                redirect_from_uri.to_string(),
+                UriPackageOrWrapper::Uri(wrapper_uri),
+            )]);
+
             let file_reader = SimpleFileReader::new();
             let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
-        
+
             let config = ClientConfig {
                 envs: Some(envs),
                 // Use the RecursiveResolver because it tracks resolution path (unlike BaseResolver)
@@ -284,7 +276,7 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
                 ])),
                 interfaces: None,
             };
-            
+
             PolywrapClient::new(config)
         };
 

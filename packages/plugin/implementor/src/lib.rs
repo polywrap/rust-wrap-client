@@ -2,8 +2,7 @@ use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use quote::quote;
 
-use syn::{parse, parse_macro_input, ItemImpl };
-
+use syn::{parse, parse_macro_input, ItemImpl};
 
 fn snake_case_to_camel_case(s: &str) -> String {
     s.split('_')
@@ -30,31 +29,30 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
     for item in item_impl.clone().items {
         match item {
             syn::ImplItem::Method(method) => {
-              let function_ident = &method.sig.ident;
-              let env_is_option = if &method.sig.inputs.len() > &3 {
-                let env = &method.sig.inputs[3];
-                let env_str = quote! { #env }.to_string();
-                
-                Some(env_str.contains("Option <"))
-              } else {
-                None
-              };
-              
-              let output_type = match &method.sig.output {
-                syn::ReturnType::Default => quote! { () },
-                syn::ReturnType::Type(_, ty) => quote! { #ty },
-              };
-              let output_type = quote! { #output_type }.to_string();
-              let function_ident_str =
-                  snake_case_to_camel_case(&function_ident.to_string());
-              let output_is_option = output_type.contains("Option <");
+                let function_ident = &method.sig.ident;
+                let env_is_option = if &method.sig.inputs.len() > &3 {
+                    let env = &method.sig.inputs[3];
+                    let env_str = quote! { #env }.to_string();
 
-              method_idents.push((
-                  function_ident.clone(),
-                  function_ident_str.clone(),
-                  output_is_option,
-                  env_is_option
-              ));
+                    Some(env_str.contains("Option <"))
+                } else {
+                    None
+                };
+
+                let output_type = match &method.sig.output {
+                    syn::ReturnType::Default => quote! { () },
+                    syn::ReturnType::Type(_, ty) => quote! { #ty },
+                };
+                let output_type = quote! { #output_type }.to_string();
+                let function_ident_str = snake_case_to_camel_case(&function_ident.to_string());
+                let output_is_option = output_type.contains("Option <");
+
+                method_idents.push((
+                    function_ident.clone(),
+                    function_ident_str.clone(),
+                    output_is_option,
+                    env_is_option,
+                ));
             }
             _ => panic!("Wrong function signature"),
         }
@@ -71,65 +69,64 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                 }
             });
 
-    let methods = method_idents
-        .into_iter()
-        .enumerate()
-        .map(|(_, (ident, ident_str, output_is_option, env_is_option))| {
+    let methods = method_idents.into_iter().enumerate().map(
+        |(_, (ident, ident_str, output_is_option, env_is_option))| {
             let args = if let Some(env_is_option) = env_is_option {
-              let env = if env_is_option { 
-                quote! {
-                  if let Some(e) = env {
-                    Some(polywrap_msgpack::decode(&e).unwrap())
-                  } else {
-                    None
-                  }
-                }
-              } else {
-                quote! {
-                  if let Some(e) = env {
-                    polywrap_msgpack::decode(&e).unwrap()
-                  } else {
-                    panic!("Env must be defined for method '{}'", #ident_str)
-                  }
-                }
-              };
+                let env = if env_is_option {
+                    quote! {
+                      if let Some(e) = env {
+                        Some(polywrap_msgpack::decode(&e).unwrap())
+                      } else {
+                        None
+                      }
+                    }
+                } else {
+                    quote! {
+                      if let Some(e) = env {
+                        polywrap_msgpack::decode(&e).unwrap()
+                      } else {
+                        panic!("Env must be defined for method '{}'", #ident_str)
+                      }
+                    }
+                };
 
-              quote! {
-                &polywrap_msgpack::decode(&params).unwrap(),
-                invoker,
-                #env
-              }
+                quote! {
+                  &polywrap_msgpack::decode(&params).unwrap(),
+                  invoker,
+                  #env
+                }
             } else {
-              quote! {
-                &polywrap_msgpack::decode(&params).unwrap(),
-                invoker
-              }
+                quote! {
+                  &polywrap_msgpack::decode(&params).unwrap(),
+                  invoker
+                }
             };
 
             let output = if output_is_option {
-              quote! {
-                if let Some(r) = result {
-                  Ok(polywrap_msgpack::serialize(&r)?)
-                } else {
-                  Ok(vec![])
+                quote! {
+                  if let Some(r) = result {
+                    Ok(polywrap_msgpack::serialize(&r)?)
+                  } else {
+                    Ok(vec![])
+                  }
                 }
-              }
             } else {
-              quote! {
-                Ok(polywrap_msgpack::serialize(&result)?)
-              }
-            };
-          
-            quote! {
-                #ident_str => {
-                  let result = self.#ident(
-                    #args
-                  )?;
-
-                  #output
+                quote! {
+                  Ok(polywrap_msgpack::serialize(&result)?)
                 }
+            };
+
+            quote! {
+              #ident_str => {
+                let result = self.#ident(
+                  #args
+                )?;
+
+                #output
               }
-        });
+            }
+        },
+    );
 
     let module_impl = quote! {
         impl polywrap_plugin::module::PluginModule for #struct_ident {

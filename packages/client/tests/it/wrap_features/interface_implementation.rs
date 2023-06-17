@@ -46,7 +46,7 @@ fn test_interface_implementation() {
     let client = PolywrapClient::new(ClientConfig {
         envs: None,
         interfaces: Some(interfaces),
-        resolver: Arc::new(base_resolver)
+        resolver: Arc::new(base_resolver),
     });
 
     let invoke_result = client

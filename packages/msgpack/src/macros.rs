@@ -259,13 +259,8 @@ macro_rules! msgpack_expect_expr_comma {
 
 #[cfg(test)]
 mod tests {
-    
 
-    
     use rmpv::Value;
-    
-
-    
 
     #[test]
     fn msgpack() {
@@ -281,15 +276,15 @@ mod tests {
         });
 
         let expected_map_tuples: Vec<(Value, Value)> = vec![
-          (Value::from("code"), Value::from(200)),
-          (Value::from("success"), Value::from(true)),
-          (
-            Value::from("payload"),
-            Value::Map(vec![(
-                Value::from("features"),
-                Value::Array(vec![Value::from("serde"), Value::from("msgpack")]),
-            )]),
-          )
+            (Value::from("code"), Value::from(200)),
+            (Value::from("success"), Value::from(true)),
+            (
+                Value::from("payload"),
+                Value::Map(vec![(
+                    Value::from("features"),
+                    Value::Array(vec![Value::from("serde"), Value::from("msgpack")]),
+                )]),
+            ),
         ];
 
         let expected = Value::Map(expected_map_tuples);

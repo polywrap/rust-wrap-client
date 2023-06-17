@@ -1,17 +1,17 @@
 use polywrap_client::{
-    core::{
-        resolution::{
-            uri_resolver::UriResolver,
-        }
-    },
-    resolvers::recursive_resolver::RecursiveResolver,
+    core::resolution::uri_resolver::UriResolver, resolvers::recursive_resolver::RecursiveResolver,
 };
-use std::{sync::Arc};
+use std::sync::Arc;
 
-use crate::{uri::FFIUri, invoker::{FFIInvoker, FFIInvokerWrapping}, error::FFIError};
+use crate::{
+    error::FFIError,
+    invoker::{FFIInvoker, FFIInvokerWrapping},
+    uri::FFIUri,
+};
 
 use super::{
-    ffi_resolver::{FFIUriResolver, UriResolverWrapping}, resolution_context::FFIUriResolutionContext,
+    ffi_resolver::{FFIUriResolver, UriResolverWrapping},
+    resolution_context::FFIUriResolutionContext,
     uri_package_or_wrapper::FFIUriPackageOrWrapper,
 };
 
@@ -35,10 +35,11 @@ impl FFIUriResolver for FFIRecursiveUriResolver {
         invoker: Box<dyn FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
     ) -> Result<Box<dyn FFIUriPackageOrWrapper>, FFIError> {
-
-        let result = self
-            .inner_resolver
-            .try_resolve_uri(&uri.0, Arc::new(FFIInvokerWrapping(invoker)), resolution_context.0.clone())?;
+        let result = self.inner_resolver.try_resolve_uri(
+            &uri.0,
+            Arc::new(FFIInvokerWrapping(invoker)),
+            resolution_context.0.clone(),
+        )?;
 
         Ok(Box::new(result))
     }

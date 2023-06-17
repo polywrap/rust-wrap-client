@@ -4,8 +4,9 @@ use std::{
 };
 
 use polywrap_core::{
+    error::Error,
     invoker::Invoker,
-    wrapper::{GetFileOptions, Wrapper}, error::Error,
+    wrapper::{GetFileOptions, Wrapper},
 };
 use polywrap_msgpack::msgpack;
 

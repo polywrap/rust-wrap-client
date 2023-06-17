@@ -1,6 +1,6 @@
 use core::fmt;
+use polywrap_core::{error::Error, invoker::Invoker, uri::Uri};
 use std::sync::{Arc, Mutex};
-use polywrap_core::{error::Error, uri::Uri, invoker::Invoker};
 
 use polywrap_core::resolution::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
@@ -36,14 +36,16 @@ impl UriResolver for UriResolverAggregator {
         invoker: Arc<dyn Invoker>,
         resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
-        let resolver_result = self
-            .get_uri_resolvers(uri, invoker.as_ref(), resolution_context.clone());
+        let resolver_result =
+            self.get_uri_resolvers(uri, invoker.as_ref(), resolution_context.clone());
 
         if let Ok(resolvers) = resolver_result {
-          self.try_resolve_uri_with_resolvers(uri, invoker, resolvers, resolution_context)
+            self.try_resolve_uri_with_resolvers(uri, invoker, resolvers, resolution_context)
         } else {
-          //TODO: verify this case.
-          Err(Error::ResolutionError("Failed to get URI resolvers".to_string()))
+            //TODO: verify this case.
+            Err(Error::ResolutionError(
+                "Failed to get URI resolvers".to_string(),
+            ))
         }
     }
 }
@@ -53,11 +55,7 @@ impl UriResolverAggregatorBase for UriResolverAggregator {
         self.name.clone()
     }
 
-    fn get_step_description(
-        &self,
-        _: &Uri,
-        _: &Result<UriPackageOrWrapper, Error>,
-    ) -> String {
+    fn get_step_description(&self, _: &Uri, _: &Result<UriPackageOrWrapper, Error>) -> String {
         if let Some(name) = self.get_resolver_name() {
             name
         } else {
@@ -76,9 +74,9 @@ impl UriResolverAggregatorBase for UriResolverAggregator {
 }
 
 impl fmt::Debug for UriResolverAggregator {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "UriResolverAggregator\nResolvers: {:?}", self.resolvers)
-  }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "UriResolverAggregator\nResolvers: {:?}", self.resolvers)
+    }
 }
 
 impl From<Vec<Box<dyn UriResolver>>> for UriResolverAggregator {

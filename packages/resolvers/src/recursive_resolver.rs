@@ -3,9 +3,10 @@ use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
     error::Error,
+    invoker::Invoker,
     resolution::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     resolution::uri_resolver::UriResolver,
-    uri::Uri, invoker::Invoker,
+    uri::Uri,
 };
 
 use crate::uri_resolver_aggregator::UriResolverAggregator;
@@ -16,17 +17,13 @@ pub struct RecursiveResolver {
 
 impl From<Vec<Box<dyn UriResolver>>> for RecursiveResolver {
     fn from(resolvers: Vec<Box<dyn UriResolver>>) -> Self {
-        RecursiveResolver::from(
-            UriResolverAggregator::from(resolvers)
-        )
+        RecursiveResolver::from(UriResolverAggregator::from(resolvers))
     }
 }
 
 impl From<UriResolverAggregator> for RecursiveResolver {
     fn from(resolver: UriResolverAggregator) -> Self {
-        RecursiveResolver::new(
-            Arc::new(resolver)
-        )
+        RecursiveResolver::new(Arc::new(resolver))
     }
 }
 
@@ -77,12 +74,16 @@ impl UriResolver for RecursiveResolver {
             Err(Error::ResolverError("Infinite loop error".to_string()))
         } else {
             resolution_context.lock().unwrap().start_resolving(uri);
-            let resolver_result = self
-                .resolver
-                .try_resolve_uri(uri, invoker.clone(), resolution_context.clone());
+            let resolver_result =
+                self.resolver
+                    .try_resolve_uri(uri, invoker.clone(), resolution_context.clone());
 
-            let result = self
-                .try_resolve_again_if_redirect(resolver_result, uri, invoker, resolution_context.clone());
+            let result = self.try_resolve_again_if_redirect(
+                resolver_result,
+                uri,
+                invoker,
+                resolution_context.clone(),
+            );
 
             resolution_context.lock().unwrap().stop_resolving(uri);
 
@@ -92,7 +93,7 @@ impl UriResolver for RecursiveResolver {
 }
 
 impl fmt::Debug for RecursiveResolver {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "RecursiveResolver")
-  }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "RecursiveResolver")
+    }
 }

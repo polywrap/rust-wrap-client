@@ -1,22 +1,20 @@
 use core::fmt;
-use std::sync::{Arc, Mutex};
 use polywrap_core::{
+    error::Error,
+    invoker::Invoker,
     resolution::{
-        uri_resolution_context::{
-            UriResolutionContext,
-            UriPackageOrWrapper
-        },
-        uri_resolver::UriResolver
+        uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+        uri_resolver::UriResolver,
     },
     uri::Uri,
-    error::Error, invoker::Invoker
 };
 use polywrap_resolvers::uri_resolver_aggregator_base::UriResolverAggregatorBase;
+use std::sync::{Arc, Mutex};
 
 use crate::uri_resolver_wrapper::UriResolverWrapper;
 
 pub struct ExtendableUriResolver {
-    name: Option<String>
+    name: Option<String>,
 }
 
 impl ExtendableUriResolver {
@@ -34,29 +32,31 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
         &self,
         _: &Uri,
         invoker: &dyn Invoker,
-        resolution_context: Arc<Mutex<UriResolutionContext>>
+        resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
-        let implementations = invoker.get_implementations(
-           &Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?
-        )?;
+        let implementations = invoker
+            .get_implementations(&Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?)?;
 
-        let resolvers = implementations.into_iter().filter_map(|implementation| {
-            if !resolution_context.lock().unwrap().is_resolving(&implementation) {
-                let wrapper = Arc::new(UriResolverWrapper::new(implementation));
-                return Some(wrapper as Arc<dyn UriResolver>);
-            }
+        let resolvers = implementations
+            .into_iter()
+            .filter_map(|implementation| {
+                if !resolution_context
+                    .lock()
+                    .unwrap()
+                    .is_resolving(&implementation)
+                {
+                    let wrapper = Arc::new(UriResolverWrapper::new(implementation));
+                    return Some(wrapper as Arc<dyn UriResolver>);
+                }
 
-            None
-        }).collect::<Vec<Arc<dyn UriResolver>>>();
+                None
+            })
+            .collect::<Vec<Arc<dyn UriResolver>>>();
 
         Ok(resolvers)
     }
 
-    fn get_step_description(
-        &self,
-        _: &Uri,
-        _: &Result<UriPackageOrWrapper, Error>,
-    ) -> String {
+    fn get_step_description(&self, _: &Uri, _: &Result<UriPackageOrWrapper, Error>) -> String {
         if let Some(name) = self.get_resolver_name() {
             name
         } else {
@@ -67,33 +67,25 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
 
 impl UriResolver for ExtendableUriResolver {
     fn try_resolve_uri(
-        &self, 
-        uri: &Uri, 
-        invoker: Arc<dyn Invoker>, 
-        resolution_context: Arc<Mutex<UriResolutionContext>>
+        &self,
+        uri: &Uri,
+        invoker: Arc<dyn Invoker>,
+        resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
-        let resolvers = self.get_uri_resolvers(
-            uri,
-            invoker.as_ref(),
-            resolution_context.clone()
-        )?;
+        let resolvers =
+            self.get_uri_resolvers(uri, invoker.as_ref(), resolution_context.clone())?;
 
         if resolvers.is_empty() {
             let uri = UriPackageOrWrapper::Uri(uri.clone());
             return Ok(uri);
         }
 
-        self.try_resolve_uri_with_resolvers(
-            uri,
-            invoker,
-            resolvers,
-            resolution_context
-        )
+        self.try_resolve_uri_with_resolvers(uri, invoker, resolvers, resolution_context)
     }
 }
 
 impl fmt::Debug for ExtendableUriResolver {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "ExtendableUriResolver", )
-  }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "ExtendableUriResolver",)
+    }
 }

@@ -1,8 +1,8 @@
-use std::sync::{Mutex, Arc};
+use std::sync::{Arc, Mutex};
 
 use polywrap_core::{
-    resolution::uri_resolution_context::UriResolutionContext, 
-    invoker::Invoker, error::Error, uri::Uri, interface_implementation::InterfaceImplementations
+    error::Error, interface_implementation::InterfaceImplementations, invoker::Invoker,
+    resolution::uri_resolution_context::UriResolutionContext, uri::Uri,
 };
 
 pub struct Subinvoker {
@@ -11,15 +11,15 @@ pub struct Subinvoker {
 }
 
 impl Subinvoker {
-  pub fn new(
-      invoker: Arc<dyn Invoker>,
-      resolution_context: Arc<Mutex<UriResolutionContext>>,
-  ) -> Self {
-      Self {
-          invoker,
-          resolution_context,
-      }
-  }
+    pub fn new(
+        invoker: Arc<dyn Invoker>,
+        resolution_context: Arc<Mutex<UriResolutionContext>>,
+    ) -> Self {
+        Self {
+            invoker,
+            resolution_context,
+        }
+    }
 }
 
 impl Invoker for Subinvoker {
@@ -32,7 +32,8 @@ impl Invoker for Subinvoker {
         _: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
         let context = self.resolution_context.clone();
-        self.invoker.invoke_raw(uri, method, args, env, Some(context))
+        self.invoker
+            .invoke_raw(uri, method, args, env, Some(context))
     }
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
         self.invoker.get_implementations(uri)

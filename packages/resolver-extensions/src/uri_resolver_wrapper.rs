@@ -51,7 +51,10 @@ impl UriResolverWrapper {
             Some(resolver_extension_context.clone()),
         );
 
-        resolution_context.lock().unwrap().track_step(UriResolutionStep {
+        resolution_context
+            .lock()
+            .unwrap()
+            .track_step(UriResolutionStep {
                 source_uri: uri.clone(),
                 result: match result.clone() {
                     Ok(_) => Ok(UriPackageOrWrapper::Uri(implementation_uri.clone())),

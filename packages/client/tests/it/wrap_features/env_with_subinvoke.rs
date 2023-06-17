@@ -1,5 +1,5 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_client::core::{uri::Uri};
+use polywrap_client::core::uri::Uri;
 use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
@@ -17,8 +17,6 @@ fn get_subinvoker_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    
-
     Uri::try_from(format!(
         "fs/{path}/env-type/01-subinvoker/implementations/rs"
     ))
@@ -28,8 +26,6 @@ fn get_subinvoker_uri() -> Uri {
 fn get_subinvoker_with_env_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    
-    
 
     Uri::try_from(format!(
         "fs/{path}/env-type/02-subinvoker-with-env/implementations/rs"
@@ -40,36 +36,29 @@ fn get_subinvoker_with_env_uri() -> Uri {
 fn get_subinvoked_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    
-    
 
-    Uri::try_from(format!(
-        "fs/{path}/env-type/00-main/implementations/rs"
-    ))
-    .unwrap()
+    Uri::try_from(format!("fs/{path}/env-type/00-main/implementations/rs")).unwrap()
 }
 
 fn get_default_env() -> Env {
-  Env {
-      str: "string".to_string(),
-      optStr: None,
-      optFilledStr: Some("optional string".to_string()),
-      number: 10,
-      optNumber: None,
-      bool: true,
-      optBool: None,
-      en: 0,
-      optEnum: None,
-      object: HashMap::from([
-          ("prop".to_string(), "object string".to_string()),
-      ]),
-      optObject: None,
-      array: vec![32, 23],
-  }
+    Env {
+        str: "string".to_string(),
+        optStr: None,
+        optFilledStr: Some("optional string".to_string()),
+        number: 10,
+        optNumber: None,
+        bool: true,
+        optBool: None,
+        en: 0,
+        optEnum: None,
+        object: HashMap::from([("prop".to_string(), "object string".to_string())]),
+        optObject: None,
+        array: vec![32, 23],
+    }
 }
 
 fn get_default_serialized_env() -> Vec<u8> {
-  polywrap_msgpack::serialize(&get_default_env()).unwrap()
+    polywrap_msgpack::serialize(&get_default_env()).unwrap()
 }
 
 #[allow(non_snake_case)]
@@ -94,13 +83,16 @@ fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) ->
     let subinvoked_uri = get_subinvoked_uri();
 
     let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
-   
+
     if let Some(env) = subinvoker_env {
         envs.insert(subinvoker_uri.to_string(), env.to_vec());
     }
 
     if let Some(env) = subinvoked_env {
-        envs.insert(Uri::try_from("mock/main").unwrap().to_string(), env.to_vec());
+        envs.insert(
+            Uri::try_from("mock/main").unwrap().to_string(),
+            env.to_vec(),
+        );
     }
 
     let file_reader = SimpleFileReader::new();
@@ -121,7 +113,7 @@ fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) ->
         resolver: Arc::new(base_resolver),
         interfaces: None,
     };
-    
+
     PolywrapClient::new(config)
 }
 
@@ -136,7 +128,7 @@ fn subinvoke_method_without_env_does_not_require_env() {
         .invoke::<String>(
             &subinvoker_uri,
             "subinvokeMethodNoEnv",
-            Some(&msgpack!({"arg": test_string})),
+            Some(&msgpack!({ "arg": test_string })),
             None,
             None,
         )
@@ -156,7 +148,7 @@ fn subinvoke_method_without_env_works_with_env() {
         .invoke::<String>(
             &subinvoker_uri,
             "subinvokeMethodNoEnv",
-            Some(&msgpack!({"arg": test_string})),
+            Some(&msgpack!({ "arg": test_string })),
             None,
             None,
         )
@@ -257,9 +249,7 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
         optBool: None,
         en: 0,
         optEnum: None,
-        object: HashMap::from([
-            ("prop".to_string(), "object string".to_string()),
-        ]),
+        object: HashMap::from([("prop".to_string(), "object string".to_string())]),
         optObject: None,
         array: vec![1, 2],
     };
@@ -274,29 +264,32 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
         optBool: None,
         en: 0,
         optEnum: None,
-        object: HashMap::from([
-            ("prop".to_string(), "object string2".to_string()),
-        ]),
+        object: HashMap::from([("prop".to_string(), "object string2".to_string())]),
         optObject: None,
         array: vec![2, 3],
     };
 
     let client = {
-    
         let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
-       
-        envs.insert(subinvoker_uri.to_string(), polywrap_msgpack::serialize(&subinvoker_env).unwrap());
-        envs.insert(Uri::try_from("mock/main").unwrap().to_string(), polywrap_msgpack::serialize(&subinvoked_env).unwrap());
+
+        envs.insert(
+            subinvoker_uri.to_string(),
+            polywrap_msgpack::serialize(&subinvoker_env).unwrap(),
+        );
+        envs.insert(
+            Uri::try_from("mock/main").unwrap().to_string(),
+            polywrap_msgpack::serialize(&subinvoked_env).unwrap(),
+        );
 
         let file_reader = SimpleFileReader::new();
         let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
-    
+
         let mut resolvers = HashMap::new();
         resolvers.insert(
             Uri::try_from("mock/main").unwrap().to_string(),
             UriPackageOrWrapper::Uri(subinvoked_uri),
         );
-    
+
         let base_resolver = BaseResolver::new(
             Box::new(fs_resolver),
             Box::new(StaticResolver::new(resolvers)),
@@ -306,7 +299,7 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
             resolver: Arc::new(base_resolver),
             interfaces: None,
         };
-        
+
         PolywrapClient::new(config)
     };
 

@@ -291,13 +291,7 @@ mod client_tests {
         });
 
         let result = client
-            .invoke::<bool>(
-                &"wrap/mock".try_into().unwrap(),
-                "foo",
-                None,
-                None,
-                None,
-            )
+            .invoke::<bool>(&"wrap/mock".try_into().unwrap(), "foo", None, None, None)
             .unwrap();
 
         assert!(result);
