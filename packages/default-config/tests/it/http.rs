@@ -1,4 +1,6 @@
 use polywrap_client::client::PolywrapClient;
+use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
+use polywrap_client_default_config::SystemClientConfig;
 use polywrap_core::uri::Uri;
 use polywrap_msgpack::msgpack;
 
@@ -7,7 +9,9 @@ fn sanity() {
     let uri = format!(
         "http/https://raw.githubusercontent.com/polywrap/client-readiness/main/wraps/public"
     );
-    let config = polywrap_client_default_config::build();
+    let mut config = PolywrapClientConfig::new();
+    config.add(SystemClientConfig::default().into());
+
     let client = PolywrapClient::new(config.into());
 
     let result = client
