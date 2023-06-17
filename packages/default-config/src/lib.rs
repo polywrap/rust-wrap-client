@@ -70,7 +70,7 @@ pub fn build() -> BuilderConfig {
 
     let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
     envs.insert(
-        "ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1".to_string(),
+        "wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1".to_string(),
         msgpack!({
             "provider": "https://ipfs.wrappers.io",
             "fallbackProviders": ["https://ipfs.io"],
@@ -78,10 +78,16 @@ pub fn build() -> BuilderConfig {
         }),
     );
 
-    let redirects: Vec<UriRedirect> = vec![UriRedirect {
-        from: Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
-        to: Uri::try_from("plugin/http@1.1.0").unwrap(),
-    }];
+    let redirects: Vec<UriRedirect> = vec![
+        UriRedirect {
+            from: Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
+            to: Uri::try_from("plugin/http@1.1.0").unwrap(),
+        },
+        UriRedirect {
+            from: Uri::try_from("wrap://ens/wraps.eth:file-system@1.0.0").unwrap(),
+            to: Uri::try_from("plugin/file-system@1.0.0").unwrap(),
+        },
+    ];
 
     BuilderConfig {
         interfaces: Some(interfaces),

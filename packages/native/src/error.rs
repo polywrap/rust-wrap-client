@@ -25,6 +25,8 @@ pub enum FFIError {
     WasmWrapperError { err: String },
     #[error("Failed to resolve wrapper: `{err}`")]
     ResolutionError { err: String },
+    #[error("URI not found: `{uri}`")]
+    UriNotFoundError { uri: String },
     #[error("`{err}`")]
     MsgpackError { err: String },
     #[error("`{err}`")]
@@ -70,6 +72,9 @@ impl From<polywrap_client::core::error::Error> for FFIError {
             }
             polywrap_client::core::error::Error::ResolutionError(err) => {
                 FFIError::ResolutionError { err }
+            }
+            polywrap_client::core::error::Error::UriNotFoundError(uri) => {
+                FFIError::UriNotFoundError { uri }
             }
             polywrap_client::core::error::Error::MsgpackError(err) => {
                 FFIError::MsgpackError { err }
@@ -119,6 +124,9 @@ impl From<FFIError> for polywrap_client::core::error::Error {
             }
             FFIError::ResolutionError { err } => {
                 polywrap_client::core::error::Error::ResolutionError(err)
+            }
+            FFIError::UriNotFoundError { uri } => {
+                polywrap_client::core::error::Error::UriNotFoundError(uri)
             }
             FFIError::MsgpackError { err } => {
                 polywrap_client::core::error::Error::MsgpackError(err)

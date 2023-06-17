@@ -8,6 +8,7 @@ interface FFIError {
   LoadWrapperError(string uri, string err);
   WasmWrapperError(string err);
   ResolutionError(string err);
+  UriNotFoundError(string uri);
   MsgpackError(string err);
   ManifestError(string err);
   FileReadError(string err);
