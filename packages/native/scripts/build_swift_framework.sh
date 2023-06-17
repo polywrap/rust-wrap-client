@@ -1,4 +1,7 @@
 set -e # Helps to give error info
+    
+# Binary paths
+PATH="$PATH:/Users/cesar/.cargo/bin" # Adds the rust compiler
 
 # Project paths
 RUST_PROJ="/Users/cesar/dev/polywrap/rust-client/packages/native"
@@ -9,8 +12,6 @@ UDL_NAME="polywrap_native"
 FRAMEWORK_NAME="PolywrapClientNative"
 SWIFT_INTERFACE="PolywrapClientLib"
 
-# Binary paths
-PATH="$PATH:/Users/cesar/.cargo/bin" # Adds the rust compiler
 
 cd "$RUST_PROJ"
 
@@ -60,5 +61,5 @@ sed "s/${UDL_NAME}FFI/$FRAMEWORK_NAME/g" "include/ios/$UDL_NAME.swift" > "includ
 
 cp -r "include/ios/" "$IOS_PROJ/Sources/PolywrapClient/include"
 rm "$IOS_PROJ/Sources/PolywrapClient/include/$UDL_NAME.swift"
-cp "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME.a" "$IOS_PROJ/Sources/PolywrapClient/Frameworks/$FRAMEWORK_NAME.xcframework/ios-arm64/$FRAMEWORK_NAME.a"
-cp "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME.a" "$IOS_PROJ/Sources/PolywrapClient/Frameworks/$FRAMEWORK_NAME.xcframework/ios-arm64_x86_64-simulator/$FRAMEWORK_NAME.a"
+cp "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME.a" "$IOS_PROJ/Frameworks/$FRAMEWORK_NAME.xcframework/ios-arm64/$FRAMEWORK_NAME.a"
+cp "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME.a" "$IOS_PROJ/Frameworks/$FRAMEWORK_NAME.xcframework/ios-arm64_x86_64-simulator/$FRAMEWORK_NAME.a"

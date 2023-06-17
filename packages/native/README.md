@@ -1,17 +1,26 @@
-# FFI C Binding of Polywrap Client
+# Native Polywrap Client
 
-This package contains the necessary C bindings to execute Polywrap client from any
-language that can import dynamic libraries (`.so` in linux or `.dylib` in mac).
+This package implements [uniffi](https://github.com/mozilla/uniffi-rs) for Polywrap Client. It aims to easily
+provide a way to generate a dynamic library that can be imported into other languages.
 
-In order to import it in other project (like c++ or swift), you need to:
+## Usage
 
-- Build this package using `cargo build --release --lib`
-- Run `cbindgen --config cbindgen.toml --crate polywrap_ffi_c --output header.h --lang c`
+### Swift
 
-This will generate a `headers.hpp` file in the current crate & generate the `target` folder.
-In the `target/release` folder (which is in the root of the monorepo) is where the `.so` or `.dylib`
-file will be generated. Then this dynamic library can be imported, along with the header file.
+- Install [swiftformat](https://github.com/nicklockwood/SwiftFormat)
+```bash
+$ brew install swiftformat
+```
+Go to `scripts/build_swift_framework.sh` and change:
+- `PATH`: Set this with the path of your cargo binary
+- `RUST_PROJ`: Set this to your rust client local path
+- `IOS_PROJ`: Set this to your swift client local path
 
-For implementation examples on how it can be used:
-- Swift: https://github.com/cbrzn/swift-client
-- C++: https://github.com/cbrzn/c-playground
+Once you have done that, run 
+```bash
+$ ./scripts/build_swift_framework.sh
+```
+and it will generate a dynamic library inside of the swift project (With the path given in the variable `IOS_PROJ`). Now you should be able to build locally the Polywrap Client for iOS.
+```bash
+$ swift build
+```
