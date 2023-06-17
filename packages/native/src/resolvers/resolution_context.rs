@@ -30,7 +30,10 @@ impl FFIUriResolutionContext {
     }
 
     pub fn set_history(&self, history: Vec<FFIUriResolutionStep>) {
-        self.0.lock().unwrap().history(history.into_iter().map(|u| u.into()).collect());
+        self.0
+            .lock()
+            .unwrap()
+            .history(history.into_iter().map(|u| u.into()).collect());
     }
 
     pub fn set_resolving_uri_map(&self, resolving_uri_map: HashMap<String, bool>) {
@@ -89,12 +92,9 @@ impl From<UriResolutionStep> for FFIUriResolutionStep {
             source_uri: Arc::new(FFIUri(value.source_uri)),
             result: Box::new(value.result.unwrap()),
             description: value.description,
-            sub_history: value.sub_history.map(|sub_history| {
-                sub_history
-                    .into_iter()
-                    .map(|step| step.into())
-                    .collect()
-            }),
+            sub_history: value
+                .sub_history
+                .map(|sub_history| sub_history.into_iter().map(|step| step.into()).collect()),
         }
     }
 }

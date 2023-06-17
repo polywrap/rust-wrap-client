@@ -47,10 +47,7 @@ mod test {
     use super::FFIWrapPackage;
 
     fn get_mocks() -> (Box<dyn FFIWrapPackage>, FFIInvoker) {
-        (
-            Box::new(get_mock_package()),
-            FFIInvoker(get_mock_invoker()),
-        )
+        (Box::new(get_mock_package()), FFIInvoker(get_mock_invoker()))
     }
 
     #[test]

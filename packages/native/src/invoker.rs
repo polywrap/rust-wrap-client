@@ -1,10 +1,5 @@
-use polywrap_client::core::{
-    invoker::Invoker
-};
-use std::{
-    collections::HashMap,
-    sync::{Arc},
-};
+use polywrap_client::core::invoker::Invoker;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{error::FFIError, resolvers::resolution_context::FFIUriResolutionContext, uri::FFIUri};
 
@@ -69,10 +64,7 @@ mod test {
 
     use polywrap_tests_utils::mocks::get_mock_invoker;
 
-    use crate::{
-        invoker::{FFIInvoker},
-        uri::FFIUri,
-    };
+    use crate::{invoker::FFIInvoker, uri::FFIUri};
 
     #[test]
     fn test_ffi_invoker() {

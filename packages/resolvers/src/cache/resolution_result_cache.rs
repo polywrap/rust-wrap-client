@@ -1,10 +1,10 @@
-use std::sync::Arc;
 use polywrap_core::error::Error;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_core::uri::Uri;
+use std::sync::Arc;
 
 /// A cache for storing `Wrapper` instances.
-pub trait ResolutionResultCache : Send + Sync {
+pub trait ResolutionResultCache: Send + Sync {
     /// Gets the `Wrapper` instance for the given `Uri`.
     ///
     /// # Arguments

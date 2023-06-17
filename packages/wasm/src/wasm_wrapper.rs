@@ -1,5 +1,5 @@
-use crate::runtime::instance::{State,WasmInstance};
-use crate::wasm_module::{WasmModule, CompiledWasmModule};
+use crate::runtime::instance::State;
+use crate::wasm_module::CompiledWasmModule;
 
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
@@ -7,12 +7,12 @@ use polywrap_core::invoker::Invoker;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
-use wasmer::Value;
 use polywrap_msgpack::{decode, msgpack};
 use serde::de::DeserializeOwned;
 use std::fmt::Formatter;
 use std::sync::Mutex;
-use std::{sync::Arc, fmt::Debug};
+use std::{fmt::Debug, sync::Arc};
+use wasmer::Value;
 
 pub struct WasmWrapper {
     compiled_module: CompiledWasmModule,
@@ -20,10 +20,7 @@ pub struct WasmWrapper {
 }
 
 impl WasmWrapper {
-    pub fn new(
-        compiled_module: CompiledWasmModule,
-        file_reader: Arc<dyn FileReader>,
-    ) -> Self {
+    pub fn new(compiled_module: CompiledWasmModule, file_reader: Arc<dyn FileReader>) -> Self {
         Self {
             compiled_module,
             file_reader,
@@ -38,8 +35,7 @@ impl WasmWrapper {
         invoker: Arc<dyn Invoker>,
         abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<T, Error> {
-        let result = self
-            .invoke(method, args, env, invoker, abort_handler)?;
+        let result = self.invoke(method, args, env, invoker, abort_handler)?;
 
         let result = decode(result.as_slice())?;
 
@@ -49,7 +45,7 @@ impl WasmWrapper {
 
 impl Debug for WasmWrapper {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-      write!(f, r#"WasmModule(...)"#)
+        write!(f, r#"WasmModule(...)"#)
     }
 }
 
@@ -96,7 +92,13 @@ impl Wrapper for WasmWrapper {
             }
         });
 
-        let state = Arc::new(Mutex::new(State::new(invoker, abort.clone(), method, args, env)));
+        let state = Arc::new(Mutex::new(State::new(
+            invoker,
+            abort.clone(),
+            method,
+            args,
+            env,
+        )));
 
         let mut wasm_instance = self.compiled_module.create_instance(state.clone())?;
 
@@ -107,16 +109,12 @@ impl Wrapper for WasmWrapper {
         let state = state.lock().unwrap();
         if result {
             if state.invoke.result.is_none() {
-                return Err(Error::RuntimeError(
-                    "Invoke result is missing".to_string(),
-                ));
+                return Err(Error::RuntimeError("Invoke result is missing".to_string()));
             }
 
             Ok(state.invoke.result.as_ref().unwrap().to_vec())
         } else if state.invoke.error.is_none() {
-            Err(Error::RuntimeError(
-                "Invoke error is missing".to_string(),
-            ))
+            Err(Error::RuntimeError("Invoke error is missing".to_string()))
         } else {
             Err(Error::WrapperError(
                 state.invoke.error.as_ref().unwrap().to_string(),

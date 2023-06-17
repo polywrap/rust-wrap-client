@@ -1,8 +1,9 @@
-use std::{sync::{Arc, Mutex}, process::id};
-use polywrap_core::invoker::{Invoker};
-use wasmer::{Module, Instance, Store, Memory, MemoryType, Value};
+use std::sync::{Arc, Mutex};
 
-use crate::{error::WrapperError, wasm_module::WasmModule};
+use polywrap_core::invoker::Invoker;
+use wasmer::{Instance, Memory, MemoryType, Module, Store, Value};
+
+use crate::error::WrapperError;
 
 use super::imports::create_imports;
 
@@ -15,7 +16,7 @@ pub struct InvokeState {
 pub struct SubinvokeImplementationState {
     pub result: Option<Vec<u8>>,
     pub error: Option<String>,
-    pub args: Vec<u8>
+    pub args: Vec<u8>,
 }
 
 pub struct State {
@@ -37,7 +38,7 @@ impl State {
         abort: Box<dyn Fn(String) + Send + Sync>,
         method: &str,
         args: Vec<u8>,
-        env: Vec<u8>
+        env: Vec<u8>,
     ) -> Self {
         Self {
             method: method.as_bytes().to_vec(),
@@ -60,25 +61,22 @@ pub struct WasmInstance {
 }
 
 impl WasmInstance {
-    pub fn new(module: &Module, memory_initial_limits: u8, state: Arc<Mutex<State>>) -> Result<Self, WrapperError> {
+    pub fn new(
+        module: &Module,
+        memory_initial_limits: u8,
+        state: Arc<Mutex<State>>,
+    ) -> Result<Self, WrapperError> {
         let mut store = Store::default();
         let memory = WasmInstance::create_memory(&mut store, memory_initial_limits)?;
-        
+
         state.lock().unwrap().memory = Some(memory.clone());
-        
-        let imports = create_imports(
-            memory,
-            &mut store,
-            state
-        );
+
+        let imports = create_imports(memory, &mut store, state);
 
         let instance = Instance::new(&mut store, &module, &imports)
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
-        Ok(Self {
-            instance,
-            store,
-        })
+        Ok(Self { instance, store })
     }
 
     pub fn get_memory_initial_limits(module: &[u8]) -> Result<u8, WrapperError> {
@@ -86,38 +84,40 @@ impl WasmInstance {
             0x65, 0x6e, 0x76, 0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02,
         ];
 
-        let idx = module.windows(
-            ENV_MEMORY_IMPORTS_SIGNATURE.len()
-        ).position(|window| window == ENV_MEMORY_IMPORTS_SIGNATURE);
+        let idx = module
+            .windows(ENV_MEMORY_IMPORTS_SIGNATURE.len())
+            .position(|window| window == ENV_MEMORY_IMPORTS_SIGNATURE);
 
         match idx {
             Some(idx) => {
                 let memory_initial_limits = module[idx + ENV_MEMORY_IMPORTS_SIGNATURE.len() + 1];
 
                 Ok(memory_initial_limits)
-            },
+            }
             None => Err(WrapperError::ModuleReadError(
                 r#"Unable to find Wasm memory import section.
                 Modules must import memory from the "env" module's
                 "memory" field like so:
-                (import "env" "memory" (memory (;0;) #))"#.to_string(),
-            ))
+                (import "env" "memory" (memory (;0;) #))"#
+                    .to_string(),
+            )),
         }
     }
 
-    pub fn create_memory(store: &mut Store, memory_initial_limits: u8) -> Result<Memory, WrapperError> {
-        let memory = Memory::new(store, 
-            MemoryType::new(memory_initial_limits as u32, None, false)
-        ).map_err(|x| WrapperError::ModuleReadError(x.to_string()))?;
+    pub fn create_memory(
+        store: &mut Store,
+        memory_initial_limits: u8,
+    ) -> Result<Memory, WrapperError> {
+        let memory = Memory::new(
+            store,
+            MemoryType::new(memory_initial_limits as u32, None, false),
+        )
+        .map_err(|x| WrapperError::ModuleReadError(x.to_string()))?;
 
         Ok(memory)
     }
 
-    pub fn call_export(
-        &mut self,
-        name: &str,
-        params: &[Value]
-    ) -> Result<bool, WrapperError> {
+    pub fn call_export(&mut self, name: &str, params: &[Value]) -> Result<bool, WrapperError> {
         let export = self.instance.exports.get_function(name);
         if export.is_err() {
             return Err(WrapperError::WasmRuntimeError(format!(

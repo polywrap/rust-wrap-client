@@ -1,12 +1,9 @@
 use std::sync::Arc;
 
 use polywrap_client::core::{file_reader::SimpleFileReader, wrapper::Wrapper};
-use polywrap_wasm::{wasm_wrapper::WasmWrapper, wasm_module::WasmModule};
+use polywrap_wasm::{wasm_module::WasmModule, wasm_wrapper::WasmWrapper};
 
-use crate::{
-    error::FFIError,
-    wrapper::{FFIAbortHandlerWrapping}, invoker::FFIInvoker,
-};
+use crate::{error::FFIError, invoker::FFIInvoker, wrapper::FFIAbortHandlerWrapping};
 
 pub struct FFIWasmWrapper {
     pub inner_wasm_wrapper: Arc<dyn Wrapper>,
@@ -14,9 +11,7 @@ pub struct FFIWasmWrapper {
 
 impl FFIWasmWrapper {
     pub fn new(wasm_module: Vec<u8>) -> FFIWasmWrapper {
-        let compiled_module = WasmModule::WasmByteCode(wasm_module)
-            .compile()
-            .unwrap();
+        let compiled_module = WasmModule::WasmByteCode(wasm_module).compile().unwrap();
         let wasm_wrapper = WasmWrapper::new(compiled_module, Arc::new(SimpleFileReader::new()));
         FFIWasmWrapper {
             inner_wasm_wrapper: Arc::new(wasm_wrapper),
@@ -52,7 +47,7 @@ mod test {
     use polywrap_client::msgpack::decode;
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
 
-    use crate::invoker::{FFIInvoker};
+    use crate::invoker::FFIInvoker;
 
     use super::FFIWasmWrapper;
 

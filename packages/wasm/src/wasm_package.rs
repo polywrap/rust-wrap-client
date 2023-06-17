@@ -1,4 +1,7 @@
-use std::{sync::{Arc}, fmt::{Formatter,Debug}};
+use std::{
+    fmt::{Debug, Formatter},
+    sync::Arc,
+};
 
 use polywrap_core::{
     file_reader::FileReader,
@@ -10,7 +13,7 @@ use wrap_manifest_schemas::{
     versions::WrapManifest,
 };
 
-use crate::{wasm_wrapper::WasmWrapper, wasm_module::{WasmModule, CompiledWasmModule}};
+use crate::{wasm_module::CompiledWasmModule, wasm_wrapper::WasmWrapper};
 
 use super::file_reader::InMemoryFileReader;
 
@@ -55,12 +58,16 @@ impl PartialEq for WasmPackage {
 
 impl Debug for WasmPackage {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(f, r#"
+        write!(
+            f,
+            r#"
         WasmPackage
         
         -Wasm Module: {:?}
         -Manifest: {:?}
-        "#, self.wasm_module, self.manifest)
+        "#,
+            self.wasm_module, self.manifest
+        )
     }
 }
 
@@ -75,18 +82,16 @@ impl WrapPackage for WasmPackage {
         };
 
         let opts = options.map(|options| DeserializeManifestOptions {
-                no_validate: options.no_validate,
-                ext_schema: None,
-            });
+            no_validate: options.no_validate,
+            ext_schema: None,
+        });
         let deserialized_manifest = deserialize_wrap_manifest(&encoded_manifest, opts)
             .map_err(|e| polywrap_core::error::Error::ManifestError(e.to_string()))?;
 
         Ok(deserialized_manifest)
     }
 
-    fn create_wrapper(
-        &self,
-    ) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
+    fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
         let wasm_module = self.get_wasm_module()?;
         let compiled_module = CompiledWasmModule::from_byte_code(&wasm_module)?;
 

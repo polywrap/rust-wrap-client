@@ -17,10 +17,8 @@ fn subinvoke_test() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    let invoke_uri = Uri::try_from(format!(
-        "fs/{path}/subinvoke/01-invoke/implementations/rs"
-    ))
-    .unwrap();
+    let invoke_uri =
+        Uri::try_from(format!("fs/{path}/subinvoke/01-invoke/implementations/rs")).unwrap();
     let subinvoke_uri = Uri::try_from(format!(
         "fs/{path}/subinvoke/00-subinvoke/implementations/rs"
     ))

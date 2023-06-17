@@ -6,9 +6,7 @@ use polywrap_client::core::{
     wrapper::{GetFileOptions, Wrapper},
 };
 
-use crate::{
-    error::FFIError, invoker::FFIInvoker,
-};
+use crate::{error::FFIError, invoker::FFIInvoker};
 
 pub trait FFIWrapper: Debug + Send + Sync {
     fn invoke(
@@ -53,13 +51,13 @@ pub trait FFIAbortHandler: Send + Sync {
 pub struct FFIAbortHandlerWrapping(pub Box<dyn FFIAbortHandler>);
 
 impl FFIAbortHandlerWrapping {
-  pub fn new(abort_handler: Box<dyn FFIAbortHandler>) -> Self {
-    Self(abort_handler)
-  }
+    pub fn new(abort_handler: Box<dyn FFIAbortHandler>) -> Self {
+        Self(abort_handler)
+    }
 
-  pub fn abort(&self, msg: String) {
-    self.0.abort(msg)
-  }
+    pub fn abort(&self, msg: String) {
+        self.0.abort(msg)
+    }
 }
 
 pub struct AbortHandler(Box<dyn Fn(String) + Send + Sync>);
@@ -84,12 +82,19 @@ impl Wrapper for WrapperWrapping {
     ) -> Result<Vec<u8>, Error> {
         let args = args.map(|args| args.to_vec());
         let env = env.map(|env| env.to_vec());
-        let abort_handler =
-            abort_handler.map(|a| Arc::new(FFIAbortHandlerWrapping(Box::new(AbortHandler(a)) as Box<dyn FFIAbortHandler>)));
+        let abort_handler = abort_handler.map(|a| {
+            Arc::new(FFIAbortHandlerWrapping(
+                Box::new(AbortHandler(a)) as Box<dyn FFIAbortHandler>
+            ))
+        });
 
-        Ok(self
-            .0
-            .invoke(method.to_string(), args, env, Arc::new(FFIInvoker(invoker)), abort_handler)?)
+        Ok(self.0.invoke(
+            method.to_string(),
+            args,
+            env,
+            Arc::new(FFIInvoker(invoker)),
+            abort_handler,
+        )?)
     }
 
     fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
@@ -105,15 +110,12 @@ mod test {
     use polywrap_client::{core::wrapper::Wrapper, msgpack::decode};
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
 
-    use crate::{wrapper::WrapperWrapping, invoker::FFIInvoker};
+    use crate::{invoker::FFIInvoker, wrapper::WrapperWrapping};
 
     use super::FFIWrapper;
 
     fn get_mocks() -> (Box<dyn FFIWrapper>, FFIInvoker) {
-        (
-            Box::new(get_mock_wrapper()),
-            FFIInvoker(get_mock_invoker()),
-        )
+        (Box::new(get_mock_wrapper()), FFIInvoker(get_mock_invoker()))
     }
 
     #[test]

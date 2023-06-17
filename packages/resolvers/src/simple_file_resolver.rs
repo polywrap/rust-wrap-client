@@ -1,14 +1,20 @@
-use std::{fs, path::Path, sync::{Arc, Mutex}, fmt};
+use std::{
+    fmt, fs,
+    path::Path,
+    sync::{Arc, Mutex},
+};
 
 use polywrap_core::{
     error::Error,
     file_reader::FileReader,
+    invoker::Invoker,
+    resolution::{
+        uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
+        uri_resolver::UriResolver,
+    },
     uri::Uri,
-    resolution::{uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext}, uri_resolver::UriResolver}, invoker::Invoker,
 };
-use polywrap_wasm::{
-    wasm_package::WasmPackage,
-};
+use polywrap_wasm::wasm_package::WasmPackage;
 
 pub struct FilesystemResolver {
     file_reader: Arc<dyn FileReader>,
@@ -28,7 +34,7 @@ impl UriResolver for FilesystemResolver {
         _: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority != "fs" && uri.authority != "file" {
-           return Ok(UriPackageOrWrapper::Uri(uri.clone()));
+            return Ok(UriPackageOrWrapper::Uri(uri.clone()));
         };
 
         let manifest_search_pattern = "wrap.info";
@@ -40,15 +46,10 @@ impl UriResolver for FilesystemResolver {
 
             let wrapper_path = Path::new(&uri.path).join("wrap.wasm");
             let wrapper_file = fs::read(wrapper_path).unwrap();
-            let wasm_wrapper = WasmPackage::new(
-                self.file_reader.clone(),
-                Some(manifest),
-                Some(wrapper_file),
-            );
-            let uri_package_or_wrapper = UriPackageOrWrapper::Package(
-                uri.clone(),
-                Arc::new(wasm_wrapper),
-            );
+            let wasm_wrapper =
+                WasmPackage::new(self.file_reader.clone(), Some(manifest), Some(wrapper_file));
+            let uri_package_or_wrapper =
+                UriPackageOrWrapper::Package(uri.clone(), Arc::new(wasm_wrapper));
             Ok(uri_package_or_wrapper)
         } else {
             Err(Error::ResolutionError(format!(
@@ -59,7 +60,7 @@ impl UriResolver for FilesystemResolver {
 }
 
 impl fmt::Debug for FilesystemResolver {
-  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "FilesystemResolver", )
-  }
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "FilesystemResolver",)
+    }
 }
