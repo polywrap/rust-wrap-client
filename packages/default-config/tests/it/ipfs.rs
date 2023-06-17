@@ -1,4 +1,4 @@
-use polywrap_client::{builder::types::ClientConfigHandler, client::PolywrapClient};
+use polywrap_client::client::PolywrapClient;
 use polywrap_core::uri::Uri;
 use polywrap_msgpack::msgpack;
 
@@ -7,7 +7,7 @@ const SUBINVOKE_WRAP_URI: &str = "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4
 #[test]
 fn sanity() {
     let config = polywrap_client_default_config::build();
-    let client = PolywrapClient::new(config.build());
+    let client = PolywrapClient::new(config.into());
 
     let result = client
         .invoke::<u32>(

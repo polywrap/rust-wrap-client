@@ -1,44 +1,30 @@
-use std::sync::Arc;
+use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 
-use crate::types::BuilderConfig;
-use polywrap_core::{client::ClientConfig, resolution::uri_resolver::UriResolver};
-use polywrap_resolver_extensions::extendable_uri_resolver::ExtendableUriResolver;
-use polywrap_resolvers::resolution_result_cache_resolver::ResolutionResultCacheResolver;
-use polywrap_resolvers::{
-    recursive_resolver::RecursiveResolver,
-    resolver_vec,
-    static_resolver::{StaticResolver, StaticResolverLike},
-};
-
-pub fn build_resolver(builder: BuilderConfig) -> ClientConfig {
+use crate::PolywrapClientConfig;
+pub fn build_static_resolver(builder: &PolywrapClientConfig) -> Option<StaticResolver> {
     let mut static_resolvers: Vec<StaticResolverLike> = vec![];
 
-    if let Some(wrappers) = builder.wrappers {
+    if let Some(wrappers) = &builder.wrappers {
         for (uri, w) in wrappers {
-            static_resolvers.push(StaticResolverLike::Wrapper(uri, w));
+            static_resolvers.push(StaticResolverLike::Wrapper(uri.clone(), w.clone()));
         }
     }
 
-    if let Some(packages) = builder.packages {
+    if let Some(packages) = &builder.packages {
         for (uri, p) in packages {
-            static_resolvers.push(StaticResolverLike::Package(uri, p));
+            static_resolvers.push(StaticResolverLike::Package(uri.clone(), p.clone()));
         }
     }
 
-    if let Some(redirects) = builder.redirects {
+    if let Some(redirects) = &builder.redirects {
         for r in redirects {
-            static_resolvers.push(StaticResolverLike::Redirect(r));
+            static_resolvers.push(StaticResolverLike::Redirect(r.clone()));
         }
     }
 
-    ClientConfig {
-        envs: builder.envs.clone(),
-        interfaces: builder.interfaces.clone(),
-        resolver: Arc::new(RecursiveResolver::from(
-            Box::from(ResolutionResultCacheResolver::from(resolver_vec![
-                StaticResolver::from(static_resolvers),
-                ExtendableUriResolver::new(None),
-            ])) as Box<dyn UriResolver>,
-        )),
+    if static_resolvers.len() > 0 {
+        Some(StaticResolver::from(static_resolvers))
+    } else {
+        None
     }
 }

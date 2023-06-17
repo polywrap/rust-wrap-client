@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use polywrap_client_builder::types::{BuilderConfig, ClientBuilder};
+use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_core::{client::UriRedirect, package::WrapPackage, uri::Uri, wrapper::Wrapper};
 use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::mocks::{
@@ -10,7 +10,7 @@ use polywrap_tests_utils::mocks::{
 
 #[test]
 fn test_env_methods() {
-    let mut builder = BuilderConfig::new(None);
+    let mut builder = PolywrapClientConfig::new();
     let uri = Uri::new("wrap://ens/wrapper.eth");
 
     assert!(builder.envs.is_none());
@@ -39,7 +39,7 @@ fn test_env_methods() {
 
 #[test]
 fn test_interface_implementation_methods() {
-    let mut builder = BuilderConfig::new(None);
+    let mut builder = PolywrapClientConfig::new();
 
     let interface_uri = Uri::new("wrap://ens/interface.eth");
     let implementation_a_uri = Uri::new("wrap://ens/implementation-a.eth");
@@ -85,7 +85,7 @@ fn test_interface_implementation_methods() {
 
 #[test]
 fn test_redirects() {
-    let mut builder = BuilderConfig::new(None);
+    let mut builder = PolywrapClientConfig::new();
     assert!(builder.redirects.is_none());
 
     let redirects = vec![
@@ -119,7 +119,7 @@ fn test_redirects() {
         "ens/g.eth".to_string().try_into().unwrap()
     );
 
-    let mut builder = BuilderConfig::new(None);
+    let mut builder = PolywrapClientConfig::new();
     assert!(builder.redirects.is_none());
 
     builder.add_redirect(
@@ -134,7 +134,7 @@ fn test_redirects() {
 
 #[test]
 fn test_packages() {
-    let mut builder = BuilderConfig::new(None);
+    let mut builder = PolywrapClientConfig::new();
     assert!(builder.packages.is_none());
 
     let uri_a: Uri = String::from("wrap://package/a").try_into().unwrap();
@@ -163,7 +163,7 @@ fn test_packages() {
 
     // We need to recreate the builder because when we do builder.packages.unwrap
     // the ownership is given, not allowing us to call the builder again
-    let mut builder = BuilderConfig::new(None);
+    let mut builder = PolywrapClientConfig::new();
 
     let modified_uri_package_b = (uri_b.clone(), get_different_mock_package());
 
@@ -184,7 +184,7 @@ fn test_packages() {
 
 #[test]
 fn test_wrappers() {
-    let mut builder = BuilderConfig::new(None);
+    let mut builder = PolywrapClientConfig::new();
     assert!(builder.wrappers.is_none());
 
     let uri_wrapper_a = (
@@ -213,7 +213,7 @@ fn test_wrappers() {
 
     // We need to recreate the builder because when we do builder.wrappers.unwrap
     // the ownership is given, not allowing us to call the builder again
-    let mut builder = BuilderConfig::new(None);
+    let mut builder = PolywrapClientConfig::new();
 
     let modified_uri_wrapper_b = (
         String::from("wrap://wrapper/b").try_into().unwrap(),

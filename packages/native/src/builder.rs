@@ -1,8 +1,9 @@
+use std::sync::{Arc, Mutex};
+
 use polywrap_client::{
-    builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
+    builder::{PolywrapClientConfig, PolywrapClientConfigBuilder},
     client::PolywrapClient,
 };
-use std::sync::{Arc, Mutex};
 
 use crate::{
     client::FFIClient,
@@ -13,13 +14,13 @@ use crate::{
 };
 
 pub struct FFIBuilderConfig {
-    pub inner_builder: Mutex<BuilderConfig>,
+    pub inner_builder: Mutex<PolywrapClientConfig>,
 }
 
 impl FFIBuilderConfig {
     pub fn new() -> FFIBuilderConfig {
         FFIBuilderConfig {
-            inner_builder: Mutex::new(BuilderConfig::new(None)),
+            inner_builder: Mutex::new(PolywrapClientConfig::new()),
         }
     }
 
@@ -97,8 +98,8 @@ impl FFIBuilderConfig {
     }
 
     pub fn build(&self) -> Arc<FFIClient> {
-        let config = self.inner_builder.lock().unwrap().clone().build();
-        let client = Arc::new(PolywrapClient::new(config));
+        let config = self.inner_builder.lock().unwrap().clone();
+        let client = Arc::new(PolywrapClient::new(config.into()));
         Arc::new(FFIClient::new(client))
     }
 }

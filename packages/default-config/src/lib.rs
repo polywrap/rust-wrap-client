@@ -1,12 +1,12 @@
 use polywrap_fs_plugin::FileSystemPlugin;
 use polywrap_http_plugin::HttpPlugin;
 
-use polywrap_client_builder::types::BuilderConfig;
 use polywrap_core::{client::UriRedirect, package::WrapPackage, uri::Uri, wrapper::Wrapper};
 use polywrap_msgpack::msgpack;
 use polywrap_plugin::package::PluginPackage;
 use std::{collections::HashMap, sync::Arc};
 
+use polywrap_client_builder::PolywrapClientConfig;
 pub mod embeds;
 
 pub fn get_default_wrappers() -> Vec<(Uri, Arc<dyn Wrapper>)> {
@@ -53,7 +53,7 @@ pub fn get_default_plugins() -> Vec<(Uri, Arc<dyn WrapPackage>)> {
     ]
 }
 
-pub fn build() -> BuilderConfig {
+pub fn build() -> PolywrapClientConfig {
     let mut interfaces = HashMap::new();
     interfaces.insert(
         "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
@@ -89,7 +89,7 @@ pub fn build() -> BuilderConfig {
         },
     ];
 
-    BuilderConfig {
+    PolywrapClientConfig {
         interfaces: Some(interfaces),
         envs: Some(envs),
         wrappers: Some(get_default_wrappers()),

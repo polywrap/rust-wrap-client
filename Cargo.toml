@@ -20,7 +20,7 @@ members = [
     "packages/default-config"
 ]
 
-# Do not include test utils & default config crates in default members
+# Do not include test utils
 default-members = [
     "packages/client",
     "packages/core",
@@ -31,7 +31,8 @@ default-members = [
     "packages/builder",
     "packages/plugin",
     "packages/native",
-    "packages/resolver-extensions"
+    "packages/resolver-extensions",
+    "packages/default-config"
 ]
 
 [workspace.dependencies]
