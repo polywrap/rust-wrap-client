@@ -1,2 +1,3 @@
-mod fs_tests;
-mod ipfs_tests;
+mod fs;
+mod ipfs;
+mod http;
