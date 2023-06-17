@@ -1,17 +1,10 @@
-use std::{sync::{Arc, Mutex}};
+use std::{sync::{Arc, Mutex}, process::id};
 use polywrap_core::invoker::{Invoker};
 use wasmer::{Module, Instance, Store, Memory, MemoryType, Value};
 
-use crate::error::WrapperError;
+use crate::{error::WrapperError, wasm_module::WasmModule};
 
 use super::imports::create_imports;
-
-#[derive(Clone)]
-pub enum WasmModule {
-    Bytes(Vec<u8>),
-    Wat(String),
-    Path(String),
-}
 
 #[derive(Default)]
 pub struct InvokeState {
@@ -64,33 +57,31 @@ impl State {
 pub struct WasmInstance {
     instance: Instance,
     pub store: Store,
-    pub module: Module,
 }
 
 impl WasmInstance {
-    pub fn new(wasm_module: &[u8], state: Arc<Mutex<State>>) -> Result<Self, WrapperError> {
+    pub fn new(module: &Module, memory_initial_limits: u8, state: Arc<Mutex<State>>) -> Result<Self, WrapperError> {
         let mut store = Store::default();
-        let module = Module::new(&store, wasm_module).unwrap();
-        let memory = WasmInstance::create_memory(&mut store, wasm_module)?;
+        let memory = WasmInstance::create_memory(&mut store, memory_initial_limits)?;
+        
+        state.lock().unwrap().memory = Some(memory.clone());
+        
         let imports = create_imports(
-            memory.clone(),
+            memory,
             &mut store,
-            state.clone()
+            state
         );
 
         let instance = Instance::new(&mut store, &module, &imports)
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
-        state.lock().unwrap().memory = Some(memory);
-
         Ok(Self {
             instance,
             store,
-            module,
         })
     }
 
-    pub fn create_memory(store: &mut Store, module: &[u8]) -> Result<Memory, WrapperError> {
+    pub fn get_memory_initial_limits(module: &[u8]) -> Result<u8, WrapperError> {
         const ENV_MEMORY_IMPORTS_SIGNATURE: [u8; 11] = [
             0x65, 0x6e, 0x76, 0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02,
         ];
@@ -99,19 +90,25 @@ impl WasmInstance {
             ENV_MEMORY_IMPORTS_SIGNATURE.len()
         ).position(|window| window == ENV_MEMORY_IMPORTS_SIGNATURE);
 
-        if idx.is_none() {
-            return Err(WrapperError::ModuleReadError(
+        match idx {
+            Some(idx) => {
+                let memory_initial_limits = module[idx + ENV_MEMORY_IMPORTS_SIGNATURE.len() + 1];
+
+                Ok(memory_initial_limits)
+            },
+            None => Err(WrapperError::ModuleReadError(
                 r#"Unable to find Wasm memory import section.
                 Modules must import memory from the "env" module's
                 "memory" field like so:
                 (import "env" "memory" (memory (;0;) #))"#.to_string(),
-            ));
+            ))
         }
+    }
 
-        let memory_initial_limits = module[idx.unwrap() + ENV_MEMORY_IMPORTS_SIGNATURE.len() + 1];
+    pub fn create_memory(store: &mut Store, memory_initial_limits: u8) -> Result<Memory, WrapperError> {
         let memory = Memory::new(store, 
             MemoryType::new(memory_initial_limits as u32, None, false)
-        ).unwrap();
+        ).map_err(|x| WrapperError::ModuleReadError(x.to_string()))?;
 
         Ok(memory)
     }

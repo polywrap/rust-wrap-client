@@ -1,5 +1,5 @@
-use crate::error::WrapperError;
 use crate::runtime::instance::{State,WasmInstance};
+use crate::wasm_module::{WasmModule, CompiledWasmModule};
 
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
@@ -14,25 +14,20 @@ use std::fmt::Formatter;
 use std::sync::Mutex;
 use std::{sync::Arc, fmt::Debug};
 
-#[derive(Clone)]
 pub struct WasmWrapper {
-    wasm_module: Vec<u8>,
+    compiled_module: CompiledWasmModule,
     file_reader: Arc<dyn FileReader>,
 }
 
 impl WasmWrapper {
     pub fn new(
-        wasm_module: Vec<u8>,
+        compiled_module: CompiledWasmModule,
         file_reader: Arc<dyn FileReader>,
     ) -> Self {
         Self {
-            wasm_module,
+            compiled_module,
             file_reader,
         }
-    }
-
-    pub fn get_wasm_module(&self) -> Result<&[u8], WrapperError> {
-        Ok(&self.wasm_module)
     }
 
     pub fn invoke_and_decode<T: DeserializeOwned>(
@@ -52,19 +47,9 @@ impl WasmWrapper {
     }
 }
 
-impl PartialEq for WasmWrapper {
-    fn eq(&self, other: &Self) -> bool {
-        self.get_wasm_module().unwrap() == other.get_wasm_module().unwrap()
-    }
-}
-
 impl Debug for WasmWrapper {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-      write!(f, r#"
-      WasmModule
-      
-      -Wasm Module: {:?}
-      "#, self.wasm_module)
+      write!(f, r#"WasmModule(...)"#)
     }
 }
 
@@ -112,7 +97,8 @@ impl Wrapper for WasmWrapper {
         });
 
         let state = Arc::new(Mutex::new(State::new(invoker, abort.clone(), method, args, env)));
-        let mut wasm_instance = WasmInstance::new(&self.wasm_module, state.clone()).unwrap();
+
+        let mut wasm_instance = self.compiled_module.create_instance(state.clone())?;
 
         let result = wasm_instance
             .call_export("_wrap_invoke", params)

@@ -10,7 +10,7 @@ use wrap_manifest_schemas::{
     versions::WrapManifest,
 };
 
-use crate::wasm_wrapper::WasmWrapper;
+use crate::{wasm_wrapper::WasmWrapper, wasm_module::{WasmModule, CompiledWasmModule}};
 
 use super::file_reader::InMemoryFileReader;
 
@@ -88,9 +88,10 @@ impl WrapPackage for WasmPackage {
         &self,
     ) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
         let wasm_module = self.get_wasm_module()?;
+        let compiled_module = CompiledWasmModule::from_byte_code(&wasm_module)?;
 
         Ok(Arc::new(WasmWrapper::new(
-            wasm_module,
+            compiled_module,
             self.file_reader.clone(),
         )))
     }

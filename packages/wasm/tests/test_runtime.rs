@@ -1,5 +1,5 @@
 use std::{path::Path, collections::HashMap, sync::Mutex};
-use polywrap_wasm::{wasm_wrapper::{WasmWrapper}};
+use polywrap_wasm::{wasm_wrapper::{WasmWrapper}, wasm_module::WasmModule};
 use polywrap_core::{
     invoker::{Invoker},
     uri::Uri,
@@ -17,12 +17,12 @@ use polywrap_tests_utils::helpers::get_tests_path;
 
 #[derive(Clone)]
 struct MockInvoker {
-    wrapper: WasmWrapper
+    wrapper: Arc<WasmWrapper>
 }
 
 impl MockInvoker {
     fn new(wrapper: WasmWrapper) -> Self {
-        Self { wrapper }
+        Self { wrapper: Arc::new(wrapper) }
     }
 
     fn invoke_wrapper_raw(
@@ -54,7 +54,7 @@ impl Invoker for MockInvoker {
         resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
         self.clone().invoke_wrapper_raw(
-            Arc::new(self.wrapper.clone()),
+            self.wrapper.clone(),
             uri,
             method,
             args,
@@ -91,7 +91,11 @@ fn invoke_test() {
     let _manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
     let file_reader = SimpleFileReader::new();
 
-    let wrapper = WasmWrapper::new(module_bytes, Arc::new(file_reader));
+    let compiled_module = WasmModule::WasmByteCode(module_bytes).
+        compile()
+        .unwrap();
+
+    let wrapper = WasmWrapper::new(compiled_module, Arc::new(file_reader));
 
     let mock_invoker = MockInvoker::new(wrapper);
     let result = Arc::new(mock_invoker).invoke_raw(
