@@ -2,10 +2,7 @@ use polywrap_client_builder::PolywrapClientConfig;
 use polywrap_fs_plugin::FileSystemPlugin;
 use polywrap_http_plugin::HttpPlugin;
 
-use polywrap_core::{
-    client::{ClientConfig},
-    uri::Uri,
-};
+use polywrap_core::{client::ClientConfig, uri::Uri};
 use polywrap_plugin::package::PluginPackage;
 use std::{collections::HashMap, sync::Arc};
 
