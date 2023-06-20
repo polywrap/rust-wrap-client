@@ -300,7 +300,7 @@ impl PolywrapClientConfigBuilder for PolywrapClientConfig {
 impl ClientConfigBuilder for PolywrapClientConfig {
     fn build(self) -> ClientConfig {
         // We first build the resolver because it needs a reference to self
-        // this way we don't need to clone `resolvers`, `envs`, and `interfaces`.
+        // this way we don't need to clone `envs`, and `interfaces`.
         ClientConfig {
             resolver: PolywrapBaseResolver::new(PolywrapBaseResolverOptions {
                 static_resolver: build_static_resolver(&self),
