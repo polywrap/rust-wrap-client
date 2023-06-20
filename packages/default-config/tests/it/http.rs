@@ -15,7 +15,7 @@ fn sanity() {
 
     let result = client
         .invoke::<u32>(
-            &Uri::try_from(uri).unwrap(),
+            &Uri::try_from(URI).unwrap(),
             "i8Method",
             Some(&msgpack!({
                 "first": 2,
