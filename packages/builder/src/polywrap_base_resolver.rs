@@ -7,7 +7,6 @@ use polywrap_resolvers::{
     resolution_result_cache_resolver::{
         ResolutionResultCacheResolver, ResolutionResultCacheResolverOptions,
     },
-    resolver_vec,
     static_resolver::StaticResolver,
     uri_resolver_aggregator::UriResolverAggregator,
 };
@@ -23,11 +22,7 @@ pub struct PolywrapBaseResolverOptions {
 
 impl PolywrapBaseResolver {
     pub fn default() -> Arc<dyn UriResolver> {
-        Arc::new(RecursiveResolver::from(
-            Box::from(ResolutionResultCacheResolver::from(resolver_vec![
-                ExtendableUriResolver::new(None),
-            ])) as Box<dyn UriResolver>,
-        ))
+        Self::new(PolywrapBaseResolverOptions::default())
     }
 
     pub fn new(options: PolywrapBaseResolverOptions) -> Arc<dyn UriResolver> {
