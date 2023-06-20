@@ -63,8 +63,7 @@ impl std::fmt::Display for FFIUri {
 
 #[cfg(test)]
 mod test {
-    use polywrap_client::core::uri::Uri;
-    use polywrap_core_macros::uri;
+    use polywrap_client::{core::uri::Uri, macros::uri};
 
     use crate::uri::FFIUri;
 
