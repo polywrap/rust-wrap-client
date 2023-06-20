@@ -105,18 +105,12 @@ fn test_redirects() {
 
     assert!(builder.redirects.is_some());
     let builder_redirects = builder.redirects.unwrap();
-    assert_eq!(
-        builder_redirects,
-        redirects
-    );
+    assert_eq!(builder_redirects, redirects);
 
     let mut builder = PolywrapClientConfig::new();
     assert!(builder.redirects.is_none());
 
-    builder.add_redirect(
-        a_uri.clone(),
-        b_uri.clone(),
-    );
+    builder.add_redirect(a_uri.clone(), b_uri.clone());
     assert!(builder.redirects.is_some());
 
     builder.remove_redirect(&a_uri);

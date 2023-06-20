@@ -21,9 +21,7 @@ pub mod map;
 pub mod numbers;
 pub mod object;
 
-pub fn get_client(
-    static_resolvers: Option<HashMap<Uri, UriPackageOrWrapper>>,
-) -> PolywrapClient {
+pub fn get_client(static_resolvers: Option<HashMap<Uri, UriPackageOrWrapper>>) -> PolywrapClient {
     let file_reader = SimpleFileReader::new();
     let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
 

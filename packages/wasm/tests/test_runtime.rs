@@ -7,11 +7,11 @@ use polywrap_wasm::wasm_wrapper::WasmWrapper;
 use std::{collections::HashMap, path::Path, sync::Mutex};
 use wrap_manifest_schemas::deserialize::deserialize_wrap_manifest;
 
+use polywrap_core_macros::uri;
 use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::fs;
 use std::sync::Arc;
-use polywrap_core_macros::uri;
 
 #[derive(Clone)]
 struct MockInvoker {

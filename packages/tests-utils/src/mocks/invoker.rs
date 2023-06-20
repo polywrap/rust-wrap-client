@@ -6,9 +6,9 @@ use std::{
 use polywrap_core::{
     invoker::Invoker, resolution::uri_resolution_context::UriResolutionContext, uri::Uri,
 };
+use polywrap_core_macros::uri;
 use polywrap_msgpack::rmp_serde::encode;
 use serde::{Deserialize, Serialize};
-use polywrap_core_macros::uri;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MaybeUriOrManifest {

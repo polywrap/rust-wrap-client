@@ -1,6 +1,6 @@
 use polywrap_client_builder::PolywrapClientConfig;
-use polywrap_core_macros::uri;
 use polywrap_core::{client::ClientConfig, uri::Uri};
+use polywrap_core_macros::uri;
 use polywrap_msgpack::msgpack;
 use std::{collections::HashMap, sync::Arc};
 
@@ -18,9 +18,7 @@ impl Default for Web3ClientConfig {
                     interfaces: Some(HashMap::from([
                         (
                             "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
-                            vec![
-                                uri!("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
-                            ],
+                            vec![uri!("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1")],
                         ),
                         (
                             "wrap://ens/wraps.eth:ipfs-http-client@1.0.0".to_string(),

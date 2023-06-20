@@ -42,13 +42,13 @@ impl StaticResolver {
                     uri_map.extend(resolver.uri_map);
                 }
                 StaticResolverLike::Redirect(redirect) => {
-                    uri_map.insert(
-                        redirect.from,
-                        UriPackageOrWrapper::Uri(redirect.to),
-                    );
+                    uri_map.insert(redirect.from, UriPackageOrWrapper::Uri(redirect.to));
                 }
                 StaticResolverLike::Package(uri, package) => {
-                    uri_map.insert(uri.clone(), UriPackageOrWrapper::Package(uri.clone(), package));
+                    uri_map.insert(
+                        uri.clone(),
+                        UriPackageOrWrapper::Package(uri.clone(), package),
+                    );
                 }
                 StaticResolverLike::Wrapper(uri, wrapper) => {
                     uri_map.insert(

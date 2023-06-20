@@ -141,10 +141,10 @@ mod tests {
             uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
             uri_resolver::UriResolver,
         },
-        uri::Uri
+        uri::Uri,
     };
-    use polywrap_tests_utils::mocks::MockInvoker;
     use polywrap_core_macros::uri;
+    use polywrap_tests_utils::mocks::MockInvoker;
 
     use super::UriResolverWrapper;
 

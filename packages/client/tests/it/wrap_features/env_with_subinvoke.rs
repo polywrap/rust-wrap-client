@@ -90,20 +90,14 @@ fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) ->
     }
 
     if let Some(env) = subinvoked_env {
-        envs.insert(
-            uri!("mock/main"),
-            env.to_vec(),
-        );
+        envs.insert(uri!("mock/main"), env.to_vec());
     }
 
     let file_reader = SimpleFileReader::new();
     let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
 
     let mut resolvers = HashMap::new();
-    resolvers.insert(
-        uri!("mock/main"),
-        UriPackageOrWrapper::Uri(subinvoked_uri),
-    );
+    resolvers.insert(uri!("mock/main"), UriPackageOrWrapper::Uri(subinvoked_uri));
 
     let base_resolver = BaseResolver::new(
         Box::new(fs_resolver),
@@ -272,16 +266,25 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
 
     let client = {
         let envs: HashMap<Uri, Vec<u8>> = HashMap::from([
-            (subinvoker_uri.clone(), polywrap_msgpack::serialize(&subinvoker_env).unwrap()),
-            (uri!("mock/main"), polywrap_msgpack::serialize(&subinvoked_env).unwrap()),
+            (
+                subinvoker_uri.clone(),
+                polywrap_msgpack::serialize(&subinvoker_env).unwrap(),
+            ),
+            (
+                uri!("mock/main"),
+                polywrap_msgpack::serialize(&subinvoked_env).unwrap(),
+            ),
         ]);
 
         let file_reader = SimpleFileReader::new();
         let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
 
         let resolvers = HashMap::from([
-            (uri!("mock/main"), UriPackageOrWrapper::Uri(subinvoked_uri.clone())),
-            (uri!("mock/main"), UriPackageOrWrapper::Uri(subinvoked_uri))
+            (
+                uri!("mock/main"),
+                UriPackageOrWrapper::Uri(subinvoked_uri.clone()),
+            ),
+            (uri!("mock/main"), UriPackageOrWrapper::Uri(subinvoked_uri)),
         ]);
 
         let base_resolver = BaseResolver::new(

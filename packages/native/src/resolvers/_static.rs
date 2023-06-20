@@ -1,5 +1,8 @@
 use polywrap_client::{
-    core::{resolution::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver}, uri::Uri},
+    core::{
+        resolution::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver},
+        uri::Uri,
+    },
     resolvers::static_resolver::StaticResolver,
 };
 use std::{collections::HashMap, sync::Arc};
@@ -17,7 +20,9 @@ pub struct FFIStaticUriResolver {
 }
 
 impl FFIStaticUriResolver {
-    pub fn new(uri_map: HashMap<Arc<FFIUri>, Box<dyn FFIUriPackageOrWrapper>>) -> FFIStaticUriResolver {
+    pub fn new(
+        uri_map: HashMap<Arc<FFIUri>, Box<dyn FFIUriPackageOrWrapper>>,
+    ) -> FFIStaticUriResolver {
         let uri_map: HashMap<Uri, UriPackageOrWrapper> = uri_map
             .into_iter()
             .map(|(uri, variant)| {

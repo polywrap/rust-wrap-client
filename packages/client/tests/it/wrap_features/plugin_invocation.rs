@@ -1,11 +1,11 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_core::{client::ClientConfig, invoker::Invoker, package::WrapPackage, uri::Uri};
+use polywrap_core_macros::uri;
 use polywrap_msgpack::msgpack;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use serde_json::{from_value, json};
 use std::{collections::HashMap, sync::Arc};
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
-use polywrap_core_macros::uri;
 
 use polywrap_plugin::{
     error::PluginError, implementor::plugin_impl, module::PluginModule, package::PluginPackage,
@@ -68,8 +68,7 @@ fn invoke_test() {
     let package: PluginPackage = plugin.into();
     let module = Arc::new(package) as Arc<dyn WrapPackage>;
 
-    let plugin_static_like =
-        StaticResolverLike::Package(uri!("ens/env-plugin.eth"), module);
+    let plugin_static_like = StaticResolverLike::Package(uri!("ens/env-plugin.eth"), module);
     let static_resolver = StaticResolver::from(vec![plugin_static_like]);
 
     let env_val = msgpack!({"foo": "bar"});
