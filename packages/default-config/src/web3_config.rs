@@ -1,5 +1,5 @@
 use polywrap_client_builder::PolywrapClientConfig;
-use polywrap_core::{client::ClientConfig, uri::Uri, wrapper::Wrapper};
+use polywrap_core::{client::ClientConfig, uri::Uri};
 use polywrap_msgpack::msgpack;
 use std::{collections::HashMap, sync::Arc};
 
@@ -16,31 +16,35 @@ impl Default for Web3ClientConfig {
                 PolywrapClientConfig {
                     interfaces: Some(HashMap::from([
                         (
-                            "wrap://ens/uri-resolver.core.polywrap.eth".to_string(), 
-                            vec![Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1").unwrap()]
+                            "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
+                            vec![
+                                Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1")
+                                    .unwrap(),
+                            ],
                         ),
                         (
-                            "wrap://ens/wraps.eth:ipfs-http-client@1.0.0".to_string(), 
-                            vec![Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0").unwrap()]
+                            "wrap://ens/wraps.eth:ipfs-http-client@1.0.0".to_string(),
+                            vec![Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0")
+                                .unwrap()],
                         ),
                     ])),
-                    envs: Some(HashMap::from([
-                        (
-                            "wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1".to_string(), 
-                            msgpack!({
-                                "provider": "https://ipfs.wrappers.io",
-                                "fallbackProviders": ["https://ipfs.io"],
-                                "retries": { "tryResolveUri": 2, "getFile": 2 },
-                            })
-                        ),
-                    ])),
+                    envs: Some(HashMap::from([(
+                        Uri::try_from("wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1")
+                            .unwrap(),
+                        msgpack!({
+                            "provider": "https://ipfs.wrappers.io",
+                            "fallbackProviders": ["https://ipfs.io"],
+                            "retries": { "tryResolveUri": 2, "getFile": 2 },
+                        }),
+                    )])),
                     wrappers: Some(vec![
                         (
                             Uri::try_from("wrap://ens/wraps.eth:ipfs-http-client@1.0.0").unwrap(),
                             Arc::new(ipfs_http_client::wasm_wrapper()),
                         ),
                         (
-                            Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1").unwrap(),
+                            Uri::try_from("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1")
+                                .unwrap(),
                             Arc::new(ipfs_resolver::wasm_wrapper()),
                         ),
                     ]),

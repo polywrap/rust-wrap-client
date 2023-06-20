@@ -3,10 +3,8 @@ use polywrap_fs_plugin::FileSystemPlugin;
 use polywrap_http_plugin::HttpPlugin;
 
 use polywrap_core::{
-    client::{ClientConfig, UriRedirect},
-    package::WrapPackage,
+    client::{ClientConfig},
     uri::Uri,
-    wrapper::Wrapper,
 };
 use polywrap_plugin::package::PluginPackage;
 use std::{collections::HashMap, sync::Arc};
@@ -22,28 +20,28 @@ impl Default for SystemClientConfig {
         Self {
             inner_config: {
                 PolywrapClientConfig {
-                    redirects: Some(vec![
-                        UriRedirect {
-                            from: Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
-                            to: Uri::try_from("plugin/http@1.1.0").unwrap(),
-                        },
-                        UriRedirect {
-                            from: Uri::try_from("wrap://ens/wraps.eth:file-system@1.0.0").unwrap(),
-                            to: Uri::try_from("plugin/file-system@1.0.0").unwrap(),
-                        },
-                    ]),
-                    interfaces: Some(HashMap::from([
+                    redirects: Some(HashMap::from([
                         (
-                            "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
-                            vec![
-                                Uri::try_from("ens/wraps.eth:http-uri-resolver-ext@1.0.1").unwrap(),
-                                Uri::try_from("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1").unwrap(),
-                            ],
+                            Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
+                            Uri::try_from("plugin/http@1.1.0").unwrap(),
+                        ),
+                        (
+                            Uri::try_from("wrap://ens/wraps.eth:file-system@1.0.0").unwrap(),
+                            Uri::try_from("plugin/file-system@1.0.0").unwrap(),
                         ),
                     ])),
+                    interfaces: Some(HashMap::from([(
+                        "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
+                        vec![
+                            Uri::try_from("ens/wraps.eth:http-uri-resolver-ext@1.0.1").unwrap(),
+                            Uri::try_from("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1")
+                                .unwrap(),
+                        ],
+                    )])),
                     wrappers: Some(vec![
                         (
-                            Uri::try_from("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1").unwrap(),
+                            Uri::try_from("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1")
+                                .unwrap(),
                             Arc::new(fs_resolver::wasm_wrapper()),
                         ),
                         (
@@ -53,11 +51,12 @@ impl Default for SystemClientConfig {
                     ]),
                     packages: Some(vec![
                         (
-                            Uri::try_from("plugin/file-system@1.0.0").unwrap(), 
-                            Arc::new(PluginPackage::from(FileSystemPlugin {}))),
+                            Uri::try_from("plugin/file-system@1.0.0").unwrap(),
+                            Arc::new(PluginPackage::from(FileSystemPlugin {})),
+                        ),
                         (
-                            Uri::try_from("plugin/http@1.1.0").unwrap(), 
-                            Arc::new(PluginPackage::from(HttpPlugin {}))
+                            Uri::try_from("plugin/http@1.1.0").unwrap(),
+                            Arc::new(PluginPackage::from(HttpPlugin {})),
                         ),
                     ]),
                     ..Default::default()

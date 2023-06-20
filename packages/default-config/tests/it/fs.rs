@@ -5,7 +5,6 @@ use polywrap_core::uri::Uri;
 use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::helpers::get_tests_path;
 
-
 #[test]
 fn sanity() {
     let test_path = get_tests_path().unwrap();

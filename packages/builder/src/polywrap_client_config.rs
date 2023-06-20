@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_core::{
-    client::{ClientConfig, UriRedirect, ClientConfigBuilder},
+    client::{ClientConfig, ClientConfigBuilder},
     interface_implementation::InterfaceImplementations,
     package::WrapPackage,
     resolution::uri_resolver::UriResolver,
@@ -17,10 +17,10 @@ use crate::{
 #[derive(Default, Clone)]
 pub struct PolywrapClientConfig {
     pub interfaces: Option<InterfaceImplementations>,
-    pub envs: Option<HashMap<String, Vec<u8>>>,
+    pub envs: Option<HashMap<Uri, Vec<u8>>>,
     pub wrappers: Option<Vec<(Uri, Arc<dyn Wrapper>)>>,
     pub packages: Option<Vec<(Uri, Arc<dyn WrapPackage>)>>,
-    pub redirects: Option<Vec<UriRedirect>>,
+    pub redirects: Option<HashMap<Uri, Uri>>,
     pub resolvers: Option<Vec<Arc<dyn UriResolver>>>,
 }
 
@@ -72,29 +72,28 @@ impl PolywrapClientConfigBuilder for PolywrapClientConfig {
     }
 
     fn add_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self {
-        match self.envs.as_mut() {
-            Some(envs) => {
-                envs.insert(uri.to_string(), env);
-            }
-            None => {
-                let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
-                envs.insert(uri.to_string(), env);
-                self.envs = Some(envs);
-            }
-        };
+        if let Some(envs) = self.envs.as_mut() {
+            envs.insert(uri, env);
+        } else {
+            self.envs = Some(HashMap::from([(uri, env)]));
+        }
+
         self
     }
 
-    fn add_envs(&mut self, envs: HashMap<String, Vec<u8>>) -> &mut Self {
-        for (uri, env) in envs.into_iter() {
-            self.add_env(Uri::new(uri.as_str()), env);
+    fn add_envs(&mut self, envs: HashMap<Uri, Vec<u8>>) -> &mut Self {
+        if let Some(existing_envs) = self.envs.as_mut() {
+            existing_envs.extend(envs);
+        } else {
+            self.envs = Some(envs);
         }
+
         self
     }
 
     fn remove_env(&mut self, uri: &Uri) -> &mut Self {
         if let Some(envs) = self.envs.as_mut() {
-            envs.retain(|k, _| &uri.clone().uri != k);
+            envs.retain(|k, _| uri != k);
             if envs.keys().len() == 0 {
                 self.envs = None;
             }
@@ -246,39 +245,32 @@ impl PolywrapClientConfigBuilder for PolywrapClientConfig {
     }
 
     fn add_redirect(&mut self, from: Uri, to: Uri) -> &mut Self {
-        let redirect = UriRedirect {
-            from: from.clone(),
-            to,
-        };
-        match self.redirects.as_mut() {
-            Some(redirects) => {
-                if !redirects.iter().any(|u| u.from == from) {
-                    redirects.push(redirect);
-                }
-            }
-            None => {
-                self.redirects = Some(vec![redirect]);
-            }
+        if let Some(existing_redirects) = self.redirects.as_mut() {
+            existing_redirects.insert(from, to);
+        } else {
+            self.redirects = Some(HashMap::from([(from, to)]));
         }
 
         self
     }
 
-    fn add_redirects(&mut self, redirects: Vec<UriRedirect>) -> &mut Self {
-        for UriRedirect { from, to } in redirects.into_iter() {
-            self.add_redirect(from, to);
+    fn add_redirects(&mut self, redirects: HashMap<Uri, Uri>) -> &mut Self {
+        if let Some(existing_redirects) = self.redirects.as_mut() {
+            existing_redirects.extend(redirects);
+        } else {
+            self.redirects = Some(redirects);
         }
+
         self
     }
 
     fn remove_redirect(&mut self, from: &Uri) -> &mut Self {
         if let Some(redirects) = self.redirects.as_mut() {
-            if let Some(i) = redirects.iter().position(|u| &u.from == from) {
-                redirects.remove(i);
-                if redirects.is_empty() {
-                    self.redirects = None;
-                }
-            };
+            redirects.remove(from);
+
+            if redirects.is_empty() {
+                self.redirects = None;
+            }
         };
 
         self

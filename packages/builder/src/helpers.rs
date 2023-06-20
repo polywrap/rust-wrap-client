@@ -18,7 +18,7 @@ pub fn build_static_resolver(builder: &PolywrapClientConfig) -> Option<StaticRes
 
     if let Some(redirects) = &builder.redirects {
         for r in redirects {
-            static_resolvers.push(StaticResolverLike::Redirect(r.clone()));
+            static_resolvers.push(StaticResolverLike::Redirect(r.into()));
         }
     }
 

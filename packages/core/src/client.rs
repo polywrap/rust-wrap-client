@@ -21,10 +21,22 @@ impl UriRedirect {
     }
 }
 
+impl From<(Uri, Uri)> for UriRedirect {
+    fn from((from, to): (Uri, Uri)) -> Self {
+        Self { from, to }
+    }
+}
+
+impl From<(&Uri, &Uri)> for UriRedirect {
+    fn from((from, to): (&Uri, &Uri)) -> Self {
+        UriRedirect::new(from.to_owned(), to.to_owned())
+    }
+}
+
 #[derive(Debug)]
 pub struct ClientConfig {
     pub resolver: Arc<dyn UriResolver>,
-    pub envs: Option<HashMap<String, Vec<u8>>>,
+    pub envs: Option<HashMap<Uri, Vec<u8>>>,
     pub interfaces: Option<InterfaceImplementations>,
 }
 

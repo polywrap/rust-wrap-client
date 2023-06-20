@@ -28,7 +28,7 @@ use crate::{build_abort_handler::build_abort_handler, subinvoker::Subinvoker};
 #[derive(Clone, Debug)]
 pub struct PolywrapClient {
     pub resolver: Arc<dyn UriResolver>,
-    pub envs: Option<HashMap<String, Vec<u8>>>,
+    pub envs: Option<HashMap<Uri, Vec<u8>>>,
     pub interfaces: Option<InterfaceImplementations>,
 }
 
@@ -170,7 +170,7 @@ impl Invoker for PolywrapClient {
 
     fn get_env_by_uri(&self, uri: &Uri) -> Option<Vec<u8>> {
         if let Some(envs) = &self.envs {
-            return envs.get(&uri.to_string()).cloned();
+            return envs.get(uri).cloned();
         }
 
         None

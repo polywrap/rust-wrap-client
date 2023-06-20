@@ -1,11 +1,8 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_core::{
-    client::{ClientConfigBuilder, UriRedirect},
-    package::WrapPackage,
-    resolution::uri_resolver::UriResolver,
-    uri::Uri,
-    wrapper::Wrapper,
+    client::ClientConfigBuilder, package::WrapPackage, resolution::uri_resolver::UriResolver,
+    uri::Uri, wrapper::Wrapper,
 };
 
 use crate::PolywrapClientConfig;
@@ -13,7 +10,7 @@ use crate::PolywrapClientConfig;
 pub trait PolywrapClientConfigBuilder: ClientConfigBuilder {
     fn add(&mut self, config: PolywrapClientConfig) -> &mut Self;
     fn add_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self;
-    fn add_envs(&mut self, env: HashMap<String, Vec<u8>>) -> &mut Self;
+    fn add_envs(&mut self, env: HashMap<Uri, Vec<u8>>) -> &mut Self;
     fn remove_env(&mut self, uri: &Uri) -> &mut Self;
     fn add_interface_implementation(
         &mut self,
@@ -37,7 +34,7 @@ pub trait PolywrapClientConfigBuilder: ClientConfigBuilder {
     fn add_package(&mut self, uri: Uri, package: Arc<dyn WrapPackage>) -> &mut Self;
     fn remove_package(&mut self, uri: &Uri) -> &mut Self;
     fn add_redirect(&mut self, from: Uri, to: Uri) -> &mut Self;
-    fn add_redirects(&mut self, redirects: Vec<UriRedirect>) -> &mut Self;
+    fn add_redirects(&mut self, redirects: HashMap<Uri, Uri>) -> &mut Self;
     fn remove_redirect(&mut self, from: &Uri) -> &mut Self;
     fn add_resolver(&mut self, resolver: Arc<dyn UriResolver>) -> &mut Self;
     fn add_resolvers(&mut self, resolver: Vec<Arc<dyn UriResolver>>) -> &mut Self;
