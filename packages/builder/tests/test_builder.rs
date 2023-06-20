@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
-use polywrap_core::{client::UriRedirect, package::WrapPackage, uri::Uri, wrapper::Wrapper};
+use polywrap_core::{package::WrapPackage, uri::Uri, wrapper::Wrapper};
 use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::mocks::{
     get_different_mock_package, get_different_mock_wrapper, get_mock_invoker, get_mock_package,
@@ -11,25 +11,25 @@ use polywrap_tests_utils::mocks::{
 #[test]
 fn test_env_methods() {
     let mut builder = PolywrapClientConfig::new();
-    let uri = Uri::new("wrap://ens/wrapper.eth");
+    let uri = Uri::try_from("wrap://ens/wrapper.eth").unwrap();
 
     assert!(builder.envs.is_none());
 
     builder.add_env(uri.clone(), msgpack!({ "d": "d" }));
 
     let current_env = builder.envs.clone().unwrap();
-    let env_from_builder = current_env.get(&uri.to_string());
+    let env_from_builder = current_env.get(&uri);
 
     assert!(env_from_builder.is_some());
     assert_eq!(env_from_builder.unwrap(), &msgpack!({ "d": "d" }));
 
     let mut envs = HashMap::new();
-    envs.insert(uri.clone().uri, msgpack!({"a": "a", "b": "b"}));
+    envs.insert(uri.clone(), msgpack!({"a": "a", "b": "b"}));
 
     builder.add_envs(envs);
 
     let current_env = builder.envs.clone().unwrap();
-    let env_from_builder = current_env.get(&uri.to_string());
+    let env_from_builder = current_env.get(&uri);
     assert_eq!(env_from_builder.unwrap(), &msgpack!({ "a": "a", "b": "b" }));
 
     builder.remove_env(&uri);
@@ -41,9 +41,9 @@ fn test_env_methods() {
 fn test_interface_implementation_methods() {
     let mut builder = PolywrapClientConfig::new();
 
-    let interface_uri = Uri::new("wrap://ens/interface.eth");
-    let implementation_a_uri = Uri::new("wrap://ens/implementation-a.eth");
-    let implementation_b_uri = Uri::new("wrap://ens/implementation-b.eth");
+    let interface_uri = Uri::try_from("wrap://ens/interface.eth").unwrap();
+    let implementation_a_uri = Uri::try_from("wrap://ens/implementation-a.eth").unwrap();
+    let implementation_b_uri = Uri::try_from("wrap://ens/implementation-b.eth").unwrap();
 
     assert!(builder.interfaces.is_none());
 
@@ -60,7 +60,7 @@ fn test_interface_implementation_methods() {
         &vec![implementation_a_uri.clone(), implementation_b_uri.clone()]
     );
 
-    let implementation_c_uri = Uri::new("wrap://ens/implementation-c.eth");
+    let implementation_c_uri = Uri::try_from("wrap://ens/implementation-c.eth").unwrap();
     builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
 
     let interfaces = builder.interfaces.clone().unwrap();
@@ -88,47 +88,37 @@ fn test_redirects() {
     let mut builder = PolywrapClientConfig::new();
     assert!(builder.redirects.is_none());
 
-    let redirects = vec![
-        UriRedirect {
-            from: "ens/c.eth".to_string().try_into().unwrap(),
-            to: "ens/d.eth".to_string().try_into().unwrap(),
-        },
-        UriRedirect {
-            from: "ens/f.eth".to_string().try_into().unwrap(),
-            to: "ens/g.eth".to_string().try_into().unwrap(),
-        },
-    ];
-    builder.add_redirects(redirects);
+    let a_uri = Uri::try_from("ens/a.eth").unwrap();
+    let b_uri = Uri::try_from("ens/b.eth").unwrap();
+    let c_uri = Uri::try_from("ens/c.eth").unwrap();
+    let d_uri = Uri::try_from("ens/d.eth").unwrap();
+    let f_uri = Uri::try_from("ens/f.eth").unwrap();
+    let g_uri = Uri::try_from("ens/g.eth").unwrap();
+
+    let redirects = HashMap::from([
+        (c_uri.clone(), d_uri.clone()),
+        (f_uri.clone(), g_uri.clone()),
+    ]);
+
+    builder.add_redirects(redirects.clone());
 
     assert!(builder.redirects.is_some());
     let builder_redirects = builder.redirects.unwrap();
     assert_eq!(
-        builder_redirects[0].from,
-        "ens/c.eth".to_string().try_into().unwrap()
-    );
-    assert_eq!(
-        builder_redirects[0].to,
-        "ens/d.eth".to_string().try_into().unwrap()
-    );
-    assert_eq!(
-        builder_redirects[1].from,
-        "ens/f.eth".to_string().try_into().unwrap()
-    );
-    assert_eq!(
-        builder_redirects[1].to,
-        "ens/g.eth".to_string().try_into().unwrap()
+        builder_redirects,
+        redirects
     );
 
     let mut builder = PolywrapClientConfig::new();
     assert!(builder.redirects.is_none());
 
     builder.add_redirect(
-        "ens/a.eth".to_string().try_into().unwrap(),
-        "ens/b.eth".to_string().try_into().unwrap(),
+        a_uri.clone(),
+        b_uri.clone(),
     );
     assert!(builder.redirects.is_some());
 
-    builder.remove_redirect(&"ens/a.eth".to_string().try_into().unwrap());
+    builder.remove_redirect(&a_uri);
     assert!(builder.redirects.is_none());
 }
 

@@ -19,8 +19,6 @@ interface FFIError {
 };
 
 interface FFIUri {
-  constructor([ByRef] string authority, [ByRef] string path, [ByRef] string uri);
-
   [Name=from_string]
   constructor([ByRef] string uri);
 
@@ -94,7 +92,7 @@ callback interface FFIUriPackageOrWrapper {
 };
 
 interface FFIStaticUriResolver {
-  constructor(record<DOMString, FFIUriPackageOrWrapper> uri_map);
+  constructor(record<FFIUri, FFIUriPackageOrWrapper> uri_map);
   [Throws=FFIError]
   FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };

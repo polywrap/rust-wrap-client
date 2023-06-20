@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 use polywrap_client::client::PolywrapClient;
 use polywrap_core::{
     client::ClientConfig, file_reader::SimpleFileReader,
-    resolution::uri_resolution_context::UriPackageOrWrapper,
+    resolution::uri_resolution_context::UriPackageOrWrapper, uri::Uri,
 };
 use polywrap_resolvers::{
     base_resolver::BaseResolver, simple_file_resolver::FilesystemResolver,
@@ -22,7 +22,7 @@ pub mod numbers;
 pub mod object;
 
 pub fn get_client(
-    static_resolvers: Option<HashMap<String, UriPackageOrWrapper>>,
+    static_resolvers: Option<HashMap<Uri, UriPackageOrWrapper>>,
 ) -> PolywrapClient {
     let file_reader = SimpleFileReader::new();
     let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));

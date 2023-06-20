@@ -26,7 +26,7 @@ fn subinvoke_test() {
 
     let mut resolvers = HashMap::new();
     resolvers.insert(
-        String::from("wrap://ens/imported-subinvoke.eth"),
+        Uri::try_from("wrap://ens/imported-subinvoke.eth").unwrap(),
         UriPackageOrWrapper::Uri(subinvoke_uri),
     );
     let file_reader = SimpleFileReader::new();

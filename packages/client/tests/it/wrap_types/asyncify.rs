@@ -57,9 +57,9 @@ fn get_client_and_uri() -> (PolywrapClient, Uri) {
 
     let mut resolvers = HashMap::new();
     resolvers.insert(
-        String::from("wrap://ens/memory-storage.polywrap.eth"),
+        Uri::try_from("wrap://ens/memory-storage.polywrap.eth").unwrap(),
         UriPackageOrWrapper::Package(
-            Uri::try_from("wrap://ens/memory-storage.polywrap.eth".to_string()).unwrap(),
+            Uri::try_from("wrap://ens/memory-storage.polywrap.eth").unwrap(),
             memory_storage_package,
         ),
     );

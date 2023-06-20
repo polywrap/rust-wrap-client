@@ -72,7 +72,7 @@ fn invoke_test() {
     let static_resolver = StaticResolver::from(vec![plugin_static_like]);
 
     let env_val = msgpack!({"foo": "bar"});
-    let envs = HashMap::from([(Uri::try_from("ens/env-plugin.eth").unwrap().uri, env_val)]);
+    let envs = HashMap::from([(Uri::try_from("ens/env-plugin.eth").unwrap(), env_val)]);
     let client = PolywrapClient::new(ClientConfig {
         envs: Some(envs),
         interfaces: None,

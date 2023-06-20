@@ -11,17 +11,7 @@ pub struct Uri {
 }
 
 impl Uri {
-    pub fn new(uri: &str) -> Self {
-        let parsed_uri = Uri::from_string(uri);
-
-        if let Ok(result_uri) = parsed_uri {
-            result_uri
-        } else {
-            panic!("Error parsing URI: `{uri}`");
-        }
-    }
-
-    fn from_string(uri: &str) -> Result<Uri, Error> {
+    fn try_from_string(uri: &str) -> Result<Uri, Error> {
         let mut processed = uri.to_string();
 
         while processed.starts_with('/') {
@@ -80,7 +70,7 @@ impl TryFrom<String> for Uri {
     type Error = Error;
 
     fn try_from(uri: String) -> Result<Self, Self::Error> {
-        Uri::from_string(&uri)
+        Uri::try_from_string(&uri)
     }
 }
 
@@ -88,7 +78,7 @@ impl TryFrom<&str> for Uri {
     type Error = Error;
 
     fn try_from(uri: &str) -> Result<Self, Self::Error> {
-        Uri::from_string(uri)
+        Uri::try_from_string(uri)
     }
 }
 

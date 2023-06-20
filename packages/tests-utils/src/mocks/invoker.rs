@@ -54,7 +54,7 @@ impl Invoker for MockInvoker {
         &self,
         _: &polywrap_core::uri::Uri,
     ) -> Result<Vec<polywrap_core::uri::Uri>, polywrap_core::error::Error> {
-        Ok(vec![Uri::new("mock/a")])
+        Ok(vec![Uri::try_from("mock/a").unwrap()])
     }
 
     fn get_interfaces(
@@ -62,7 +62,7 @@ impl Invoker for MockInvoker {
     ) -> Option<polywrap_core::interface_implementation::InterfaceImplementations> {
         Some(HashMap::from([(
             ("mock/a".to_string()),
-            vec![Uri::new("mock/b")],
+            vec![Uri::try_from("mock/b").unwrap()],
         )]))
     }
 

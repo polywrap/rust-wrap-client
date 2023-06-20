@@ -106,10 +106,10 @@ impl FFIBuilderConfig {
 
 #[cfg(test)]
 mod test {
-    use std::sync::Arc;
+    use std::{sync::Arc, collections::HashMap};
 
     use polywrap_client::{
-        core::{client::UriRedirect, uri::Uri},
+        core::uri::Uri,
         msgpack::msgpack,
     };
     use polywrap_tests_utils::mocks::{
@@ -131,7 +131,7 @@ mod test {
         builder.add_env(uri.clone(), env.clone());
 
         let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
-        let current_env = envs.get("wrap://ens/some.eth");
+        let current_env = envs.get(&Uri::try_from("wrap://ens/some.eth").unwrap());
         assert_eq!(&env, current_env.unwrap());
 
         let new_env = msgpack!({
@@ -139,7 +139,7 @@ mod test {
         });
         builder.add_env(uri.clone(), new_env.clone());
         let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
-        let current_env = envs.get("wrap://ens/some.eth");
+        let current_env = envs.get(&Uri::try_from("wrap://ens/some.eth").unwrap());
         assert_eq!(&new_env, current_env.unwrap());
 
         builder.remove_env(uri);
@@ -241,16 +241,10 @@ mod test {
             .unwrap();
         assert_eq!(
             redirects,
-            vec![
-                UriRedirect {
-                    from: "wrap/a".to_string().try_into().unwrap(),
-                    to: "wrap/b".to_string().try_into().unwrap()
-                },
-                UriRedirect {
-                    from: "wrap/c".to_string().try_into().unwrap(),
-                    to: "wrap/d".to_string().try_into().unwrap()
-                }
-            ]
+            HashMap::from([
+                (Uri::try_from("wrap/a").unwrap(), Uri::try_from("wrap/b").unwrap()),
+                (Uri::try_from("wrap/c").unwrap(), Uri::try_from("wrap/d").unwrap()),
+            ])
         );
     }
 
@@ -276,8 +270,8 @@ mod test {
         assert_eq!(
             implementations,
             Some(&vec![
-                Uri::new("wrap://ens/implementation-a.eth"),
-                Uri::new("wrap://ens/implementation-b.eth")
+                Uri::try_from("wrap://ens/implementation-a.eth").unwrap(),
+                Uri::try_from("wrap://ens/implementation-b.eth").unwrap()
             ])
         );
 
@@ -293,7 +287,7 @@ mod test {
         let implementations = interfaces.get(&interface_uri.to_string());
         assert_eq!(
             implementations,
-            Some(&vec![Uri::new("wrap://ens/implementation-a.eth"),])
+            Some(&vec![Uri::try_from("wrap://ens/implementation-a.eth").unwrap(),])
         );
     }
 }

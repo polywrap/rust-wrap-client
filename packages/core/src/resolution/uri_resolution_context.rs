@@ -79,7 +79,7 @@ impl UriResolutionContext {
     pub fn get_resolution_path(&self) -> Vec<Uri> {
         self.resolution_path
             .iter()
-            .map(|uri| Uri::new(uri))
+            .map(|uri| Uri::try_from(uri.to_owned()).unwrap())
             .collect()
     }
 

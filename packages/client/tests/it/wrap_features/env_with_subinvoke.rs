@@ -82,15 +82,15 @@ fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) ->
     let subinvoker_uri = get_subinvoker_uri();
     let subinvoked_uri = get_subinvoked_uri();
 
-    let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
+    let mut envs: HashMap<Uri, Vec<u8>> = HashMap::new();
 
     if let Some(env) = subinvoker_env {
-        envs.insert(subinvoker_uri.to_string(), env.to_vec());
+        envs.insert(subinvoker_uri, env.to_vec());
     }
 
     if let Some(env) = subinvoked_env {
         envs.insert(
-            Uri::try_from("mock/main").unwrap().to_string(),
+            Uri::try_from("mock/main").unwrap(),
             env.to_vec(),
         );
     }
@@ -100,7 +100,7 @@ fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) ->
 
     let mut resolvers = HashMap::new();
     resolvers.insert(
-        Uri::try_from("mock/main").unwrap().to_string(),
+        Uri::try_from("mock/main").unwrap(),
         UriPackageOrWrapper::Uri(subinvoked_uri),
     );
 
@@ -270,25 +270,18 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
     };
 
     let client = {
-        let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
-
-        envs.insert(
-            subinvoker_uri.to_string(),
-            polywrap_msgpack::serialize(&subinvoker_env).unwrap(),
-        );
-        envs.insert(
-            Uri::try_from("mock/main").unwrap().to_string(),
-            polywrap_msgpack::serialize(&subinvoked_env).unwrap(),
-        );
+        let envs: HashMap<Uri, Vec<u8>> = HashMap::from([
+            (subinvoker_uri.clone(), polywrap_msgpack::serialize(&subinvoker_env).unwrap()),
+            (Uri::try_from("mock/main").unwrap(), polywrap_msgpack::serialize(&subinvoked_env).unwrap()),
+        ]);
 
         let file_reader = SimpleFileReader::new();
         let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
 
-        let mut resolvers = HashMap::new();
-        resolvers.insert(
-            Uri::try_from("mock/main").unwrap().to_string(),
-            UriPackageOrWrapper::Uri(subinvoked_uri),
-        );
+        let resolvers = HashMap::from([
+            (Uri::try_from("mock/main").unwrap(), UriPackageOrWrapper::Uri(subinvoked_uri.clone())),
+            (Uri::try_from("mock/main").unwrap(), UriPackageOrWrapper::Uri(subinvoked_uri))
+        ]);
 
         let base_resolver = BaseResolver::new(
             Box::new(fs_resolver),

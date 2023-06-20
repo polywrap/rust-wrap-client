@@ -31,7 +31,7 @@ impl Invoker for MockClient {
     }
 
     fn get_implementations(&self, _: &Uri) -> Result<Vec<Uri>, polywrap_core::error::Error> {
-        Ok(vec![Uri::new("mock/c")])
+        Ok(vec![Uri::try_from("mock/c").unwrap()])
     }
 
     fn get_interfaces(
@@ -39,7 +39,7 @@ impl Invoker for MockClient {
     ) -> Option<polywrap_core::interface_implementation::InterfaceImplementations> {
         Some(HashMap::from([(
             ("mock/c".to_string()),
-            vec![Uri::new("mock/d")],
+            vec![Uri::try_from("mock/d").unwrap()],
         )]))
     }
 
@@ -78,7 +78,7 @@ impl UriResolverHandler for MockClient {
         _: &Uri,
         _: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<UriPackageOrWrapper, polywrap_core::error::Error> {
-        Ok(UriPackageOrWrapper::Uri(Uri::new("mock/b")))
+        Ok(UriPackageOrWrapper::Uri(Uri::try_from("mock/b").unwrap()))
     }
 }
 

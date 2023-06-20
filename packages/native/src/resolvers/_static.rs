@@ -1,5 +1,5 @@
 use polywrap_client::{
-    core::resolution::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver},
+    core::{resolution::{uri_resolution_context::UriPackageOrWrapper, uri_resolver::UriResolver}, uri::Uri},
     resolvers::static_resolver::StaticResolver,
 };
 use std::{collections::HashMap, sync::Arc};
@@ -17,12 +17,12 @@ pub struct FFIStaticUriResolver {
 }
 
 impl FFIStaticUriResolver {
-    pub fn new(uri_map: HashMap<String, Box<dyn FFIUriPackageOrWrapper>>) -> FFIStaticUriResolver {
-        let uri_map: HashMap<String, UriPackageOrWrapper> = uri_map
+    pub fn new(uri_map: HashMap<Arc<FFIUri>, Box<dyn FFIUriPackageOrWrapper>>) -> FFIStaticUriResolver {
+        let uri_map: HashMap<Uri, UriPackageOrWrapper> = uri_map
             .into_iter()
             .map(|(uri, variant)| {
                 let uri_package_or_wrapper: UriPackageOrWrapper = variant.into();
-                (uri, uri_package_or_wrapper)
+                (uri.0.clone(), uri_package_or_wrapper)
             })
             .collect();
 
@@ -75,7 +75,7 @@ mod test {
         let ffi_uri_package_or_wrapper: Box<dyn FFIUriPackageOrWrapper> =
             Box::new(mock_uri_package_or_wrapper);
         let ffi_static_resolver = FFIStaticUriResolver::new(HashMap::from([(
-            ffi_uri.0.to_string(),
+            ffi_uri.clone(),
             ffi_uri_package_or_wrapper,
         )]));
 
