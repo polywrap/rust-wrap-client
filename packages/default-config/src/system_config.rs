@@ -21,31 +21,45 @@ impl Default for SystemClientConfig {
     fn default() -> Self {
         Self {
             inner_config: {
-                let mut interfaces = HashMap::new();
-                interfaces.insert(
-                    "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
-                    vec![
-                        Uri::try_from("ens/wraps.eth:http-uri-resolver-ext@1.0.1").unwrap(),
-                        Uri::try_from("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1").unwrap(),
-                    ],
-                );
-
-                let redirects: Vec<UriRedirect> = vec![
-                    UriRedirect {
-                        from: Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
-                        to: Uri::try_from("plugin/http@1.1.0").unwrap(),
-                    },
-                    UriRedirect {
-                        from: Uri::try_from("wrap://ens/wraps.eth:file-system@1.0.0").unwrap(),
-                        to: Uri::try_from("plugin/file-system@1.0.0").unwrap(),
-                    },
-                ];
-
                 PolywrapClientConfig {
-                    interfaces: Some(interfaces),
-                    wrappers: Some(get_default_wrappers()),
-                    packages: Some(get_default_plugins()),
-                    redirects: Some(redirects),
+                    redirects: Some(vec![
+                        UriRedirect {
+                            from: Uri::try_from("ens/wraps.eth:http@1.1.0").unwrap(),
+                            to: Uri::try_from("plugin/http@1.1.0").unwrap(),
+                        },
+                        UriRedirect {
+                            from: Uri::try_from("wrap://ens/wraps.eth:file-system@1.0.0").unwrap(),
+                            to: Uri::try_from("plugin/file-system@1.0.0").unwrap(),
+                        },
+                    ]),
+                    interfaces: Some(HashMap::from([
+                        (
+                            "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
+                            vec![
+                                Uri::try_from("ens/wraps.eth:http-uri-resolver-ext@1.0.1").unwrap(),
+                                Uri::try_from("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1").unwrap(),
+                            ],
+                        ),
+                    ])),
+                    wrappers: Some(vec![
+                        (
+                            Uri::try_from("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1").unwrap(),
+                            Arc::new(fs_resolver::wasm_wrapper()),
+                        ),
+                        (
+                            Uri::try_from("ens/wraps.eth:http-uri-resolver-ext@1.0.1").unwrap(),
+                            Arc::new(http_resolver::wasm_wrapper()),
+                        ),
+                    ]),
+                    packages: Some(vec![
+                        (
+                            Uri::try_from("plugin/file-system@1.0.0").unwrap(), 
+                            Arc::new(PluginPackage::from(FileSystemPlugin {}))),
+                        (
+                            Uri::try_from("plugin/http@1.1.0").unwrap(), 
+                            Arc::new(PluginPackage::from(HttpPlugin {}))
+                        ),
+                    ]),
                     ..Default::default()
                 }
             },
@@ -63,38 +77,4 @@ impl Into<ClientConfig> for SystemClientConfig {
     fn into(self) -> ClientConfig {
         self.inner_config.into()
     }
-}
-
-pub fn get_default_wrappers() -> Vec<(Uri, Arc<dyn Wrapper>)> {
-    let fs_resolver_package = Arc::new(fs_resolver::wasm_wrapper());
-    let http_resolver_package = Arc::new(http_resolver::wasm_wrapper());
-
-    vec![
-        (
-            Uri::try_from("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1").unwrap(),
-            fs_resolver_package,
-        ),
-        (
-            Uri::try_from("ens/wraps.eth:http-uri-resolver-ext@1.0.1").unwrap(),
-            http_resolver_package,
-        ),
-    ]
-}
-
-pub fn get_default_plugins() -> Vec<(Uri, Arc<dyn WrapPackage>)> {
-    let fs = FileSystemPlugin {};
-    let fs_plugin_package: PluginPackage = fs.into();
-    let fs_package = Arc::new(fs_plugin_package);
-
-    let http = HttpPlugin {};
-    let http_plugin_package: PluginPackage = http.into();
-    let http_package = Arc::new(http_plugin_package);
-
-    vec![
-        (
-            Uri::try_from("plugin/file-system@1.0.0").unwrap(),
-            fs_package,
-        ),
-        (Uri::try_from("plugin/http@1.1.0").unwrap(), http_package),
-    ]
 }
