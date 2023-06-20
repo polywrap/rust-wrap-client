@@ -12,6 +12,7 @@ UDL_NAME="polywrap_native"
 FRAMEWORK_NAME="PolywrapClientNative"
 SWIFT_INTERFACE="PolywrapClientLib"
 
+BUILD_PATH="${RUST_PROJ}/Build/iOS"
 
 cd "$RUST_PROJ"
 
@@ -20,16 +21,16 @@ cargo build --target aarch64-apple-ios
 cargo build --target aarch64-apple-ios-sim
 cargo build --target x86_64-apple-ios
 
+IOS_ARM64_FRAMEWORK="$BUILD_PATH/ios-arm64/$FRAMEWORK_NAME.framework"
+IOS_SIM_FRAMEWORK="$BUILD_PATH/ios-arm64_x86_64-simulator/$FRAMEWORK_NAME.framework"
+
 # Remove old files if they exist
-IOS_ARM64_FRAMEWORK="$FRAMEWORK_NAME.xcframework/ios-arm64/$FRAMEWORK_NAME.framework"
-IOS_SIM_FRAMEWORK="$FRAMEWORK_NAME.xcframework/ios-arm64_x86_64-simulator/$FRAMEWORK_NAME.framework"
+rm -rf "$IOS_ARM64_FRAMEWORK/Headers"
+rm -rf "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME.a"
+rm -rf "$IOS_SIM_FRAMEWORK/Headers"
+rm -rf "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME.a"
 
-rm -f "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME"
-rm -f "$IOS_ARM64_FRAMEWORK/Headers/${UDL_NAME}FFI.h"
-rm -f "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME"
-rm -f "$IOS_SIM_FRAMEWORK/Headers/${UDL_NAME}FFI.h"
-
-rm -f ../../target/universal.a
+rm -rf ../../target/universal.a
 rm -rf include/ios/*
 
 # Make dirs if it doesn't exist
@@ -44,22 +45,28 @@ lipo -create \
     "../../target/x86_64-apple-ios/debug/lib${UDL_NAME}.a" \
     -output ../../target/universal.a
 
+# Move headers
+mkdir "$IOS_ARM64_FRAMEWORK/Headers"
+cp "include/ios/${UDL_NAME}FFI.h" \
+    "$IOS_ARM64_FRAMEWORK/Headers/${UDL_NAME}FFI.h"
+
+mkdir "$IOS_SIM_FRAMEWORK/Headers"
+cp "include/ios/${UDL_NAME}FFI.h" \
+    "$IOS_SIM_FRAMEWORK/Headers/${UDL_NAME}FFI.h"
+
 # Move binaries
 cp "../../target/aarch64-apple-ios/debug/lib${UDL_NAME}.a" \
     "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME.a"
 cp ../../target/universal.a \
     "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME.a"
 
-# Move headers
-cp "include/ios/${UDL_NAME}FFI.h" \
-    "$IOS_ARM64_FRAMEWORK/Headers/${UDL_NAME}FFI.h"
-cp "include/ios/${UDL_NAME}FFI.h" \
-    "$IOS_SIM_FRAMEWORK/Headers/${UDL_NAME}FFI.h"
-
+cp "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME.a" $IOS_PROJ/Frameworks/PolywrapClientNative.xcframework/ios-arm64/$FRAMEWORK_NAME.framework/$FRAMEWORK_NAME.a
+cp "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME.a" $IOS_PROJ/Frameworks/PolywrapClientNative.xcframework/ios-arm64_x86_64-simulator/$FRAMEWORK_NAME.framework/$FRAMEWORK_NAME.a
 # Move swift interface
 sed "s/${UDL_NAME}FFI/$FRAMEWORK_NAME/g" "include/ios/$UDL_NAME.swift" > "include/ios/$SWIFT_INTERFACE.swift"
 
+# Update include folder and remove unneeded files
 cp -r "include/ios/" "$IOS_PROJ/Sources/PolywrapClient/include"
 rm "$IOS_PROJ/Sources/PolywrapClient/include/$UDL_NAME.swift"
-cp "$IOS_ARM64_FRAMEWORK/$FRAMEWORK_NAME.a" "$IOS_PROJ/Frameworks/$FRAMEWORK_NAME.xcframework/ios-arm64/$FRAMEWORK_NAME.a"
-cp "$IOS_SIM_FRAMEWORK/$FRAMEWORK_NAME.a" "$IOS_PROJ/Frameworks/$FRAMEWORK_NAME.xcframework/ios-arm64_x86_64-simulator/$FRAMEWORK_NAME.a"
+rm "$IOS_PROJ/Sources/PolywrapClient/include/${UDL_NAME}FFI.modulemap"
+
