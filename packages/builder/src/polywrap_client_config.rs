@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_core::{
-    client::{ClientConfig, ClientConfigBuilder, UriRedirect},
+    client::{ClientConfig, UriRedirect, ClientConfigBuilder},
     interface_implementation::InterfaceImplementations,
     package::WrapPackage,
     resolution::uri_resolver::UriResolver,

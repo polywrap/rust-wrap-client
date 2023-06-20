@@ -6,13 +6,13 @@ use std::{collections::HashMap, sync::Arc};
 use crate::embeds::{ipfs_http_client, ipfs_resolver};
 
 pub struct Web3ClientConfig {
-    polywrap_client_config: PolywrapClientConfig,
+    inner_config: PolywrapClientConfig,
 }
 
 impl Default for Web3ClientConfig {
     fn default() -> Self {
         Self {
-            polywrap_client_config: {
+            inner_config: {
                 let mut interfaces = HashMap::new();
                 interfaces.insert(
                     "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
@@ -46,13 +46,13 @@ impl Default for Web3ClientConfig {
 
 impl Into<PolywrapClientConfig> for Web3ClientConfig {
     fn into(self) -> PolywrapClientConfig {
-        self.polywrap_client_config
+        self.inner_config
     }
 }
 
 impl Into<ClientConfig> for Web3ClientConfig {
     fn into(self) -> ClientConfig {
-        self.polywrap_client_config.into()
+        self.inner_config.into()
     }
 }
 

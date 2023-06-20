@@ -4,11 +4,10 @@ use polywrap_client_default_config::SystemClientConfig;
 use polywrap_core::uri::Uri;
 use polywrap_msgpack::msgpack;
 
+const URI: &str = "http/https://raw.githubusercontent.com/polywrap/client-readiness/main/wraps/public";
+
 #[test]
 fn sanity() {
-    let uri = format!(
-        "http/https://raw.githubusercontent.com/polywrap/client-readiness/main/wraps/public"
-    );
     let mut config = PolywrapClientConfig::new();
     config.add(SystemClientConfig::default().into());
 
