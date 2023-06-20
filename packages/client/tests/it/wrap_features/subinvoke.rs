@@ -6,6 +6,7 @@ use polywrap_client::core::uri::Uri;
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
+use polywrap_core_macros::uri;
 use polywrap_msgpack::msgpack;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
@@ -26,7 +27,7 @@ fn subinvoke_test() {
 
     let mut resolvers = HashMap::new();
     resolvers.insert(
-        Uri::try_from("wrap://ens/imported-subinvoke.eth").unwrap(),
+        uri!("wrap://ens/imported-subinvoke.eth"),
         UriPackageOrWrapper::Uri(subinvoke_uri),
     );
     let file_reader = SimpleFileReader::new();

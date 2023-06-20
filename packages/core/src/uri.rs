@@ -5,9 +5,9 @@ use crate::error::Error;
 
 #[derive(Clone, Serialize, Debug, Hash, Eq)]
 pub struct Uri {
-    pub authority: String,
-    pub path: String,
-    pub uri: String,
+    authority: String,
+    path: String,
+    uri: String,
 }
 
 impl Uri {
@@ -51,6 +51,26 @@ impl Uri {
             path: result[2].to_string(),
             uri: processed.to_string(),
         })
+    }
+
+    pub fn unsafe_from_string(authority: &str, path: &str, uri: &str) -> Uri {
+        Uri {
+            authority: authority.to_string(),
+            path: path.to_string(),
+            uri: uri.to_string(),
+        }
+    }
+
+    pub fn authority(&self) -> &str {
+        &self.authority
+    }
+
+    pub fn path(&self) -> &str {
+        &self.path
+    }
+
+    pub fn uri(&self) -> &str {
+        &self.uri
     }
 }
 

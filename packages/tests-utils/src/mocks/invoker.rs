@@ -8,6 +8,7 @@ use polywrap_core::{
 };
 use polywrap_msgpack::rmp_serde::encode;
 use serde::{Deserialize, Serialize};
+use polywrap_core_macros::uri;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MaybeUriOrManifest {
@@ -54,7 +55,7 @@ impl Invoker for MockInvoker {
         &self,
         _: &polywrap_core::uri::Uri,
     ) -> Result<Vec<polywrap_core::uri::Uri>, polywrap_core::error::Error> {
-        Ok(vec![Uri::try_from("mock/a").unwrap()])
+        Ok(vec![uri!("mock/a")])
     }
 
     fn get_interfaces(
@@ -62,7 +63,7 @@ impl Invoker for MockInvoker {
     ) -> Option<polywrap_core::interface_implementation::InterfaceImplementations> {
         Some(HashMap::from([(
             ("mock/a".to_string()),
-            vec![Uri::try_from("mock/b").unwrap()],
+            vec![uri!("mock/b")],
         )]))
     }
 

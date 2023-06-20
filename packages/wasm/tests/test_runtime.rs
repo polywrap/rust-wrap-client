@@ -11,6 +11,7 @@ use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::fs;
 use std::sync::Arc;
+use polywrap_core_macros::uri;
 
 #[derive(Clone)]
 struct MockInvoker {
@@ -87,7 +88,7 @@ fn invoke_test() {
     let mock_invoker = MockInvoker::new(wrapper);
     let result = Arc::new(mock_invoker)
         .invoke_raw(
-            &Uri::try_from("ens/wrapper.eth").unwrap(),
+            &uri!("ens/wrapper.eth"),
             "add",
             Some(&msgpack!({ "a": 1, "b": 1})),
             None,

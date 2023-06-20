@@ -20,6 +20,8 @@ wrap_manifest_schemas.workspace = true
 base64.workspace = true
 polywrap_fs_plugin.workspace = true
 polywrap_http_plugin.workspace = true
+polywrap_core_macros.workspace = true
+
 
 [dev-dependencies]
 polywrap_client.workspace = true

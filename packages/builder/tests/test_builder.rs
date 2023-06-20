@@ -2,6 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_core::{package::WrapPackage, uri::Uri, wrapper::Wrapper};
+use polywrap_core_macros::uri;
 use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::mocks::{
     get_different_mock_package, get_different_mock_wrapper, get_mock_invoker, get_mock_package,
@@ -11,7 +12,7 @@ use polywrap_tests_utils::mocks::{
 #[test]
 fn test_env_methods() {
     let mut builder = PolywrapClientConfig::new();
-    let uri = Uri::try_from("wrap://ens/wrapper.eth").unwrap();
+    let uri = uri!("wrap://ens/wrapper.eth");
 
     assert!(builder.envs.is_none());
 
@@ -41,9 +42,9 @@ fn test_env_methods() {
 fn test_interface_implementation_methods() {
     let mut builder = PolywrapClientConfig::new();
 
-    let interface_uri = Uri::try_from("wrap://ens/interface.eth").unwrap();
-    let implementation_a_uri = Uri::try_from("wrap://ens/implementation-a.eth").unwrap();
-    let implementation_b_uri = Uri::try_from("wrap://ens/implementation-b.eth").unwrap();
+    let interface_uri = uri!("wrap://ens/interface.eth");
+    let implementation_a_uri = uri!("wrap://ens/implementation-a.eth");
+    let implementation_b_uri = uri!("wrap://ens/implementation-b.eth");
 
     assert!(builder.interfaces.is_none());
 
@@ -60,7 +61,7 @@ fn test_interface_implementation_methods() {
         &vec![implementation_a_uri.clone(), implementation_b_uri.clone()]
     );
 
-    let implementation_c_uri = Uri::try_from("wrap://ens/implementation-c.eth").unwrap();
+    let implementation_c_uri = uri!("wrap://ens/implementation-c.eth");
     builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
 
     let interfaces = builder.interfaces.clone().unwrap();
@@ -88,12 +89,12 @@ fn test_redirects() {
     let mut builder = PolywrapClientConfig::new();
     assert!(builder.redirects.is_none());
 
-    let a_uri = Uri::try_from("ens/a.eth").unwrap();
-    let b_uri = Uri::try_from("ens/b.eth").unwrap();
-    let c_uri = Uri::try_from("ens/c.eth").unwrap();
-    let d_uri = Uri::try_from("ens/d.eth").unwrap();
-    let f_uri = Uri::try_from("ens/f.eth").unwrap();
-    let g_uri = Uri::try_from("ens/g.eth").unwrap();
+    let a_uri = uri!("ens/a.eth");
+    let b_uri = uri!("ens/b.eth");
+    let c_uri = uri!("ens/c.eth");
+    let d_uri = uri!("ens/d.eth");
+    let f_uri = uri!("ens/f.eth");
+    let g_uri = uri!("ens/g.eth");
 
     let redirects = HashMap::from([
         (c_uri.clone(), d_uri.clone()),

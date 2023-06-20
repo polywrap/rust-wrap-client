@@ -13,6 +13,7 @@ use polywrap_core::{
     wrap_loader::WrapLoader,
     wrapper::Wrapper,
 };
+use polywrap_core_macros::uri;
 
 use super::get_mock_wrapper;
 
@@ -31,7 +32,7 @@ impl Invoker for MockClient {
     }
 
     fn get_implementations(&self, _: &Uri) -> Result<Vec<Uri>, polywrap_core::error::Error> {
-        Ok(vec![Uri::try_from("mock/c").unwrap()])
+        Ok(vec![uri!("mock/c")])
     }
 
     fn get_interfaces(
@@ -39,7 +40,7 @@ impl Invoker for MockClient {
     ) -> Option<polywrap_core::interface_implementation::InterfaceImplementations> {
         Some(HashMap::from([(
             ("mock/c".to_string()),
-            vec![Uri::try_from("mock/d").unwrap()],
+            vec![uri!("mock/d")],
         )]))
     }
 
@@ -78,7 +79,7 @@ impl UriResolverHandler for MockClient {
         _: &Uri,
         _: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<UriPackageOrWrapper, polywrap_core::error::Error> {
-        Ok(UriPackageOrWrapper::Uri(Uri::try_from("mock/b").unwrap()))
+        Ok(UriPackageOrWrapper::Uri(uri!("mock/b")))
     }
 }
 

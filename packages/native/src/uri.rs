@@ -15,7 +15,7 @@ impl FFIUri {
 
 impl PartialEq for FFIUri {
     fn eq(&self, other: &Self) -> bool {
-        self.0.uri == other.0.uri
+        self.0 == other.0
     }
 }
 
@@ -57,13 +57,14 @@ impl TryFrom<&str> for FFIUri {
 
 impl std::fmt::Display for FFIUri {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.0.uri)
+        write!(f, "{}", self.0.to_string())
     }
 }
 
 #[cfg(test)]
 mod test {
     use polywrap_client::core::uri::Uri;
+    use polywrap_core_macros::uri;
 
     use crate::uri::FFIUri;
 
@@ -101,7 +102,7 @@ mod test {
 
     #[test]
     pub fn uri_ffi_from_uri() {
-        let uri = Uri::try_from("mock/a").unwrap();
+        let uri = uri!("mock/a");
         let expected_ffi_uri = FFIUri::from_string("wrap://mock/a");
         assert_eq!(FFIUri::from(uri), expected_ffi_uri);
     }
@@ -109,7 +110,7 @@ mod test {
     #[test]
     pub fn uri_from_ffi_uri() {
         let ffi_uri = FFIUri::from_string("wrap://mock/a");
-        let expected_uri = Uri::try_from("mock/a").unwrap();
+        let expected_uri = uri!("mock/a");
         assert_eq!(Uri::from(ffi_uri), expected_uri);
     }
 }

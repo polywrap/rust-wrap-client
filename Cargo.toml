@@ -17,7 +17,8 @@ members = [
     "packages/plugin",
     "packages/native",
     "packages/resolver-extensions",
-    "packages/default-config"
+    "packages/default-config",
+    "packages/core-macros"
 ]
 
 # Do not include test utils & default config crates in default members
@@ -32,6 +33,7 @@ default-members = [
     "packages/plugin",
     "packages/native",
     "packages/resolver-extensions",
+    "packages/core-macros"
 ]
 
 [workspace.dependencies]
@@ -46,6 +48,7 @@ polywrap_msgpack = { version = "0.1.6-beta.7", path = "packages/msgpack" }
 polywrap_tests_utils = { version = "0.1.6-beta.7", path = "packages/tests-utils" }
 polywrap_plugin = { version = "0.1.6-beta.7", path = "packages/plugin" }
 polywrap_client_default_config = { version = "0.1.6-beta.7", path = "packages/default-config" }
+polywrap_core_macros = { version = "0.1.6-beta.7", path = "packages/core-macros" }
 
 polywrap_plugin_implementor = { version = "0.1.6-beta.7", path = "packages/plugin/implementor" }
 

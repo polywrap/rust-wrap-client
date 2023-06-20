@@ -5,6 +5,7 @@ use polywrap_client::msgpack::msgpack;
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
+use polywrap_core_macros::uri;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
@@ -90,7 +91,7 @@ fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) ->
 
     if let Some(env) = subinvoked_env {
         envs.insert(
-            Uri::try_from("mock/main").unwrap(),
+            uri!("mock/main"),
             env.to_vec(),
         );
     }
@@ -100,7 +101,7 @@ fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) ->
 
     let mut resolvers = HashMap::new();
     resolvers.insert(
-        Uri::try_from("mock/main").unwrap(),
+        uri!("mock/main"),
         UriPackageOrWrapper::Uri(subinvoked_uri),
     );
 
@@ -272,15 +273,15 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
     let client = {
         let envs: HashMap<Uri, Vec<u8>> = HashMap::from([
             (subinvoker_uri.clone(), polywrap_msgpack::serialize(&subinvoker_env).unwrap()),
-            (Uri::try_from("mock/main").unwrap(), polywrap_msgpack::serialize(&subinvoked_env).unwrap()),
+            (uri!("mock/main"), polywrap_msgpack::serialize(&subinvoked_env).unwrap()),
         ]);
 
         let file_reader = SimpleFileReader::new();
         let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
 
         let resolvers = HashMap::from([
-            (Uri::try_from("mock/main").unwrap(), UriPackageOrWrapper::Uri(subinvoked_uri.clone())),
-            (Uri::try_from("mock/main").unwrap(), UriPackageOrWrapper::Uri(subinvoked_uri))
+            (uri!("mock/main"), UriPackageOrWrapper::Uri(subinvoked_uri.clone())),
+            (uri!("mock/main"), UriPackageOrWrapper::Uri(subinvoked_uri))
         ]);
 
         let base_resolver = BaseResolver::new(

@@ -15,3 +15,5 @@ polywrap_msgpack.workspace = true
 serde.workspace = true
 jsonschema.workspace = true
 serde_bytes.workspace = true
+quote.workspace = true
+syn.workspace = true

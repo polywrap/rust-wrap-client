@@ -6,6 +6,7 @@ use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_core::resolution::uri_resolver::UriResolver;
+use polywrap_core_macros::uri;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::recursive_resolver::RecursiveResolver;
 use polywrap_resolvers::resolver_vec;
@@ -204,7 +205,7 @@ fn invoke_method_with_optional_env_works_without_env() {
 #[test]
 fn env_can_be_registered_for_any_uri_in_resolution_path() {
     let wrapper_uri = get_env_wrapper_uri();
-    let redirect_from_uri = Uri::try_from("mock/from").unwrap();
+    let redirect_from_uri = uri!("mock/from");
 
     let env = get_default_env();
 

@@ -112,6 +112,7 @@ mod test {
         core::uri::Uri,
         msgpack::msgpack,
     };
+    use polywrap_core_macros::uri;
     use polywrap_tests_utils::mocks::{
         get_different_mock_package, get_different_mock_wrapper, get_mock_package, get_mock_wrapper,
     };
@@ -131,7 +132,7 @@ mod test {
         builder.add_env(uri.clone(), env.clone());
 
         let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
-        let current_env = envs.get(&Uri::try_from("wrap://ens/some.eth").unwrap());
+        let current_env = envs.get(&uri!("wrap://ens/some.eth"));
         assert_eq!(&env, current_env.unwrap());
 
         let new_env = msgpack!({
@@ -139,7 +140,7 @@ mod test {
         });
         builder.add_env(uri.clone(), new_env.clone());
         let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
-        let current_env = envs.get(&Uri::try_from("wrap://ens/some.eth").unwrap());
+        let current_env = envs.get(&uri!("wrap://ens/some.eth"));
         assert_eq!(&new_env, current_env.unwrap());
 
         builder.remove_env(uri);
@@ -242,8 +243,8 @@ mod test {
         assert_eq!(
             redirects,
             HashMap::from([
-                (Uri::try_from("wrap/a").unwrap(), Uri::try_from("wrap/b").unwrap()),
-                (Uri::try_from("wrap/c").unwrap(), Uri::try_from("wrap/d").unwrap()),
+                (uri!("wrap/a"), uri!("wrap/b")),
+                (uri!("wrap/c"), uri!("wrap/d")),
             ])
         );
     }
@@ -270,8 +271,8 @@ mod test {
         assert_eq!(
             implementations,
             Some(&vec![
-                Uri::try_from("wrap://ens/implementation-a.eth").unwrap(),
-                Uri::try_from("wrap://ens/implementation-b.eth").unwrap()
+                uri!("wrap://ens/implementation-a.eth"),
+                uri!("wrap://ens/implementation-b.eth")
             ])
         );
 
@@ -287,7 +288,7 @@ mod test {
         let implementations = interfaces.get(&interface_uri.to_string());
         assert_eq!(
             implementations,
-            Some(&vec![Uri::try_from("wrap://ens/implementation-a.eth").unwrap(),])
+            Some(&vec![uri!("wrap://ens/implementation-a.eth"),])
         );
     }
 }

@@ -17,3 +17,4 @@ serde.workspace = true
 
 [dev-dependencies]
 polywrap_tests_utils.workspace = true
+polywrap_core_macros.workspace = true
