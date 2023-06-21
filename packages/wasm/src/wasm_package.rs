@@ -65,6 +65,19 @@ impl WasmPackage {
         })
     }
 
+    pub fn from_wasm_module(
+        wasm_module: WasmModule,
+        wasm_bytes: Vec<u8>,
+        file_reader: Arc<dyn FileReader>,
+        manifest: Option<Vec<u8>>,
+    ) -> Result<Self, WrapperError> {
+        Ok(Self {
+            file_reader: Arc::new(InMemoryFileReader::new(file_reader, None, Some(wasm_bytes))),
+            manifest,
+            wasm_module: Arc::new(Mutex::new(Some(wasm_module))),
+        })
+    }
+
     pub fn get_wasm_module(&self) -> Result<Vec<u8>, polywrap_core::error::Error> {
         let file_content = self.file_reader.read_file("wrap.wasm")?;
 
@@ -115,25 +128,19 @@ impl WrapPackage for WasmPackage {
     fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
         let wasm_bytes = self.get_wasm_module()?;
 
-        let mut o_wasm_module = self.wasm_module.lock().unwrap();
-        let wasm_module = o_wasm_module.clone();
+        let mut wasm_module = self.wasm_module.lock().unwrap();
 
-        if wasm_module.is_some() {
-            let compiled_module = wasm_module.unwrap().compile()?;
-            *o_wasm_module = Some(WasmModule::Compiled(compiled_module.clone()));
-
-            return Ok(Arc::new(WasmWrapper::new(
-                compiled_module.clone(),
-                self.file_reader.clone(),
-            )));
+        let compiled_module = if wasm_module.is_some() {
+            wasm_module.clone().unwrap().compile()?
         } else {
-            let compiled_module = CompiledWasmModule::try_from_bytecode(&wasm_bytes)?;
-            *o_wasm_module = Some(WasmModule::Compiled(compiled_module.clone()));
+            CompiledWasmModule::try_from_bytecode(&wasm_bytes)?
+        };
 
-            return Ok(Arc::new(WasmWrapper::new(
-                compiled_module.clone(),
-                self.file_reader.clone(),
-            )));
-        }
+        *wasm_module = Some(WasmModule::Compiled(compiled_module.clone()));
+
+        return Ok(Arc::new(WasmWrapper::new(
+            compiled_module,
+            self.file_reader.clone(),
+        )));
     }
 }

@@ -27,8 +27,7 @@ impl WasmModule {
                 memory_initial_limits,
             } => {
                 let store = Store::default();
-                let wasmer_module = Module::deserialize_checked(&store, compiled_bytes)
-                    .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
+                let wasmer_module = Module::deserialize_checked(&store, compiled_bytes)?;
 
                 CompiledWasmModule {
                     module: wasmer_module,
@@ -56,7 +55,7 @@ impl CompiledWasmModule {
 
     pub fn try_from_bytecode(bytes: &[u8]) -> Result<Self, WrapperError> {
         let store = Store::default();
-        let wasmer_module = Module::new(&store, bytes).map_err(|e| WrapperError::CompilationError(e.to_string()))?;
+        let wasmer_module = Module::new(&store, bytes)?;
 
         let memory_initial_limits = WasmInstance::get_memory_initial_limits(bytes)?;
 
