@@ -94,7 +94,7 @@ callback interface FFIUriPackageOrWrapper {
 };
 
 interface FFIStaticUriResolver {
-  constructor(record<DOMString, FFIUriPackageOrWrapper> uri_map);
+  constructor(record<FFIUri, FFIUriPackageOrWrapper> uri_map);
   [Throws=FFIError]
   FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };

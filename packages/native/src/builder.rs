@@ -1,8 +1,9 @@
+use std::sync::{Arc, Mutex};
+
 use polywrap_client::{
-    builder::types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
+    builder::{PolywrapClientConfig, PolywrapClientConfigBuilder},
     client::PolywrapClient,
 };
-use std::sync::{Arc, Mutex};
 
 use crate::{
     client::FFIClient,
@@ -13,13 +14,13 @@ use crate::{
 };
 
 pub struct FFIBuilderConfig {
-    pub inner_builder: Mutex<BuilderConfig>,
+    pub inner_builder: Mutex<PolywrapClientConfig>,
 }
 
 impl FFIBuilderConfig {
     pub fn new() -> FFIBuilderConfig {
         FFIBuilderConfig {
-            inner_builder: Mutex::new(BuilderConfig::new(None)),
+            inner_builder: Mutex::new(PolywrapClientConfig::new()),
         }
     }
 
@@ -97,20 +98,18 @@ impl FFIBuilderConfig {
     }
 
     pub fn build(&self) -> Arc<FFIClient> {
-        let config = self.inner_builder.lock().unwrap().clone().build();
-        let client = Arc::new(PolywrapClient::new(config));
+        let config = self.inner_builder.lock().unwrap().clone();
+        let client = Arc::new(PolywrapClient::new(config.into()));
         Arc::new(FFIClient::new(client))
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::sync::Arc;
+    use std::{collections::HashMap, sync::Arc};
 
-    use polywrap_client::{
-        core::{client::UriRedirect, uri::Uri},
-        msgpack::msgpack,
-    };
+    use polywrap_client::core::{macros::uri, uri::Uri};
+    use polywrap_client::msgpack::msgpack;
     use polywrap_tests_utils::mocks::{
         get_different_mock_package, get_different_mock_wrapper, get_mock_package, get_mock_wrapper,
     };
@@ -130,7 +129,7 @@ mod test {
         builder.add_env(uri.clone(), env.clone());
 
         let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
-        let current_env = envs.get("wrap://ens/some.eth");
+        let current_env = envs.get(&uri!("wrap://ens/some.eth"));
         assert_eq!(&env, current_env.unwrap());
 
         let new_env = msgpack!({
@@ -138,7 +137,7 @@ mod test {
         });
         builder.add_env(uri.clone(), new_env.clone());
         let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
-        let current_env = envs.get("wrap://ens/some.eth");
+        let current_env = envs.get(&uri!("wrap://ens/some.eth"));
         assert_eq!(&new_env, current_env.unwrap());
 
         builder.remove_env(uri);
@@ -240,16 +239,10 @@ mod test {
             .unwrap();
         assert_eq!(
             redirects,
-            vec![
-                UriRedirect {
-                    from: "wrap/a".to_string().try_into().unwrap(),
-                    to: "wrap/b".to_string().try_into().unwrap()
-                },
-                UriRedirect {
-                    from: "wrap/c".to_string().try_into().unwrap(),
-                    to: "wrap/d".to_string().try_into().unwrap()
-                }
-            ]
+            HashMap::from([
+                (uri!("wrap/a"), uri!("wrap/b")),
+                (uri!("wrap/c"), uri!("wrap/d")),
+            ])
         );
     }
 
@@ -275,8 +268,8 @@ mod test {
         assert_eq!(
             implementations,
             Some(&vec![
-                Uri::new("wrap://ens/implementation-a.eth"),
-                Uri::new("wrap://ens/implementation-b.eth")
+                uri!("wrap://ens/implementation-a.eth"),
+                uri!("wrap://ens/implementation-b.eth")
             ])
         );
 
@@ -292,7 +285,7 @@ mod test {
         let implementations = interfaces.get(&interface_uri.to_string());
         assert_eq!(
             implementations,
-            Some(&vec![Uri::new("wrap://ens/implementation-a.eth"),])
+            Some(&vec![uri!("wrap://ens/implementation-a.eth"),])
         );
     }
 }

@@ -36,5 +36,5 @@ pub fn apply_redirects(uri: &Uri, redirects: &[UriRedirect]) -> Result<Uri, Erro
         }
     }
 
-    Uri::try_from(final_uri)
+    Ok(Uri::try_from(final_uri)?)
 }

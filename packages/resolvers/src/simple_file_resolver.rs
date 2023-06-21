@@ -33,18 +33,18 @@ impl UriResolver for FilesystemResolver {
         _invoker: Arc<dyn Invoker>,
         _: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
-        if uri.authority != "fs" && uri.authority != "file" {
+        if uri.authority() != "fs" && uri.authority() != "file" {
             return Ok(UriPackageOrWrapper::Uri(uri.clone()));
         };
 
         let manifest_search_pattern = "wrap.info";
-        let manifest_path = Path::new(&uri.path).join(manifest_search_pattern);
+        let manifest_path = Path::new(&uri.path()).join(manifest_search_pattern);
         if manifest_path.exists() {
             let manifest = self
                 .file_reader
                 .read_file(manifest_path.to_str().unwrap())?;
 
-            let wrapper_path = Path::new(&uri.path).join("wrap.wasm");
+            let wrapper_path = Path::new(&uri.path()).join("wrap.wasm");
             let wrapper_file = fs::read(wrapper_path).unwrap();
             let wasm_wrapper =
                 WasmPackage::from_byte_code(wrapper_file, self.file_reader.clone(), Some(manifest));

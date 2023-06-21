@@ -4,6 +4,7 @@ use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
+use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_core::resolution::uri_resolver::UriResolver;
 use polywrap_resolvers::base_resolver::BaseResolver;
@@ -61,10 +62,10 @@ fn get_default_serialized_env() -> Vec<u8> {
 }
 
 fn build_client(uri: &Uri, env: Option<&[u8]>) -> PolywrapClient {
-    let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
+    let mut envs = HashMap::new();
 
     if let Some(env) = env {
-        envs.insert(uri.to_string(), env.to_vec());
+        envs.insert(uri.clone(), env.to_vec());
     }
 
     let resolvers = HashMap::new();
@@ -204,19 +205,19 @@ fn invoke_method_with_optional_env_works_without_env() {
 #[test]
 fn env_can_be_registered_for_any_uri_in_resolution_path() {
     let wrapper_uri = get_env_wrapper_uri();
-    let redirect_from_uri = Uri::try_from("mock/from").unwrap();
+    let redirect_from_uri = uri!("mock/from");
 
     let env = get_default_env();
 
     // Register the env for the redirect_from_uri which will be redirected to the wrapper_uri
     {
         let client = {
-            let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
+            let mut envs = HashMap::new();
 
-            envs.insert(redirect_from_uri.to_string(), get_default_serialized_env());
+            envs.insert(redirect_from_uri.clone(), get_default_serialized_env());
 
             let resolvers = HashMap::from([(
-                redirect_from_uri.to_string(),
+                redirect_from_uri.clone(),
                 UriPackageOrWrapper::Uri(wrapper_uri.clone()),
             )]);
 
@@ -252,15 +253,15 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
     // Register the env for the wrapper_uri which will be redirected to, from the redirect_from_uri
     {
         let client = {
-            let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
+            let mut envs: HashMap<Uri, Vec<u8>> = HashMap::new();
 
             envs.insert(
-                wrapper_uri.to_string(),
+                wrapper_uri.clone(),
                 polywrap_msgpack::serialize(&env).unwrap(),
             );
 
             let resolvers = HashMap::from([(
-                redirect_from_uri.to_string(),
+                redirect_from_uri.clone(),
                 UriPackageOrWrapper::Uri(wrapper_uri),
             )]);
 

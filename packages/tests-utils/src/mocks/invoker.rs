@@ -4,7 +4,8 @@ use std::{
 };
 
 use polywrap_core::{
-    invoker::Invoker, resolution::uri_resolution_context::UriResolutionContext, uri::Uri,
+    invoker::Invoker, macros::uri, resolution::uri_resolution_context::UriResolutionContext,
+    uri::Uri,
 };
 use polywrap_msgpack::rmp_serde::encode;
 use serde::{Deserialize, Serialize};
@@ -54,7 +55,7 @@ impl Invoker for MockInvoker {
         &self,
         _: &polywrap_core::uri::Uri,
     ) -> Result<Vec<polywrap_core::uri::Uri>, polywrap_core::error::Error> {
-        Ok(vec![Uri::new("mock/a")])
+        Ok(vec![uri!("mock/a")])
     }
 
     fn get_interfaces(
@@ -62,7 +63,7 @@ impl Invoker for MockInvoker {
     ) -> Option<polywrap_core::interface_implementation::InterfaceImplementations> {
         Some(HashMap::from([(
             ("mock/a".to_string()),
-            vec![Uri::new("mock/b")],
+            vec![uri!("mock/b")],
         )]))
     }
 

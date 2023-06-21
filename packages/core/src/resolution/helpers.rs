@@ -45,7 +45,7 @@ impl UriResolverExtensionFileReader {
 
 impl FileReader for UriResolverExtensionFileReader {
     fn read_file(&self, file_path: &str) -> Result<Vec<u8>, Error> {
-        let path = combine_paths(&self.wrapper_uri.path, file_path);
+        let path = combine_paths(&self.wrapper_uri.path(), file_path);
 
         let invoker_args = msgpack!({ "path": path });
         // TODO: This vec<u8> isn't the file but the msgpack representation of it

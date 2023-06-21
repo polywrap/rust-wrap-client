@@ -1,0 +1,16 @@
+[package]
+name = "polywrap_core_macros"
+description = "Core macros of Polywrap"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+polywrap_uri.workspace = true
+quote.workspace = true
+syn.workspace = true
