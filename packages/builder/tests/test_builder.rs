@@ -5,7 +5,7 @@ use polywrap_core::{macros::uri, package::WrapPackage, uri::Uri, wrapper::Wrappe
 use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::mocks::{
     get_different_mock_package, get_different_mock_wrapper, get_mock_invoker, get_mock_package,
-    get_mock_wrapper,
+    get_mock_wrapper, DifferentMockResolver, MockResolver,
 };
 
 #[test]
@@ -111,6 +111,11 @@ fn test_redirects() {
 
     builder.add_redirect(a_uri.clone(), b_uri.clone());
     assert!(builder.redirects.is_some());
+
+    builder.add_redirects(HashMap::from([(a_uri.clone(), c_uri.clone())]));
+    let redirects = builder.redirects.clone().unwrap();
+    let a_uri_redirect = redirects.get(&a_uri);
+    assert_eq!(Some(&c_uri), a_uri_redirect);
 
     builder.remove_redirect(&a_uri);
     assert!(builder.redirects.is_none());
@@ -221,4 +226,14 @@ fn test_wrappers() {
         .1
         .invoke("bar", None, None, get_mock_invoker(), None);
     assert_eq!(result_package_b.unwrap(), [195]);
+}
+
+#[test]
+fn test_resolvers() {
+    let mut builder = PolywrapClientConfig::new();
+    assert!(builder.resolvers.is_none());
+    builder.add_resolvers(vec![Arc::new(MockResolver {})]);
+    assert!(builder.resolvers.is_some());
+    builder.add_resolver(Arc::new(DifferentMockResolver {}));
+    assert_eq!(builder.resolvers.unwrap().len(), 2);
 }
