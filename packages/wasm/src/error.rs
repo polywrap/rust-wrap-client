@@ -21,6 +21,8 @@ pub enum WrapperError {
     #[error("`{0}`")]
     MemoryError(#[from] wasmer::MemoryError),
     #[error("`{0}`")]
+    ModuleSerializeError(#[from] wasmer::SerializeError),
+    #[error("`{0}`")]
     ModuleDeserializeError(#[from] wasmer::DeserializeError),
 }
 
