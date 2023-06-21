@@ -1,10 +1,7 @@
-use std::{
-    fmt::Display,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 use bytes::Bytes;
-use wasmer::{CompileError, Module, Store};
+use wasmer::{Module, Store};
 
 use crate::{
     error::WrapperError,
@@ -13,12 +10,13 @@ use crate::{
 
 #[derive(Clone)]
 pub enum WasmModule {
-    WasmBytecode(Vec<u8>),
+    WasmBytecode(Box<[u8]>),
     Serialized(SerializedWasmModule),
     Compiled(CompiledWasmModule),
 }
 
 impl WasmModule {
+    // Compile the Wasm module regardless of its current state.
     pub fn compile(self) -> Result<CompiledWasmModule, WrapperError> {
         Ok(match self {
             WasmModule::WasmBytecode(bytes) => CompiledWasmModule::try_from_bytecode(&bytes)?,
@@ -35,6 +33,7 @@ pub struct SerializedWasmModule {
 }
 
 impl SerializedWasmModule {
+    // Deserialize the module back into a CompiledWasmModule.
     pub fn deserialize(self) -> Result<CompiledWasmModule, WrapperError> {
         let store = Store::default();
         let wasmer_module = Module::deserialize_checked(&store, self.compiled_bytes)?;
@@ -55,11 +54,13 @@ pub struct CompiledWasmModule {
 }
 
 impl CompiledWasmModule {
+    // Creates a WasmInstance from the module.
     pub fn create_instance(&self, state: Arc<Mutex<State>>) -> Result<WasmInstance, WrapperError> {
         let instance = WasmInstance::new(&self.module, self.memory_initial_limits, state)?;
         Ok(instance)
     }
 
+    // Serialize the module into a SerializedWasmModule.
     pub fn serialize(&self) -> Result<SerializedWasmModule, WrapperError> {
         let compiled_bytes = self.module.serialize()?;
         Ok(SerializedWasmModule {
@@ -68,6 +69,7 @@ impl CompiledWasmModule {
         })
     }
 
+    // Compiles a new CompiledWasmModule from given bytecode.
     pub fn try_from_bytecode(bytes: &[u8]) -> Result<Self, WrapperError> {
         let store = Store::default();
         let wasmer_module = Module::new(&store, bytes)?;
@@ -79,20 +81,5 @@ impl CompiledWasmModule {
             memory_initial_limits,
             store: Arc::new(store),
         })
-    }
-}
-
-#[derive(thiserror::Error, Debug)]
-struct CompilationError(String);
-
-impl Display for CompilationError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, r#"CompilationError("{}")"#, self.0)
-    }
-}
-
-impl From<CompileError> for CompilationError {
-    fn from(error: CompileError) -> Self {
-        Self(error.to_string())
     }
 }

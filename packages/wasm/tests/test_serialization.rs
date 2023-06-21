@@ -12,7 +12,7 @@ fn wasm_module_serialization() {
 
     let module_bytes = fs::read(Path::new(&module_path)).unwrap();
 
-    let module = WasmModule::WasmBytecode(module_bytes);
+    let module = WasmModule::WasmBytecode(module_bytes.into());
 
     let module = module.compile().unwrap();
 

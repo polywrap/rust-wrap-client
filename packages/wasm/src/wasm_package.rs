@@ -40,7 +40,9 @@ impl WasmPackage {
                 Some(wasm_bytes.clone()),
             )),
             manifest,
-            wasm_module: Arc::new(Mutex::new(Some(WasmModule::WasmBytecode(wasm_bytes)))),
+            wasm_module: Arc::new(Mutex::new(Some(WasmModule::WasmBytecode(
+                wasm_bytes.into(),
+            )))),
         }
     }
 

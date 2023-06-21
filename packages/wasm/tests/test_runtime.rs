@@ -129,7 +129,6 @@ fn invoke_from_compiled_module() {
     assert_eq!(result, [2])
 }
 
-
 #[test]
 fn invoke_from_deserialized_module() {
     let test_path = get_tests_path().unwrap();
