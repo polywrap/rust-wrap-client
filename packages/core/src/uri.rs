@@ -53,11 +53,11 @@ impl Uri {
         })
     }
 
-    pub fn unsafe_from_string(authority: &str, path: &str, uri: &str) -> Uri {
+    pub unsafe fn from_parts(authority: String, path: String, uri: String) -> Uri {
         Uri {
-            authority: authority.to_string(),
-            path: path.to_string(),
-            uri: uri.to_string(),
+            authority: authority,
+            path: path,
+            uri: uri,
         }
     }
 
@@ -128,8 +128,8 @@ mod tests {
     }
 
     #[test]
-    fn unsafe_from_string() {
-        let uri = Uri::unsafe_from_string("authority", "path", "uri");
+    fn from_parts() {
+        let uri = unsafe { Uri::from_parts("authority".to_owned(), "path".to_owned(), "uri".to_owned()) };
         assert_eq!(uri.authority(), "authority");
         assert_eq!(uri.path(), "path");
         assert_eq!(uri.uri(), "uri");
@@ -137,18 +137,21 @@ mod tests {
 
     #[test]
     fn equality() {
-        let uri1 = Uri::unsafe_from_string("authority", "path", "uri");
-        let uri2 = Uri::unsafe_from_string("authority", "path", "uri");
-        let uri3 = Uri::unsafe_from_string("authority", "path", "different");
+        let (uri1, uri2, uri3) = unsafe {(
+            Uri::from_parts("authority".to_owned(), "path".to_owned(), "uri".to_owned()),
+            Uri::from_parts("authority".to_owned(), "path".to_owned(), "uri".to_owned()),
+            Uri::from_parts("authority".to_owned(), "path".to_owned(), "different".to_owned())
+        )};
+
         assert_eq!(uri1, uri2);
         assert_ne!(uri1, uri3);
     }
 
     #[test]
     fn from() {
-        let uri = Uri::unsafe_from_string("authority", "path", "uri");
+        let uri = Uri::try_from_string("wrap://auth/path").unwrap();
         let string: String = uri.into();
-        assert_eq!(string, "uri");
+        assert_eq!(string, "wrap://auth/path");
     }
 
     #[test]
@@ -162,7 +165,7 @@ mod tests {
 
     #[test]
     fn display() {
-        let uri = Uri::unsafe_from_string("authority", "path", "wrap://authority/uri");
+        let uri = Uri::try_from_string("wrap://authority/uri").unwrap();
         assert_eq!(format!("{}", uri), "wrap://authority/uri");
     }
 }

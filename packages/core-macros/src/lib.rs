@@ -20,7 +20,9 @@ pub fn uri(input: TokenStream) -> TokenStream {
             let uri = uri.uri();
             // Return the Uri struct
             let expanded = quote! {
-                Uri::unsafe_from_string(#authority, #path, #uri)
+                unsafe {
+                    Uri::from_parts(#authority.to_owned(), #path.to_owned(), #uri.to_owned())
+                }
             };
             TokenStream::from(expanded)
         }

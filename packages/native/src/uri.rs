@@ -4,6 +4,12 @@ use polywrap_client::core::uri::Uri;
 pub struct FFIUri(pub Uri);
 
 impl FFIUri {
+    pub fn new(authority: &str, path: &str, uri: &str) -> Self {
+        unsafe {
+            FFIUri(Uri::from_parts(authority.to_owned(), path.to_owned(), uri.to_owned()))
+        }
+    }
+
     pub fn from_string(uri: &str) -> Self {
         FFIUri(Uri::try_from(uri).unwrap())
     }
