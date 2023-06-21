@@ -21,10 +21,6 @@ pub struct PolywrapBaseResolverOptions {
 }
 
 impl PolywrapBaseResolver {
-    pub fn default() -> Arc<dyn UriResolver> {
-        Self::new(PolywrapBaseResolverOptions::default())
-    }
-
     pub fn new(options: PolywrapBaseResolverOptions) -> Arc<dyn UriResolver> {
         let mut resolvers: Vec<Arc<dyn UriResolver>> = vec![];
 
