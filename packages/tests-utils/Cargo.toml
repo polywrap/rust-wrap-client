@@ -18,7 +18,6 @@ serde_json.workspace = true
 polywrap_plugin.workspace = true
 polywrap_msgpack.workspace = true
 serde_bytes.workspace = true
-polywrap_core_macros.workspace = true
 
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1.23.0", features = ["full"] }

@@ -11,9 +11,8 @@ use polywrap_core::{
     uri_resolver_handler::UriResolverHandler,
     wrap_invoker::WrapInvoker,
     wrap_loader::WrapLoader,
-    wrapper::Wrapper,
+    wrapper::Wrapper, macros::uri,
 };
-use polywrap_core_macros::uri;
 
 use super::get_mock_wrapper;
 

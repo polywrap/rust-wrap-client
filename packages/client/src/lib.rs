@@ -9,5 +9,3 @@ pub use polywrap_plugin as plugin;
 pub use polywrap_resolvers as resolvers;
 pub use polywrap_wasm as wasm;
 pub use wrap_manifest_schemas as wrap_manifest;
-
-pub use polywrap_core_macros as macros;

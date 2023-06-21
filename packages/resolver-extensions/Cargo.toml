@@ -20,4 +20,3 @@ serde_bytes.workspace = true
 [dev-dependencies]
 polywrap_tests_utils.workspace = true
 wrap_manifest_schemas.workspace = true
-polywrap_core_macros.workspace = true

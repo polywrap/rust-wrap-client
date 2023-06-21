@@ -15,5 +15,10 @@ polywrap_msgpack.workspace = true
 serde.workspace = true
 jsonschema.workspace = true
 serde_bytes.workspace = true
-quote.workspace = true
-syn.workspace = true
+polywrap_uri.workspace = true
+polywrap_core_macros = { workspace = true, optional = true }
+
+[features]
+default = ["macros"]
+
+macros = ["polywrap_core_macros"]

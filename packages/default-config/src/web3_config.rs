@@ -1,6 +1,5 @@
 use polywrap_client_builder::PolywrapClientConfig;
-use polywrap_core::{client::ClientConfig, uri::Uri};
-use polywrap_core_macros::uri;
+use polywrap_core::{client::ClientConfig, uri::Uri, macros::uri};
 use polywrap_msgpack::msgpack;
 use std::{collections::HashMap, sync::Arc};
 

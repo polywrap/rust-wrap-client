@@ -1,6 +1,5 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{client::ClientConfig, invoker::Invoker, package::WrapPackage, uri::Uri};
-use polywrap_core_macros::uri;
+use polywrap_core::{client::ClientConfig, invoker::Invoker, package::WrapPackage, uri::Uri, macros::uri};
 use polywrap_msgpack::msgpack;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use serde_json::{from_value, json};

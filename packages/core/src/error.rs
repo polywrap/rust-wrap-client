@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use polywrap_msgpack::error::MsgpackError;
+use polywrap_uri::UriParseError;
 
 #[derive(thiserror::Error, Debug, Clone)]
 pub enum Error {
@@ -41,5 +42,11 @@ pub enum Error {
 impl From<MsgpackError> for Error {
     fn from(e: MsgpackError) -> Self {
         Error::MsgpackError(e.to_string())
+    }
+}
+
+impl From<UriParseError> for Error {
+    fn from(e: UriParseError) -> Self {
+        Error::UriParseError(e.to_string())
     }
 }

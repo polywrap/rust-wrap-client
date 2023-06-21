@@ -4,9 +4,8 @@ use std::{
 };
 
 use polywrap_core::{
-    invoker::Invoker, resolution::uri_resolution_context::UriResolutionContext, uri::Uri,
+    invoker::Invoker, resolution::uri_resolution_context::UriResolutionContext, uri::Uri, macros::uri,
 };
-use polywrap_core_macros::uri;
 use polywrap_msgpack::rmp_serde::encode;
 use serde::{Deserialize, Serialize};
 

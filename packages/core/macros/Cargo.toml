@@ -11,6 +11,6 @@ license.workspace = true
 proc-macro = true
 
 [dependencies]
-polywrap_core.workspace = true
+polywrap_uri.workspace = true
 quote.workspace = true
 syn.workspace = true
