@@ -1,5 +1,4 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_client_default_config::SystemClientConfig;
 use polywrap_core::uri::Uri;
 use polywrap_msgpack::msgpack;
@@ -9,10 +8,7 @@ const URI: &str =
 
 #[test]
 fn sanity() {
-    let mut config = PolywrapClientConfig::new();
-    config.add(SystemClientConfig::default().into());
-
-    let client = PolywrapClient::new(config.into());
+    let client = PolywrapClient::new(SystemClientConfig::default().into());
 
     let result = client
         .invoke::<u32>(

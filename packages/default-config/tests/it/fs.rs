@@ -1,5 +1,4 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_client_default_config::SystemClientConfig;
 use polywrap_core::uri::Uri;
 use polywrap_msgpack::msgpack;
@@ -11,10 +10,7 @@ fn sanity() {
     let path = test_path.into_os_string().into_string().unwrap();
     let subinvoke_wrap_uri = format!("fs/{path}/subinvoke/00-subinvoke/implementations/rs");
 
-    let mut config = PolywrapClientConfig::new();
-    config.add(SystemClientConfig::default().into());
-
-    let client = PolywrapClient::new(config.into());
+    let client = PolywrapClient::new(SystemClientConfig::default().into());
 
     let result = client
         .invoke::<u32>(
