@@ -10,7 +10,7 @@ use crate::{
 
 #[derive(Clone)]
 pub enum WasmModule {
-    WasmByteCode(Vec<u8>),
+    WasmBytecode(Vec<u8>),
     Serialized {
         compiled_bytes: Bytes,
         memory_initial_limits: u8,
@@ -21,7 +21,7 @@ pub enum WasmModule {
 impl WasmModule {
     pub fn compile(self) -> Result<CompiledWasmModule, WrapperError> {
         Ok(match self {
-            WasmModule::WasmByteCode(bytes) => CompiledWasmModule::try_from_byte_code(&bytes)?,
+            WasmModule::WasmBytecode(bytes) => CompiledWasmModule::try_from_bytecode(&bytes)?,
             WasmModule::Serialized {
                 compiled_bytes,
                 memory_initial_limits,
@@ -54,7 +54,7 @@ impl CompiledWasmModule {
         Ok(instance)
     }
 
-    pub fn try_from_byte_code(bytes: &[u8]) -> Result<Self, WrapperError> {
+    pub fn try_from_bytecode(bytes: &[u8]) -> Result<Self, WrapperError> {
         let store = Store::default();
         let wasmer_module = Module::new(&store, bytes).map_err(|e| WrapperError::CompilationError(e.to_string()))?;
 

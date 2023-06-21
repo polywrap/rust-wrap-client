@@ -47,7 +47,7 @@ impl UriResolver for FilesystemResolver {
             let wrapper_path = Path::new(&uri.path()).join("wrap.wasm");
             let wrapper_file = fs::read(wrapper_path).unwrap();
             let wasm_wrapper =
-                WasmPackage::from_byte_code(wrapper_file, self.file_reader.clone(), Some(manifest));
+                WasmPackage::from_bytecode(wrapper_file, self.file_reader.clone(), Some(manifest));
             let uri_package_or_wrapper =
                 UriPackageOrWrapper::Package(uri.clone(), Arc::new(wasm_wrapper));
             Ok(uri_package_or_wrapper)

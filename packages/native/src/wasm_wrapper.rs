@@ -11,7 +11,7 @@ pub struct FFIWasmWrapper {
 
 impl FFIWasmWrapper {
     pub fn new(wasm_module: Vec<u8>) -> FFIWasmWrapper {
-        let wasm_wrapper = WasmWrapper::try_from_byte_code(&wasm_module, Arc::new(SimpleFileReader::new())).unwrap();
+        let wasm_wrapper = WasmWrapper::try_from_bytecode(&wasm_module, Arc::new(SimpleFileReader::new())).unwrap();
         FFIWasmWrapper {
             inner_wasm_wrapper: Arc::new(wasm_wrapper),
         }

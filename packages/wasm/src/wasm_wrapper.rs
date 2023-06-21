@@ -15,24 +15,25 @@ use std::sync::Mutex;
 use std::{fmt::Debug, sync::Arc};
 use wasmer::Value;
 
+#[derive(Clone)]
 pub struct WasmWrapper {
-    compiled_module: CompiledWasmModule,
+    wasm_module: CompiledWasmModule,
     file_reader: Arc<dyn FileReader>,
 }
 
 impl WasmWrapper {
-    pub fn new(compiled_module: CompiledWasmModule, file_reader: Arc<dyn FileReader>) -> Self {
+    pub fn new(wasm_module: CompiledWasmModule, file_reader: Arc<dyn FileReader>) -> Self {
         Self {
-            compiled_module,
+            wasm_module,
             file_reader,
         }
     }
 
-    pub fn try_from_byte_code(bytes: &[u8], file_reader: Arc<dyn FileReader>) -> Result<Self, WrapperError> {
-        let compiled_module = CompiledWasmModule::try_from_byte_code(bytes)?;
+    pub fn try_from_bytecode(bytes: &[u8], file_reader: Arc<dyn FileReader>) -> Result<Self, WrapperError> {
+        let wasm_module = CompiledWasmModule::try_from_bytecode(bytes)?;
         
         Ok(Self {
-            compiled_module,
+            wasm_module,
             file_reader,
         })
     }
@@ -110,7 +111,7 @@ impl Wrapper for WasmWrapper {
             env,
         )));
 
-        let mut wasm_instance = self.compiled_module.create_instance(state.clone())?;
+        let mut wasm_instance = self.wasm_module.create_instance(state.clone())?;
 
         let result = wasm_instance
             .call_export("_wrap_invoke", params)

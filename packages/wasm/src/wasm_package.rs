@@ -28,7 +28,7 @@ pub struct WasmPackage {
 }
 
 impl WasmPackage {
-    pub fn from_byte_code(
+    pub fn from_bytecode(
         wasm_bytes: Vec<u8>,
         file_reader: Arc<dyn FileReader>,
         manifest: Option<Vec<u8>>,
@@ -40,7 +40,7 @@ impl WasmPackage {
                 Some(wasm_bytes.clone()),
             )),
             manifest,
-            wasm_module: Arc::new(Mutex::new(Some(WasmModule::WasmByteCode(wasm_bytes)))),
+            wasm_module: Arc::new(Mutex::new(Some(WasmModule::WasmBytecode(wasm_bytes)))),
         }
     }
 
@@ -127,7 +127,7 @@ impl WrapPackage for WasmPackage {
                 self.file_reader.clone(),
             )));
         } else {
-            let compiled_module = CompiledWasmModule::try_from_byte_code(&wasm_bytes)?;
+            let compiled_module = CompiledWasmModule::try_from_bytecode(&wasm_bytes)?;
             *o_wasm_module = Some(WasmModule::Compiled(compiled_module.clone()));
 
             return Ok(Arc::new(WasmWrapper::new(

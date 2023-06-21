@@ -111,8 +111,7 @@ impl WasmInstance {
         let memory = Memory::new(
             store,
             MemoryType::new(memory_initial_limits as u32, None, false),
-        )
-        .map_err(|x| WrapperError::ModuleReadError(x.to_string()))?;
+        )?;
 
         Ok(memory)
     }

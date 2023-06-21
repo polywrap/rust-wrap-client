@@ -1,4 +1,5 @@
 use thiserror::Error;
+use wasmer::MemoryError;
 
 #[derive(Error, Debug)]
 pub enum WrapperError {
@@ -18,6 +19,8 @@ pub enum WrapperError {
     ExportError(String),
     #[error("`{0}`")]
     CompilationError(String),
+    #[error("`{0}`")]
+    MemoryError(#[from]MemoryError),
 }
 
 impl From<WrapperError> for polywrap_core::error::Error {

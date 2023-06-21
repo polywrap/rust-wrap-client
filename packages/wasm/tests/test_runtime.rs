@@ -15,13 +15,13 @@ use std::sync::Arc;
 
 #[derive(Clone)]
 struct MockInvoker {
-    wrapper: Arc<WasmWrapper>,
+    wrapper: WasmWrapper,
 }
 
 impl MockInvoker {
     fn new(wrapper: WasmWrapper) -> Self {
         Self {
-            wrapper: Arc::new(wrapper),
+            wrapper,
         }
     }
 
@@ -48,7 +48,7 @@ impl Invoker for MockInvoker {
         resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
         self.clone().invoke_wrapper_raw(
-            self.wrapper.clone(),
+            Arc::new(self.wrapper.clone()),
             uri,
             method,
             args,
@@ -85,7 +85,7 @@ fn invoke_test() {
     let _manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
     let file_reader = SimpleFileReader::new();
 
-    let wrapper = WasmWrapper::try_from_byte_code(&module_bytes, Arc::new(file_reader)).unwrap();
+    let wrapper = WasmWrapper::try_from_bytecode(&module_bytes, Arc::new(file_reader)).unwrap();
 
     let mock_invoker = MockInvoker::new(wrapper);
     let result = Arc::new(mock_invoker)
