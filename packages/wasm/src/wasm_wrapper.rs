@@ -29,9 +29,12 @@ impl WasmWrapper {
         }
     }
 
-    pub fn try_from_bytecode(bytes: &[u8], file_reader: Arc<dyn FileReader>) -> Result<Self, WrapperError> {
+    pub fn try_from_bytecode(
+        bytes: &[u8],
+        file_reader: Arc<dyn FileReader>,
+    ) -> Result<Self, WrapperError> {
         let wasm_module = CompiledWasmModule::try_from_bytecode(bytes)?;
-        
+
         Ok(Self {
             wasm_module,
             file_reader,

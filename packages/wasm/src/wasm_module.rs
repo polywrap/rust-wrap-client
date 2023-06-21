@@ -1,7 +1,10 @@
-use std::{sync::{Arc, Mutex}, fmt::Display};
+use std::{
+    fmt::Display,
+    sync::{Arc, Mutex},
+};
 
 use bytes::Bytes;
-use wasmer::{Module, Store, CompileError};
+use wasmer::{CompileError, Module, Store};
 
 use crate::{
     error::WrapperError,

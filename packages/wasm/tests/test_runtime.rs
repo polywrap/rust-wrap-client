@@ -20,9 +20,7 @@ struct MockInvoker {
 
 impl MockInvoker {
     fn new(wrapper: WasmWrapper) -> Self {
-        Self {
-            wrapper,
-        }
+        Self { wrapper }
     }
 
     fn invoke_wrapper_raw(
