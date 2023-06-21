@@ -1,6 +1,6 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_client::core::uri::Uri;
 use polywrap_client::core::macros::uri;
+use polywrap_client::core::uri::Uri;
 use polywrap_client::msgpack::msgpack;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_msgpack::serialize;

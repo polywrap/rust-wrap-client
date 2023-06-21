@@ -136,12 +136,13 @@ mod tests {
     use std::sync::{Arc, Mutex};
 
     use polywrap_core::{
+        macros::uri,
         package::GetManifestOptions,
         resolution::{
             uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
             uri_resolver::UriResolver,
         },
-        uri::Uri, macros::uri,
+        uri::Uri,
     };
     use polywrap_tests_utils::mocks::MockInvoker;
 

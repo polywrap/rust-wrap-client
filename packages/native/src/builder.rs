@@ -108,11 +108,8 @@ impl FFIBuilderConfig {
 mod test {
     use std::{collections::HashMap, sync::Arc};
 
+    use polywrap_client::core::{macros::uri, uri::Uri};
     use polywrap_client::msgpack::msgpack;
-    use polywrap_client::core::{
-        macros::uri,
-        uri::Uri,
-    };
     use polywrap_tests_utils::mocks::{
         get_different_mock_package, get_different_mock_wrapper, get_mock_package, get_mock_wrapper,
     };

@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
-use polywrap_core::{package::WrapPackage, uri::Uri, wrapper::Wrapper, macros::uri};
+use polywrap_core::{macros::uri, package::WrapPackage, uri::Uri, wrapper::Wrapper};
 use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::mocks::{
     get_different_mock_package, get_different_mock_wrapper, get_mock_invoker, get_mock_package,

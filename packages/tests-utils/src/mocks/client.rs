@@ -6,12 +6,13 @@ use std::{
 use polywrap_core::{
     client::Client,
     invoker::Invoker,
+    macros::uri,
     resolution::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     uri::Uri,
     uri_resolver_handler::UriResolverHandler,
     wrap_invoker::WrapInvoker,
     wrap_loader::WrapLoader,
-    wrapper::Wrapper, macros::uri,
+    wrapper::Wrapper,
 };
 
 use super::get_mock_wrapper;

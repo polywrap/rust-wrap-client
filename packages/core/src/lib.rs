@@ -10,5 +10,5 @@ pub mod uri_resolver_handler;
 pub mod wrap_invoker;
 pub mod wrap_loader;
 pub mod wrapper;
-pub use polywrap_uri as uri;
 pub use polywrap_core_macros as macros;
+pub use polywrap_uri as uri;

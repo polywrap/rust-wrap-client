@@ -34,7 +34,9 @@ impl Uri {
         }
 
         if wrap_scheme_idx.is_some() && wrap_scheme_idx.unwrap() != 0 {
-            return Err(UriParseError(String::from("The wrap:// scheme must be at the beginning of the URI string".to_string())));
+            return Err(UriParseError(String::from(
+                "The wrap:// scheme must be at the beginning of the URI string".to_string(),
+            )));
         }
 
         let reg = Regex::new("wrap://([a-z][a-z0-9-_]+)/(.*)").unwrap();
@@ -42,11 +44,12 @@ impl Uri {
         let captures = reg.captures(&processed);
 
         if captures.as_ref().is_none() || captures.as_ref().unwrap().len() != 3 {
-            return Err(UriParseError(String::from(r#"URI is malformed, here are some examples of valid URIs:
+            return Err(UriParseError(String::from(
+                r#"URI is malformed, here are some examples of valid URIs:
             wrap://ipfs/QmHASH
             wrap://ens/domain.eth
             ens/domain.eth
-            Invalid URI Received: {uri}"#
+            Invalid URI Received: {uri}"#,
             )));
         }
 
