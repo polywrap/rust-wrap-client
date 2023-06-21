@@ -13,7 +13,11 @@ use wrap_manifest_schemas::{
     versions::WrapManifest,
 };
 
-use crate::{wasm_module::{CompiledWasmModule, WasmModule}, wasm_wrapper::WasmWrapper, error::WrapperError};
+use crate::{
+    error::WrapperError,
+    wasm_module::{CompiledWasmModule, WasmModule},
+    wasm_wrapper::WasmWrapper,
+};
 
 use super::file_reader::InMemoryFileReader;
 
@@ -30,16 +34,17 @@ impl WasmPackage {
         manifest: Option<Vec<u8>>,
     ) -> Self {
         Self {
-            file_reader: Arc::new(InMemoryFileReader::new(file_reader, None, Some(wasm_bytes.clone()))),
+            file_reader: Arc::new(InMemoryFileReader::new(
+                file_reader,
+                None,
+                Some(wasm_bytes.clone()),
+            )),
             manifest,
             wasm_module: Arc::new(Mutex::new(Some(WasmModule::WasmByteCode(wasm_bytes)))),
         }
     }
 
-    pub fn from_file_reader(
-        file_reader: Arc<dyn FileReader>,
-        manifest: Option<Vec<u8>>,
-    ) -> Self {
+    pub fn from_file_reader(file_reader: Arc<dyn FileReader>, manifest: Option<Vec<u8>>) -> Self {
         Self {
             file_reader,
             manifest,
@@ -52,7 +57,7 @@ impl WasmPackage {
         wasm_bytes: Vec<u8>,
         file_reader: Arc<dyn FileReader>,
         manifest: Option<Vec<u8>>,
-    ) -> Result<Self, WrapperError> {     
+    ) -> Result<Self, WrapperError> {
         Ok(Self {
             file_reader: Arc::new(InMemoryFileReader::new(file_reader, None, Some(wasm_bytes))),
             manifest,
@@ -82,7 +87,7 @@ impl Debug for WasmPackage {
         
         -Manifest: {:?}
         "#,
-        self.manifest
+            self.manifest
         )
     }
 }

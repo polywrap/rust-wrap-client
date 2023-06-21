@@ -1,5 +1,7 @@
 use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_wasm::{wasm_package::WasmPackage, wasm_wrapper::WasmWrapper, wasm_module::CompiledWasmModule};
+use polywrap_wasm::{
+    wasm_module::CompiledWasmModule, wasm_package::WasmPackage, wasm_wrapper::WasmWrapper,
+};
 use std::sync::Arc;
 
 const WRAP_INFO: &[u8] = include_bytes!("./wrap.info");
