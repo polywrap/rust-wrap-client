@@ -6,7 +6,11 @@ pub struct FFIUri(pub Uri);
 impl FFIUri {
     pub fn new(authority: &str, path: &str, uri: &str) -> Self {
         unsafe {
-            FFIUri(Uri::from_parts(authority.to_owned(), path.to_owned(), uri.to_owned()))
+            FFIUri(Uri::from_parts(
+                authority.to_owned(),
+                path.to_owned(),
+                uri.to_owned(),
+            ))
         }
     }
 

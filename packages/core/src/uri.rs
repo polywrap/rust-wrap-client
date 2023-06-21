@@ -129,7 +129,8 @@ mod tests {
 
     #[test]
     fn from_parts() {
-        let uri = unsafe { Uri::from_parts("authority".to_owned(), "path".to_owned(), "uri".to_owned()) };
+        let uri =
+            unsafe { Uri::from_parts("authority".to_owned(), "path".to_owned(), "uri".to_owned()) };
         assert_eq!(uri.authority(), "authority");
         assert_eq!(uri.path(), "path");
         assert_eq!(uri.uri(), "uri");
@@ -137,11 +138,17 @@ mod tests {
 
     #[test]
     fn equality() {
-        let (uri1, uri2, uri3) = unsafe {(
-            Uri::from_parts("authority".to_owned(), "path".to_owned(), "uri".to_owned()),
-            Uri::from_parts("authority".to_owned(), "path".to_owned(), "uri".to_owned()),
-            Uri::from_parts("authority".to_owned(), "path".to_owned(), "different".to_owned())
-        )};
+        let (uri1, uri2, uri3) = unsafe {
+            (
+                Uri::from_parts("authority".to_owned(), "path".to_owned(), "uri".to_owned()),
+                Uri::from_parts("authority".to_owned(), "path".to_owned(), "uri".to_owned()),
+                Uri::from_parts(
+                    "authority".to_owned(),
+                    "path".to_owned(),
+                    "different".to_owned(),
+                ),
+            )
+        };
 
         assert_eq!(uri1, uri2);
         assert_ne!(uri1, uri3);
