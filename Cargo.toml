@@ -76,3 +76,4 @@ polywrap_client = { path = "packages/client" }
 polywrap_plugin = { path = "packages/plugin" }
 wrap_manifest_schemas = { path = "packages/manifest" }
 polywrap_msgpack = { path = "packages/msgpack" }
+polywrap_resolvers = { path = "packages/resolvers" }
