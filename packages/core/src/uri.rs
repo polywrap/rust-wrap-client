@@ -107,3 +107,62 @@ impl std::fmt::Display for Uri {
         write!(f, "{}", self.uri)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::convert::TryInto;
+
+    #[test]
+    fn try_from_string_valid() {
+        assert!(Uri::try_from_string("wrap://ipfs/QmHASH").is_ok());
+        assert!(Uri::try_from_string("////wrap://ipfs/QmHASH").is_ok());
+        assert!(Uri::try_from_string("ens/domain.eth").is_ok());
+    }
+
+    #[test]
+    fn try_from_string_invalid() {
+        assert!(Uri::try_from_string("wraps://ipfs/QmHASH").is_err());
+        assert!(Uri::try_from_string("ipfs/QmHASHwrap://").is_err());
+        assert!(Uri::try_from_string("").is_err());
+    }
+
+    #[test]
+    fn unsafe_from_string() {
+        let uri = Uri::unsafe_from_string("authority", "path", "uri");
+        assert_eq!(uri.authority(), "authority");
+        assert_eq!(uri.path(), "path");
+        assert_eq!(uri.uri(), "uri");
+    }
+
+    #[test]
+    fn equality() {
+        let uri1 = Uri::unsafe_from_string("authority", "path", "uri");
+        let uri2 = Uri::unsafe_from_string("authority", "path", "uri");
+        let uri3 = Uri::unsafe_from_string("authority", "path", "different");
+        assert_eq!(uri1, uri2);
+        assert_ne!(uri1, uri3);
+    }
+
+    #[test]
+    fn from() {
+        let uri = Uri::unsafe_from_string("authority", "path", "uri");
+        let string: String = uri.into();
+        assert_eq!(string, "uri");
+    }
+
+    #[test]
+    fn string_try_into() {
+        let uri: Result<Uri, Error> = "wrap://ipfs/QmHASH".try_into();
+        assert!(uri.is_ok());
+
+        let bad_uri: Result<Uri, Error> = "bad_uri".try_into();
+        assert!(bad_uri.is_err());
+    }
+
+    #[test]
+    fn display() {
+        let uri = Uri::unsafe_from_string("authority", "path", "wrap://authority/uri");
+        assert_eq!(format!("{}", uri), "wrap://authority/uri");
+    }
+}
