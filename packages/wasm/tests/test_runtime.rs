@@ -4,7 +4,7 @@ use polywrap_core::{
     interface_implementation::InterfaceImplementations, invoker::Invoker,
     resolution::uri_resolution_context::UriResolutionContext, uri::Uri, wrapper::Wrapper,
 };
-use polywrap_wasm::{wasm_module::WasmModule, wasm_wrapper::WasmWrapper};
+use polywrap_wasm::wasm_wrapper::WasmWrapper;
 use std::{collections::HashMap, path::Path, sync::Mutex};
 use wrap_manifest_schemas::deserialize::deserialize_wrap_manifest;
 
@@ -85,9 +85,7 @@ fn invoke_test() {
     let _manifest = deserialize_wrap_manifest(&manifest_bytes, None).unwrap();
     let file_reader = SimpleFileReader::new();
 
-    let compiled_module = WasmModule::WasmByteCode(module_bytes).compile().unwrap();
-
-    let wrapper = WasmWrapper::new(compiled_module, Arc::new(file_reader));
+    let wrapper = WasmWrapper::try_from_byte_code(&module_bytes, Arc::new(file_reader)).unwrap();
 
     let mock_invoker = MockInvoker::new(wrapper);
     let result = Arc::new(mock_invoker)
