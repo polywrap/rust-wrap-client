@@ -127,7 +127,7 @@ impl WrapPackage for WasmPackage {
                 self.file_reader.clone(),
             )));
         } else {
-            let compiled_module = CompiledWasmModule::from_byte_code(&wasm_bytes)?;
+            let compiled_module = CompiledWasmModule::try_from_byte_code(&wasm_bytes)?;
             *o_wasm_module = Some(WasmModule::Compiled(compiled_module.clone()));
 
             return Ok(Arc::new(WasmWrapper::new(

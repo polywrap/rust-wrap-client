@@ -1,7 +1,7 @@
-use std::sync::{Arc, Mutex};
+use std::{sync::{Arc, Mutex}, fmt::Display};
 
 use bytes::Bytes;
-use wasmer::{Module, Store};
+use wasmer::{Module, Store, CompileError};
 
 use crate::{
     error::WrapperError,
@@ -21,7 +21,7 @@ pub enum WasmModule {
 impl WasmModule {
     pub fn compile(self) -> Result<CompiledWasmModule, WrapperError> {
         Ok(match self {
-            WasmModule::WasmByteCode(bytes) => CompiledWasmModule::from_byte_code(&bytes)?,
+            WasmModule::WasmByteCode(bytes) => CompiledWasmModule::try_from_byte_code(&bytes)?,
             WasmModule::Serialized {
                 compiled_bytes,
                 memory_initial_limits,
@@ -54,9 +54,9 @@ impl CompiledWasmModule {
         Ok(instance)
     }
 
-    pub fn from_byte_code(bytes: &[u8]) -> Result<Self, WrapperError> {
+    pub fn try_from_byte_code(bytes: &[u8]) -> Result<Self, WrapperError> {
         let store = Store::default();
-        let wasmer_module = Module::new(&store, bytes).unwrap();
+        let wasmer_module = Module::new(&store, bytes).map_err(|e| WrapperError::CompilationError(e.to_string()))?;
 
         let memory_initial_limits = WasmInstance::get_memory_initial_limits(bytes)?;
 
@@ -65,5 +65,20 @@ impl CompiledWasmModule {
             memory_initial_limits,
             store: Arc::new(store),
         })
+    }
+}
+
+#[derive(thiserror::Error, Debug)]
+struct CompilationError(String);
+
+impl Display for CompilationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, r#"CompilationError("{}")"#, self.0)
+    }
+}
+
+impl From<CompileError> for CompilationError {
+    fn from(error: CompileError) -> Self {
+        Self(error.to_string())
     }
 }

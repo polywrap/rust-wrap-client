@@ -1,6 +1,6 @@
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_wasm::{
-    wasm_module::CompiledWasmModule, wasm_package::WasmPackage, wasm_wrapper::WasmWrapper,
+    wasm_package::WasmPackage, wasm_wrapper::WasmWrapper,
 };
 use std::sync::Arc;
 
@@ -16,6 +16,5 @@ pub fn wasm_package() -> WasmPackage {
 }
 
 pub fn wasm_wrapper() -> WasmWrapper {
-    let compiled_module = CompiledWasmModule::from_byte_code(WRAP_WASM).unwrap();
-    WasmWrapper::new(compiled_module, Arc::new(SimpleFileReader::new()))
+    WasmWrapper::try_from_byte_code(WRAP_WASM, Arc::new(SimpleFileReader::new())).unwrap()
 }

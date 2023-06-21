@@ -1,3 +1,4 @@
+use crate::error::WrapperError;
 use crate::runtime::instance::State;
 use crate::wasm_module::CompiledWasmModule;
 
@@ -25,6 +26,15 @@ impl WasmWrapper {
             compiled_module,
             file_reader,
         }
+    }
+
+    pub fn try_from_byte_code(bytes: &[u8], file_reader: Arc<dyn FileReader>) -> Result<Self, WrapperError> {
+        let compiled_module = CompiledWasmModule::try_from_byte_code(bytes)?;
+        
+        Ok(Self {
+            compiled_module,
+            file_reader,
+        })
     }
 
     pub fn invoke_and_decode<T: DeserializeOwned>(
