@@ -34,7 +34,6 @@ default-members = [
     "packages/plugin",
     "packages/native",
     "packages/resolver-extensions",
-    "packages/default-config",
     "packages/default-config"
 ]
 
