@@ -1,10 +1,24 @@
 use bigdecimal::BigDecimal as BigNumber;
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
+use polywrap_msgpack::encode;
 use polywrap_tests_utils::helpers::get_tests_path;
+use serde::Serialize;
 
 use crate::wrap_types::get_client;
+
+#[derive(Serialize)]
+struct MethodArgs {
+    arg1: String,
+    arg2: Option<String>,
+    obj: ArgsObject,
+}
+
+#[derive(Serialize)]
+struct ArgsObject {
+    prop1: String,
+    prop2: Option<String>,
+}
 
 fn get_client_and_uri() -> (PolywrapClient, Uri) {
     let test_path = get_tests_path().unwrap();
@@ -21,12 +35,17 @@ fn method_without_optional_arguments() {
         .invoke::<String>(
             &uri,
             "method",
-            Some(&msgpack!({
-                "arg1": "1234.56789123456789",
-                "obj": {
-                    "prop1": "98.7654321987654321",
-                },
-            })),
+            Some(
+                &encode(&MethodArgs {
+                    arg1: "1234.56789123456789".to_string(),
+                    arg2: None,
+                    obj: ArgsObject {
+                        prop1: "98.7654321987654321".to_string(),
+                        prop2: None,
+                    },
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -45,14 +64,17 @@ fn method_with_optional_arguments() {
         .invoke::<String>(
             &uri,
             "method",
-            Some(&msgpack!({
-                "arg1": "1234567.89123456789",
-                "arg2": "123456789123.456789123456789123456789",
-                "obj": {
-                    "prop1": "987654.321987654321",
-                    "prop2": "987.654321987654321987654321987654321",
-                },
-            })),
+            Some(
+                &encode(&MethodArgs {
+                    arg1: "1234567.89123456789".to_string(),
+                    arg2: Some("123456789123.456789123456789123456789".to_string()),
+                    obj: ArgsObject {
+                        prop1: "987654.321987654321".to_string(),
+                        prop2: Some("987.654321987654321987654321987654321".to_string()),
+                    },
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )

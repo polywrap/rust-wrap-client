@@ -7,7 +7,7 @@ use polywrap_core::invoker::Invoker;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
-use polywrap_msgpack::{decode, msgpack};
+use polywrap_msgpack::{decode, encode};
 use serde::de::DeserializeOwned;
 use std::fmt::Formatter;
 use std::sync::Mutex;
@@ -79,7 +79,7 @@ impl Wrapper for WasmWrapper {
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),
-            None => msgpack!({}),
+            None => encode({}).unwrap()
         };
 
         let env = match env {

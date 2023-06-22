@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use polywrap_msgpack::error::MsgpackError;
+use polywrap_msgpack::Error as MsgpackError;
 use polywrap_uri::UriParseError;
 
 #[derive(thiserror::Error, Debug, Clone)]
@@ -23,8 +23,8 @@ pub enum Error {
     ResolutionError(String),
     #[error("URI not found: `{0}`")]
     UriNotFoundError(String),
-    #[error("`{0}`")]
-    MsgpackError(String),
+    #[error(transparent)]
+    MsgpackError(#[from] MsgpackError),
     #[error("`{0}`")]
     ManifestError(String),
     #[error("Error reading file: `{0}`")]
@@ -37,12 +37,6 @@ pub enum Error {
     RuntimeError(String),
     #[error("`{0}`")]
     OtherError(String),
-}
-
-impl From<MsgpackError> for Error {
-    fn from(e: MsgpackError) -> Self {
-        Error::MsgpackError(e.to_string())
-    }
 }
 
 impl From<UriParseError> for Error {

@@ -45,18 +45,16 @@ fn get_client_and_uri() -> (PolywrapClient, Uri) {
 }
 
 fn create_custom_map() -> CustomMap {
-    let mut my_map = Map(BTreeMap::new());
-    my_map.0.insert(String::from("Hello"), 1);
-    my_map.0.insert(String::from("Heyo"), 50);
+    let mut my_map = Map::new();
+    my_map.insert(String::from("Hello"), 1);
+    my_map.insert(String::from("Heyo"), 50);
 
-    let mut my_nested_map = Map(BTreeMap::new());
-    let mut inside_nested_map = Map(BTreeMap::new());
+    let mut my_nested_map = Map::new();
+    let mut inside_nested_map = Map::new();
 
-    inside_nested_map.0.insert(String::from("Hello"), 1);
-    inside_nested_map.0.insert(String::from("Heyo"), 50);
-    my_nested_map
-        .0
-        .insert(String::from("Nested"), inside_nested_map);
+    inside_nested_map.insert(String::from("Hello"), 1);
+    inside_nested_map.insert(String::from("Heyo"), 50);
+    my_nested_map.insert(String::from("Nested"), inside_nested_map);
     CustomMap {
         map: my_map,
         nestedMap: my_nested_map,
@@ -73,7 +71,7 @@ fn get_key() {
         foo,
     };
 
-    let args = polywrap_msgpack::serialize(&get_key_args).unwrap();
+    let args = polywrap_msgpack::encode(&get_key_args).unwrap();
     let response = client
         .invoke::<u32>(&uri, "getKey", Some(&args), None, None)
         .unwrap();
@@ -91,7 +89,7 @@ fn return_map() {
             &uri,
             "returnMap",
             Some(
-                &polywrap_msgpack::serialize(&ArgsReturnMap {
+                &polywrap_msgpack::encode(&ArgsReturnMap {
                     map: custom_map.map.clone(),
                 })
                 .unwrap(),
@@ -112,7 +110,7 @@ fn return_custom_map() {
         .invoke::<CustomMap>(
             &uri,
             "returnCustomMap",
-            Some(&polywrap_msgpack::serialize(&ArgsReturnCustomMap { foo: custom_map }).unwrap()),
+            Some(&polywrap_msgpack::encode(&ArgsReturnCustomMap { foo: custom_map }).unwrap()),
             None,
             None,
         )
@@ -123,15 +121,15 @@ fn return_custom_map() {
 #[test]
 fn return_nested_map() {
     let (client, uri) = get_client_and_uri();
-    let mut nested_map: Map<String, Map<String, u32>> = Map(BTreeMap::new());
-    nested_map.0.insert(
+    let mut nested_map: Map<String, Map<String, u32>> = Map::new();
+    nested_map.insert(
         String::from("Hello"),
-        Map(BTreeMap::from([("Nested Hello".to_string(), 59)])),
+        Map::from([("Nested Hello".to_string(), 59)]),
     );
 
-    nested_map.0.insert(
+    nested_map.insert(
         String::from("Bye"),
-        Map(BTreeMap::from([("Nested Bye".to_string(), 60)])),
+        Map::from([("Nested Bye".to_string(), 60)]),
     );
 
     let response = client
@@ -139,7 +137,7 @@ fn return_nested_map() {
             &uri,
             "returnNestedMap",
             Some(
-                &polywrap_msgpack::serialize(&ArgsReturnNestedMap {
+                &polywrap_msgpack::encode(&ArgsReturnNestedMap {
                     foo: nested_map.clone(),
                 })
                 .unwrap(),

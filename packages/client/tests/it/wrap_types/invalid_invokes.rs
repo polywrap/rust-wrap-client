@@ -1,8 +1,39 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
 use polywrap_client_builder::PolywrapClientConfig;
+use polywrap_msgpack::encode;
 use polywrap_tests_utils::helpers::get_tests_path;
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct BoolMethodArgs {
+    arg: u32,
+}
+
+#[derive(Serialize)]
+struct IntMethodArgs {
+    arg: bool,
+}
+
+#[derive(Serialize)]
+struct UintMethodArgs {
+    arg: Vec<u32>,
+}
+
+#[derive(Serialize)]
+struct BytesMethodArgs {
+    arg: f32,
+}
+
+#[derive(Serialize)]
+struct ArrayMethodProp {
+    prop: String,
+}
+
+#[derive(Serialize)]
+struct ArrayMethodArgs {
+    arg: ArrayMethodProp,
+}
 
 #[test]
 #[ignore]
@@ -17,9 +48,7 @@ fn invalid_test_case() {
         .invoke::<bool>(
             &uri,
             "boolMethod",
-            Some(&msgpack!({
-                "arg": 10,
-            })),
+            Some(&encode(&BoolMethodArgs { arg: 10 }).unwrap()),
             None,
             None,
         )
@@ -32,9 +61,7 @@ fn invalid_test_case() {
         .invoke::<i32>(
             &uri,
             "intMethod",
-            Some(&msgpack!({
-                "arg": true,
-            })),
+            Some(&encode(&IntMethodArgs { arg: true }).unwrap()),
             None,
             None,
         )
@@ -47,9 +74,7 @@ fn invalid_test_case() {
         .invoke::<u32>(
             &uri,
             "uIntMethod",
-            Some(&msgpack!({
-                "arg": [10],
-            })),
+            Some(&encode(&UintMethodArgs { arg: vec![10] }).unwrap()),
             None,
             None,
         )
@@ -62,9 +87,7 @@ fn invalid_test_case() {
         .invoke::<Vec<u8>>(
             &uri,
             "bytesMethod",
-            Some(&msgpack!({
-                "arg": 10.15,
-            })),
+            Some(&encode(&BytesMethodArgs { arg: 10.15 }).unwrap()),
             None,
             None,
         )
@@ -77,11 +100,14 @@ fn invalid_test_case() {
         .invoke::<Vec<i32>>(
             &uri,
             "arrayMethod",
-            Some(&msgpack!({
-                "arg": {
-                    "prop": "prop",
-                },
-            })),
+            Some(
+                &encode(&ArrayMethodArgs {
+                    arg: ArrayMethodProp {
+                        prop: "".to_string(),
+                    },
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )

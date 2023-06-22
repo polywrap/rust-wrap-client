@@ -5,10 +5,11 @@ use polywrap_core::{
     resolution::uri_resolution_context::UriResolutionContext, uri::Uri, wrapper::Wrapper,
 };
 use polywrap_wasm::wasm_wrapper::WasmWrapper;
+use serde::Serialize;
 use std::{collections::HashMap, path::Path, sync::Mutex};
 use wrap_manifest_schemas::deserialize::deserialize_wrap_manifest;
 
-use polywrap_msgpack::msgpack;
+use polywrap_msgpack::encode;
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::fs;
 use std::sync::Arc;
@@ -69,6 +70,12 @@ impl Invoker for MockInvoker {
     }
 }
 
+#[derive(Serialize)]
+struct AddArgs {
+    a: u32,
+    b: u32,
+}
+
 #[test]
 fn invoke_test() {
     let test_path = get_tests_path().unwrap();
@@ -90,7 +97,7 @@ fn invoke_test() {
         .invoke_raw(
             &uri!("ens/wrapper.eth"),
             "add",
-            Some(&msgpack!({ "a": 1, "b": 1})),
+            Some(&encode(&AddArgs { a: 1, b: 1 }).unwrap()),
             None,
             None,
         )

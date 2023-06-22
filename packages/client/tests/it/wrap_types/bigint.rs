@@ -1,8 +1,9 @@
 use num_bigint::BigInt;
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
+use polywrap_msgpack::encode;
 use polywrap_tests_utils::helpers::get_tests_path;
+use serde::Serialize;
 
 use crate::wrap_types::get_client;
 
@@ -14,6 +15,19 @@ fn get_client_and_uri() -> (PolywrapClient, Uri) {
     (get_client(None), uri)
 }
 
+#[derive(Serialize)]
+struct MethodArgs {
+    arg1: String,
+    arg2: Option<String>,
+    obj: ArgsObject,
+}
+
+#[derive(Serialize)]
+struct ArgsObject {
+    prop1: String,
+    prop2: Option<String>,
+}
+
 #[test]
 fn method_without_optional_arguments() {
     let (client, uri) = get_client_and_uri();
@@ -21,12 +35,17 @@ fn method_without_optional_arguments() {
         .invoke::<String>(
             &uri,
             "method",
-            Some(&msgpack!({
-                "arg1": "123456789123456789",
-                "obj": {
-                    "prop1": "987654321987654321",
-                },
-            })),
+            Some(
+                &encode(&MethodArgs {
+                    arg1: "123456789123456789".to_string(),
+                    arg2: None,
+                    obj: ArgsObject {
+                        prop1: "987654321987654321".to_string(),
+                        prop2: None,
+                    },
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -43,14 +62,17 @@ fn method_with_optional_arguments() {
         .invoke::<String>(
             &uri,
             "method",
-            Some(&msgpack!({
-                "arg1": "123456789123456789",
-                "arg2": "123456789123456789123456789123456789",
-                "obj": {
-                    "prop1": "987654321987654321",
-                    "prop2": "987654321987654321987654321987654321",
-                },
-            })),
+            Some(
+                &encode(&MethodArgs {
+                    arg1: "123456789123456789".to_string(),
+                    arg2: Some("123456789123456789123456789123456789".to_string()),
+                    obj: ArgsObject {
+                        prop1: "987654321987654321".to_string(),
+                        prop2: Some("987654321987654321987654321987654321".to_string()),
+                    },
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )

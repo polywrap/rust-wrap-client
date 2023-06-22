@@ -28,8 +28,8 @@ impl From<jsonschema::ValidationError<'_>> for Error {
     }
 }
 
-impl From<polywrap_msgpack::rmp_serde::decode::Error> for Error {
-    fn from(error: polywrap_msgpack::rmp_serde::decode::Error) -> Self {
+impl From<polywrap_msgpack::Error> for Error {
+    fn from(error: polywrap_msgpack::Error) -> Self {
         Error::MsgpackDecodeError(error.to_string())
     }
 }

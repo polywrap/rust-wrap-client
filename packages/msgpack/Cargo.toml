@@ -11,7 +11,5 @@ license.workspace = true
 thiserror.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-rmp-serde.workspace = true
-
-rmpv = { version = "1.0.0", features = ["with-serde"] }
+polywrap_serde = { path = "../../../msgpack-serde"}
 serde_bytes = "0.11.9"

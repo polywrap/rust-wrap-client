@@ -4,7 +4,8 @@ use crate::{
     client::Client, error::Error, file_reader::FileReader,
     interface_implementation::InterfaceImplementations, invoker::Invoker, uri::Uri,
 };
-use polywrap_msgpack::msgpack;
+use polywrap_msgpack::encode;
+use serde::Serialize;
 use serde_bytes::ByteBuf;
 
 fn combine_paths(a: &str, b: &str) -> String {
@@ -43,11 +44,16 @@ impl UriResolverExtensionFileReader {
     }
 }
 
+#[derive(Serialize)]
+struct GetFileArgs {
+    path: String,
+}
+
 impl FileReader for UriResolverExtensionFileReader {
     fn read_file(&self, file_path: &str) -> Result<Vec<u8>, Error> {
         let path = combine_paths(&self.wrapper_uri.path(), file_path);
-
-        let invoker_args = msgpack!({ "path": path });
+        let args = GetFileArgs { path };
+        let invoker_args = encode(args).unwrap();
         // TODO: This vec<u8> isn't the file but the msgpack representation of it
         let result = self.invoker.invoke_raw(
             &self.resolver_extension_uri,

@@ -1,10 +1,9 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
-use polywrap_msgpack::serialize;
+use polywrap_msgpack::encode;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
+use serde_json::{json, Value};
 
 use super::get_client;
 
@@ -20,6 +19,12 @@ fn get_client_and_uri() -> (PolywrapClient, Uri) {
 
     (get_client(None), uri)
 }
+
+#[derive(Serialize)]
+struct ParseArgs {
+    value: String,
+}
+
 #[test]
 fn parse() {
     let (client, uri) = get_client_and_uri();
@@ -34,9 +39,12 @@ fn parse() {
         .invoke::<String>(
             &uri,
             "parse",
-            Some(&msgpack!({
-                "value": value.clone(),
-            })),
+            Some(
+                &encode(&ParseArgs {
+                    value: value.clone(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -57,13 +65,18 @@ fn stringify() {
         .invoke::<String>(
             &uri,
             "stringify",
-            Some(&serialize(&StringifyArgs { values }).unwrap()),
+            Some(&encode(&StringifyArgs { values }).unwrap()),
             None,
             None,
         )
         .unwrap();
 
     assert_eq!(stringify_response, "{\"bar\":\"foo\"}{\"baz\":\"fuz\"}");
+}
+
+#[derive(Serialize)]
+struct StringifyObjectArgs {
+    object: Value,
 }
 
 #[test]
@@ -78,12 +91,12 @@ fn stringify_object() {
         .invoke::<String>(
             &uri,
             "stringifyObject",
-            Some(&msgpack!({
-                "object": {
-                    "jsonA": json!({ "foo": "bar" }).to_string(),
-                    "jsonB": json!({ "fuz": "baz" }).to_string(),
-                }
-            })),
+            Some(
+                &encode(&StringifyObjectArgs {
+                    object: object.clone(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -94,6 +107,18 @@ fn stringify_object() {
         object["jsonA"].as_str().unwrap().to_string()
             + &object["jsonB"].as_str().unwrap().to_string()
     );
+}
+
+#[derive(Serialize)]
+struct MethodJSONArgs {
+    valueA: i64,
+    valueB: String,
+    valueC: bool,
+}
+
+#[derive(Serialize)]
+struct ParseReservedArgs {
+    json: String,
 }
 
 #[test]
@@ -109,11 +134,14 @@ fn method_json() {
         .invoke::<String>(
             &uri,
             "methodJSON",
-            Some(&msgpack!({
-                "valueA": json["valueA"].as_i64().unwrap(),
-                "valueB": json["valueB"].as_str().unwrap(),
-                "valueC": json["valueC"].as_bool().unwrap(),
-            })),
+            Some(
+                &encode(&MethodJSONArgs {
+                    valueA: json["valueA"].as_i64().unwrap(),
+                    valueB: json["valueB"].as_str().unwrap().to_string(),
+                    valueC: json["valueC"].as_bool().unwrap(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -131,15 +159,29 @@ fn method_json() {
         .invoke::<serde_json::Value>(
             &uri,
             "parseReserved",
-            Some(&msgpack!({
-                "json": reserved.to_string(),
-            })),
+            Some(
+                &encode(&ParseReservedArgs {
+                    json: reserved.to_string(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
         .unwrap();
 
     assert_eq!(parse_reserved_response.to_string(), reserved.to_string());
+}
+
+#[derive(Serialize)]
+struct StringifyReservedArgs {
+    reserved: Reserved,
+}
+
+#[derive(Serialize)]
+struct Reserved {
+    r#const: String,
+    r#if: bool,
 }
 
 #[test]
@@ -153,12 +195,15 @@ fn stringify_reserved() {
         .invoke::<String>(
             &uri,
             "stringifyReserved",
-            Some(&msgpack!({
-                "reserved": {
-                    "const": "hello",
-                    "if": true,
-                },
-            })),
+            Some(
+                &encode(&StringifyReservedArgs {
+                    reserved: Reserved {
+                        r#const: "hello".to_string(),
+                        r#if: true,
+                    },
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )

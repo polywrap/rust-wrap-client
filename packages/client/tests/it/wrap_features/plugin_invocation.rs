@@ -2,8 +2,9 @@ use polywrap_client::client::PolywrapClient;
 use polywrap_core::{
     client::ClientConfig, invoker::Invoker, macros::uri, package::WrapPackage, uri::Uri,
 };
-use polywrap_msgpack::msgpack;
+use polywrap_msgpack::encode;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
+use serde::Serialize;
 use serde_json::{from_value, json};
 use std::{collections::HashMap, sync::Arc};
 use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
@@ -23,7 +24,7 @@ pub struct Env {
 }
 
 #[derive(Debug)]
-pub struct PluginEnv {}
+pub struct PluginEnv;
 
 pub trait Module: PluginModule {
     fn check_env_is_bar(
@@ -63,6 +64,16 @@ pub fn get_manifest() -> WrapManifest {
     }
 }
 
+#[derive(Serialize)]
+struct CheckEnvArgs {
+    key: String,
+}
+
+#[derive(Serialize)]
+struct EnvVal {
+    foo: String,
+}
+
 #[test]
 fn invoke_test() {
     let plugin = PluginEnv {};
@@ -72,7 +83,10 @@ fn invoke_test() {
     let plugin_static_like = StaticResolverLike::Package(uri!("ens/env-plugin.eth"), module);
     let static_resolver = StaticResolver::from(vec![plugin_static_like]);
 
-    let env_val = msgpack!({"foo": "bar"});
+    let env_val = encode(&EnvVal {
+        foo: "bar".to_string(),
+    })
+    .unwrap();
     let envs = HashMap::from([(uri!("ens/env-plugin.eth"), env_val)]);
     let client = PolywrapClient::new(ClientConfig {
         envs: Some(envs),
@@ -80,11 +94,15 @@ fn invoke_test() {
         resolver: Arc::new(static_resolver),
     });
 
+    let env_val = encode(&CheckEnvArgs {
+        key: "foo".to_string(),
+    })
+    .unwrap();
     let invoke_result = client
         .invoke::<bool>(
             &uri!("ens/env-plugin.eth"),
             "checkEnvIsBar",
-            Some(&msgpack!({"key": "foo"})),
+            Some(&env_val),
             None,
             None,
         )

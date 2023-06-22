@@ -1,11 +1,11 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
+use polywrap_msgpack::encode;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
@@ -59,7 +59,7 @@ fn get_default_env() -> Env {
 }
 
 fn get_default_serialized_env() -> Vec<u8> {
-    polywrap_msgpack::serialize(&get_default_env()).unwrap()
+    polywrap_msgpack::encode(&get_default_env()).unwrap()
 }
 
 #[allow(non_snake_case)]
@@ -112,6 +112,11 @@ fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) ->
     PolywrapClient::new(config)
 }
 
+#[derive(Serialize)]
+struct Args {
+    arg: String,
+}
+
 #[test]
 fn subinvoke_method_without_env_does_not_require_env() {
     let subinvoker_uri = get_subinvoker_uri();
@@ -123,7 +128,12 @@ fn subinvoke_method_without_env_does_not_require_env() {
         .invoke::<String>(
             &subinvoker_uri,
             "subinvokeMethodNoEnv",
-            Some(&msgpack!({ "arg": test_string })),
+            Some(
+                &encode(Args {
+                    arg: test_string.to_string(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -143,7 +153,12 @@ fn subinvoke_method_without_env_works_with_env() {
         .invoke::<String>(
             &subinvoker_uri,
             "subinvokeMethodNoEnv",
-            Some(&msgpack!({ "arg": test_string })),
+            Some(
+                &encode(Args {
+                    arg: test_string.to_string(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -162,7 +177,7 @@ fn subinvoke_method_with_required_env_works_with_env() {
         .invoke::<Env>(
             &subinvoker_uri,
             "subinvokeMethodRequireEnv",
-            Some(&msgpack!({})),
+            None,
             None,
             None,
         )
@@ -182,7 +197,7 @@ fn subinvoke_method_with_required_env_panics_without_env_registered() {
         .invoke::<Option<Env>>(
             &subinvoker_uri,
             "subinvokeMethodRequireEnv",
-            Some(&msgpack!({})),
+            None,
             None,
             None,
         )
@@ -201,7 +216,7 @@ fn subinvoke_method_with_optional_env_works_with_env() {
         .invoke::<Env>(
             &subinvoker_uri,
             "subinvokeMethodOptionalEnv",
-            Some(&msgpack!({})),
+            None,
             None,
             None,
         )
@@ -220,7 +235,7 @@ fn subinvoke_method_with_optional_env_works_without_env() {
         .invoke::<Option<Env>>(
             &subinvoker_uri,
             "subinvokeMethodOptionalEnv",
-            Some(&msgpack!({})),
+            None,
             None,
             None,
         )
@@ -268,11 +283,11 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
         let envs: HashMap<Uri, Vec<u8>> = HashMap::from([
             (
                 subinvoker_uri.clone(),
-                polywrap_msgpack::serialize(&subinvoker_env).unwrap(),
+                polywrap_msgpack::encode(&subinvoker_env).unwrap(),
             ),
             (
                 uri!("mock/main"),
-                polywrap_msgpack::serialize(&subinvoked_env).unwrap(),
+                polywrap_msgpack::encode(&subinvoked_env).unwrap(),
             ),
         ]);
 
@@ -304,7 +319,7 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
         .invoke::<Env>(
             &subinvoker_uri,
             "subinvokeMethodRequireEnv",
-            Some(&msgpack!({})),
+            None,
             None,
             None,
         )

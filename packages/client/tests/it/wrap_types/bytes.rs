@@ -1,5 +1,5 @@
 use polywrap_client::core::uri::Uri;
-use polywrap_msgpack::serialize;
+use polywrap_msgpack::encode;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
@@ -33,7 +33,7 @@ fn bytes_method() {
         .invoke::<ByteBuf>(
             &uri,
             "bytesMethod",
-            Some(&serialize(&args).unwrap()),
+            Some(&encode(&args).unwrap()),
             None,
             None,
         )

@@ -1,21 +1,26 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::{interface_implementation::InterfaceImplementations, uri::Uri};
-use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
+use polywrap_msgpack::encode;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
 
-#[derive(Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 struct ModuleMethodResponse {
     uint8: i8,
     str: String,
+}
+
+#[derive(Serialize)]
+struct Args {
+    arg: ModuleMethodResponse,
 }
 
 #[test]
@@ -49,25 +54,18 @@ fn test_interface_implementation() {
         resolver: Arc::new(base_resolver),
     });
 
-    let invoke_result = client
-        .invoke::<ModuleMethodResponse>(
-            &wrapper_uri,
-            "moduleMethod",
-            Some(&msgpack!(
-                {
-                    "arg": {
-                        "uint8": 1,
-                        "str": "Test String 1"
-                    }
-                }
-            )),
-            None,
-            None,
-        )
-        .unwrap();
     let mock_response = ModuleMethodResponse {
         uint8: 1,
         str: "Test String 1".to_string(),
     };
+    let invoke_result = client
+        .invoke::<ModuleMethodResponse>(
+            &wrapper_uri,
+            "moduleMethod",
+            Some(&encode(Args { arg: mock_response.clone() }).unwrap()),
+            None,
+            None,
+        )
+        .unwrap();
     assert_eq!(invoke_result, mock_response);
 }

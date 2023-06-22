@@ -11,7 +11,7 @@ use polywrap_core::{
     },
     uri::Uri,
 };
-use polywrap_msgpack::{decode, msgpack};
+use polywrap_msgpack::{decode, encode};
 use polywrap_wasm::wasm_package::WasmPackage;
 use serde::{Deserialize, Serialize};
 
@@ -24,6 +24,12 @@ pub struct MaybeUriOrManifest {
     pub uri: Option<String>,
     #[serde(with = "serde_bytes")]
     pub manifest: Option<Vec<u8>>,
+}
+
+#[derive(Serialize)]
+pub struct TryResolverUriArgs {
+    pub authority: String,
+    pub path: String,
 }
 
 impl UriResolverWrapper {
@@ -43,10 +49,13 @@ impl UriResolverWrapper {
         let result = invoker.invoke_raw(
             implementation_uri,
             "tryResolveUri",
-            Some(&msgpack!({
-                "authority": uri.authority(),
-                "path": uri.path(),
-            })),
+            Some(
+                &encode(&TryResolverUriArgs {
+                    authority: uri.authority().to_string(),
+                    path: uri.path().to_string(),
+                })
+                .unwrap(),
+            ),
             None,
             Some(resolver_extension_context.clone()),
         );

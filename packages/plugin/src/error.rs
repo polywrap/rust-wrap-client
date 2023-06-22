@@ -1,5 +1,5 @@
 use polywrap_core::error::Error;
-use polywrap_msgpack::error::MsgpackError;
+use polywrap_msgpack::Error as MsgpackError;
 
 #[derive(thiserror::Error, Debug)]
 pub enum PluginError {
@@ -12,18 +12,12 @@ pub enum PluginError {
     #[error(transparent)]
     JSONError(#[from] serde_json::error::Error),
 
-    #[error("`{0}`")]
-    MsgpackError(String),
+    #[error(transparent)]
+    MsgpackError(#[from] MsgpackError),
 }
 
 impl From<PluginError> for Error {
     fn from(e: PluginError) -> Self {
         Error::PluginError(e.to_string())
-    }
-}
-
-impl From<MsgpackError> for PluginError {
-    fn from(e: MsgpackError) -> Self {
-        PluginError::MsgpackError(e.to_string())
     }
 }

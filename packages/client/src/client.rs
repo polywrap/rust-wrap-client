@@ -54,8 +54,7 @@ impl PolywrapClient {
     ) -> Result<T, Error> {
         let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
 
-        decode(result.as_slice())
-            .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {e}")))
+        decode(result.as_slice()).map_err(Error::MsgpackError)
     }
 
     pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
@@ -70,8 +69,7 @@ impl PolywrapClient {
         let result =
             self.invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)?;
 
-        decode(result.as_slice())
-            .map_err(|e| Error::MsgpackError(format!("Failed to decode result: {e}")))
+        decode(result.as_slice()).map_err(Error::MsgpackError)
     }
 }
 

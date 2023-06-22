@@ -8,7 +8,7 @@ use polywrap_core::{
     invoker::Invoker,
     wrapper::{GetFileOptions, Wrapper},
 };
-use polywrap_msgpack::msgpack;
+use polywrap_msgpack::encode;
 
 use crate::module::PluginModule;
 
@@ -36,7 +36,7 @@ impl Wrapper for PluginWrapper {
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),
-            None => msgpack!({}),
+            None => encode({}).unwrap(),
         };
 
         let result = self

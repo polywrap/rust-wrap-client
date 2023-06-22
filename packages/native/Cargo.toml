@@ -16,6 +16,7 @@ polywrap_wasm.workspace = true
 
 thiserror.workspace = true
 serde_json.workspace = true
+serde.workspace = true
 
 uniffi = { version = "0.23.0", features = [ "cli" ] }
 
