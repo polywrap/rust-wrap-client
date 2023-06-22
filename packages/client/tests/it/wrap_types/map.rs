@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
 

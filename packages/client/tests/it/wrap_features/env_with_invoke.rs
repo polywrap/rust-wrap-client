@@ -6,7 +6,7 @@ use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_core::resolution::uri_resolver::UriResolver;
-use polywrap_msgpack::encode;
+use polywrap_msgpack::{encode, Map};
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::recursive_resolver::RecursiveResolver;
 use polywrap_resolvers::resolver_vec;
@@ -14,8 +14,7 @@ use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 fn get_env_wrapper_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
@@ -35,8 +34,8 @@ struct Env {
     optBool: Option<bool>,
     en: i8,
     optEnum: Option<i8>,
-    object: HashMap<String, String>,
-    optObject: Option<HashMap<String, String>>,
+    object: Map<String, String>,
+    optObject: Option<Map<String, String>>,
     array: Vec<i32>,
 }
 
@@ -51,7 +50,7 @@ fn get_default_env() -> Env {
         optBool: None,
         en: 0,
         optEnum: None,
-        object: HashMap::from([("prop".to_string(), "object string".to_string())]),
+        object: Map::from([("prop".to_string(), "object string".to_string())]),
         optObject: None,
         array: vec![32, 23],
     }

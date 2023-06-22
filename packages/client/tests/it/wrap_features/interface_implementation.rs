@@ -62,7 +62,12 @@ fn test_interface_implementation() {
         .invoke::<ModuleMethodResponse>(
             &wrapper_uri,
             "moduleMethod",
-            Some(&encode(Args { arg: mock_response.clone() }).unwrap()),
+            Some(
+                &encode(Args {
+                    arg: mock_response.clone(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )

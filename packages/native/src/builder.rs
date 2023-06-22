@@ -271,14 +271,13 @@ mod test {
         builder.add_interface_implementation(interface_uri.clone(), implementation_a_uri);
         builder.add_interface_implementation(interface_uri.clone(), implementation_b_uri.clone());
 
-        let interfaces: std::collections::HashMap<String, Vec<polywrap_client::core::uri::Uri>> =
-            builder
-                .inner_builder
-                .lock()
-                .unwrap()
-                .clone()
-                .interfaces
-                .unwrap();
+        let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
+            .inner_builder
+            .lock()
+            .unwrap()
+            .clone()
+            .interfaces
+            .unwrap();
         let implementations = interfaces.get(&interface_uri.to_string());
         assert_eq!(
             implementations,
@@ -289,14 +288,13 @@ mod test {
         );
 
         builder.remove_interface_implementation(interface_uri.clone(), implementation_b_uri);
-        let interfaces: std::collections::HashMap<String, Vec<polywrap_client::core::uri::Uri>> =
-            builder
-                .inner_builder
-                .lock()
-                .unwrap()
-                .clone()
-                .interfaces
-                .unwrap();
+        let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
+            .inner_builder
+            .lock()
+            .unwrap()
+            .clone()
+            .interfaces
+            .unwrap();
         let implementations = interfaces.get(&interface_uri.to_string());
         assert_eq!(
             implementations,

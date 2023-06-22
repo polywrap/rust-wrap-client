@@ -7,8 +7,7 @@ use polywrap_plugin::package::PluginPackage;
 use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_tests_utils::mocks::MemoryStoragePlugin;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::wrap_types::get_client;
 
