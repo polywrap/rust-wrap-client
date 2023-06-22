@@ -1,6 +1,5 @@
 use std::sync::{Arc, Mutex};
 
-use bytes::Bytes;
 use wasmer::{Module, Store};
 
 use crate::{
@@ -28,7 +27,7 @@ impl WasmModule {
 
 #[derive(Clone)]
 pub struct SerializedWasmModule {
-    pub compiled_bytes: Bytes,
+    pub compiled_bytes: Arc<[u8]>,
     pub memory_initial_limits: u8,
 }
 
@@ -36,7 +35,7 @@ impl SerializedWasmModule {
     // Deserialize the module back into a CompiledWasmModule.
     pub fn deserialize(self) -> Result<CompiledWasmModule, WrapperError> {
         let store = Store::default();
-        let wasmer_module = Module::deserialize_checked(&store, self.compiled_bytes)?;
+        let wasmer_module = Module::deserialize_checked(&store, &*self.compiled_bytes)?;
 
         Ok(CompiledWasmModule {
             module: wasmer_module,
@@ -64,7 +63,7 @@ impl CompiledWasmModule {
     pub fn serialize(&self) -> Result<SerializedWasmModule, WrapperError> {
         let compiled_bytes = self.module.serialize()?;
         Ok(SerializedWasmModule {
-            compiled_bytes,
+            compiled_bytes: (Vec::<u8>::from(compiled_bytes)).into(),
             memory_initial_limits: self.memory_initial_limits,
         })
     }
