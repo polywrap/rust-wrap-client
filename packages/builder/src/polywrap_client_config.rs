@@ -1,48 +1,72 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_core::{
-    client::{ClientConfig, UriRedirect},
+    client::{ClientConfig, ClientConfigBuilder},
+    interface_implementation::InterfaceImplementations,
     package::WrapPackage,
     resolution::uri_resolver::UriResolver,
     uri::Uri,
     wrapper::Wrapper,
 };
+use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 
-use crate::{
-    helpers::build_resolver,
-    types::{BuilderConfig, ClientBuilder, ClientConfigHandler},
-};
+use crate::{PolywrapBaseResolver, PolywrapBaseResolverOptions, PolywrapClientConfigBuilder};
 
-impl BuilderConfig {
-    pub fn new(config: Option<BuilderConfig>) -> Self {
-        if let Some(c) = config {
-            c
-        } else {
-            BuilderConfig {
-                interfaces: None,
-                envs: None,
-                wrappers: None,
-                packages: None,
-                redirects: None,
-                resolvers: None,
-            }
+#[derive(Default, Clone)]
+pub struct PolywrapClientConfig {
+    pub interfaces: Option<InterfaceImplementations>,
+    pub envs: Option<HashMap<Uri, Vec<u8>>>,
+    pub wrappers: Option<Vec<(Uri, Arc<dyn Wrapper>)>>,
+    pub packages: Option<Vec<(Uri, Arc<dyn WrapPackage>)>>,
+    pub redirects: Option<HashMap<Uri, Uri>>,
+    pub resolvers: Option<Vec<Arc<dyn UriResolver>>>,
+}
+
+impl PolywrapClientConfig {
+    pub fn new() -> Self {
+        // We don't want to use the default constructor here because it may change
+        // and then `new` would no longer create an empty config.
+        Self {
+            interfaces: None,
+            envs: None,
+            wrappers: None,
+            packages: None,
+            redirects: None,
+            resolvers: None,
         }
     }
 
-    pub fn config(self) -> BuilderConfig {
-        BuilderConfig {
-            interfaces: self.interfaces,
-            envs: self.envs,
-            wrappers: self.wrappers,
-            packages: self.packages,
-            redirects: self.redirects,
-            resolvers: self.resolvers,
+    pub fn build_static_resolver(&self) -> Option<StaticResolver> {
+        let mut static_resolvers: Vec<StaticResolverLike> = vec![];
+
+        if let Some(wrappers) = &self.wrappers {
+            for (uri, w) in wrappers {
+                static_resolvers.push(StaticResolverLike::Wrapper(uri.clone(), w.clone()));
+            }
+        }
+
+        if let Some(packages) = &self.packages {
+            for (uri, p) in packages {
+                static_resolvers.push(StaticResolverLike::Package(uri.clone(), p.clone()));
+            }
+        }
+
+        if let Some(redirects) = &self.redirects {
+            for r in redirects {
+                static_resolvers.push(StaticResolverLike::Redirect(r.into()));
+            }
+        }
+
+        if static_resolvers.len() > 0 {
+            Some(StaticResolver::from(static_resolvers))
+        } else {
+            None
         }
     }
 }
 
-impl ClientBuilder for BuilderConfig {
-    fn add(&mut self, config: BuilderConfig) -> &mut Self {
+impl PolywrapClientConfigBuilder for PolywrapClientConfig {
+    fn add(&mut self, config: PolywrapClientConfig) -> &mut Self {
         if let Some(e) = config.envs {
             self.add_envs(e);
         };
@@ -74,29 +98,28 @@ impl ClientBuilder for BuilderConfig {
     }
 
     fn add_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self {
-        match self.envs.as_mut() {
-            Some(envs) => {
-                envs.insert(uri.to_string(), env);
-            }
-            None => {
-                let mut envs: HashMap<String, Vec<u8>> = HashMap::new();
-                envs.insert(uri.to_string(), env);
-                self.envs = Some(envs);
-            }
-        };
+        if let Some(envs) = self.envs.as_mut() {
+            envs.insert(uri, env);
+        } else {
+            self.envs = Some(HashMap::from([(uri, env)]));
+        }
+
         self
     }
 
-    fn add_envs(&mut self, envs: HashMap<String, Vec<u8>>) -> &mut Self {
-        for (uri, env) in envs.into_iter() {
-            self.add_env(Uri::new(uri.as_str()), env);
+    fn add_envs(&mut self, envs: HashMap<Uri, Vec<u8>>) -> &mut Self {
+        if let Some(existing_envs) = self.envs.as_mut() {
+            existing_envs.extend(envs);
+        } else {
+            self.envs = Some(envs);
         }
+
         self
     }
 
     fn remove_env(&mut self, uri: &Uri) -> &mut Self {
         if let Some(envs) = self.envs.as_mut() {
-            envs.retain(|k, _| &uri.clone().uri != k);
+            envs.retain(|k, _| uri != k);
             if envs.keys().len() == 0 {
                 self.envs = None;
             }
@@ -248,39 +271,32 @@ impl ClientBuilder for BuilderConfig {
     }
 
     fn add_redirect(&mut self, from: Uri, to: Uri) -> &mut Self {
-        let redirect = UriRedirect {
-            from: from.clone(),
-            to,
-        };
-        match self.redirects.as_mut() {
-            Some(redirects) => {
-                if !redirects.iter().any(|u| u.from == from) {
-                    redirects.push(redirect);
-                }
-            }
-            None => {
-                self.redirects = Some(vec![redirect]);
-            }
+        if let Some(existing_redirects) = self.redirects.as_mut() {
+            existing_redirects.insert(from, to);
+        } else {
+            self.redirects = Some(HashMap::from([(from, to)]));
         }
 
         self
     }
 
-    fn add_redirects(&mut self, redirects: Vec<UriRedirect>) -> &mut Self {
-        for UriRedirect { from, to } in redirects.into_iter() {
-            self.add_redirect(from, to);
+    fn add_redirects(&mut self, redirects: HashMap<Uri, Uri>) -> &mut Self {
+        if let Some(existing_redirects) = self.redirects.as_mut() {
+            existing_redirects.extend(redirects);
+        } else {
+            self.redirects = Some(redirects);
         }
+
         self
     }
 
     fn remove_redirect(&mut self, from: &Uri) -> &mut Self {
         if let Some(redirects) = self.redirects.as_mut() {
-            if let Some(i) = redirects.iter().position(|u| &u.from == from) {
-                redirects.remove(i);
-                if redirects.is_empty() {
-                    self.redirects = None;
-                }
-            };
+            redirects.remove(from);
+
+            if redirects.is_empty() {
+                self.redirects = None;
+            }
         };
 
         self
@@ -307,10 +323,24 @@ impl ClientBuilder for BuilderConfig {
     }
 }
 
-impl ClientConfigHandler for BuilderConfig {
+impl ClientConfigBuilder for PolywrapClientConfig {
     fn build(self) -> ClientConfig {
-        let mut builder = BuilderConfig::new(None);
-        builder.add(self.config());
-        build_resolver(builder)
+        // We first build the resolver because it needs a reference to self
+        // this way we don't need to clone `envs`, and `interfaces`.
+        ClientConfig {
+            resolver: PolywrapBaseResolver::new(PolywrapBaseResolverOptions {
+                static_resolver: self.build_static_resolver(),
+                dynamic_resolvers: self.resolvers,
+                ..Default::default()
+            }),
+            envs: self.envs,
+            interfaces: self.interfaces,
+        }
+    }
+}
+
+impl Into<ClientConfig> for PolywrapClientConfig {
+    fn into(self) -> ClientConfig {
+        self.build()
     }
 }

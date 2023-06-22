@@ -1,4 +1,5 @@
-use polywrap_client::{builder::types::ClientConfigHandler, client::PolywrapClient};
+use polywrap_client::client::PolywrapClient;
+use polywrap_client_default_config::SystemClientConfig;
 use polywrap_core::uri::Uri;
 use polywrap_msgpack::msgpack;
 use polywrap_tests_utils::helpers::get_tests_path;
@@ -7,10 +8,9 @@ use polywrap_tests_utils::helpers::get_tests_path;
 fn sanity() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-
     let subinvoke_wrap_uri = format!("fs/{path}/subinvoke/00-subinvoke/implementations/rs");
-    let config = polywrap_client_default_config::build();
-    let client = PolywrapClient::new(config.build());
+
+    let client = PolywrapClient::new(SystemClientConfig::default().into());
 
     let result = client
         .invoke::<u32>(

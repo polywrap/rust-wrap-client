@@ -6,6 +6,7 @@ use std::{
 use polywrap_core::{
     client::Client,
     invoker::Invoker,
+    macros::uri,
     resolution::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
     uri::Uri,
     uri_resolver_handler::UriResolverHandler,
@@ -31,7 +32,7 @@ impl Invoker for MockClient {
     }
 
     fn get_implementations(&self, _: &Uri) -> Result<Vec<Uri>, polywrap_core::error::Error> {
-        Ok(vec![Uri::new("mock/c")])
+        Ok(vec![uri!("mock/c")])
     }
 
     fn get_interfaces(
@@ -39,7 +40,7 @@ impl Invoker for MockClient {
     ) -> Option<polywrap_core::interface_implementation::InterfaceImplementations> {
         Some(HashMap::from([(
             ("mock/c".to_string()),
-            vec![Uri::new("mock/d")],
+            vec![uri!("mock/d")],
         )]))
     }
 
@@ -78,7 +79,7 @@ impl UriResolverHandler for MockClient {
         _: &Uri,
         _: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<UriPackageOrWrapper, polywrap_core::error::Error> {
-        Ok(UriPackageOrWrapper::Uri(Uri::new("mock/b")))
+        Ok(UriPackageOrWrapper::Uri(uri!("mock/b")))
     }
 }
 

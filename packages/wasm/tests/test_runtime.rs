@@ -1,3 +1,4 @@
+use polywrap_core::macros::uri;
 use polywrap_core::{
     error::Error, file_reader::SimpleFileReader,
     interface_implementation::InterfaceImplementations, invoker::Invoker,
@@ -87,7 +88,7 @@ fn invoke_test() {
     let mock_invoker = MockInvoker::new(wrapper);
     let result = Arc::new(mock_invoker)
         .invoke_raw(
-            &Uri::try_from("ens/wrapper.eth").unwrap(),
+            &uri!("ens/wrapper.eth"),
             "add",
             Some(&msgpack!({ "a": 1, "b": 1})),
             None,

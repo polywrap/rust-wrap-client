@@ -24,16 +24,16 @@ pub enum StaticResolverLike {
 }
 
 pub struct StaticResolver {
-    pub uri_map: HashMap<String, UriPackageOrWrapper>,
+    pub uri_map: HashMap<Uri, UriPackageOrWrapper>,
 }
 
 impl StaticResolver {
-    pub fn new(uri_map: HashMap<String, UriPackageOrWrapper>) -> Self {
+    pub fn new(uri_map: HashMap<Uri, UriPackageOrWrapper>) -> Self {
         Self { uri_map }
     }
 
     pub fn from(static_resolver_likes: Vec<StaticResolverLike>) -> Self {
-        let mut uri_map: HashMap<String, UriPackageOrWrapper> = HashMap::new();
+        let mut uri_map: HashMap<Uri, UriPackageOrWrapper> = HashMap::new();
 
         for static_resolver_like in static_resolver_likes {
             match static_resolver_like {
@@ -42,17 +42,17 @@ impl StaticResolver {
                     uri_map.extend(resolver.uri_map);
                 }
                 StaticResolverLike::Redirect(redirect) => {
-                    uri_map.insert(
-                        redirect.from.to_string(),
-                        UriPackageOrWrapper::Uri(redirect.to),
-                    );
+                    uri_map.insert(redirect.from, UriPackageOrWrapper::Uri(redirect.to));
                 }
                 StaticResolverLike::Package(uri, package) => {
-                    uri_map.insert(uri.to_string(), UriPackageOrWrapper::Package(uri, package));
+                    uri_map.insert(
+                        uri.clone(),
+                        UriPackageOrWrapper::Package(uri.clone(), package),
+                    );
                 }
                 StaticResolverLike::Wrapper(uri, wrapper) => {
                     uri_map.insert(
-                        uri.to_string(),
+                        uri.clone(),
                         UriPackageOrWrapper::Wrapper(uri.clone(), wrapper),
                     );
                 }
@@ -70,7 +70,7 @@ impl UriResolver for StaticResolver {
         _: Arc<dyn Invoker>,
         resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, Error> {
-        let uri_package_or_wrapper = self.uri_map.get(&uri.to_string());
+        let uri_package_or_wrapper = self.uri_map.get(&uri);
         let (description, result) = if let Some(found) = uri_package_or_wrapper {
             match found {
                 UriPackageOrWrapper::Package(uri, package) => (

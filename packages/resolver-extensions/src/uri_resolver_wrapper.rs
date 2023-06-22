@@ -44,8 +44,8 @@ impl UriResolverWrapper {
             implementation_uri,
             "tryResolveUri",
             Some(&msgpack!({
-                "authority": uri.authority.as_str(),
-                "path": uri.path.as_str(),
+                "authority": uri.authority(),
+                "path": uri.path(),
             })),
             None,
             Some(resolver_extension_context.clone()),
@@ -136,6 +136,7 @@ mod tests {
     use std::sync::{Arc, Mutex};
 
     use polywrap_core::{
+        macros::uri,
         package::GetManifestOptions,
         resolution::{
             uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
@@ -150,12 +151,12 @@ mod tests {
     #[test]
     fn sanity() {
         let resolver_extension = UriResolverWrapper {
-            implementation_uri: Uri::try_from("wrap://mock/extension-uri").unwrap(),
+            implementation_uri: uri!("wrap://mock/extension-uri"),
         };
 
         let result = resolver_extension
             .try_resolve_uri(
-                &Uri::try_from("wrap://mock/uri-to-resolver").unwrap(),
+                &uri!("wrap://mock/uri-to-resolver"),
                 Arc::new(MockInvoker {}),
                 Arc::new(Mutex::new(UriResolutionContext::new())),
             )
@@ -172,7 +173,7 @@ mod tests {
 
         match result {
             UriPackageOrWrapper::Package(uri, package) => {
-                assert_eq!(uri, Uri::try_from("wrap://mock/resolved-uri").unwrap());
+                assert_eq!(uri, uri!("wrap://mock/resolved-uri"));
                 assert_eq!(
                     package
                         .get_manifest(Some(&GetManifestOptions { no_validate: true }))

@@ -1,4 +1,5 @@
 use polywrap_client::client::PolywrapClient;
+use polywrap_client::core::macros::uri;
 use polywrap_client::core::uri::Uri;
 use polywrap_client::msgpack::msgpack;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
@@ -57,9 +58,9 @@ fn get_client_and_uri() -> (PolywrapClient, Uri) {
 
     let mut resolvers = HashMap::new();
     resolvers.insert(
-        String::from("wrap://ens/memory-storage.polywrap.eth"),
+        uri!("wrap://ens/memory-storage.polywrap.eth"),
         UriPackageOrWrapper::Package(
-            Uri::try_from("wrap://ens/memory-storage.polywrap.eth".to_string()).unwrap(),
+            uri!("wrap://ens/memory-storage.polywrap.eth"),
             memory_storage_package,
         ),
     );

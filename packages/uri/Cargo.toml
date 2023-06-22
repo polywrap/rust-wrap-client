@@ -1,0 +1,12 @@
+[package]
+name = "polywrap_uri"
+description = "URI for Polywrap core"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+regex.workspace = true
+serde.workspace = true

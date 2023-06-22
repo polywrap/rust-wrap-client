@@ -1,5 +1,7 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{client::ClientConfig, invoker::Invoker, package::WrapPackage, uri::Uri};
+use polywrap_core::{
+    client::ClientConfig, invoker::Invoker, macros::uri, package::WrapPackage, uri::Uri,
+};
 use polywrap_msgpack::msgpack;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use serde_json::{from_value, json};
@@ -67,12 +69,11 @@ fn invoke_test() {
     let package: PluginPackage = plugin.into();
     let module = Arc::new(package) as Arc<dyn WrapPackage>;
 
-    let plugin_static_like =
-        StaticResolverLike::Package(Uri::try_from("ens/env-plugin.eth").unwrap(), module);
+    let plugin_static_like = StaticResolverLike::Package(uri!("ens/env-plugin.eth"), module);
     let static_resolver = StaticResolver::from(vec![plugin_static_like]);
 
     let env_val = msgpack!({"foo": "bar"});
-    let envs = HashMap::from([(Uri::try_from("ens/env-plugin.eth").unwrap().uri, env_val)]);
+    let envs = HashMap::from([(uri!("ens/env-plugin.eth"), env_val)]);
     let client = PolywrapClient::new(ClientConfig {
         envs: Some(envs),
         interfaces: None,
@@ -81,7 +82,7 @@ fn invoke_test() {
 
     let invoke_result = client
         .invoke::<bool>(
-            &Uri::try_from("ens/env-plugin.eth").unwrap(),
+            &uri!("ens/env-plugin.eth"),
             "checkEnvIsBar",
             Some(&msgpack!({"key": "foo"})),
             None,
