@@ -16,6 +16,14 @@ pub enum WrapperError {
     WasmRuntimeError(String),
     #[error("`{0}`")]
     ExportError(String),
+    #[error("`{0}`")]
+    CompilationError(#[from] wasmer::CompileError),
+    #[error("`{0}`")]
+    MemoryError(#[from] wasmer::MemoryError),
+    #[error("`{0}`")]
+    ModuleSerializeError(#[from] wasmer::SerializeError),
+    #[error("`{0}`")]
+    ModuleDeserializeError(#[from] wasmer::DeserializeError),
 }
 
 impl From<WrapperError> for polywrap_core::error::Error {
