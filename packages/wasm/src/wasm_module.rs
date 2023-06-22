@@ -10,7 +10,7 @@ use crate::{
 
 #[derive(Clone)]
 pub enum WasmModule {
-    WasmBytecode(Box<[u8]>),
+    WasmBytecode(Arc<[u8]>),
     Serialized(SerializedWasmModule),
     Compiled(CompiledWasmModule),
 }
