@@ -166,10 +166,11 @@ impl Invoker for FFIClient {
 #[cfg(test)]
 mod test {
     use std::{collections::HashMap, sync::Arc};
-    use polywrap_client::builder::types::ClientConfigHandler;
-    use polywrap_client::client::PolywrapClient;
+    use polywrap_client::builder::PolywrapClientConfigBuilder;
+    use polywrap_client::{client::PolywrapClient, builder::PolywrapClientConfig};
     use polywrap_client::msgpack::msgpack;
 
+    use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
     use polywrap_tests_utils::mocks::{get_mock_client, get_mock_invoker, get_mock_wrapper};
 
     use crate::{client::FFIClient, invoker::FFIInvoker, uri::FFIUri, wrapper::FFIWrapper};
@@ -235,8 +236,12 @@ mod test {
 
     #[test]
     fn ffi_invoke_raw_real() {
-        let config = polywrap_client_default_config::build().build();
-        let client = Arc::from(PolywrapClient::new(config));
+        let mut config = PolywrapClientConfig::new();
+        config
+            .add(SystemClientConfig::default().into())
+            .add(Web3ClientConfig::default().into());
+    
+        let client = Arc::from(PolywrapClient::new(config.into()));
         let ffi_client = FFIClient::new(client.clone());
 
         const SUBINVOKE_WRAP_URI: &str = "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS";
