@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use polywrap_core::uri::Uri;
 use wasmer::{
     imports, Function, FunctionEnv, FunctionEnvMut, FunctionType, Imports, Memory, Store, Type,
-    Value,
+    Value, RuntimeError,
 };
 
 use super::instance::State;
@@ -122,11 +122,10 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
 
         let msg = String::from_utf8(msg_buffer).unwrap();
         let file = String::from_utf8(file_buffer).unwrap();
-        (state.abort)(format!(
-            "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]"
-        ));
 
-        Ok(vec![])
+        Err(RuntimeError::new(format!(
+            "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]"
+        )))
     };
 
     let wrap_abort = Function::new_with_env(store, &context, invoke_abort_signature, abort);

@@ -117,14 +117,11 @@ impl WasmInstance {
     }
 
     pub fn call_export(&mut self, name: &str, params: &[Value]) -> Result<bool, WrapperError> {
-        let export = self.instance.exports.get_function(name);
-        if export.is_err() {
-            return Err(WrapperError::WasmRuntimeError(format!(
-                "Export {name} not found"
-            )));
-        }
-        let function = export.unwrap();
-        function.call(&mut self.store, params).unwrap();
+        let export = self.instance.exports.get_function(name)
+            .map_err(|_| WrapperError::WasmRuntimeError(format!("Export {name} not found")))?;
+
+        export.call(&mut self.store, params)
+            .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
         Ok(true)
     }
