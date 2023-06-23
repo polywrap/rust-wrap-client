@@ -129,7 +129,6 @@ mod test {
                     None,
                     None,
                     Arc::new(FFIInvoker(get_mock_invoker())),
-                    None,
                 );
                 assert_eq!(response.unwrap(), [195])
             }

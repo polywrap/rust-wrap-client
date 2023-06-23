@@ -25,7 +25,6 @@ pub struct State {
     pub env: Vec<u8>,
     pub invoke: InvokeState,
     pub subinvoke: InvokeState,
-    pub abort: Box<dyn Fn(String) + Send + Sync>,
     pub invoker: Arc<dyn Invoker>,
     pub get_implementations_result: Option<Vec<u8>>,
     pub subinvoke_implementation: Option<SubinvokeImplementationState>,
@@ -35,7 +34,6 @@ pub struct State {
 impl State {
     pub fn new(
         invoker: Arc<dyn Invoker>,
-        abort: Box<dyn Fn(String) + Send + Sync>,
         method: &str,
         args: Vec<u8>,
         env: Vec<u8>,
@@ -46,7 +44,6 @@ impl State {
             env,
             invoke: InvokeState::default(),
             subinvoke: InvokeState::default(),
-            abort,
             invoker,
             get_implementations_result: None,
             subinvoke_implementation: None,
@@ -120,9 +117,18 @@ impl WasmInstance {
         let export = self.instance.exports.get_function(name)
             .map_err(|_| WrapperError::WasmRuntimeError(format!("Export {name} not found")))?;
 
-        export.call(&mut self.store, params)
+        let result = export.call(&mut self.store, params)
             .map_err(|e| WrapperError::WasmRuntimeError(e.to_string()))?;
 
-        Ok(true)
+        let result = result.to_vec();
+        
+        // If the result is true (1), then the call was successful
+        if let Some(result) = result.get(0).and_then(|x| x.i32()) {
+            if result == 1 {
+                return Ok(true);
+            }
+        }
+
+        Ok(false)
     }
 }

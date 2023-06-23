@@ -47,9 +47,8 @@ impl WasmWrapper {
         args: Option<&[u8]>,
         env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
-        abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<T, Error> {
-        let result = self.invoke(method, args, env, invoker, abort_handler)?;
+        let result = self.invoke(method, args, env, invoker)?;
 
         let result = decode(result.as_slice())?;
 
@@ -70,7 +69,6 @@ impl Wrapper for WasmWrapper {
         args: Option<&[u8]>,
         env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
-        abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),
@@ -88,27 +86,8 @@ impl Wrapper for WasmWrapper {
             Value::I32(env.len().try_into().unwrap()),
         ];
 
-        let abort_method = method.to_string();
-        let abort_handler = Arc::new(abort_handler);
-
-        let abort = Box::new(move |error_message: String| {
-            if let Some(abort_handler) = abort_handler.as_ref() {
-                // Use the abort handler if provided
-                abort_handler(error_message);
-            } else {
-                // Otherwise, panic since this is an unrecoverable error
-                panic!(
-                    r#"WasmWrapper: Wasm module aborted execution.
-                  Method: {abort_method}
-                  Message: {error_message}.
-                "#
-                );
-            }
-        });
-
         let state = Arc::new(Mutex::new(State::new(
             invoker,
-            abort.clone(),
             method,
             args,
             env,
@@ -117,8 +96,7 @@ impl Wrapper for WasmWrapper {
         let mut wasm_instance = self.wasm_module.create_instance(state.clone())?;
 
         let result = wasm_instance
-            .call_export("_wrap_invoke", params)
-            .map_err(|e| Error::WrapperError(e.to_string()))?;
+            .call_export("_wrap_invoke", params)?;
 
         let state = state.lock().unwrap();
         if result {

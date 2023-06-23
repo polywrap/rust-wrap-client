@@ -17,7 +17,6 @@ impl Wrapper for MockWrapper {
         _: Option<&[u8]>,
         _: Option<&[u8]>,
         _: Arc<dyn Invoker>,
-        _: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         // In Msgpack: True = [195] and False = [194]
         if method == "foo" {
@@ -39,7 +38,6 @@ impl Wrapper for DifferentMockWrapper {
         _: Option<&[u8]>,
         _: Option<&[u8]>,
         _: Arc<dyn Invoker>,
-        _: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         // In Msgpack: True = [195] and False = [194]
         if method == "bar" {

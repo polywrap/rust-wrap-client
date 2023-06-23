@@ -33,7 +33,7 @@ impl MockInvoker {
         env: Option<&[u8]>,
         _: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
-        wrapper.invoke(method, args, env, Arc::new(self.clone()), None)
+        wrapper.invoke(method, args, env, Arc::new(self.clone()))
     }
 }
 

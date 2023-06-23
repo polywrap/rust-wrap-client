@@ -189,7 +189,7 @@ mod test {
         let ffi_invoker = Arc::new(FFIInvoker(get_mock_invoker()));
         let uri = Arc::new(FFIUri::from_string("mock/a"));
         let wrapper = ffi_client.load_wrapper(uri, None).unwrap();
-        let response = wrapper.invoke("foo".to_string(), None, None, ffi_invoker, None);
+        let response = wrapper.invoke("foo".to_string(), None, None, ffi_invoker);
 
         assert_eq!(response.unwrap(), vec![195]);
     }
