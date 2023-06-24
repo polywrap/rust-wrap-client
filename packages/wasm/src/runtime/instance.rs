@@ -123,12 +123,10 @@ impl WasmInstance {
         let result = result.to_vec();
         
         // If the result is true (1), then the call was successful
-        if let Some(result) = result.get(0).and_then(|x| x.i32()) {
-            if result == 1 {
-                return Ok(true);
-            }
-        }
+        let result = result.get(0)
+            .and_then(|x| x.i32())
+            .unwrap_or(0);
 
-        Ok(false)
+        Ok(result == 1)
     }
 }

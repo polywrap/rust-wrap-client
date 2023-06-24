@@ -184,7 +184,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mut _decoded_env = serde_json::Value::Null;
 
         let uri = uri.clone().try_into()
-            .map_err(|_| RuntimeError::new(format!("Subinvoke: Invalid URI: {}", uri)))?;
+            .map_err(|_| RuntimeError::new(format!("__wrap_subinvoke: invalid uri: {}", uri)))?;
 
         let result =
             state
@@ -362,7 +362,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mut _decoded_env = serde_json::Value::Null;
 
         let uri = uri.clone().try_into()
-            .map_err(|_| RuntimeError::new(format!("Subinvoke implementation: Invalid URI: {}", uri)))?;
+            .map_err(|_| RuntimeError::new(format!("__wrap_subinvokeImplementation: invalid uri: {}", uri)))?;
 
         let result = state.invoker.clone().invoke_raw(
             &uri,
