@@ -32,7 +32,6 @@ fn method_one_success() {
 }
 
 #[test]
-#[ignore]
 fn method_one_panic_invalid_value() {
     let (client, uri) = get_client_and_uri();
     // TODO: Panics instead of returning Result
@@ -52,8 +51,6 @@ fn method_one_panic_invalid_value() {
 }
 
 #[test]
-#[should_panic(expected = "__wrap_abort: Invalid value for enum 'SanityEnum': 5")]
-#[ignore]
 fn method_one_panic_invalid_key() {
     let (client, uri) = get_client_and_uri();
     let response = client.invoke::<i32>(
