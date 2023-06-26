@@ -5,13 +5,15 @@ use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
-use polywrap_msgpack::{encode, Map};
+use polywrap_msgpack::{encode};
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
-use std::{sync::Arc, collections::HashMap};
+use std::{collections::HashMap, sync::Arc};
+
+use super::env_with_invoke::EnvObject;
 
 fn get_subinvoker_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
@@ -51,7 +53,9 @@ fn get_default_env() -> Env {
         optBool: None,
         en: 0,
         optEnum: None,
-        object: Map::from([("prop".to_string(), "object string".to_string())]),
+        object: EnvObject {
+            prop: "object string".to_string(),
+        },
         optObject: None,
         array: vec![32, 23],
     }
@@ -73,8 +77,8 @@ struct Env {
     optBool: Option<bool>,
     en: i8,
     optEnum: Option<i8>,
-    object: Map<String, String>,
-    optObject: Option<Map<String, String>>,
+    object: EnvObject,
+    optObject: Option<EnvObject>,
     array: Vec<i32>,
 }
 
@@ -258,7 +262,9 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
         optBool: None,
         en: 0,
         optEnum: None,
-        object: Map::from([("prop".to_string(), "object string".to_string())]),
+        object: EnvObject {
+            prop: "object string".to_string(),
+        },
         optObject: None,
         array: vec![1, 2],
     };
@@ -273,7 +279,9 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
         optBool: None,
         en: 0,
         optEnum: None,
-        object: Map::from([("prop".to_string(), "object string2".to_string())]),
+        object: EnvObject {
+            prop: "object string2".to_string(),
+        },
         optObject: None,
         array: vec![2, 3],
     };

@@ -1,5 +1,5 @@
-pub use polywrap_serde::error::EncodeError;
-pub use polywrap_serde::error::DecodeError;
+pub use polywrap_msgpack_serde::error::EncodeError;
+pub use polywrap_msgpack_serde::error::DecodeError;
 
 #[derive(thiserror::Error, Debug)]
 pub enum MsgpackError {

@@ -173,7 +173,16 @@ mod tests {
 
         let expected_manifest = wrap_manifest_schemas::versions::WrapManifest01 {
             abi: wrap_manifest_schemas::versions::WrapManifest01Abi {
-                ..Default::default()
+                version: Some("1".to_string()),
+                enum_types: None,
+                env_type: None,
+                imported_enum_types: None,
+                imported_env_types: None,
+                imported_module_types: None,
+                imported_object_types: None,
+                interface_types: None,
+                module_type: None,
+                object_types: None,
             },
             name: "mock".to_string(),
             version: "0.1".to_string(),
@@ -184,13 +193,13 @@ mod tests {
             UriPackageOrWrapper::Package(uri, package) => {
                 assert_eq!(uri, uri!("wrap://mock/resolved-uri"));
                 assert_eq!(
-                    package
+                    dbg!(package
                         .get_manifest(Some(&GetManifestOptions { no_validate: true }))
-                        .unwrap(),
+                        .unwrap()),
                     expected_manifest
                 );
             }
             _ => panic!("Expected UriPackageOrWrapper::Package"),
-        }
+        };
     }
 }

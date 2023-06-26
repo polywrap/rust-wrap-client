@@ -2,8 +2,7 @@ use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
 use polywrap_msgpack::encode;
 use polywrap_tests_utils::helpers::get_tests_path;
-use serde::Serialize;
-use serde_json::json;
+use serde::{Deserialize, Serialize};
 
 use super::get_client;
 
@@ -14,7 +13,7 @@ fn get_client_and_uri() -> (PolywrapClient, Uri) {
     (get_client(None), uri)
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct Nested {
     prop: String,
 }
@@ -48,7 +47,7 @@ fn without_optional_argument_and_return_array_of_object() {
     let (client, uri) = get_client_and_uri();
 
     let response = client
-        .invoke::<Vec<serde_json::Value>>(
+        .invoke::<Vec<Output>>(
             &uri,
             "method1",
             Some(
@@ -71,18 +70,18 @@ fn without_optional_argument_and_return_array_of_object() {
     assert_eq!(
         response,
         vec![
-            json!({
-                "prop": "arg1 prop",
-                "nested": {
-                    "prop": "arg1 nested prop",
+            Output {
+                prop: "arg1 prop".to_string(),
+                nested: Nested {
+                    prop: "arg1 nested prop".to_string(),
                 },
-            }),
-            json!({
-                "prop": "",
-                "nested": {
-                    "prop": "",
+            },
+            Output {
+                prop: "".to_string(),
+                nested: Nested {
+                    prop: "".to_string(),
                 },
-            }),
+            },
         ]
     );
 }
@@ -92,7 +91,7 @@ fn with_optional_argument_and_return_array_of_object() {
     let (client, uri) = get_client_and_uri();
 
     let response = client
-        .invoke::<Vec<serde_json::Value>>(
+        .invoke::<Vec<Output>>(
             &uri,
             "method1",
             Some(
@@ -120,18 +119,18 @@ fn with_optional_argument_and_return_array_of_object() {
     assert_eq!(
         response,
         vec![
-            json!({
-                "prop": "arg1 prop",
-                "nested": {
-                    "prop": "arg1 nested prop",
+            Output {
+                prop: "arg1 prop".to_string(),
+                nested: Nested {
+                    prop: "arg1 nested prop".to_string(),
                 },
-            }),
-            json!({
-                "prop": "arg2 prop",
-                "nested": {
-                    "prop": "arg2 circular prop",
+            },
+            Output {
+                prop: "arg2 prop".to_string(),
+                nested: Nested {
+                    prop: "arg2 circular prop".to_string(),
                 },
-            }),
+            },
         ]
     );
 }
@@ -141,62 +140,54 @@ struct MethodTwoArgs {
     arg: Arg1,
 }
 
+#[derive(Deserialize, PartialEq, Debug)]
+struct Output {
+    prop: String,
+    nested: Nested,
+}
+
 #[test]
 fn returns_optional_return_value() {
     let (client, uri) = get_client_and_uri();
 
+    let args_encoded = &encode(&MethodTwoArgs {
+        arg: Arg1 {
+            prop: Some("arg1 prop".to_string()),
+            nested: Nested {
+                prop: "arg1 nested prop".to_string(),
+            },
+        },
+    })
+    .unwrap();
     let response = client
-        .invoke::<Option<serde_json::Value>>(
-            &uri,
-            "method2",
-            Some(
-                &encode(&MethodTwoArgs {
-                    arg: Arg1 {
-                        prop: Some("arg1 prop".to_string()),
-                        nested: Nested {
-                            prop: "arg1 nested prop".to_string(),
-                        },
-                    },
-                })
-                .unwrap(),
-            ),
-            None,
-            None,
-        )
+        .invoke::<Option<Output>>(&uri, "method2", Some(args_encoded), None, None)
         .unwrap();
 
     assert_eq!(
         response.unwrap(),
-        json!({
-            "prop": "arg prop",
-            "nested": {
-                "prop": "arg nested prop",
-            },
-        })
+        Output {
+            prop: "arg1 prop".to_string(),
+            nested: Nested {
+                prop: "arg1 nested prop".to_string(),
+            }
+        }
     );
 }
 
 #[test]
 fn do_not_returns_optional_return_value() {
     let (client, uri) = get_client_and_uri();
+    let encoded_args = &encode(&MethodTwoArgs {
+        arg: Arg1 {
+            prop: Some("null".to_string()),
+            nested: Nested {
+                prop: "arg nested prop".to_string(),
+            },
+        },
+    })
+    .unwrap();
     let response = client
-        .invoke::<Option<serde_json::Value>>(
-            &uri,
-            "method2",
-            Some(
-                &encode(&MethodTwoArgs {
-                    arg: Arg1 {
-                        prop: None,
-                        nested: Nested {
-                            prop: "arg1 nested prop".to_string(),
-                        },
-                    },
-                })
-                .unwrap(),
-            ),
-            None,
-            None,
-        )
+        .invoke::<Option<Output>>(&uri, "method2", Some(encoded_args), None, None)
         .unwrap();
 
     assert_eq!(response, None);
@@ -206,7 +197,7 @@ fn do_not_returns_optional_return_value() {
 fn not_optional_args_and_returns_not_optional_array_of_objects() {
     let (client, uri) = get_client_and_uri();
     let method3 = client
-        .invoke::<Vec<serde_json::Value>>(
+        .invoke::<Vec<Option<Output>>>(
             &uri,
             "method3",
             Some(
@@ -228,13 +219,13 @@ fn not_optional_args_and_returns_not_optional_array_of_objects() {
     assert_eq!(
         method3,
         vec![
-            serde_json::Value::Null,
-            json!({
-                "prop": "arg prop",
-                "nested": {
-                    "prop": "arg nested prop",
-                },
-            }),
+            None,
+            Some(Output {
+                prop: "arg prop".to_string(),
+                nested: Nested {
+                    prop: "arg nested prop".to_string(),
+                }
+            })
         ]
     );
 }
@@ -249,7 +240,7 @@ fn not_optional_args_and_returns_not_optional_object() {
     let (client, uri) = get_client_and_uri();
 
     let response = client
-        .invoke::<serde_json::Value>(
+        .invoke::<Output>(
             &uri,
             "method4",
             Some(
@@ -267,11 +258,11 @@ fn not_optional_args_and_returns_not_optional_object() {
 
     assert_eq!(
         response,
-        json!({
-            "prop": "1234",
-            "nested": {
-                "prop": "nested prop",
+        Output {
+            prop: "1234".to_string(),
+            nested: Nested {
+                prop: "nested prop".to_string(),
             },
-        })
+        }
     );
 }

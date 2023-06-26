@@ -1,7 +1,8 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_msgpack::encode;
+use polywrap_msgpack::{encode, wrappers::polywrap_json};
 use polywrap_tests_utils::helpers::get_tests_path;
+
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -76,16 +77,25 @@ fn stringify() {
 
 #[derive(Serialize)]
 struct StringifyObjectArgs {
-    object: Value,
+    object: Object,
+}
+
+#[allow(non_snake_case)]
+#[derive(Serialize, Clone)]
+struct Object {
+    #[serde(with = "polywrap_json")]
+    jsonA: Value,
+    #[serde(with = "polywrap_json")]
+    jsonB: Value,
 }
 
 #[test]
 fn stringify_object() {
     let (client, uri) = get_client_and_uri();
-    let object = json!({
-        "jsonA": json!({ "foo": "bar" }).to_string(),
-        "jsonB": json!({ "fuz": "baz" }).to_string(),
-    });
+    let object = Object {
+        jsonA: json!({ "foo": "bar" }),
+        jsonB: json!({ "fuz": "baz" }),
+    };
 
     let stringify_object_response = client
         .invoke::<String>(
@@ -104,11 +114,11 @@ fn stringify_object() {
 
     assert_eq!(
         stringify_object_response,
-        object["jsonA"].as_str().unwrap().to_string()
-            + &object["jsonB"].as_str().unwrap().to_string()
+        object.jsonA.to_string() + &object.jsonB.to_string()
     );
 }
 
+#[allow(non_snake_case)]
 #[derive(Serialize)]
 struct MethodJSONArgs {
     valueA: i64,
@@ -156,7 +166,7 @@ fn method_json() {
     });
 
     let parse_reserved_response = client
-        .invoke::<serde_json::Value>(
+        .invoke::<Reserved>(
             &uri,
             "parseReserved",
             Some(
@@ -170,7 +180,13 @@ fn method_json() {
         )
         .unwrap();
 
-    assert_eq!(parse_reserved_response.to_string(), reserved.to_string());
+    assert_eq!(
+        parse_reserved_response,
+        Reserved {
+            r#const: "hello".to_string(),
+            r#if: true
+        }
+    );
 }
 
 #[derive(Serialize)]
@@ -178,7 +194,7 @@ struct StringifyReservedArgs {
     reserved: Reserved,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct Reserved {
     r#const: String,
     r#if: bool,

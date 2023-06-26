@@ -6,7 +6,7 @@ use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_core::resolution::uri_resolver::UriResolver;
-use polywrap_msgpack::{encode, Map};
+use polywrap_msgpack::{encode};
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::recursive_resolver::RecursiveResolver;
 use polywrap_resolvers::resolver_vec;
@@ -22,6 +22,12 @@ fn get_env_wrapper_uri() -> Uri {
 
     Uri::try_from(format!("fs/{path}/env-type/00-main/implementations/rs")).unwrap()
 }
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub struct EnvObject {
+    pub prop: String
+}
+
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct Env {
@@ -34,8 +40,8 @@ struct Env {
     optBool: Option<bool>,
     en: i8,
     optEnum: Option<i8>,
-    object: Map<String, String>,
-    optObject: Option<Map<String, String>>,
+    object: EnvObject,
+    optObject: Option<EnvObject>,
     array: Vec<i32>,
 }
 
@@ -50,7 +56,7 @@ fn get_default_env() -> Env {
         optBool: None,
         en: 0,
         optEnum: None,
-        object: Map::from([("prop".to_string(), "object string".to_string())]),
+        object: EnvObject { prop: "object string".to_string() },
         optObject: None,
         array: vec![32, 23],
     }

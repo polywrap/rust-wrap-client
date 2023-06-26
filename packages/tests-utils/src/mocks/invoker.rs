@@ -31,7 +31,16 @@ impl Invoker for MockInvoker {
         if method == "tryResolveUri" {
             let manifest = wrap_manifest_schemas::versions::WrapManifest01 {
                 abi: wrap_manifest_schemas::versions::WrapManifest01Abi {
-                    ..Default::default()
+                    version: Some("1".to_string()),
+                    enum_types: None,
+                    env_type: None,
+                    imported_enum_types: None,
+                    imported_env_types: None,
+                    imported_module_types: None,
+                    imported_object_types: None,
+                    interface_types: None,
+                    module_type: None,
+                    object_types: None,
                 },
                 name: "mock".to_string(),
                 version: "0.1".to_string(),

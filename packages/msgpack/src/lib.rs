@@ -1,20 +1,21 @@
-use polywrap_serde::{from_slice, to_vec};
+use polywrap_msgpack_serde::{from_slice, to_vec};
 use serde::{de::DeserializeOwned, Serialize};
 
-pub use polywrap_serde::error::Error;
-pub use polywrap_serde::Map;
+pub use polywrap_msgpack_serde::error::Error;
+pub use polywrap_msgpack_serde::Map;
+pub use polywrap_msgpack_serde::wrappers;
 
-pub fn encode<T: Serialize>(value: T) -> Result<Vec<u8>, polywrap_serde::error::Error> {
+pub fn encode<T: Serialize>(value: T) -> Result<Vec<u8>, polywrap_msgpack_serde::error::Error> {
     to_vec(&value)
 }
 
-pub fn decode<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, polywrap_serde::error::Error> {
+pub fn decode<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, polywrap_msgpack_serde::error::Error> {
     from_slice(bytes)
 }
 
 #[cfg(test)]
 mod tests {
-    use polywrap_serde::Map;
+    use polywrap_msgpack_serde::Map;
     use serde::{Deserialize, Serialize};
 
     use crate::{decode, encode};
