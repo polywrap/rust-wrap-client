@@ -64,26 +64,34 @@ fn method_one_panic_invalid_value() {
         .contains("__wrap_abort: Invalid value for enum 'SanityEnum': 5"));
 }
 
-// #[derive(Serialize)]
-// struct MethodTwoArgs {
-//     enumArray: ,
-//     optEnum: Option<u32>,
-// }
+#[derive(Serialize)]
+pub enum EnumArg {
+  OPTION1,
+  OPTION2,
+  OPTION3
+}
+
+#[derive(Serialize)]
+struct MethodTwoArgs {
+    enumArray: Vec<EnumArg>,
+    optEnum: Option<u32>,
+}
 
 
-// #[test]
-// fn method_two_success() {
-//     let (client, uri) = get_client_and_uri();
-//     let response = client
-//         .invoke::<Vec<i32>>(
-//             &uri,
-//             "method2",
-//             Some(&msgpack!({
-//                 "enumArray": ["OPTION1", 0, "OPTION3"],
-//             })),
-//             None,
-//             None,
-//         )
-//         .unwrap();
-//     assert_eq!(response, vec![0, 0, 2]);
-// }
+#[test]
+fn method_two_success() {
+    let (client, uri) = get_client_and_uri();
+    let response = client
+        .invoke::<Vec<i32>>(
+            &uri,
+            "method2",
+            Some(&polywrap_msgpack_serde::to_vec(&MethodTwoArgs {
+                enumArray: vec![EnumArg::OPTION1, EnumArg::OPTION1, EnumArg::OPTION3],
+                optEnum: None,
+            })),
+            None,
+            None,
+        )
+        .unwrap();
+    assert_eq!(response, vec![0, 0, 2]);
+}
