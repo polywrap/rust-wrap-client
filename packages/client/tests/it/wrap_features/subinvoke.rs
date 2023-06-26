@@ -7,7 +7,7 @@ use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
@@ -56,7 +56,7 @@ fn subinvoke_test() {
         .invoke::<u32>(
             &invoke_uri,
             "addAndIncrement",
-            Some(&encode(&AddArgs { a: 1, b: 1 }).unwrap()),
+            Some(&to_vec(&AddArgs { a: 1, b: 1 }).unwrap()),
             None,
             None,
         )

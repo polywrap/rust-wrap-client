@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use polywrap_msgpack::Error as MsgpackError;
+use polywrap_msgpack_serde::Error as MsgpackError;
 use polywrap_uri::UriParseError;
 
 #[derive(thiserror::Error, Debug, Clone)]

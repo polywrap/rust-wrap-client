@@ -1,6 +1,6 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_msgpack::{encode, wrappers::polywrap_json};
+use polywrap_msgpack_serde::{to_vec, wrappers::polywrap_json};
 use polywrap_tests_utils::helpers::get_tests_path;
 
 use serde::{Deserialize, Serialize};
@@ -41,7 +41,7 @@ fn parse() {
             &uri,
             "parse",
             Some(
-                &encode(&ParseArgs {
+                &to_vec(&ParseArgs {
                     value: value.clone(),
                 })
                 .unwrap(),
@@ -66,7 +66,7 @@ fn stringify() {
         .invoke::<String>(
             &uri,
             "stringify",
-            Some(&encode(&StringifyArgs { values }).unwrap()),
+            Some(&to_vec(&StringifyArgs { values }).unwrap()),
             None,
             None,
         )
@@ -102,7 +102,7 @@ fn stringify_object() {
             &uri,
             "stringifyObject",
             Some(
-                &encode(&StringifyObjectArgs {
+                &to_vec(&StringifyObjectArgs {
                     object: object.clone(),
                 })
                 .unwrap(),
@@ -145,7 +145,7 @@ fn method_json() {
             &uri,
             "methodJSON",
             Some(
-                &encode(&MethodJSONArgs {
+                &to_vec(&MethodJSONArgs {
                     valueA: json["valueA"].as_i64().unwrap(),
                     valueB: json["valueB"].as_str().unwrap().to_string(),
                     valueC: json["valueC"].as_bool().unwrap(),
@@ -170,7 +170,7 @@ fn method_json() {
             &uri,
             "parseReserved",
             Some(
-                &encode(&ParseReservedArgs {
+                &to_vec(&ParseReservedArgs {
                     json: reserved.to_string(),
                 })
                 .unwrap(),
@@ -212,7 +212,7 @@ fn stringify_reserved() {
             &uri,
             "stringifyReserved",
             Some(
-                &encode(&StringifyReservedArgs {
+                &to_vec(&StringifyReservedArgs {
                     reserved: Reserved {
                         r#const: "hello".to_string(),
                         r#if: true,

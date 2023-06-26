@@ -2,7 +2,7 @@ use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::macros::uri;
 use polywrap_client::core::uri::Uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_plugin::package::PluginPackage;
 use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_tests_utils::mocks::MemoryStoragePlugin;
@@ -95,7 +95,7 @@ fn subsequent_invokes() {
         .invoke::<Vec<String>>(
             &uri,
             "subsequentInvokes",
-            Some(&encode(SubsequentInvokesArgs { numberOfTimes: 40 }).unwrap()),
+            Some(&to_vec(&SubsequentInvokesArgs { numberOfTimes: 40 }).unwrap()),
             None,
             None,
         )
@@ -139,7 +139,7 @@ fn set_data_with_large_args() {
             &uri,
             "setDataWithLargeArgs",
             Some(
-                &encode(&SetDataWithLargeArgsArgs {
+                &to_vec(&SetDataWithLargeArgsArgs {
                     value: large_str.clone(),
                 })
                 .unwrap(),
@@ -159,7 +159,7 @@ fn set_data_with_many_args() {
             &uri,
             "setDataWithManyArgs",
             Some(
-                &encode(&SetDataWithManyArgsArgs {
+                &to_vec(&SetDataWithManyArgsArgs {
                     valueA: "polywrap a".to_string(),
                     valueB: "polywrap b".to_string(),
                     valueC: "polywrap c".to_string(),
@@ -206,7 +206,7 @@ fn set_data_with_many_structured_args() {
             &uri,
             "setDataWithManyStructuredArgs",
             Some(
-                &encode(&DataWithManyStructuredArgs {
+                &to_vec(&DataWithManyStructuredArgs {
                     valueA: create_obj(1),
                     valueB: create_obj(2),
                     valueC: create_obj(3),

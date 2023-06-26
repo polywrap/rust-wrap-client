@@ -11,7 +11,7 @@ license.workspace = true
 thiserror.workspace = true
 polywrap_core.workspace = true
 wrap_manifest_schemas.workspace = true
-polywrap_msgpack.workspace = true
+polywrap_msgpack_serde.workspace = true
 serde_json.workspace = true
 
 Inflector = "0.11.4"

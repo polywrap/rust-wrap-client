@@ -1,6 +1,6 @@
 use polywrap_client_builder::PolywrapClientConfig;
 use polywrap_core::{client::ClientConfig, macros::uri, uri::Uri};
-use polywrap_msgpack::{encode};
+use polywrap_msgpack_serde::{to_vec};
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc};
 
@@ -38,7 +38,7 @@ impl Default for Web3ClientConfig {
             ])),
             envs: Some(HashMap::from([(
                 uri!("wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
-                encode(&IpfsEnv {
+                to_vec(&IpfsEnv {
                     provider: "https://ipfs.wrappers.io".to_string(),
                     fallback_providers: vec!["https://ipfs.io".to_string()],
                     retries: Retries {

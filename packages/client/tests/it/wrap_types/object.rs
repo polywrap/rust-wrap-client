@@ -1,6 +1,6 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
 
@@ -51,7 +51,7 @@ fn without_optional_argument_and_return_array_of_object() {
             &uri,
             "method1",
             Some(
-                &encode(&MethodOneArgs {
+                &to_vec(&MethodOneArgs {
                     arg1: Arg1 {
                         prop: Some("arg1 prop".to_string()),
                         nested: Nested {
@@ -95,7 +95,7 @@ fn with_optional_argument_and_return_array_of_object() {
             &uri,
             "method1",
             Some(
-                &encode(&MethodOneArgs {
+                &to_vec(&MethodOneArgs {
                     arg1: Arg1 {
                         prop: Some("arg1 prop".to_string()),
                         nested: Nested {
@@ -150,7 +150,7 @@ struct Output {
 fn returns_optional_return_value() {
     let (client, uri) = get_client_and_uri();
 
-    let args_encoded = &encode(&MethodTwoArgs {
+    let args_to_vecd = &to_vec(&MethodTwoArgs {
         arg: Arg1 {
             prop: Some("arg1 prop".to_string()),
             nested: Nested {
@@ -160,7 +160,7 @@ fn returns_optional_return_value() {
     })
     .unwrap();
     let response = client
-        .invoke::<Option<Output>>(&uri, "method2", Some(args_encoded), None, None)
+        .invoke::<Option<Output>>(&uri, "method2", Some(args_to_vecd), None, None)
         .unwrap();
 
     assert_eq!(
@@ -177,7 +177,7 @@ fn returns_optional_return_value() {
 #[test]
 fn do_not_returns_optional_return_value() {
     let (client, uri) = get_client_and_uri();
-    let encoded_args = &encode(&MethodTwoArgs {
+    let to_vecd_args = &to_vec(&MethodTwoArgs {
         arg: Arg1 {
             prop: Some("null".to_string()),
             nested: Nested {
@@ -187,7 +187,7 @@ fn do_not_returns_optional_return_value() {
     })
     .unwrap();
     let response = client
-        .invoke::<Option<Output>>(&uri, "method2", Some(encoded_args), None, None)
+        .invoke::<Option<Output>>(&uri, "method2", Some(to_vecd_args), None, None)
         .unwrap();
 
     assert_eq!(response, None);
@@ -201,7 +201,7 @@ fn not_optional_args_and_returns_not_optional_array_of_objects() {
             &uri,
             "method3",
             Some(
-                &encode(&MethodTwoArgs {
+                &to_vec(&MethodTwoArgs {
                     arg: Arg1 {
                         prop: Some("arg prop".to_string()),
                         nested: Nested {
@@ -244,7 +244,7 @@ fn not_optional_args_and_returns_not_optional_object() {
             &uri,
             "method4",
             Some(
-                &encode(&MethodThreeArgs {
+                &to_vec(&MethodThreeArgs {
                     arg: Arg3 {
                         prop: [49, 50, 51, 52].to_vec(),
                     },

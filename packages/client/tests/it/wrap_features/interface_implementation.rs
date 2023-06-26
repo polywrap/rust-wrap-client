@@ -3,7 +3,7 @@ use polywrap_client::core::{interface_implementation::InterfaceImplementations, 
 
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
@@ -63,7 +63,7 @@ fn test_interface_implementation() {
             &wrapper_uri,
             "moduleMethod",
             Some(
-                &encode(Args {
+                &to_vec(&Args {
                     arg: mock_response.clone(),
                 })
                 .unwrap(),

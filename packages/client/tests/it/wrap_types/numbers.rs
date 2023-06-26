@@ -1,6 +1,6 @@
 use polywrap_client::core::uri::Uri;
 use polywrap_client_builder::PolywrapClientConfig;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Serialize;
 
@@ -25,7 +25,7 @@ fn numbers_test_case() {
             &uri,
             "i8Method",
             Some(
-                &encode(&MethodArgs {
+                &to_vec(&MethodArgs {
                     first: -129,
                     second: 10,
                 })
@@ -44,7 +44,7 @@ fn numbers_test_case() {
             &uri,
             "u8Method",
             Some(
-                &encode(&MethodArgs {
+                &to_vec(&MethodArgs {
                     first: 256,
                     second: 10,
                 })
@@ -63,7 +63,7 @@ fn numbers_test_case() {
             &uri,
             "i16Method",
             Some(
-                &encode(&MethodArgs {
+                &to_vec(&MethodArgs {
                     first: -32769,
                     second: 10,
                 })
@@ -82,7 +82,7 @@ fn numbers_test_case() {
             &uri,
             "u16Method",
             Some(
-                &encode(&MethodArgs {
+                &to_vec(&MethodArgs {
                     first: 65536,
                     second: 10,
                 })
@@ -101,7 +101,7 @@ fn numbers_test_case() {
             &uri,
             "i32Method",
             Some(
-                &encode(&MethodArgs {
+                &to_vec(&MethodArgs {
                     first: -2147483649i64,
                     second: 10,
                 })
@@ -120,7 +120,7 @@ fn numbers_test_case() {
             &uri,
             "u32Method",
             Some(
-                &encode(&MethodArgs {
+                &to_vec(&MethodArgs {
                     first: 4294967296i64,
                     second: 10,
                 })

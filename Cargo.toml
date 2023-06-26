@@ -12,7 +12,6 @@ members = [
     "packages/uri",
     "packages/wasm",
     "packages/resolvers",
-    "packages/msgpack",
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
@@ -28,7 +27,6 @@ default-members = [
     "packages/uri",
     "packages/wasm",
     "packages/resolvers",
-    "packages/msgpack",
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
@@ -45,7 +43,6 @@ polywrap_core = { version = "0.1.6-beta.7", path = "packages/core" }
 wrap_manifest_schemas = { version = "0.1.6-beta.7", path = "packages/manifest" }
 polywrap_resolvers = { version = "0.1.6-beta.7", path = "packages/resolvers" }
 polywrap_resolver_extensions = { version = "0.1.6-beta.7", path = "packages/resolver-extensions" }
-polywrap_msgpack = { version = "0.1.6-beta.7", path = "packages/msgpack" }
 polywrap_tests_utils = { version = "0.1.6-beta.7", path = "packages/tests-utils" }
 polywrap_plugin = { version = "0.1.6-beta.7", path = "packages/plugin" }
 polywrap_client_default_config = { version = "0.1.6-beta.7", path = "packages/default-config" }
@@ -54,8 +51,9 @@ polywrap_core_macros = { version = "0.1.6-beta.7", path = "packages/core/macros"
 polywrap_plugin_implementor = { version = "0.1.6-beta.7", path = "packages/plugin/implementor" }
 
 polywrap_fs_plugin = { git = "https://github.com/polywrap/file-system/", branch = "update-with-latest-msgpack" }
-polywrap_http_plugin = { path = "../http/implementations/rs" }
+polywrap_http_plugin = { git = "https://github.com/polywrap/http/", branch = "update-with-latest-msgpack" }
 
+polywrap_msgpack_serde = { git = "https://github.com/polywrap/msgpack-serde", branch = "namesty/wrap"}
 
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"
@@ -76,7 +74,6 @@ serde_bytes = "0.11.5"
 polywrap_uri = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
 polywrap_core = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
 polywrap_plugin = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
-polywrap_msgpack = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
 polywrap_resolvers = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
 wrap_manifest_schemas = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
 

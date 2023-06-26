@@ -1,7 +1,7 @@
 use num_bigint::BigInt;
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Serialize;
 
@@ -36,7 +36,7 @@ fn method_without_optional_arguments() {
             &uri,
             "method",
             Some(
-                &encode(&MethodArgs {
+                &to_vec(&MethodArgs {
                     arg1: "123456789123456789".to_string(),
                     arg2: None,
                     obj: ArgsObject {
@@ -63,7 +63,7 @@ fn method_with_optional_arguments() {
             &uri,
             "method",
             Some(
-                &encode(&MethodArgs {
+                &to_vec(&MethodArgs {
                     arg1: "123456789123456789".to_string(),
                     arg2: Some("123456789123456789123456789123456789".to_string()),
                     obj: ArgsObject {
