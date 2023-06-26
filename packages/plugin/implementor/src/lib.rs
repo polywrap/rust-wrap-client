@@ -75,18 +75,18 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                 let env = if env_is_option {
                     quote! {
                       if let Some(e) = env {
-                        Some(polywrap_msgpack::decode(&e).unwrap())
+                          Some(polywrap_msgpack::decode(&e).unwrap())
                       } else {
-                        None
+                          None
                       }
                     }
                 } else {
                     quote! {
-                      if let Some(e) = env {
-                        polywrap_msgpack::decode(&e).unwrap()
-                      } else {
-                        panic!("Env must be defined for method '{}'", #ident_str)
-                      }
+                        if let Some(e) = env {
+                          polywrap_msgpack::decode(&e).unwrap()
+                        } else {
+                          panic!("Env must be defined for method '{}'", #ident_str)
+                        }
                     }
                 };
 
@@ -117,49 +117,49 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             };
 
             quote! {
-              #ident_str => {
-                let result = self.#ident(
-                  #args
-                )?;
+                #ident_str => {
+                    let result = self.#ident(
+                      #args
+                    )?;
 
-                #output
-              }
+                    #output
+                }
             }
         },
     );
 
     let module_impl = quote! {
         impl polywrap_plugin::module::PluginModule for #struct_ident {
-          fn _wrap_invoke(
-            &mut self,
-            method_name: &str,
-            params: &[u8],
-            env: Option<&[u8]>,
-            invoker: Arc<dyn polywrap_core::invoker::Invoker>,
-        ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
+            fn _wrap_invoke(
+                &mut self,
+                method_name: &str,
+                params: &[u8],
+                env: Option<&[u8]>,
+                invoker: Arc<dyn polywrap_core::invoker::Invoker>,
+            ) -> Result<Vec<u8>, polywrap_plugin::error::PluginError> {
                 let supported_methods = vec![#(#supported_methods),*];
                 match method_name {
                     #(#methods)*
-                    _ => panic!("Method '{}' not found. Supported methods: {:#?}", method_name, supported_methods),
+                    _ => Err(PluginError::MethodNotFoundError(method_name.to_string())),
                 }
             }
         }
     };
 
     let from_impls = quote! {
-      impl From<#struct_ident> for polywrap_plugin::package::PluginPackage {
-        fn from(plugin: #struct_ident) -> polywrap_plugin::package::PluginPackage {
-            let plugin_module = Arc::new(std::sync::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
-            polywrap_plugin::package::PluginPackage::new(plugin_module, get_manifest())
+        impl From<#struct_ident> for polywrap_plugin::package::PluginPackage {
+            fn from(plugin: #struct_ident) -> polywrap_plugin::package::PluginPackage {
+                let plugin_module = Arc::new(std::sync::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
+                polywrap_plugin::package::PluginPackage::new(plugin_module, get_manifest())
+            }
         }
-      }
 
-      impl From<#struct_ident> for polywrap_plugin::wrapper::PluginWrapper {
-        fn from(plugin: #struct_ident) -> polywrap_plugin::wrapper::PluginWrapper {
-            let plugin_module = Arc::new(std::sync::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
-            polywrap_plugin::wrapper::PluginWrapper::new(plugin_module)
+        impl From<#struct_ident> for polywrap_plugin::wrapper::PluginWrapper {
+            fn from(plugin: #struct_ident) -> polywrap_plugin::wrapper::PluginWrapper {
+                let plugin_module = Arc::new(std::sync::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
+                polywrap_plugin::wrapper::PluginWrapper::new(plugin_module)
+            }
         }
-      }
     };
 
     quote! {

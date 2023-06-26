@@ -4,7 +4,7 @@ use polywrap_core::uri::Uri;
 use polywrap_msgpack::encode;
 use wasmer::{
     imports, Function, FunctionEnv, FunctionEnvMut, FunctionType, Imports, Memory, Store, Type,
-    Value,
+    Value, RuntimeError,
 };
 
 use super::instance::State;
@@ -20,11 +20,15 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mutable_state = mutable_context.data().lock().unwrap();
 
         if mutable_state.method.is_empty() {
-            (mutable_state.abort)("__wrap_invoke_args: method is not set".to_string());
+            return Err(RuntimeError::new(
+                "__wrap_invoke_args: method is not set"
+            ));
         }
 
         if mutable_state.args.is_empty() {
-            (mutable_state.abort)("__wrap_invoke_args: args is not set".to_string());
+            return Err(RuntimeError::new(
+                "__wrap_invoke_args: args is not set"
+            ));
         }
 
         let memory = mutable_state.memory.as_ref().unwrap();
@@ -55,7 +59,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mut buffer: Vec<u8> = vec![0; length as usize];
         memory_view
             .read(offset.try_into().unwrap(), &mut buffer)
-            .unwrap();
+            .map_err(|e| RuntimeError::new(e.to_string()))?;
         mutable_state.invoke.result = Some(buffer);
         Ok(vec![])
     };
@@ -78,8 +82,12 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mut buffer: Vec<u8> = vec![0; length as usize];
         memory_view
             .read(offset.try_into().unwrap(), &mut buffer)
-            .unwrap();
-        mutable_state.invoke.result = Some(buffer);
+            .map_err(|e| RuntimeError::new(e.to_string()))?;
+
+        let invoke_error = String::from_utf8(buffer)
+            .map_err(|e|RuntimeError::new(format!("__wrap_invoke_error: {}", e.to_string())))?;
+
+        mutable_state.invoke.error = Some(invoke_error);
         Ok(vec![])
     };
 
@@ -123,11 +131,10 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
 
         let msg = String::from_utf8(msg_buffer).unwrap();
         let file = String::from_utf8(file_buffer).unwrap();
-        (state.abort)(format!(
-            "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]"
-        ));
 
-        Ok(vec![])
+        Err(RuntimeError::new(format!(
+            "__wrap_abort: {msg}\nFile: {file}\nLocation: [{line},{column}]"
+        )))
     };
 
     let wrap_abort = Function::new_with_env(store, &context, invoke_abort_signature, abort);
@@ -175,9 +182,12 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             .read(args_ptr.try_into().unwrap(), &mut args_buffer)
             .unwrap();
 
-        let uri: Uri = String::from_utf8(uri_buffer).unwrap().try_into().unwrap();
+        let uri = String::from_utf8(uri_buffer).unwrap();
         let method = String::from_utf8(method_buffer).unwrap();
         let mut _decoded_env = serde_json::Value::Null;
+
+        let uri = uri.clone().try_into()
+            .map_err(|_| RuntimeError::new(format!("__wrap_subinvoke: invalid uri: {}", uri)))?;
 
         let result =
             state
@@ -206,13 +216,12 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mutable_context = context.as_mut();
         let mutable_state = mutable_context.data().lock().unwrap();
 
-        if mutable_state.subinvoke.result.is_none() {
-            (mutable_state.abort)(
-                "__wrap_subinvoke_result_len: subinvoke.result is not set".to_string(),
-            );
-        }
-        let length = mutable_state.subinvoke.result.as_deref().unwrap().len();
-        Ok(vec![Value::I32(length as i32)])
+        let result = mutable_state.subinvoke.result.as_ref()
+            .ok_or(RuntimeError::new(
+                "__wrap_subinvoke_result_len: subinvoke.result is not set",
+            ))?;
+        
+        Ok(vec![Value::I32(result.len() as i32)])
     };
 
     let wrap_subinvoke_result_len = Function::new_with_env(
@@ -231,17 +240,17 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let memory = mutable_state.memory.as_ref().unwrap();
 
         let pointer = values[0].unwrap_i32() as u32;
-        if let Some(result) = &mutable_state.subinvoke.result {
-            memory
-                .view(&mutable_context)
-                .write(pointer as u64, result)
-                .unwrap();
-        } else {
-            (mutable_state.abort)(
-                "__wrap_subinvoke_result: subinvoke.result is not set".to_string(),
-            );
-        }
-        Ok(vec![])
+
+        let result = mutable_state.subinvoke.result.as_ref()
+            .ok_or(RuntimeError::new(
+                "__wrap_subinvoke_result: subinvoke.result is not set",
+            ))?;
+
+        memory
+            .view(&mutable_context)
+            .write(pointer as u64, result)
+            .map(|_| vec![])
+            .map_err(|e| RuntimeError::new(e.to_string()))
     };
 
     let wrap_subinvoke_result = Function::new_with_env(
@@ -257,13 +266,12 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mutable_context = context.as_mut();
         let mutable_state = mutable_context.data().lock().unwrap();
 
-        if mutable_state.subinvoke.error.is_none() {
-            (mutable_state.abort)(
-                "__wrap_subinvoke_error_len: subinvoke.error is not set".to_string(),
-            );
-        }
-        let length = mutable_state.subinvoke.error.as_deref().unwrap().len();
-        Ok(vec![Value::I32(length as i32)])
+        let subinvoke_error = mutable_state.subinvoke.error.as_ref()
+            .ok_or(RuntimeError::new(
+                "__wrap_subinvoke_error_len: subinvoke.error is not set",
+            ))?;
+        
+        Ok(vec![Value::I32(subinvoke_error.len() as i32)])
     };
 
     let wrap_subinvoke_error_len = Function::new_with_env(
@@ -282,15 +290,17 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let memory = mutable_state.memory.as_ref().unwrap();
 
         let pointer = values[0].unwrap_i32() as u32;
-        if let Some(error) = &mutable_state.subinvoke.error {
-            memory
-                .view(&mutable_context)
-                .write(pointer as u64, error.as_bytes())
-                .unwrap();
-        } else {
-            (mutable_state.abort)("__wrap_subinvoke_error: subinvoke.error is not set".to_string());
-        }
-        Ok(vec![])
+        
+        let subinvoke_error = mutable_state.subinvoke.error.as_ref()
+            .ok_or(RuntimeError::new(
+                "__wrap_subinvoke_error: subinvoke.error is not set",
+            ))?;
+
+        memory
+            .view(&mutable_context)
+            .write(pointer as u64, subinvoke_error.as_bytes())
+            .map(|_| vec![])
+            .map_err(|e| RuntimeError::new(e.to_string()))
     };
 
     let wrap_subinvoke_error =
@@ -350,12 +360,15 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             .unwrap();
 
         let interface = String::from_utf8(interface_buffer).unwrap();
-        let uri = String::from_utf8(impl_uri_buffer).unwrap();
+        let uri: String = String::from_utf8(impl_uri_buffer).unwrap();
         let method = String::from_utf8(method_buffer).unwrap();
         let mut _decoded_env = serde_json::Value::Null;
 
+        let uri = uri.clone().try_into()
+            .map_err(|_| RuntimeError::new(format!("__wrap_subinvokeImplementation: invalid uri: {}", uri)))?;
+
         let result = state.invoker.clone().invoke_raw(
-            &uri.try_into().unwrap(),
+            &uri,
             &method,
             Some(&args_buffer),
             Some(&state.env),
@@ -389,22 +402,17 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             let mutable_context = context.as_mut();
             let mutable_state = mutable_context.data().lock().unwrap();
 
-            if let Some(implementation) = &mutable_state.subinvoke_implementation {
-                if let Some(r) = &implementation.result {
-                    let length = r.len();
-                    Ok(vec![Value::I32(length as i32)])
-                } else {
-                    (mutable_state.abort)(
-                    "__wrap_subinvoke_implementation_result_len: subinvoke_implementation.result is not set".to_string(),
-                );
-                    Ok(vec![Value::I32(0)])
-                }
-            } else {
-                (mutable_state.abort)(
-                "__wrap_subinvoke_implementation_result_len: subinvoke_implementation is not set".to_string(),
-            );
-                Ok(vec![Value::I32(0)])
-            }
+            let implementation = mutable_state.subinvoke_implementation.as_ref()
+                .ok_or(RuntimeError::new(
+                    "__wrap_subinvoke_implementation_result_len: subinvoke_implementation is not set"
+                ))?;
+
+            let implementation_result = implementation.result.as_ref()
+                .ok_or(RuntimeError::new(
+                    "__wrap_subinvoke_implementation_result_len: subinvoke_implementation.result is not set"
+                ))?;
+
+            Ok(vec![Value::I32(implementation_result.len() as i32)])
         };
 
     let wrap_subinvoke_implementation_result_len = Function::new_with_env(
@@ -423,24 +431,21 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             let memory = mutable_state.memory.as_ref().unwrap();
             let pointer = values[0].unwrap_i32() as u32;
 
-            if let Some(implementation) = &mutable_state.subinvoke_implementation {
-                if let Some(r) = &implementation.result {
-                    memory
-                        .view(&mutable_context)
-                        .write(pointer.try_into().unwrap(), r)
-                        .unwrap();
-                } else {
-                    (mutable_state.abort)(
-                    "__wrap_subinvoke_implementation_result: subinvoke_implementation.result is not set".to_string(),
-                );
-                };
-            } else {
-                (mutable_state.abort)(
+            let implementation = mutable_state.subinvoke_implementation.as_ref()
+                .ok_or(RuntimeError::new(
                     "__wrap_subinvoke_implementation_result: subinvoke_implementation is not set"
-                        .to_string(),
-                );
-            };
-            Ok(vec![])
+                ))?;
+            
+            let implementation_result = implementation.result.as_ref()
+                .ok_or(RuntimeError::new(
+                    "__wrap_subinvoke_implementation_result: subinvoke_implementation.result is not set"
+                ))?;
+            
+            memory
+                .view(&mutable_context)
+                .write(pointer.try_into().unwrap(), implementation_result)
+                .map(|_| vec![])
+                .map_err(|e| RuntimeError::new(e.to_string()))
         };
 
     let wrap_subinvoke_implementation_result = Function::new_with_env(
@@ -457,22 +462,17 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             let mutable_context = context.as_mut();
             let mutable_state = mutable_context.data().lock().unwrap();
 
-            if let Some(implementation) = &mutable_state.subinvoke_implementation {
-                if let Some(r) = &implementation.error {
-                    let length = r.as_bytes().len();
-                    Ok(vec![Value::I32(length as i32)])
-                } else {
-                    (mutable_state.abort)(
-                    "__wrap_subinvoke_implementation_error_len: subinvoke_implementation.error is not set".to_string(),
-                );
-                    Ok(vec![Value::I32(0)])
-                }
-            } else {
-                (mutable_state.abort)(
-                "__wrap_subinvoke_implementation_error_len: subinvoke_implementation is not set".to_string(),
-            );
-                Ok(vec![Value::I32(0)])
-            }
+            let implementation = mutable_state.subinvoke_implementation.as_ref()
+                .ok_or(RuntimeError::new(
+                    "__wrap_subinvoke_implementation_error_len: subinvoke_implementation is not set"
+                ))?;
+
+            let implementation_error = implementation.error.as_ref()
+                .ok_or(RuntimeError::new(
+                    "__wrap_subinvoke_implementation_error_len: subinvoke_implementation.error is not set"
+                ))?;
+
+            Ok(vec![Value::I32(implementation_error.as_bytes().len() as i32)])
         };
 
     let wrap_subinvoke_implementation_error_len = Function::new_with_env(
@@ -491,24 +491,21 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             let memory = mutable_state.memory.as_ref().unwrap();
             let pointer = values[0].unwrap_i32() as u32;
 
-            if let Some(implementation) = &mutable_state.subinvoke_implementation {
-                if let Some(r) = &implementation.error {
-                    memory
-                        .view(&mutable_context)
-                        .write(pointer.try_into().unwrap(), r.as_bytes())
-                        .unwrap();
-                } else {
-                    (mutable_state.abort)(
-                    "__wrap_subinvoke_implementation_error: subinvoke_implementation.error is not set".to_string(),
-                );
-                };
-            } else {
-                (mutable_state.abort)(
+            let implementation = mutable_state.subinvoke_implementation.as_ref()
+                .ok_or(RuntimeError::new(
                     "__wrap_subinvoke_implementation_error: subinvoke_implementation is not set"
-                        .to_string(),
-                );
-            };
-            Ok(vec![])
+                ))?;
+
+            let implementation_error = implementation.error.as_ref()
+                .ok_or(RuntimeError::new(
+                    "__wrap_subinvoke_implementation_error: subinvoke_implementation.error is not set"
+                ))?;
+            
+            memory
+                .view(&mutable_context)
+                .write(pointer.try_into().unwrap(), implementation_error.as_bytes())
+                .map(|_| vec![])
+                .map_err(|e| RuntimeError::new(e.to_string()))
         };
 
     let wrap_subinvoke_implementation_error = Function::new_with_env(
@@ -539,17 +536,11 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             .read(pointer.try_into().unwrap(), &mut uri_bytes)
             .unwrap();
         let uri = String::from_utf8(uri_bytes).unwrap();
-        println!("URI: {length}");
         let result = state.invoker.get_implementations(&uri.try_into().unwrap());
 
-        if result.is_err() {
-            let result = result.as_ref().err().unwrap();
-            (state.abort)(result.to_string());
-            return Ok(vec![Value::I32(0)]);
-        }
+        let result = result.as_ref().map_err(|e| RuntimeError::new(e.to_string()))?;
 
-        let implementations = &result
-            .unwrap()
+        let implementations = result
             .into_iter()
             .map(|u| u.to_string())
             .collect::<Vec<String>>();
@@ -581,17 +572,12 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mutable_context = context.as_mut();
         let state = mutable_context.data().lock().unwrap();
 
-        if let Some(r) = &state.get_implementations_result {
-            let length = r.len();
-            println!("POINTER LEN: {length}");
-            Ok(vec![Value::I32(length as i32)])
-        } else {
-            (state.abort)(
+        let result = state.get_implementations_result.as_ref()
+            .ok_or(RuntimeError::new(
                 "__wrap_get_implementation_result_len: get_implementation_result is not set"
-                    .to_string(),
-            );
-            Ok(vec![Value::I32(0)])
-        }
+            ))?;
+
+        Ok(vec![Value::I32(result.len() as i32)])
     };
 
     let wrap_get_implementation_result_len = Function::new_with_env(
@@ -611,20 +597,21 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let state = mutable_context.data().lock().unwrap();
         let memory = state.memory.as_ref().unwrap();
 
-        println!("POINTER: {pointer}");
-
-        if let Some(r) = &state.get_implementations_result {
-            memory
-                .view(&mutable_context)
-                .write(pointer.try_into().unwrap(), r)
-                .unwrap();
-        } else {
-            (state.abort)(
+        let result = state.get_implementations_result.as_ref()
+            .ok_or(RuntimeError::new(
                 "__wrap_get_implementation_result: get_implementation_result is not set"
-                    .to_string(),
-            );
-        }
-        Ok(vec![])
+            ))?;
+
+        memory
+            .view(&mutable_context)
+            .write(pointer.try_into().unwrap(), result)
+            .map(|_| vec![])
+            .map_err(|e| {
+                RuntimeError::new(format!(
+                    "__wrap_get_implementation_result: failed to write to memory: {}",
+                    e
+                ))
+            })
     };
 
     let wrap_get_implementation_result = Function::new_with_env(
@@ -646,7 +633,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         memory
             .view(&mutable_context)
             .write(pointer.try_into().unwrap(), &state.env.to_vec())
-            .unwrap();
+            .map_err(|e| RuntimeError::new(format!("__wrap_load_env: failed to write to memory: {}", e)))?;
 
         Ok(vec![])
     };

@@ -18,6 +18,7 @@ serde_json.workspace = true
 base64.workspace = true
 
 wasmer = "3.1.1"
+bytes = "1.4.0"
 
 [dev-dependencies]
 polywrap_tests_utils.workspace = true

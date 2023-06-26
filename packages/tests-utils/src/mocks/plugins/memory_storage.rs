@@ -11,7 +11,7 @@ pub struct ArgsGetData {}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsSetData {
-    value: i32,
+    pub value: i32,
 }
 
 pub trait Module: PluginModule {

@@ -15,7 +15,6 @@ pub trait FFIWrapper: Debug + Send + Sync {
         args: Option<Vec<u8>>,
         env: Option<Vec<u8>>,
         invoker: Arc<FFIInvoker>,
-        abort_handler: Option<Arc<FFIAbortHandlerWrapping>>,
     ) -> Result<Vec<u8>, FFIError>;
 }
 
@@ -26,12 +25,8 @@ impl FFIWrapper for Arc<dyn Wrapper> {
         args: Option<Vec<u8>>,
         env: Option<Vec<u8>>,
         invoker: Arc<FFIInvoker>,
-        abort_handler: Option<Arc<FFIAbortHandlerWrapping>>,
     ) -> Result<Vec<u8>, FFIError> {
         let arc_self = self.clone();
-        let abort_handler = abort_handler.map(|a| {
-            Box::new(move |msg: String| a.0.abort(msg)) as Box<dyn Fn(String) + Send + Sync>
-        });
 
         Ok(Wrapper::invoke(
             arc_self.as_ref(),
@@ -39,32 +34,7 @@ impl FFIWrapper for Arc<dyn Wrapper> {
             args.as_deref(),
             env.as_deref(),
             invoker.0.clone(),
-            abort_handler,
         )?)
-    }
-}
-
-pub trait FFIAbortHandler: Send + Sync {
-    fn abort(&self, msg: String);
-}
-
-pub struct FFIAbortHandlerWrapping(pub Box<dyn FFIAbortHandler>);
-
-impl FFIAbortHandlerWrapping {
-    pub fn new(abort_handler: Box<dyn FFIAbortHandler>) -> Self {
-        Self(abort_handler)
-    }
-
-    pub fn abort(&self, msg: String) {
-        self.0.abort(msg)
-    }
-}
-
-pub struct AbortHandler(Box<dyn Fn(String) + Send + Sync>);
-
-impl FFIAbortHandler for AbortHandler {
-    fn abort(&self, msg: String) {
-        self.0(msg)
     }
 }
 
@@ -78,22 +48,15 @@ impl Wrapper for WrapperWrapping {
         args: Option<&[u8]>,
         env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
-        abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, Error> {
         let args = args.map(|args| args.to_vec());
         let env = env.map(|env| env.to_vec());
-        let abort_handler = abort_handler.map(|a| {
-            Arc::new(FFIAbortHandlerWrapping(
-                Box::new(AbortHandler(a)) as Box<dyn FFIAbortHandler>
-            ))
-        });
 
         Ok(self.0.invoke(
             method.to_string(),
             args,
             env,
             Arc::new(FFIInvoker(invoker)),
-            abort_handler,
         )?)
     }
 
@@ -122,7 +85,7 @@ mod test {
     fn ffi_wrapper() {
         let (ffi_wrapper, ffi_invoker) = get_mocks();
         let response =
-            ffi_wrapper.invoke("foo".to_string(), None, None, Arc::new(ffi_invoker), None);
+            ffi_wrapper.invoke("foo".to_string(), None, None, Arc::new(ffi_invoker));
         assert!(decode::<bool>(&response.unwrap()).unwrap());
     }
 
@@ -131,7 +94,7 @@ mod test {
         let (ffi_wrapper, _) = get_mocks();
         let ext_wrapper = WrapperWrapping(ffi_wrapper);
         let response = ext_wrapper
-            .invoke("foo", None, None, get_mock_invoker(), None)
+            .invoke("foo", None, None, get_mock_invoker())
             .unwrap();
         assert!(decode::<bool>(&response).unwrap());
     }

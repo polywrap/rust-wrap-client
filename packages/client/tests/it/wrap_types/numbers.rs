@@ -1,4 +1,3 @@
-use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
 use polywrap_client_builder::PolywrapClientConfig;
 use polywrap_msgpack::encode;
@@ -11,14 +10,15 @@ struct MethodArgs {
     second: i64,
 }
 
+use crate::wrap_types::get_client;
+
 #[test]
-#[ignore]
 fn numbers_test_case() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let uri = Uri::try_from(format!("fs/{}/numbers-type/implementations/rs", path)).unwrap();
 
-    let client = PolywrapClient::new(PolywrapClientConfig::new().into());
+    let client = get_client(None);
 
     let i8_underflow = client
         .invoke::<i8>(

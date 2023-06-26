@@ -42,7 +42,6 @@ fn method_one_success() {
 }
 
 #[test]
-#[ignore]
 fn method_one_panic_invalid_value() {
     let (client, uri) = get_client_and_uri();
     // TODO: Panics instead of returning Result

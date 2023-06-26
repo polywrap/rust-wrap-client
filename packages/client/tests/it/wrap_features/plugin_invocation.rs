@@ -1,68 +1,16 @@
 use polywrap_client::client::PolywrapClient;
+use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_core::{
-    client::ClientConfig, invoker::Invoker, macros::uri, package::WrapPackage, uri::Uri,
+    client::ClientConfig, error::Error, macros::uri, package::WrapPackage, uri::Uri,
 };
 use polywrap_msgpack::encode;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
+use polywrap_tests_utils::mocks::{ArgsSetData, MemoryStoragePlugin, PluginEnv};
 use serde::Serialize;
 use serde_json::{from_value, json};
 use std::{collections::HashMap, sync::Arc};
-use wrap_manifest_schemas::versions::{WrapManifest, WrapManifestAbi};
 
-use polywrap_plugin::{
-    error::PluginError, implementor::plugin_impl, module::PluginModule, package::PluginPackage,
-};
-
-#[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
-pub struct GetEnvArgs {
-    key: String,
-}
-
-#[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
-pub struct Env {
-    foo: String,
-}
-
-#[derive(Debug)]
-pub struct PluginEnv;
-
-pub trait Module: PluginModule {
-    fn check_env_is_bar(
-        &mut self,
-        args: &GetEnvArgs,
-        invoker: Arc<dyn Invoker>,
-        env: Option<Env>,
-    ) -> Result<bool, PluginError>;
-}
-
-#[plugin_impl]
-impl Module for PluginEnv {
-    fn check_env_is_bar(
-        &mut self,
-        args: &GetEnvArgs,
-        _: Arc<dyn Invoker>,
-        _env: Option<Env>,
-    ) -> Result<bool, PluginError> {
-        if let Some(_env) = _env {
-            let value = match args.key.as_str() {
-                "foo" => &_env.foo,
-                &_ => panic!("Property does not exist"),
-            };
-            return Ok(value == "bar");
-        }
-
-        Ok(false)
-    }
-}
-
-pub fn get_manifest() -> WrapManifest {
-    WrapManifest {
-        name: "env".to_string(),
-        type_: "plugin".to_string(),
-        version: "0.1".to_string(),
-        abi: from_value::<WrapManifestAbi>(json!({})).unwrap(),
-    }
-}
+use polywrap_plugin::{error::PluginError, package::PluginPackage};
 
 #[derive(Serialize)]
 struct CheckEnvArgs {
@@ -75,7 +23,7 @@ struct EnvVal {
 }
 
 #[test]
-fn invoke_test() {
+fn invoke_with_env() {
     let plugin = PluginEnv {};
     let package: PluginPackage = plugin.into();
     let module = Arc::new(package) as Arc<dyn WrapPackage>;
@@ -109,4 +57,71 @@ fn invoke_test() {
         .unwrap();
 
     assert!(invoke_result);
+}
+
+#[test]
+fn invoke_methods() {
+    let plugin_uri = uri!("mock/plugin");
+
+    let mut config = PolywrapClientConfig::new();
+    config.add_package(
+        plugin_uri.clone(),
+        Arc::new(PluginPackage::from(MemoryStoragePlugin { value: 1 })),
+    );
+
+    let client = PolywrapClient::new(config.into());
+
+    let result = client
+        .invoke::<i32>(&plugin_uri, "getData", None, None, None)
+        .unwrap();
+    assert_eq!(result, 1);
+
+    let result = client
+        .invoke::<bool>(
+            &plugin_uri,
+            "setData",
+            Some(&encode(&ArgsSetData { value: 42 }).unwrap()),
+            None,
+            None,
+        )
+        .unwrap();
+    assert_eq!(result, true);
+
+    let result = client
+        .invoke::<i32>(&plugin_uri, "getData", None, None, None)
+        .unwrap();
+    assert_eq!(result, 42);
+}
+
+#[test]
+fn invoke_non_existent_method_should_err() {
+    let plugin_uri = uri!("mock/plugin");
+    let method = String::from("iDontExist");
+
+    let mut config = PolywrapClientConfig::new();
+    config.add_package(
+        plugin_uri.clone(),
+        Arc::new(PluginPackage::from(MemoryStoragePlugin { value: 1 })),
+    );
+
+    let client = PolywrapClient::new(config.into());
+
+    let result = client.invoke::<i32>(&plugin_uri, &method, None, None, None);
+
+    if let Err(err) = result {
+        assert_eq!(
+            err.to_string(),
+            Error::InvokeError(
+                plugin_uri.to_string(),
+                method.clone(),
+                Error::from(PluginError::InvocationError {
+                    exception: PluginError::MethodNotFoundError(method).to_string()
+                })
+                .to_string()
+            )
+            .to_string()
+        );
+    } else {
+        panic!("Expected error, got result: {:?}", result);
+    }
 }

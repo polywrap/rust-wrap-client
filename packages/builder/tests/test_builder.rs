@@ -176,7 +176,7 @@ fn test_packages() {
     let package: &Arc<dyn WrapPackage> = &builder_packages[1].1;
     let wrapper = package.create_wrapper().unwrap();
 
-    let result_package_a = wrapper.invoke("foo", None, None, get_mock_invoker(), None);
+    let result_package_a = wrapper.invoke("foo", None, None, get_mock_invoker());
     assert_eq!(result_package_a.unwrap(), vec![195]);
 
     // We need to recreate the builder because when we do builder.packages.unwrap
@@ -196,7 +196,7 @@ fn test_packages() {
         .find(|(uri, _)| uri == &uri_b)
         .unwrap();
     let wrapper = b_package.1.create_wrapper().unwrap();
-    let result_package_a = wrapper.invoke("bar", None, None, get_mock_invoker(), None);
+    let result_package_a = wrapper.invoke("bar", None, None, get_mock_invoker());
     assert_eq!(result_package_a.unwrap(), vec![195]);
 }
 
@@ -226,7 +226,7 @@ fn test_wrappers() {
     assert_eq!(builder_wrappers.len(), 3);
 
     let wrapper: &Arc<dyn Wrapper> = &builder_wrappers[1].1;
-    let result_package_a = wrapper.invoke("foo", None, None, get_mock_invoker(), None);
+    let result_package_a = wrapper.invoke("foo", None, None, get_mock_invoker());
     assert_eq!(result_package_a.unwrap(), vec![195]);
 
     // We need to recreate the builder because when we do builder.wrappers.unwrap
@@ -253,7 +253,7 @@ fn test_wrappers() {
 
     let result_package_b = b_wrapper
         .1
-        .invoke("bar", None, None, get_mock_invoker(), None);
+        .invoke("bar", None, None, get_mock_invoker());
     assert_eq!(result_package_b.unwrap(), [195]);
 }
 

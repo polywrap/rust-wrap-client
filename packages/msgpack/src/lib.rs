@@ -9,9 +9,14 @@ pub fn encode<T: Serialize>(value: T) -> Result<Vec<u8>, polywrap_msgpack_serde:
     to_vec(&value)
 }
 
+pub fn serialize<T: Serialize>(value: T) -> Result<Vec<u8>, polywrap_msgpack_serde::error::Error> {
+    to_vec(&value)
+}
+
 pub fn decode<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, polywrap_msgpack_serde::error::Error> {
     from_slice(bytes)
 }
+
 
 #[cfg(test)]
 mod tests {

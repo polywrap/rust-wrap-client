@@ -1,5 +1,6 @@
 use crate::error::WrapperError;
-use crate::runtime::instance::{State, WasmInstance};
+use crate::runtime::instance::State;
+use crate::wasm_module::CompiledWasmModule;
 
 use polywrap_core::error::Error;
 use polywrap_core::file_reader::FileReader;
@@ -16,20 +17,28 @@ use wasmer::Value;
 
 #[derive(Clone)]
 pub struct WasmWrapper {
-    wasm_module: Vec<u8>,
+    wasm_module: CompiledWasmModule,
     file_reader: Arc<dyn FileReader>,
 }
 
 impl WasmWrapper {
-    pub fn new(wasm_module: Vec<u8>, file_reader: Arc<dyn FileReader>) -> Self {
+    pub fn new(wasm_module: CompiledWasmModule, file_reader: Arc<dyn FileReader>) -> Self {
         Self {
             wasm_module,
             file_reader,
         }
     }
 
-    pub fn get_wasm_module(&self) -> Result<&[u8], WrapperError> {
-        Ok(&self.wasm_module)
+    pub fn try_from_bytecode(
+        bytes: &[u8],
+        file_reader: Arc<dyn FileReader>,
+    ) -> Result<Self, WrapperError> {
+        let wasm_module = CompiledWasmModule::try_from_bytecode(bytes)?;
+
+        Ok(Self {
+            wasm_module,
+            file_reader,
+        })
     }
 
     pub fn invoke_and_decode<T: DeserializeOwned>(
@@ -38,9 +47,8 @@ impl WasmWrapper {
         args: Option<&[u8]>,
         env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
-        abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<T, Error> {
-        let result = self.invoke(method, args, env, invoker, abort_handler)?;
+        let result = self.invoke(method, args, env, invoker)?;
 
         let result = decode(result.as_slice())?;
 
@@ -48,23 +56,9 @@ impl WasmWrapper {
     }
 }
 
-impl PartialEq for WasmWrapper {
-    fn eq(&self, other: &Self) -> bool {
-        self.get_wasm_module().unwrap() == other.get_wasm_module().unwrap()
-    }
-}
-
 impl Debug for WasmWrapper {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
-        write!(
-            f,
-            r#"
-      WasmModule
-      
-      -Wasm Module: {:?}
-      "#,
-            self.wasm_module
-        )
+        write!(f, r#"WasmModule(...)"#)
     }
 }
 
@@ -75,7 +69,6 @@ impl Wrapper for WasmWrapper {
         args: Option<&[u8]>,
         env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
-        abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),
@@ -93,36 +86,17 @@ impl Wrapper for WasmWrapper {
             Value::I32(env.len().try_into().unwrap()),
         ];
 
-        let abort_method = method.to_string();
-        let abort_handler = Arc::new(abort_handler);
-
-        let abort = Box::new(move |error_message: String| {
-            if let Some(abort_handler) = abort_handler.as_ref() {
-                // Use the abort handler if provided
-                abort_handler(error_message);
-            } else {
-                // Otherwise, panic since this is an unrecoverable error
-                panic!(
-                    r#"WasmWrapper: Wasm module aborted execution.
-                  Method: {abort_method}
-                  Message: {error_message}.
-                "#
-                );
-            }
-        });
-
         let state = Arc::new(Mutex::new(State::new(
             invoker,
-            abort.clone(),
             method,
             args,
             env,
         )));
-        let mut wasm_instance = WasmInstance::new(&self.wasm_module, state.clone()).unwrap();
+
+        let mut wasm_instance = self.wasm_module.create_instance(state.clone())?;
 
         let result = wasm_instance
-            .call_export("_wrap_invoke", params)
-            .map_err(|e| Error::WrapperError(e.to_string()))?;
+            .call_export("_wrap_invoke", params)?;
 
         let state = state.lock().unwrap();
         if result {

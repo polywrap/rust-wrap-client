@@ -39,18 +39,9 @@ interface FFIInvoker {
   sequence<u8>? get_env_by_uri(FFIUri uri);
 };
 
-callback interface FFIAbortHandler {
-  void abort(string msg);
-};
-
-interface FFIAbortHandlerWrapping {
-  constructor(FFIAbortHandler abort_handler);
-  void abort(string msg);
-};
-
 callback interface FFIWrapper {
   [Throws=FFIError]
-  sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker, FFIAbortHandlerWrapping? abort_handler);
+  sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
 };
 
 callback interface FFIWrapPackage {
@@ -62,7 +53,7 @@ interface FFIWasmWrapper {
   constructor(sequence<u8> wasm_module);
 
   [Throws=FFIError]
-  sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker, FFIAbortHandlerWrapping? abort_handler);
+  sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
 };
 
 callback interface FFIUriResolver {
@@ -94,7 +85,8 @@ callback interface FFIUriPackageOrWrapper {
 };
 
 interface FFIStaticUriResolver {
-  constructor(record<FFIUri, FFIUriPackageOrWrapper> uri_map);
+  [Throws=FFIError]
+  constructor(record<DOMString, FFIUriPackageOrWrapper> uri_map);
   [Throws=FFIError]
   FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };

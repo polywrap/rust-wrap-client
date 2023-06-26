@@ -126,7 +126,7 @@ impl UriResolver for UriResolverWrapper {
         };
 
         if let Some(manifest) = result.manifest {
-            let package = WasmPackage::new(Arc::new(file_reader), Some(manifest), None);
+            let package = WasmPackage::from_file_reader(Arc::new(file_reader), Some(manifest));
             return Ok(UriPackageOrWrapper::Package(uri.clone(), Arc::new(package)));
         }
 
