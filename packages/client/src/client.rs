@@ -23,7 +23,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{build_abort_handler::build_abort_handler, subinvoker::Subinvoker};
+use crate::subinvoker::Subinvoker;
 
 #[derive(Clone, Debug)]
 pub struct PolywrapClient {
@@ -229,10 +229,8 @@ impl WrapInvoker for PolywrapClient {
             subinvocation_context.clone(),
         ));
 
-        let abort_handler = build_abort_handler(None, uri.clone(), method.to_string());
-
         let invoke_result = wrapper
-            .invoke(method, args, env, subinvoker, Some(abort_handler))
+            .invoke(method, args, env, subinvoker)
             .map_err(|e| Error::InvokeError(uri.to_string(), method.to_string(), e.to_string()));
 
         let subinvocation_context = subinvocation_context.lock().unwrap();
@@ -333,7 +331,7 @@ mod client_tests {
             .load_wrapper(&"wrap/mock".try_into().unwrap(), None)
             .unwrap();
 
-        let result = wrapper.invoke("foo", None, None, Arc::new(client), None);
+        let result = wrapper.invoke("foo", None, None, Arc::new(client));
         let r = result.unwrap();
         assert!(decode::<bool>(&r).unwrap());
     }
@@ -352,7 +350,7 @@ mod client_tests {
         match uri_package_or_wrapper {
             UriPackageOrWrapper::Uri(_) => panic!("Found Uri, should've found MockWrapper"),
             UriPackageOrWrapper::Wrapper(_, wrapper) => {
-                let result = wrapper.invoke("foo", None, None, Arc::new(client), None);
+                let result = wrapper.invoke("foo", None, None, Arc::new(client));
                 let r = result.unwrap();
                 assert!(decode::<bool>(&r).unwrap());
             }

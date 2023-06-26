@@ -32,7 +32,6 @@ impl Wrapper for PluginWrapper {
         args: Option<&[u8]>,
         env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
-        _: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),

@@ -18,7 +18,6 @@ pub trait Wrapper: Send + Sync + Debug + Any {
         args: Option<&[u8]>,
         env: Option<&[u8]>,
         invoker: Arc<dyn Invoker>,
-        abort_handler: Option<Box<dyn Fn(String) + Send + Sync>>,
     ) -> Result<Vec<u8>, Error>;
     fn get_file(&self, options: &GetFileOptions) -> Result<Vec<u8>, Error>;
 }

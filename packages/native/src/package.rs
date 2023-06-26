@@ -55,7 +55,7 @@ mod test {
         let (ffi_package, ffi_invoker) = get_mocks();
         let ffi_wrapper = ffi_package.create_wrapper().unwrap();
         let response =
-            ffi_wrapper.invoke("foo".to_string(), None, None, Arc::new(ffi_invoker), None);
+            ffi_wrapper.invoke("foo".to_string(), None, None, Arc::new(ffi_invoker));
         assert!(decode::<bool>(&response.unwrap()).unwrap());
     }
 }
