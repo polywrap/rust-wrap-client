@@ -17,8 +17,7 @@ members = [
     "packages/builder",
     "packages/plugin",
     "packages/native",
-    "packages/resolver-extensions",
-    "packages/default-config"
+    "packages/resolver-extensions"
 ]
 
 # Do not include test utils & default config crates in default members
@@ -71,12 +70,3 @@ base64 = "0.13.1"
 bigdecimal = "0.3.0"
 num-bigint = "0.4.3"
 serde_bytes = "0.11.5"
-
-[patch.crates-io]
-polywrap_uri = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
-polywrap_core = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
-polywrap_plugin = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
-polywrap_msgpack = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
-polywrap_resolvers = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
-wrap_manifest_schemas = { git = "https://github.com/polywrap/rust-client", branch = "migrate-polywrap-serde" }
-
