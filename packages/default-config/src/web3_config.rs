@@ -1,12 +1,28 @@
 use polywrap_client_builder::PolywrapClientConfig;
 use polywrap_core::{client::ClientConfig, macros::uri, uri::Uri};
-use polywrap_msgpack::msgpack;
+use polywrap_msgpack::{encode};
+use serde::Serialize;
 use std::{collections::HashMap, sync::Arc};
 
 use crate::embeds::{ipfs_http_client, ipfs_resolver};
 
 pub struct Web3ClientConfig(PolywrapClientConfig);
 
+#[derive(Serialize)]
+pub struct Retries {
+    #[serde(rename = "tryResolveUri")]
+    try_resolve_uri: u8,
+    #[serde(rename = "getFile")]
+    get_file: u8,
+}
+
+#[derive(Serialize)]
+pub struct IpfsEnv {
+    provider: String,
+    #[serde(rename = "fallbackProviders")]
+    fallback_providers: Vec<String>,
+    retries: Retries,
+}
 impl Default for Web3ClientConfig {
     fn default() -> Self {
         Self(PolywrapClientConfig {
@@ -22,11 +38,15 @@ impl Default for Web3ClientConfig {
             ])),
             envs: Some(HashMap::from([(
                 uri!("wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
-                msgpack!({
-                    "provider": "https://ipfs.wrappers.io",
-                    "fallbackProviders": ["https://ipfs.io"],
-                    "retries": { "tryResolveUri": 2, "getFile": 2 },
-                }),
+                encode(&IpfsEnv {
+                    provider: "https://ipfs.wrappers.io".to_string(),
+                    fallback_providers: vec!["https://ipfs.io".to_string()],
+                    retries: Retries {
+                        try_resolve_uri: 2,
+                        get_file: 2,
+                    },
+                })
+                .unwrap(),
             )])),
             wrappers: Some(vec![
                 (
