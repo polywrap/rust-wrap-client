@@ -19,10 +19,9 @@ pub fn deserialize_wrap_manifest(
     manifest: &[u8],
     options: Option<DeserializeManifestOptions>,
 ) -> Result<WrapManifest, super::error::Error> {
-    print!("{:?}", &manifest.clone());
-    let any_wrap_manifest_json: polywrap_json::JSON = decode(manifest)?;
+    let any_wrap_manifest_json: serde_json::Value = decode(manifest)?;
 
-    let any_wrap_manifest = AnyManifest::from_json_value(any_wrap_manifest_json.0)?;
+    let any_wrap_manifest = AnyManifest::from_json_value(any_wrap_manifest_json)?;
 
     match options {
         Some(opts) => {

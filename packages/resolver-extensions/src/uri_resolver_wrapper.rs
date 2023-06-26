@@ -193,9 +193,9 @@ mod tests {
             UriPackageOrWrapper::Package(uri, package) => {
                 assert_eq!(uri, uri!("wrap://mock/resolved-uri"));
                 assert_eq!(
-                    dbg!(package
+                    package
                         .get_manifest(Some(&GetManifestOptions { no_validate: true }))
-                        .unwrap()),
+                        .unwrap(),
                     expected_manifest
                 );
             }
