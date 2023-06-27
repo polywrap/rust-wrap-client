@@ -64,37 +64,30 @@ fn method_one_panic_invalid_value() {
 }
 
 #[derive(Serialize)]
-enum EnumArray {
-    Number(u8),
-    String(String),
+pub enum EnumArg {
+  OPTION1,
+  OPTION2,
+  OPTION3
 }
 
 #[derive(Serialize)]
 #[allow(non_snake_case)]
 struct MethodTwoArgs {
-    enumArray: Vec<EnumArray>,
-    optEnum: Option<u32>,
+    enumArray: Vec<EnumArg>,
+    optEnumArray: Option<Vec<EnumArg>>,
 }
 
 #[test]
-#[ignore]
 fn method_two_success() {
     let (client, uri) = get_client_and_uri();
     let response = client
         .invoke::<Vec<i32>>(
             &uri,
             "method2",
-            Some(
-                &encode(&MethodTwoArgs {
-                    enumArray: vec![
-                        EnumArray::String("OPTION1".to_string()),
-                        EnumArray::Number(0),
-                        EnumArray::String("OPTION2".to_string()),
-                    ],
-                    optEnum: None,
-                })
-                .unwrap(),
-            ),
+            Some(&encode(&MethodTwoArgs {
+                enumArray: vec![EnumArg::OPTION1, EnumArg::OPTION1, EnumArg::OPTION3],
+                optEnumArray: None,
+            }).unwrap()),
             None,
             None,
         )
