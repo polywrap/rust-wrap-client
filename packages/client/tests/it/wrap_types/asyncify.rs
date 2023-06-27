@@ -83,6 +83,7 @@ fn get_client_and_uri() -> (PolywrapClient, Uri) {
 }
 
 #[derive(Serialize)]
+#[allow(non_snake_case)]
 struct SubsequentInvokesArgs {
     numberOfTimes: u32,
 }

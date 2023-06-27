@@ -1,5 +1,4 @@
 use polywrap_client::core::uri::Uri;
-use polywrap_client_builder::PolywrapClientConfig;
 use polywrap_msgpack::encode;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Serialize;

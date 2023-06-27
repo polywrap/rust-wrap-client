@@ -8,7 +8,7 @@ use crate::{
  * and run build script to regenerate this file.
  */
 use jsonschema::JSONSchema;
-use polywrap_msgpack::{decode, wrappers::polywrap_json};
+use polywrap_msgpack::{decode};
 
 pub struct DeserializeManifestOptions {
     pub no_validate: bool,
