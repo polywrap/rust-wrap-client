@@ -18,10 +18,12 @@ members = [
     "packages/plugin",
     "packages/native",
     "packages/resolver-extensions",
-    "packages/default-config"
+    "packages/default-config",
+    "packages/plugins/http",
+    "packages/plugins/fs"
 ]
 
-# Do not include test utils & default config crates in default members
+# Do not include test utils in default members
 default-members = [
     "packages/client",
     "packages/core",
@@ -33,7 +35,10 @@ default-members = [
     "packages/builder",
     "packages/plugin",
     "packages/native",
-    "packages/resolver-extensions"
+    "packages/resolver-extensions",
+    "packages/default-config",
+    "packages/plugins/http",
+    "packages/plugins/fs"
 ]
 
 [workspace.dependencies]
@@ -53,8 +58,8 @@ polywrap_core_macros = { version = "0.1.6-beta.7", path = "packages/core/macros"
 
 polywrap_plugin_implementor = { version = "0.1.6-beta.7", path = "packages/plugin/implementor" }
 
-polywrap_fs_plugin = { version  = "0.0.1-beta.4" }
-polywrap_http_plugin = { version  = "0.0.1-beta.4" }
+polywrap_fs_plugin = { version  = "0.1.6-beta.7", path = "packages/plugins/fs" }
+polywrap_http_plugin = { version  = "0.1.6-beta.7", path = "packages/plugins/http"  }
 
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"
@@ -62,6 +67,7 @@ thiserror = "1.0.37"
 jsonschema = "0.16.1"
 regex = "1.6.0"
 rmp-serde = "1.1.1"
+ureq = "2.5.0"
 
 proc-macro2 = "1.0"
 quote = "1.0"
@@ -70,12 +76,3 @@ base64 = "0.13.1"
 bigdecimal = "0.3.0"
 num-bigint = "0.4.3"
 serde_bytes = "0.11.5"
-
-[patch.crates-io]
-polywrap_uri = { path = "packages/uri" }
-polywrap_core = { path = "packages/core" }
-polywrap_client = { path = "packages/client" }
-polywrap_plugin = { path = "packages/plugin" }
-wrap_manifest_schemas = { path = "packages/manifest" }
-polywrap_msgpack = { path = "packages/msgpack" }
-polywrap_resolvers = { path = "packages/resolvers" }
