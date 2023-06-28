@@ -20,4 +20,4 @@ use uri::*;
 use wasm_wrapper::*;
 use wrapper::*;
 
-uniffi::include_scaffolding!("main");
+uniffi::include_scaffolding!("polywrap_native");
