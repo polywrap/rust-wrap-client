@@ -5,7 +5,7 @@ use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
-use polywrap_msgpack::{encode};
+use polywrap_msgpack_serde::{to_vec};
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
@@ -62,7 +62,7 @@ fn get_default_env() -> Env {
 }
 
 fn get_default_serialized_env() -> Vec<u8> {
-    polywrap_msgpack::encode(&get_default_env()).unwrap()
+    polywrap_msgpack_serde::to_vec(&get_default_env()).unwrap()
 }
 
 #[allow(non_snake_case)]
@@ -132,7 +132,7 @@ fn subinvoke_method_without_env_does_not_require_env() {
             &subinvoker_uri,
             "subinvokeMethodNoEnv",
             Some(
-                &encode(Args {
+                &to_vec(&Args {
                     arg: test_string.to_string(),
                 })
                 .unwrap(),
@@ -157,7 +157,7 @@ fn subinvoke_method_without_env_works_with_env() {
             &subinvoker_uri,
             "subinvokeMethodNoEnv",
             Some(
-                &encode(Args {
+                &to_vec(&Args {
                     arg: test_string.to_string(),
                 })
                 .unwrap(),
@@ -290,11 +290,11 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
         let envs: HashMap<Uri, Vec<u8>> = HashMap::from([
             (
                 subinvoker_uri.clone(),
-                polywrap_msgpack::encode(&subinvoker_env).unwrap(),
+                polywrap_msgpack_serde::to_vec(&subinvoker_env).unwrap(),
             ),
             (
                 uri!("mock/main"),
-                polywrap_msgpack::encode(&subinvoked_env).unwrap(),
+                polywrap_msgpack_serde::to_vec(&subinvoked_env).unwrap(),
             ),
         ]);
 

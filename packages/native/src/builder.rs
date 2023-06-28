@@ -110,8 +110,8 @@ mod test {
 
     use polywrap_client::{
         core::{macros::uri, uri::Uri},
-        msgpack::encode,
     };
+    use polywrap_msgpack_serde::to_vec;
     use polywrap_tests_utils::mocks::{
         get_different_mock_package, get_different_mock_wrapper, get_mock_package, get_mock_wrapper,
     };
@@ -135,7 +135,7 @@ mod test {
     fn adds_and_removes_env() {
         let builder = FFIBuilderConfig::new();
         let uri = Arc::new(FFIUri::from_string("wrap://ens/some.eth"));
-        let env = encode(&Args {
+        let env = to_vec(&Args {
             foo: "bar".to_string(),
         })
         .unwrap();
@@ -146,7 +146,7 @@ mod test {
         let current_env = envs.get(&uri!("wrap://ens/some.eth"));
         assert_eq!(&env, current_env.unwrap());
 
-        let new_env = encode(&AnotherArgs {
+        let new_env = to_vec(&AnotherArgs {
             bar: "foo".to_string(),
         })
         .unwrap();

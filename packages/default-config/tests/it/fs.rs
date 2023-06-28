@@ -1,7 +1,8 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client_default_config::SystemClientConfig;
 use polywrap_core::uri::Uri;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
+use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -12,7 +13,9 @@ pub struct ArgsAdd {
 
 #[test]
 fn sanity() {
-    let subinvoke_wrap_uri = format!("fs/./tests/it/wrapper");
+    let test_path = get_tests_path().unwrap();
+    let path = test_path.into_os_string().into_string().unwrap();
+    let subinvoke_wrap_uri = format!("fs/{path}/subinvoke/00-subinvoke/implementations/rs");
 
     let client = PolywrapClient::new(SystemClientConfig::default().into());
 
@@ -20,7 +23,7 @@ fn sanity() {
         .invoke::<u32>(
             &Uri::try_from(subinvoke_wrap_uri).unwrap(),
             "add",
-            Some(&encode(&ArgsAdd { a: 2, b: 40 }).unwrap()),
+            Some(&to_vec(&ArgsAdd { a: 2, b: 40 }).unwrap()),
             None,
             None,
         )

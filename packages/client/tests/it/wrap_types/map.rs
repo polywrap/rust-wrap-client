@@ -69,7 +69,7 @@ fn get_key() {
         foo,
     };
 
-    let args = polywrap_msgpack::encode(&get_key_args).unwrap();
+    let args = polywrap_msgpack_serde::to_vec(&get_key_args).unwrap();
     let response = client
         .invoke::<u32>(&uri, "getKey", Some(&args), None, None)
         .unwrap();
@@ -87,7 +87,7 @@ fn return_map() {
             &uri,
             "returnMap",
             Some(
-                &polywrap_msgpack::encode(&ArgsReturnMap {
+                &polywrap_msgpack_serde::to_vec(&ArgsReturnMap {
                     map: custom_map.map.clone(),
                 })
                 .unwrap(),
@@ -108,7 +108,7 @@ fn return_custom_map() {
         .invoke::<CustomMap>(
             &uri,
             "returnCustomMap",
-            Some(&polywrap_msgpack::encode(&ArgsReturnCustomMap { foo: custom_map }).unwrap()),
+            Some(&polywrap_msgpack_serde::to_vec(&ArgsReturnCustomMap { foo: custom_map }).unwrap()),
             None,
             None,
         )
@@ -135,7 +135,7 @@ fn return_nested_map() {
             &uri,
             "returnNestedMap",
             Some(
-                &polywrap_msgpack::encode(&ArgsReturnNestedMap {
+                &polywrap_msgpack_serde::to_vec(&ArgsReturnNestedMap {
                     foo: nested_map.clone(),
                 })
                 .unwrap(),

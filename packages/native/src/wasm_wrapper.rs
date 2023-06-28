@@ -39,7 +39,7 @@ impl FFIWasmWrapper {
 mod test {
     use std::sync::Arc;
 
-    use polywrap_client::msgpack::decode;
+    use polywrap_msgpack_serde::from_slice;
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
 
     use crate::invoker::FFIInvoker;
@@ -58,6 +58,6 @@ mod test {
         let response = ffi_wrapper
             .invoke("foo", None, None, ffi_invoker)
             .unwrap();
-        assert!(decode::<bool>(&response).unwrap());
+        assert!(from_slice::<bool>(&response).unwrap());
     }
 }

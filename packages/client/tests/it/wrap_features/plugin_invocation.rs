@@ -3,7 +3,7 @@ use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder}
 use polywrap_core::{
     client::ClientConfig, error::Error, macros::uri, package::WrapPackage, uri::Uri,
 };
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use polywrap_tests_utils::mocks::{ArgsSetData, MemoryStoragePlugin, PluginEnv, ArgsGetData};
 use serde::Serialize;
@@ -30,7 +30,7 @@ fn invoke_with_env() {
     let plugin_static_like = StaticResolverLike::Package(uri!("ens/env-plugin.eth"), module);
     let static_resolver = StaticResolver::from(vec![plugin_static_like]);
 
-    let env_val = encode(&EnvVal {
+    let env_val = to_vec(&EnvVal {
         foo: "bar".to_string(),
     })
     .unwrap();
@@ -41,7 +41,7 @@ fn invoke_with_env() {
         resolver: Arc::new(static_resolver),
     });
 
-    let env_val = encode(&CheckEnvArgs {
+    let env_val = to_vec(&CheckEnvArgs {
         key: "foo".to_string(),
     })
     .unwrap();
@@ -71,7 +71,7 @@ fn invoke_methods() {
     let client = PolywrapClient::new(config.into());
 
     let result = client
-        .invoke::<i32>(&plugin_uri, "getData", Some(&encode(&ArgsGetData {}).unwrap()), None, None)
+        .invoke::<i32>(&plugin_uri, "getData", Some(&to_vec(&ArgsGetData {}).unwrap()), None, None)
         .unwrap();
     assert_eq!(result, 1);
 
@@ -79,7 +79,7 @@ fn invoke_methods() {
         .invoke::<bool>(
             &plugin_uri,
             "setData",
-            Some(&encode(&ArgsSetData { value: 42 }).unwrap()),
+            Some(&to_vec(&ArgsSetData { value: 42 }).unwrap()),
             None,
             None,
         )
@@ -87,7 +87,7 @@ fn invoke_methods() {
     assert_eq!(result, true);
 
     let result = client
-        .invoke::<i32>(&plugin_uri, "getData", Some(&encode(&ArgsGetData {}).unwrap()), None, None)
+        .invoke::<i32>(&plugin_uri, "getData", Some(&to_vec(&ArgsGetData {}).unwrap()), None, None)
         .unwrap();
     assert_eq!(result, 42);
 }

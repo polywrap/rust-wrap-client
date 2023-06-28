@@ -1,5 +1,5 @@
 use polywrap_core::error::Error;
-use polywrap_msgpack::Error as MsgpackError;
+use polywrap_msgpack_serde::Error as MsgpackError;
 
 #[derive(thiserror::Error, Debug)]
 pub enum PluginError {

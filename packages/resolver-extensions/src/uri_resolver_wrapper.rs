@@ -11,7 +11,7 @@ use polywrap_core::{
     },
     uri::Uri,
 };
-use polywrap_msgpack::{decode, encode};
+use polywrap_msgpack_serde::{from_slice, to_vec};
 use polywrap_wasm::wasm_package::WasmPackage;
 use serde::{Deserialize, Serialize};
 
@@ -50,7 +50,7 @@ impl UriResolverWrapper {
             implementation_uri,
             "tryResolveUri",
             Some(
-                &encode(&TryResolverUriArgs {
+                &to_vec(&TryResolverUriArgs {
                     authority: uri.authority().to_string(),
                     path: uri.path().to_string(),
                 })
@@ -87,7 +87,7 @@ impl UriResolverWrapper {
                 manifest: None,
             })
         } else {
-            let result = decode::<Option<MaybeUriOrManifest>>(result.as_slice())?;
+            let result = from_slice::<Option<MaybeUriOrManifest>>(result.as_slice())?;
 
             let result = result.unwrap_or(MaybeUriOrManifest {
                 uri: None,

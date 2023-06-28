@@ -130,7 +130,7 @@ impl From<FFIError> for polywrap_client::core::error::Error {
                 polywrap_client::core::error::Error::UriNotFoundError(uri)
             }
             FFIError::MsgpackError { err } => {
-                let msgpack = polywrap_msgpack::Error::Message(err);
+                let msgpack = polywrap_msgpack_serde::Error::Message(err);
                 polywrap_client::core::error::Error::MsgpackError(msgpack)
             }
             FFIError::ManifestError { err } => {

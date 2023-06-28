@@ -1,6 +1,6 @@
 use polywrap_client::core::uri::Uri;
 use polywrap_client_builder::PolywrapClientConfig;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Serialize;
 
@@ -48,7 +48,7 @@ fn invalid_test_case() {
         .invoke::<bool>(
             &uri,
             "boolMethod",
-            Some(&encode(&BoolMethodArgs { arg: 10 }).unwrap()),
+            Some(&to_vec(&BoolMethodArgs { arg: 10 }).unwrap()),
             None,
             None,
         )
@@ -61,7 +61,7 @@ fn invalid_test_case() {
         .invoke::<i32>(
             &uri,
             "intMethod",
-            Some(&encode(&IntMethodArgs { arg: true }).unwrap()),
+            Some(&to_vec(&IntMethodArgs { arg: true }).unwrap()),
             None,
             None,
         )
@@ -74,7 +74,7 @@ fn invalid_test_case() {
         .invoke::<u32>(
             &uri,
             "uIntMethod",
-            Some(&encode(&UintMethodArgs { arg: vec![10] }).unwrap()),
+            Some(&to_vec(&UintMethodArgs { arg: vec![10] }).unwrap()),
             None,
             None,
         )
@@ -87,7 +87,7 @@ fn invalid_test_case() {
         .invoke::<Vec<u8>>(
             &uri,
             "bytesMethod",
-            Some(&encode(&BytesMethodArgs { arg: 10.15 }).unwrap()),
+            Some(&to_vec(&BytesMethodArgs { arg: 10.15 }).unwrap()),
             None,
             None,
         )
@@ -101,7 +101,7 @@ fn invalid_test_case() {
             &uri,
             "arrayMethod",
             Some(
-                &encode(&ArrayMethodArgs {
+                &to_vec(&ArrayMethodArgs {
                     arg: ArrayMethodProp {
                         prop: "".to_string(),
                     },

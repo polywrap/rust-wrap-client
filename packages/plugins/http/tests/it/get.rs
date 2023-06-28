@@ -1,6 +1,6 @@
 use polywrap_core::uri::Uri;
 use polywrap_http_plugin::wrap::types::Response;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_plugin::{Map, JSON};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -23,7 +23,7 @@ fn simple_get() {
         .invoke::<Response>(
             &Uri::try_from("plugin/http").unwrap(),
             "get",
-            Some(&encode(&ArgsGet {
+            Some(&to_vec(&ArgsGet {
                 url: "https://jsonplaceholder.typicode.com/todos/1".to_string(),
             }).unwrap()),
             None,
@@ -66,7 +66,7 @@ fn params_get() {
         .invoke::<Response>(
             &Uri::try_from("plugin/http").unwrap(),
             "get",
-            Some(&encode(&args).unwrap()),
+            Some(&to_vec(&args).unwrap()),
             None,
             None,
         )

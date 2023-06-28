@@ -1,7 +1,7 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_core::{client::ClientConfig, uri::Uri};
 use polywrap_fs_plugin::FileSystemPlugin;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 
 use polywrap_plugin::package::PluginPackage;
@@ -64,7 +64,7 @@ fn can_read_a_file() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "readFile",
         Some(
-            &encode(&ReadFileArgs {
+            &to_vec(&ReadFileArgs {
                 path: sample_file_path.to_str().unwrap().to_string(),
             })
             .unwrap(),
@@ -89,7 +89,7 @@ fn should_fail_reading_a_nonexistent_file() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "readFile",
         Some(
-            &encode(&ReadFileArgs {
+            &to_vec(&ReadFileArgs {
                 path: non_existent_file_path.to_str().unwrap().to_string(),
             })
             .unwrap(),
@@ -117,7 +117,7 @@ fn should_read_a_utf8_encoded_file_as_a_string() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "readFileAsString",
         Some(
-            &encode(&ReadFileArgsAsString {
+            &to_vec(&ReadFileArgsAsString {
                 path: sample_file_path.to_str().unwrap().to_string(),
                 encoding: 2,
             })
@@ -167,7 +167,7 @@ fn should_return_whether_a_file_exists_or_not() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "exists",
         Some(
-            &encode(&ReadFileArgs {
+            &to_vec(&ReadFileArgs {
                 path: sample_file_path.to_str().unwrap().to_string(),
             })
             .unwrap(),
@@ -187,7 +187,7 @@ fn should_return_whether_a_file_exists_or_not() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "exists",
         Some(
-            &encode(&ReadFileArgs {
+            &to_vec(&ReadFileArgs {
                 path: nonexistent_file_path.to_str().unwrap().to_string(),
             })
             .unwrap(),
@@ -221,7 +221,7 @@ fn should_write_byte_data_to_a_file() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "writeFile",
         Some(
-            &encode(&WriteFileArgs {
+            &to_vec(&WriteFileArgs {
                 path: temp_file_path.to_str().unwrap().to_string(),
                 data: bytes,
             })
@@ -258,7 +258,7 @@ fn should_remove_a_file() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "rm",
         Some(
-            &encode(&RmArgs {
+            &to_vec(&RmArgs {
                 path: temp_file_path.to_str().unwrap().to_string(),
                 recursive: false,
             })
@@ -290,7 +290,7 @@ fn should_remove_a_directory_with_files_recursively() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "rm",
         Some(
-            &encode(&RmArgs {
+            &to_vec(&RmArgs {
                 path: temp_dir_path.to_str().unwrap().to_string(),
                 recursive: true,
             })
@@ -324,7 +324,7 @@ fn should_create_a_directory() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "mkdir",
         Some(
-            &encode(&MkDirArgs {
+            &to_vec(&MkDirArgs {
                 path: temp_dir_path.to_str().unwrap().to_string(),
                 recursive: false,
             })
@@ -354,7 +354,7 @@ fn should_create_a_directory_recursively() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "mkdir",
         Some(
-            &encode(&MkDirArgs {
+            &to_vec(&MkDirArgs {
                 path: dir_in_dir_path.to_str().unwrap().to_string(),
                 recursive: true,
             })
@@ -390,7 +390,7 @@ fn should_remove_a_directory() {
         &Uri::try_from("plugin/file-system").unwrap(),
         "rmdir",
         Some(
-            &encode(&RmDirArgs {
+            &to_vec(&RmDirArgs {
                 path: temp_dir_path.to_str().unwrap().to_string(),
             })
             .unwrap(),

@@ -1,6 +1,6 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Serialize;
 
@@ -29,7 +29,7 @@ fn method_one_success() {
             &uri,
             "method1",
             Some(
-                &encode(&MethodOneArgs {
+                &to_vec(&MethodOneArgs {
                     en: 2,
                     optEnum: Some(1),
                 })
@@ -50,7 +50,7 @@ fn method_one_panic_invalid_value() {
         &uri,
         "method1",
         Some(
-            &encode(&MethodOneArgs {
+            &to_vec(&MethodOneArgs {
                 en: 5,
                 optEnum: None,
             })
@@ -88,7 +88,7 @@ fn method_two_success() {
         .invoke::<Vec<i32>>(
             &uri,
             "method2",
-            Some(&polywrap_msgpack::encode(&MethodTwoArgs {
+            Some(&to_vec(&MethodTwoArgs {
                 enumArray: vec![EnumArg::OPTION1, EnumArg::OPTION1, EnumArg::OPTION3],
                 optEnumArray: None,
             }).unwrap()),

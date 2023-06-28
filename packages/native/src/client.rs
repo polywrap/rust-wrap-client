@@ -170,7 +170,7 @@ mod test {
     use polywrap_client::{client::PolywrapClient, builder::PolywrapClientConfig};
 
     use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
-    use polywrap_msgpack::encode;
+    use polywrap_msgpack_serde::to_vec;
     use polywrap_tests_utils::mocks::{get_mock_client, get_mock_invoker, get_mock_wrapper};
     use serde::Serialize;
 
@@ -235,6 +235,12 @@ mod test {
         assert_eq!(response.unwrap(), [4, 8]);
     }
 
+    #[derive(Serialize)]
+    pub struct AddArgs {
+        pub a: u32,
+        pub b: u32,
+    }
+
     #[test]
     fn ffi_invoke_raw_real() {
         let mut config = PolywrapClientConfig::new();
@@ -248,20 +254,14 @@ mod test {
         const SUBINVOKE_WRAP_URI: &str = "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS";
         let uri = Arc::new(FFIUri::from_string(SUBINVOKE_WRAP_URI));
 
-        #[derive(Serialize)]
-        pub struct AddArgs {
-            pub a: u32,
-            pub b: u32,
-        }
-
         let result = ffi_client.invoke_raw(
             uri.clone(),
             "add",
-            Some(encode(&AddArgs { a: 2, b: 40 }).unwrap()),
+            Some(to_vec(&AddArgs { a: 2, b: 40 }).unwrap()),
             None,
             None,
         ).unwrap();
 
-        assert_eq!(result, encode(42).unwrap());
+        assert_eq!(result, to_vec(&42).unwrap());
     }
 }

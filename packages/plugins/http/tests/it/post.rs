@@ -3,7 +3,7 @@ use polywrap_client::{
     plugin::JSON::{from_str, json},
 };
 use polywrap_http_plugin::wrap::types::{Request, Response};
-use polywrap_msgpack::encode;
+use polywrap_msgpack_serde::to_vec;
 use serde::{Deserialize, Serialize};
 
 use crate::get_client;
@@ -30,7 +30,7 @@ fn post_method() {
             &Uri::try_from("plugin/http").unwrap(),
             "post",
             Some(
-                &encode(&ArgsPost {
+                &to_vec(&ArgsPost {
                     url: "https://jsonplaceholder.typicode.com/todos".to_string(),
                     request: Request {
                         response_type: polywrap_http_plugin::wrap::types::ResponseType::TEXT,

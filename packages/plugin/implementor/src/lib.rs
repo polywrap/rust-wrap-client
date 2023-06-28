@@ -75,7 +75,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                 let env = if env_is_option {
                     quote! {
                       if let Some(e) = env {
-                          Some(polywrap_msgpack::decode(&e).unwrap())
+                          Some(polywrap_msgpack_serde::from_slice(&e).unwrap())
                       } else {
                           None
                       }
@@ -83,7 +83,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                 } else {
                     quote! {
                         if let Some(e) = env {
-                          polywrap_msgpack::decode(&e).unwrap()
+                          polywrap_msgpack_serde::from_slice(&e).unwrap()
                         } else {
                           panic!("Env must be defined for method '{}'", #ident_str)
                         }
@@ -91,13 +91,13 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                 };
 
                 quote! {
-                  &polywrap_msgpack::decode(&params).unwrap(),
+                  &polywrap_msgpack_serde::from_slice(&params).unwrap(),
                   invoker,
                   #env
                 }
             } else {
                 quote! {
-                  &polywrap_msgpack::decode(&params).unwrap(),
+                  &polywrap_msgpack_serde::from_slice(&params).unwrap(),
                   invoker
                 }
             };
@@ -105,14 +105,14 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             let output = if output_is_option {
                 quote! {
                   if let Some(r) = result {
-                    Ok(polywrap_msgpack::encode(&r)?)
+                    Ok(polywrap_msgpack_serde::to_vec(&r)?)
                   } else {
                     Ok(vec![])
                   }
                 }
             } else {
                 quote! {
-                  Ok(polywrap_msgpack::encode(&result)?)
+                  Ok(polywrap_msgpack_serde::to_vec(&result)?)
                 }
             };
 

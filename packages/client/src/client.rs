@@ -15,7 +15,7 @@ use polywrap_core::{
     wrap_loader::WrapLoader,
     wrapper::Wrapper,
 };
-use polywrap_msgpack::decode;
+use polywrap_msgpack_serde::from_slice;
 use serde::de::DeserializeOwned;
 use std::{
     borrow::BorrowMut,
@@ -54,7 +54,7 @@ impl PolywrapClient {
     ) -> Result<T, Error> {
         let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
 
-        decode(result.as_slice()).map_err(Error::MsgpackError)
+        from_slice(result.as_slice()).map_err(Error::MsgpackError)
     }
 
     pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
@@ -69,7 +69,7 @@ impl PolywrapClient {
         let result =
             self.invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)?;
 
-        decode(result.as_slice()).map_err(Error::MsgpackError)
+        from_slice(result.as_slice()).map_err(Error::MsgpackError)
     }
 }
 
@@ -272,7 +272,7 @@ mod client_tests {
         client::ClientConfig, resolution::uri_resolution_context::UriPackageOrWrapper, uri::Uri,
         uri_resolver_handler::UriResolverHandler, wrap_loader::WrapLoader,
     };
-    use polywrap_msgpack::decode;
+    use polywrap_msgpack_serde::from_slice;
     use polywrap_tests_utils::mocks::{get_mock_resolver, MockWrapper};
     use std::sync::Arc;
 
@@ -331,7 +331,7 @@ mod client_tests {
 
         let result = wrapper.invoke("foo", None, None, Arc::new(client));
         let r = result.unwrap();
-        assert!(decode::<bool>(&r).unwrap());
+        assert!(from_slice::<bool>(&r).unwrap());
     }
 
     #[test]
@@ -350,7 +350,7 @@ mod client_tests {
             UriPackageOrWrapper::Wrapper(_, wrapper) => {
                 let result = wrapper.invoke("foo", None, None, Arc::new(client));
                 let r = result.unwrap();
-                assert!(decode::<bool>(&r).unwrap());
+                assert!(from_slice::<bool>(&r).unwrap());
             }
             UriPackageOrWrapper::Package(_, _) => panic!("Found Uri, should've found MockWrapper"),
         }
