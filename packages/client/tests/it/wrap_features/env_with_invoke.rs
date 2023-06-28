@@ -245,7 +245,7 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
         let client = {
             let mut envs: HashMap<Uri, Vec<u8>> = HashMap::new();
 
-            envs.insert(wrapper_uri.clone(), polywrap_msgpack::to_vec(&env).unwrap());
+            envs.insert(wrapper_uri.clone(), polywrap_msgpack_serde::to_vec(&env).unwrap());
 
             let resolvers = HashMap::from([(
                 redirect_from_uri.clone(),

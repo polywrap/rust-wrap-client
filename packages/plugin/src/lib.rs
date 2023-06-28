@@ -2,7 +2,6 @@ pub mod error;
 pub mod method;
 pub mod module;
 pub mod package;
-pub mod utils;
 pub mod with_methods;
 pub mod wrapper;
 

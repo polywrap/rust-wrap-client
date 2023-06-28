@@ -94,7 +94,7 @@ fn invalid_test_case() {
         .unwrap_err();
     assert!(invalid_bytes_float_sent
         .to_string()
-        .contains("Property must be of type 'bytes'. Found 'float64'."));
+        .contains("Property must be of type 'bytes'. Found 'float32'."));
 
     let invalid_array_map_sent = client
         .invoke::<Vec<i32>>(

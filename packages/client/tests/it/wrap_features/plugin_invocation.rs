@@ -5,9 +5,8 @@ use polywrap_core::{
 };
 use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
-use polywrap_tests_utils::mocks::{ArgsSetData, MemoryStoragePlugin, PluginEnv};
+use polywrap_tests_utils::mocks::{ArgsSetData, MemoryStoragePlugin, PluginEnv, ArgsGetData};
 use serde::Serialize;
-use serde_json::{from_value, json};
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_plugin::{error::PluginError, package::PluginPackage};
@@ -72,7 +71,7 @@ fn invoke_methods() {
     let client = PolywrapClient::new(config.into());
 
     let result = client
-        .invoke::<i32>(&plugin_uri, "getData", None, None, None)
+        .invoke::<i32>(&plugin_uri, "getData", Some(&to_vec(&ArgsGetData {}).unwrap()), None, None)
         .unwrap();
     assert_eq!(result, 1);
 
@@ -88,7 +87,7 @@ fn invoke_methods() {
     assert_eq!(result, true);
 
     let result = client
-        .invoke::<i32>(&plugin_uri, "getData", None, None, None)
+        .invoke::<i32>(&plugin_uri, "getData", Some(&to_vec(&ArgsGetData {}).unwrap()), None, None)
         .unwrap();
     assert_eq!(result, 42);
 }

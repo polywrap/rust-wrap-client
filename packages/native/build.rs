@@ -1,3 +1,3 @@
 fn main() {
-    uniffi::generate_scaffolding("./src/main.udl").unwrap();
+    uniffi::generate_scaffolding("./src/polywrap_native.udl").unwrap();
 }

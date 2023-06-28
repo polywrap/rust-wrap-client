@@ -41,16 +41,16 @@ impl Default for SystemClientConfig {
                         Arc::new(http_resolver::wasm_wrapper()),
                     ),
                 ]),
-                // packages: Some(vec![
-                //     (
-                //         uri!("plugin/file-system@1.0.0"),
-                //         Arc::new(PluginPackage::from(FileSystemPlugin {})),
-                //     ),
-                //     (
-                //         uri!("plugin/http@1.1.0"),
-                //         Arc::new(PluginPackage::from(HttpPlugin {})),
-                //     ),
-                // ]),
+                packages: Some(vec![
+                    (
+                        uri!("plugin/file-system@1.0.0"),
+                        Arc::new(PluginPackage::from(FileSystemPlugin {})),
+                    ),
+                    (
+                        uri!("plugin/http@1.1.0"),
+                        Arc::new(PluginPackage::from(HttpPlugin {})),
+                    ),
+                ]),
                 ..Default::default()
             }
         })

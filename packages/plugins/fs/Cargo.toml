@@ -1,0 +1,23 @@
+[package]
+name = "polywrap_fs_plugin"
+description = "Polywrap rust File system plugin"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+polywrap_core.workspace = true
+polywrap_plugin.workspace = true
+polywrap_msgpack_serde.workspace = true
+polywrap_resolvers.workspace = true
+wrap_manifest_schemas.workspace = true
+serde.workspace = true
+
+rm_rf = "0.6.2"
+serde_bytes.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+polywrap_client.workspace = true
