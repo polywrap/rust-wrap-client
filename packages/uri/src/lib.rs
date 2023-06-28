@@ -44,7 +44,7 @@ impl Uri {
         let captures = reg.captures(&processed);
 
         if captures.as_ref().is_none() || captures.as_ref().unwrap().len() != 3 {
-            return Err(UriParseError(String::from(
+            return Err(UriParseError(format!(
                 r#"URI is malformed, here are some examples of valid URIs:
             wrap://ipfs/QmHASH
             wrap://ens/domain.eth

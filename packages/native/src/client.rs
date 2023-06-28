@@ -168,10 +168,11 @@ mod test {
     use std::{collections::HashMap, sync::Arc};
     use polywrap_client::builder::PolywrapClientConfigBuilder;
     use polywrap_client::{client::PolywrapClient, builder::PolywrapClientConfig};
-    use polywrap_client::msgpack::msgpack;
 
     use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
+    use polywrap_msgpack::encode;
     use polywrap_tests_utils::mocks::{get_mock_client, get_mock_invoker, get_mock_wrapper};
+    use serde::Serialize;
 
     use crate::{client::FFIClient, invoker::FFIInvoker, uri::FFIUri, wrapper::FFIWrapper};
 
@@ -247,14 +248,20 @@ mod test {
         const SUBINVOKE_WRAP_URI: &str = "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS";
         let uri = Arc::new(FFIUri::from_string(SUBINVOKE_WRAP_URI));
 
+        #[derive(Serialize)]
+        pub struct AddArgs {
+            pub a: u32,
+            pub b: u32,
+        }
+
         let result = ffi_client.invoke_raw(
             uri.clone(),
             "add",
-            Some(&encode(&AddArgs { a: 2, b: 40 }).unwrap()),
+            Some(encode(&AddArgs { a: 2, b: 40 }).unwrap()),
             None,
             None,
         ).unwrap();
 
-        assert_eq!(result, msgpack!(42));
+        assert_eq!(result, encode(42).unwrap());
     }
 }

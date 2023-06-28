@@ -15,6 +15,7 @@ fn get_client_and_uri() -> (PolywrapClient, Uri) {
 }
 
 #[derive(Serialize)]
+#[allow(non_snake_case)]
 struct MethodOneArgs {
     en: u32,
     optEnum: Option<u32>,
@@ -50,7 +51,7 @@ fn method_one_panic_invalid_value() {
         "method1",
         Some(
             &encode(&MethodOneArgs {
-                en: 2,
+                en: 5,
                 optEnum: None,
             })
             .unwrap(),
@@ -65,6 +66,7 @@ fn method_one_panic_invalid_value() {
 }
 
 #[derive(Serialize)]
+#[allow(unused)]
 pub enum EnumArg {
   OPTION1,
   OPTION2,
@@ -72,9 +74,10 @@ pub enum EnumArg {
 }
 
 #[derive(Serialize)]
+#[allow(non_snake_case)]
 struct MethodTwoArgs {
     enumArray: Vec<EnumArg>,
-    optEnum: Option<u32>,
+    optEnumArray: Option<u32>,
 }
 
 
@@ -85,10 +88,10 @@ fn method_two_success() {
         .invoke::<Vec<i32>>(
             &uri,
             "method2",
-            Some(&polywrap_msgpack_serde::to_vec(&MethodTwoArgs {
+            Some(&polywrap_msgpack::encode(&MethodTwoArgs {
                 enumArray: vec![EnumArg::OPTION1, EnumArg::OPTION1, EnumArg::OPTION3],
-                optEnum: None,
-            })),
+                optEnumArray: None,
+            }).unwrap()),
             None,
             None,
         )

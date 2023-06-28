@@ -1,0 +1,12 @@
+{
+    "name": "@polywrap/fs-rs",
+    "description": "Polywrap File System Plugin in Rust",
+    "version": "0.1.0",
+    "scripts": {
+      "codegen": "npx polywrap codegen"
+    },
+    "devDependencies": {
+      "polywrap": "0.10.3"
+    }
+  }
+  

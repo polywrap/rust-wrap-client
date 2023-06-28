@@ -13,9 +13,9 @@ polywrap_msgpack.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 jsonschema.workspace = true
+ureq.workspace = true
 
 semver = "1.0.14"
 polywrap_schemafy = "0.1.1"
 handlebars = "4.3.5"
 polywrap-jsonref = "0.1.0"
-ureq = "2.3.0"
