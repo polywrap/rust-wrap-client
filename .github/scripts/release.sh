@@ -2,8 +2,9 @@
 
 # Define an array of your packages in the order they should be published
 packages=(
-  "msgpack"
   "manifest"
+  "uri"
+  "core/macros"
   "core"
   "plugin/implementor"
   "plugin"
@@ -13,6 +14,9 @@ packages=(
   "resolver-extensions"
   "builder"
   "client"
+  "plugins/http"
+  "plugins/fs"
+  "default-config"
 )
 
 # Iterate through the packages and publish them one by one
