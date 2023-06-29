@@ -20,5 +20,5 @@ proc-macro = true
 
 [dev-dependencies]
 serde_json.workspace = true
-polywrap_msgpack.workspace = true
+polywrap_msgpack_serde.workspace = true
 wrap_manifest_schemas.workspace = true

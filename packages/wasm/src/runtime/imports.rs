@@ -1,4 +1,6 @@
 use std::sync::{Arc, Mutex};
+
+use polywrap_msgpack_serde::to_vec;
 use wasmer::{
     imports, Function, FunctionEnv, FunctionEnvMut, FunctionType, Imports, Memory, Store, Type,
     Value, RuntimeError,
@@ -541,9 +543,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             .into_iter()
             .map(|u| u.to_string())
             .collect::<Vec<String>>();
-
-        let encoded_implementations =
-            polywrap_msgpack::rmp_serde::encode::to_vec_named(&implementations);
+        let encoded_implementations = to_vec(&implementations);
         state.get_implementations_result = Some(encoded_implementations.unwrap());
 
         if !state

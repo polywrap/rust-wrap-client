@@ -7,7 +7,7 @@ use polywrap_core::{
     invoker::Invoker, macros::uri, resolution::uri_resolution_context::UriResolutionContext,
     uri::Uri,
 };
-use polywrap_msgpack::rmp_serde::encode;
+use polywrap_msgpack_serde::to_vec;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -31,15 +31,24 @@ impl Invoker for MockInvoker {
         if method == "tryResolveUri" {
             let manifest = wrap_manifest_schemas::versions::WrapManifest01 {
                 abi: wrap_manifest_schemas::versions::WrapManifest01Abi {
-                    ..Default::default()
+                    version: Some("1".to_string()),
+                    enum_types: None,
+                    env_type: None,
+                    imported_enum_types: None,
+                    imported_env_types: None,
+                    imported_module_types: None,
+                    imported_object_types: None,
+                    interface_types: None,
+                    module_type: None,
+                    object_types: None,
                 },
                 name: "mock".to_string(),
                 version: "0.1".to_string(),
                 type_: "wasm".to_string(),
             };
-            let manifest = encode::to_vec_named(&manifest).unwrap();
+            let manifest = to_vec(&manifest).unwrap();
 
-            let result: Vec<u8> = encode::to_vec_named(&MaybeUriOrManifest {
+            let result: Vec<u8> = to_vec(&MaybeUriOrManifest {
                 uri: Some("wrap://mock/resolved-uri".to_string()),
                 manifest: Some(manifest),
             })

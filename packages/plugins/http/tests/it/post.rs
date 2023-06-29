@@ -1,9 +1,9 @@
 use polywrap_client::{
     core::uri::Uri,
-    msgpack::msgpack,
     plugin::JSON::{from_str, json},
 };
-use polywrap_http_plugin::wrap::types::Response;
+use polywrap_http_plugin::wrap::types::{Request, Response};
+use polywrap_msgpack_serde::to_vec;
 use serde::{Deserialize, Serialize};
 
 use crate::get_client;
@@ -12,6 +12,12 @@ use crate::get_client;
 struct ExpectedResponse {
     id: u32,
     value: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ArgsPost {
+    url: String,
+    request: Request,
 }
 
 #[test]
@@ -23,13 +29,20 @@ fn post_method() {
         .invoke::<Response>(
             &Uri::try_from("plugin/http").unwrap(),
             "post",
-            Some(&msgpack!({
-                "url": "https://jsonplaceholder.typicode.com/todos",
-                "request": {
-                    "responseType": "TEXT",
-                    "body": body.to_string()
-                }
-            })),
+            Some(
+                &to_vec(&ArgsPost {
+                    url: "https://jsonplaceholder.typicode.com/todos".to_string(),
+                    request: Request {
+                        response_type: polywrap_http_plugin::wrap::types::ResponseType::TEXT,
+                        body: Some(body.to_string()),
+                        headers: None,
+                        url_params: None,
+                        form_data: None,
+                        timeout: None,
+                    },
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )

@@ -108,23 +108,37 @@ impl FFIBuilderConfig {
 mod test {
     use std::{collections::HashMap, sync::Arc};
 
-    use polywrap_client::core::{macros::uri, uri::Uri};
-    use polywrap_client::msgpack::msgpack;
+    use polywrap_client::{
+        core::{macros::uri, uri::Uri},
+    };
+    use polywrap_msgpack_serde::to_vec;
     use polywrap_tests_utils::mocks::{
         get_different_mock_package, get_different_mock_wrapper, get_mock_package, get_mock_wrapper,
     };
+    use serde::Serialize;
 
     use crate::{package::FFIWrapPackage, uri::FFIUri, wrapper::FFIWrapper};
 
     use super::FFIBuilderConfig;
 
+    #[derive(Serialize)]
+    struct Args {
+        foo: String,
+    }
+
+    #[derive(Serialize)]
+    struct AnotherArgs {
+        bar: String,
+    }
+
     #[test]
     fn adds_and_removes_env() {
         let builder = FFIBuilderConfig::new();
         let uri = Arc::new(FFIUri::from_string("wrap://ens/some.eth"));
-        let env = msgpack!({
-          "foo": "bar"
-        });
+        let env = to_vec(&Args {
+            foo: "bar".to_string(),
+        })
+        .unwrap();
 
         builder.add_env(uri.clone(), env.clone());
 
@@ -132,9 +146,10 @@ mod test {
         let current_env = envs.get(&uri!("wrap://ens/some.eth"));
         assert_eq!(&env, current_env.unwrap());
 
-        let new_env = msgpack!({
-            "bar": "foo"
-        });
+        let new_env = to_vec(&AnotherArgs {
+            bar: "foo".to_string(),
+        })
+        .unwrap();
         builder.add_env(uri.clone(), new_env.clone());
         let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
         let current_env = envs.get(&uri!("wrap://ens/some.eth"));
@@ -256,14 +271,13 @@ mod test {
         builder.add_interface_implementation(interface_uri.clone(), implementation_a_uri);
         builder.add_interface_implementation(interface_uri.clone(), implementation_b_uri.clone());
 
-        let interfaces: std::collections::HashMap<String, Vec<polywrap_client::core::uri::Uri>> =
-            builder
-                .inner_builder
-                .lock()
-                .unwrap()
-                .clone()
-                .interfaces
-                .unwrap();
+        let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
+            .inner_builder
+            .lock()
+            .unwrap()
+            .clone()
+            .interfaces
+            .unwrap();
         let implementations = interfaces.get(&interface_uri.to_string());
         assert_eq!(
             implementations,
@@ -274,14 +288,13 @@ mod test {
         );
 
         builder.remove_interface_implementation(interface_uri.clone(), implementation_b_uri);
-        let interfaces: std::collections::HashMap<String, Vec<polywrap_client::core::uri::Uri>> =
-            builder
-                .inner_builder
-                .lock()
-                .unwrap()
-                .clone()
-                .interfaces
-                .unwrap();
+        let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
+            .inner_builder
+            .lock()
+            .unwrap()
+            .clone()
+            .interfaces
+            .unwrap();
         let implementations = interfaces.get(&interface_uri.to_string());
         assert_eq!(
             implementations,

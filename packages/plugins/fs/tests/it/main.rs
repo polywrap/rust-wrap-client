@@ -1,14 +1,14 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_core::{client::ClientConfig, uri::Uri};
 use polywrap_fs_plugin::FileSystemPlugin;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 
-use std::sync::Arc;
-
-use polywrap_msgpack::msgpack;
 use polywrap_plugin::package::PluginPackage;
+use serde::Serialize;
 use serde_bytes::ByteBuf;
 use std::path::Path;
+use std::sync::Arc;
 use std::{env, fs};
 
 fn clean_up_temp_files() -> std::io::Result<()> {
@@ -48,6 +48,11 @@ fn get_client() -> PolywrapClient {
     })
 }
 
+#[derive(Serialize)]
+struct ReadFileArgs {
+    path: String,
+}
+
 #[test]
 fn can_read_a_file() {
     let client = get_client();
@@ -58,9 +63,12 @@ fn can_read_a_file() {
     let result = client.invoke::<ByteBuf>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "readFile",
-        Some(&msgpack!({
-            "path": sample_file_path.to_str().unwrap().to_string()
-        })),
+        Some(
+            &to_vec(&ReadFileArgs {
+                path: sample_file_path.to_str().unwrap().to_string(),
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );
@@ -80,13 +88,22 @@ fn should_fail_reading_a_nonexistent_file() {
     let result = client.invoke::<Vec<u8>>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "readFile",
-        Some(&msgpack!({
-            "path": non_existent_file_path.to_str().unwrap().to_string()
-        })),
+        Some(
+            &to_vec(&ReadFileArgs {
+                path: non_existent_file_path.to_str().unwrap().to_string(),
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );
     assert!(result.is_err());
+}
+
+#[derive(Serialize)]
+struct ReadFileArgsAsString {
+    path: String,
+    encoding: u8,
 }
 
 #[test]
@@ -99,10 +116,13 @@ fn should_read_a_utf8_encoded_file_as_a_string() {
     let result = client.invoke::<String>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "readFileAsString",
-        Some(&msgpack!({
-            "path": sample_file_path.to_str().unwrap().to_string(),
-            "encoding": 2
-        })),
+        Some(
+            &to_vec(&ReadFileArgsAsString {
+                path: sample_file_path.to_str().unwrap().to_string(),
+                encoding: 2,
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );
@@ -146,9 +166,12 @@ fn should_return_whether_a_file_exists_or_not() {
     let result_file_exists = client.invoke::<bool>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "exists",
-        Some(&msgpack!({
-            "path": sample_file_path.to_str().unwrap().to_string(),
-        })),
+        Some(
+            &to_vec(&ReadFileArgs {
+                path: sample_file_path.to_str().unwrap().to_string(),
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );
@@ -163,9 +186,12 @@ fn should_return_whether_a_file_exists_or_not() {
     let result_file_missing = client.invoke::<bool>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "exists",
-        Some(&msgpack!({
-            "path": nonexistent_file_path.to_str().unwrap().to_string(),
-        })),
+        Some(
+            &to_vec(&ReadFileArgs {
+                path: nonexistent_file_path.to_str().unwrap().to_string(),
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );
@@ -173,6 +199,13 @@ fn should_return_whether_a_file_exists_or_not() {
         Ok(file_exists) => assert!(!file_exists),
         Err(e) => panic!("Test failed: {:?}", e),
     }
+}
+
+#[derive(Serialize)]
+struct WriteFileArgs {
+    path: String,
+    #[serde(with = "serde_bytes")]
+    data: Vec<u8>,
 }
 
 #[test]
@@ -187,10 +220,13 @@ fn should_write_byte_data_to_a_file() {
     let result = client.invoke::<Option<bool>>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "writeFile",
-        Some(&msgpack!({
-            "path": temp_file_path.to_str().unwrap().to_string(),
-            "data": bytes
-        })),
+        Some(
+            &to_vec(&WriteFileArgs {
+                path: temp_file_path.to_str().unwrap().to_string(),
+                data: bytes,
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );
@@ -201,6 +237,12 @@ fn should_write_byte_data_to_a_file() {
     let expected_file_contents = fs::read(&temp_file_path).unwrap();
 
     assert_eq!(expected_file_contents, vec![0, 1, 2, 3]);
+}
+
+#[derive(Serialize)]
+struct RmArgs {
+    path: String,
+    recursive: bool,
 }
 
 #[test]
@@ -215,9 +257,13 @@ fn should_remove_a_file() {
     let result = client.invoke::<bool>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "rm",
-        Some(&msgpack!({
-            "path": temp_file_path.to_str().unwrap().to_string(),
-        })),
+        Some(
+            &to_vec(&RmArgs {
+                path: temp_file_path.to_str().unwrap().to_string(),
+                recursive: false,
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );
@@ -243,10 +289,13 @@ fn should_remove_a_directory_with_files_recursively() {
     let result = client.invoke::<bool>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "rm",
-        Some(&msgpack!({
-            "path": temp_dir_path.to_str().unwrap().to_string(),
-            "recursive": true
-        })),
+        Some(
+            &to_vec(&RmArgs {
+                path: temp_dir_path.to_str().unwrap().to_string(),
+                recursive: true,
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );
@@ -256,6 +305,12 @@ fn should_remove_a_directory_with_files_recursively() {
 
     let file_exists = file_in_dir_path.exists();
     assert_eq!(file_exists, false);
+}
+
+#[derive(Serialize)]
+struct MkDirArgs {
+    path: String,
+    recursive: bool,
 }
 
 #[test]
@@ -268,9 +323,13 @@ fn should_create_a_directory() {
     let result = client.invoke::<bool>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "mkdir",
-        Some(&msgpack!({
-            "path": temp_dir_path.to_str().unwrap().to_string(),
-        })),
+        Some(
+            &to_vec(&MkDirArgs {
+                path: temp_dir_path.to_str().unwrap().to_string(),
+                recursive: false,
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );
@@ -294,10 +353,13 @@ fn should_create_a_directory_recursively() {
     let result = client.invoke::<bool>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "mkdir",
-        Some(&msgpack!({
-            "path": dir_in_dir_path.to_str().unwrap().to_string(),
-            "recursive": true
-        })),
+        Some(
+            &to_vec(&MkDirArgs {
+                path: dir_in_dir_path.to_str().unwrap().to_string(),
+                recursive: true,
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );
@@ -307,6 +369,11 @@ fn should_create_a_directory_recursively() {
 
     let directory_exists = dir_in_dir_path.exists();
     assert!(directory_exists);
+}
+
+#[derive(Serialize)]
+struct RmDirArgs {
+    path: String,
 }
 
 #[test]
@@ -322,9 +389,12 @@ fn should_remove_a_directory() {
     let result = client.invoke::<bool>(
         &Uri::try_from("plugin/file-system").unwrap(),
         "rmdir",
-        Some(&msgpack!({
-            "path": temp_dir_path.to_str().unwrap().to_string(),
-        })),
+        Some(
+            &to_vec(&RmDirArgs {
+                path: temp_dir_path.to_str().unwrap().to_string(),
+            })
+            .unwrap(),
+        ),
         None,
         None,
     );

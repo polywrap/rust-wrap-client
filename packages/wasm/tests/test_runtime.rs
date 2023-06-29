@@ -6,10 +6,11 @@ use polywrap_core::{
 };
 use polywrap_wasm::wasm_module::CompiledWasmModule;
 use polywrap_wasm::wasm_wrapper::WasmWrapper;
+use serde::Serialize;
 use std::{collections::HashMap, path::Path, sync::Mutex};
 use wrap_manifest_schemas::deserialize::deserialize_wrap_manifest;
 
-use polywrap_msgpack::msgpack;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
 use std::fs;
 use std::sync::Arc;
@@ -70,6 +71,12 @@ impl Invoker for MockInvoker {
     }
 }
 
+#[derive(Serialize)]
+struct AddArgs {
+    a: u32,
+    b: u32,
+}
+
 #[test]
 fn invoke_from_bytecode() {
     let test_path = get_tests_path().unwrap();
@@ -91,7 +98,7 @@ fn invoke_from_bytecode() {
         .invoke_raw(
             &uri!("ens/wrapper.eth"),
             "add",
-            Some(&msgpack!({ "a": 1, "b": 1})),
+            Some(&to_vec(&AddArgs { a: 1, b: 1 }).unwrap()),
             None,
             None,
         )
@@ -121,7 +128,7 @@ fn invoke_from_compiled_module() {
         .invoke_raw(
             &uri!("ens/wrapper.eth"),
             "add",
-            Some(&msgpack!({ "a": 1, "b": 1})),
+            Some(&to_vec(&AddArgs { a: 1, b: 1 }).unwrap()),
             None,
             None,
         )
@@ -156,7 +163,7 @@ fn invoke_from_deserialized_module() {
         .invoke_raw(
             &uri!("ens/wrapper.eth"),
             "add",
-            Some(&msgpack!({ "a": 1, "b": 1})),
+            Some(&to_vec(&AddArgs { a: 1, b: 1 }).unwrap()),
             None,
             None,
         )

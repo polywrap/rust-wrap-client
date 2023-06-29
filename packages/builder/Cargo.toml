@@ -11,7 +11,7 @@ license.workspace = true
 polywrap_core.workspace = true
 polywrap_resolvers.workspace = true
 polywrap_resolver_extensions.workspace = true
-polywrap_msgpack.workspace = true
+polywrap_msgpack_serde.workspace = true
 serde_json.workspace = true
 serde.workspace = true
 

@@ -1,12 +1,12 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
 
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_core::resolution::uri_resolver::UriResolver;
+use polywrap_msgpack_serde::{to_vec};
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::recursive_resolver::RecursiveResolver;
 use polywrap_resolvers::resolver_vec;
@@ -14,8 +14,7 @@ use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 fn get_env_wrapper_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
@@ -23,6 +22,12 @@ fn get_env_wrapper_uri() -> Uri {
 
     Uri::try_from(format!("fs/{path}/env-type/00-main/implementations/rs")).unwrap()
 }
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub struct EnvObject {
+    pub prop: String
+}
+
 #[allow(non_snake_case)]
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct Env {
@@ -35,8 +40,8 @@ struct Env {
     optBool: Option<bool>,
     en: i8,
     optEnum: Option<i8>,
-    object: HashMap<String, String>,
-    optObject: Option<HashMap<String, String>>,
+    object: EnvObject,
+    optObject: Option<EnvObject>,
     array: Vec<i32>,
 }
 
@@ -51,14 +56,14 @@ fn get_default_env() -> Env {
         optBool: None,
         en: 0,
         optEnum: None,
-        object: HashMap::from([("prop".to_string(), "object string".to_string())]),
+        object: EnvObject { prop: "object string".to_string() },
         optObject: None,
         array: vec![32, 23],
     }
 }
 
 fn get_default_serialized_env() -> Vec<u8> {
-    polywrap_msgpack::serialize(&get_default_env()).unwrap()
+    polywrap_msgpack_serde::to_vec(&get_default_env()).unwrap()
 }
 
 fn build_client(uri: &Uri, env: Option<&[u8]>) -> PolywrapClient {
@@ -86,6 +91,11 @@ fn build_client(uri: &Uri, env: Option<&[u8]>) -> PolywrapClient {
     PolywrapClient::new(config)
 }
 
+#[derive(Serialize)]
+struct Args {
+    arg: String,
+}
+
 #[test]
 fn invoke_method_without_env_does_not_require_env() {
     let wrapper_uri = get_env_wrapper_uri();
@@ -97,7 +107,12 @@ fn invoke_method_without_env_does_not_require_env() {
         .invoke::<String>(
             &wrapper_uri,
             "methodNoEnv",
-            Some(&msgpack!({ "arg": test_string })),
+            Some(
+                &to_vec(&Args {
+                    arg: test_string.to_string(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -116,7 +131,12 @@ fn invoke_method_without_env_works_with_env() {
         .invoke::<String>(
             &wrapper_uri,
             "methodNoEnv",
-            Some(&msgpack!({ "arg": test_string })),
+            Some(
+                &to_vec(&Args {
+                    arg: test_string.to_string(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -132,13 +152,7 @@ fn invoke_method_with_required_env_works_with_env() {
     let client = build_client(&wrapper_uri, Some(&get_default_serialized_env()));
 
     let result = client
-        .invoke::<Env>(
-            &wrapper_uri,
-            "methodRequireEnv",
-            Some(&msgpack!({})),
-            None,
-            None,
-        )
+        .invoke::<Env>(&wrapper_uri, "methodRequireEnv", None, None, None)
         .unwrap();
 
     assert_eq!(result, get_default_env());
@@ -152,13 +166,7 @@ fn invoke_method_with_required_env_panics_without_env_registered() {
     let client = build_client(&wrapper_uri, None);
 
     let result = client
-        .invoke::<Option<Env>>(
-            &wrapper_uri,
-            "methodRequireEnv",
-            Some(&msgpack!({})),
-            None,
-            None,
-        )
+        .invoke::<Option<Env>>(&wrapper_uri, "methodRequireEnv", None, None, None)
         .unwrap();
 
     assert_eq!(result, None);
@@ -171,13 +179,7 @@ fn invoke_method_with_optional_env_works_with_env() {
     let client = build_client(&wrapper_uri, Some(&get_default_serialized_env()));
 
     let result = client
-        .invoke::<Env>(
-            &wrapper_uri,
-            "methodOptionalEnv",
-            Some(&msgpack!({})),
-            None,
-            None,
-        )
+        .invoke::<Env>(&wrapper_uri, "methodOptionalEnv", None, None, None)
         .unwrap();
 
     assert_eq!(result, get_default_env());
@@ -190,13 +192,7 @@ fn invoke_method_with_optional_env_works_without_env() {
     let client = build_client(&wrapper_uri, None);
 
     let result = client
-        .invoke::<Option<Env>>(
-            &wrapper_uri,
-            "methodOptionalEnv",
-            Some(&msgpack!({})),
-            None,
-            None,
-        )
+        .invoke::<Option<Env>>(&wrapper_uri, "methodOptionalEnv", None, None, None)
         .unwrap();
 
     assert_eq!(result, None);
@@ -238,13 +234,7 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
         };
 
         let result = client
-            .invoke::<Env>(
-                &redirect_from_uri,
-                "methodRequireEnv",
-                Some(&msgpack!({})),
-                None,
-                None,
-            )
+            .invoke::<Env>(&redirect_from_uri, "methodRequireEnv", None, None, None)
             .unwrap();
 
         assert_eq!(result, env);
@@ -255,10 +245,7 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
         let client = {
             let mut envs: HashMap<Uri, Vec<u8>> = HashMap::new();
 
-            envs.insert(
-                wrapper_uri.clone(),
-                polywrap_msgpack::serialize(&env).unwrap(),
-            );
+            envs.insert(wrapper_uri.clone(), polywrap_msgpack_serde::to_vec(&env).unwrap());
 
             let resolvers = HashMap::from([(
                 redirect_from_uri.clone(),
@@ -282,13 +269,7 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
         };
 
         let result = client
-            .invoke::<Env>(
-                &redirect_from_uri,
-                "methodRequireEnv",
-                Some(&msgpack!({})),
-                None,
-                None,
-            )
+            .invoke::<Env>(&redirect_from_uri, "methodRequireEnv", None, None, None)
             .unwrap();
 
         assert_eq!(result, env);

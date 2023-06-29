@@ -2,7 +2,9 @@ use polywrap_client::client::PolywrapClient;
 use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
 use polywrap_core::uri::Uri;
-use polywrap_msgpack::msgpack;
+use polywrap_msgpack_serde::to_vec;
+
+use crate::fs::ArgsAdd;
 
 const SUBINVOKE_WRAP_URI: &str = "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS";
 
@@ -18,10 +20,7 @@ fn sanity() {
         .invoke::<u32>(
             &Uri::try_from(SUBINVOKE_WRAP_URI).unwrap(),
             "add",
-            Some(&msgpack!({
-                "a": 2,
-                "b": 40
-            })),
+            Some(&to_vec(&ArgsAdd { a: 2, b: 40 }).unwrap()),
             None,
             None,
         )

@@ -1,15 +1,13 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::macros::uri;
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
-use polywrap_msgpack::serialize;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_plugin::package::PluginPackage;
 use polywrap_tests_utils::helpers::get_tests_path;
 use polywrap_tests_utils::mocks::MemoryStoragePlugin;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::wrap_types::get_client;
 
@@ -47,6 +45,23 @@ struct DataWithManyStructuredArgs {
     valueL: BigObj,
 }
 
+#[derive(Serialize, Deserialize)]
+#[allow(non_snake_case)]
+struct SetDataWithManyArgsArgs {
+    valueA: String,
+    valueB: String,
+    valueC: String,
+    valueD: String,
+    valueE: String,
+    valueF: String,
+    valueG: String,
+    valueH: String,
+    valueI: String,
+    valueJ: String,
+    valueK: String,
+    valueL: String,
+}
+
 fn get_client_and_uri() -> (PolywrapClient, Uri) {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
@@ -67,6 +82,11 @@ fn get_client_and_uri() -> (PolywrapClient, Uri) {
     (get_client(Some(resolvers)), uri)
 }
 
+#[derive(Serialize)]
+struct SubsequentInvokesArgs {
+    numberOfTimes: u32,
+}
+
 #[test]
 fn subsequent_invokes() {
     let (client, uri) = get_client_and_uri();
@@ -75,7 +95,7 @@ fn subsequent_invokes() {
         .invoke::<Vec<String>>(
             &uri,
             "subsequentInvokes",
-            Some(&msgpack!({"numberOfTimes": 40})),
+            Some(&to_vec(&SubsequentInvokesArgs { numberOfTimes: 40 }).unwrap()),
             None,
             None,
         )
@@ -104,6 +124,11 @@ fn global_var_method() {
     assert!(global_var_method);
 }
 
+#[derive(Serialize)]
+struct SetDataWithLargeArgsArgs {
+    value: String,
+}
+
 #[test]
 fn set_data_with_large_args() {
     let (client, uri) = get_client_and_uri();
@@ -113,7 +138,12 @@ fn set_data_with_large_args() {
         .invoke::<String>(
             &uri,
             "setDataWithLargeArgs",
-            Some(&msgpack!({"value": large_str.clone()})),
+            Some(
+                &to_vec(&SetDataWithLargeArgsArgs {
+                    value: large_str.clone(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -128,20 +158,23 @@ fn set_data_with_many_args() {
         .invoke::<String>(
             &uri,
             "setDataWithManyArgs",
-            Some(&msgpack!({
-                "valueA": "polywrap a",
-                "valueB": "polywrap b",
-                "valueC": "polywrap c",
-                "valueD": "polywrap d",
-                "valueE": "polywrap e",
-                "valueF": "polywrap f",
-                "valueG": "polywrap g",
-                "valueH": "polywrap h",
-                "valueI": "polywrap i",
-                "valueJ": "polywrap j",
-                "valueK": "polywrap k",
-                "valueL": "polywrap l",
-            })),
+            Some(
+                &to_vec(&SetDataWithManyArgsArgs {
+                    valueA: "polywrap a".to_string(),
+                    valueB: "polywrap b".to_string(),
+                    valueC: "polywrap c".to_string(),
+                    valueD: "polywrap d".to_string(),
+                    valueE: "polywrap e".to_string(),
+                    valueF: "polywrap f".to_string(),
+                    valueG: "polywrap g".to_string(),
+                    valueH: "polywrap h".to_string(),
+                    valueI: "polywrap i".to_string(),
+                    valueJ: "polywrap j".to_string(),
+                    valueK: "polywrap k".to_string(),
+                    valueL: "polywrap l".to_string(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -173,7 +206,7 @@ fn set_data_with_many_structured_args() {
             &uri,
             "setDataWithManyStructuredArgs",
             Some(
-                &serialize(&DataWithManyStructuredArgs {
+                &to_vec(&DataWithManyStructuredArgs {
                     valueA: create_obj(1),
                     valueB: create_obj(2),
                     valueC: create_obj(3),

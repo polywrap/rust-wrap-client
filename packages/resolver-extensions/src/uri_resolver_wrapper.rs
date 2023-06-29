@@ -11,7 +11,7 @@ use polywrap_core::{
     },
     uri::Uri,
 };
-use polywrap_msgpack::{decode, msgpack};
+use polywrap_msgpack_serde::{from_slice, to_vec};
 use polywrap_wasm::wasm_package::WasmPackage;
 use serde::{Deserialize, Serialize};
 
@@ -24,6 +24,12 @@ pub struct MaybeUriOrManifest {
     pub uri: Option<String>,
     #[serde(with = "serde_bytes")]
     pub manifest: Option<Vec<u8>>,
+}
+
+#[derive(Serialize)]
+pub struct TryResolverUriArgs {
+    pub authority: String,
+    pub path: String,
 }
 
 impl UriResolverWrapper {
@@ -43,10 +49,13 @@ impl UriResolverWrapper {
         let result = invoker.invoke_raw(
             implementation_uri,
             "tryResolveUri",
-            Some(&msgpack!({
-                "authority": uri.authority(),
-                "path": uri.path(),
-            })),
+            Some(
+                &to_vec(&TryResolverUriArgs {
+                    authority: uri.authority().to_string(),
+                    path: uri.path().to_string(),
+                })
+                .unwrap(),
+            ),
             None,
             Some(resolver_extension_context.clone()),
         );
@@ -78,7 +87,7 @@ impl UriResolverWrapper {
                 manifest: None,
             })
         } else {
-            let result = decode::<Option<MaybeUriOrManifest>>(result.as_slice())?;
+            let result = from_slice::<Option<MaybeUriOrManifest>>(result.as_slice())?;
 
             let result = result.unwrap_or(MaybeUriOrManifest {
                 uri: None,
@@ -164,7 +173,16 @@ mod tests {
 
         let expected_manifest = wrap_manifest_schemas::versions::WrapManifest01 {
             abi: wrap_manifest_schemas::versions::WrapManifest01Abi {
-                ..Default::default()
+                version: Some("1".to_string()),
+                enum_types: None,
+                env_type: None,
+                imported_enum_types: None,
+                imported_env_types: None,
+                imported_module_types: None,
+                imported_object_types: None,
+                interface_types: None,
+                module_type: None,
+                object_types: None,
             },
             name: "mock".to_string(),
             version: "0.1".to_string(),
@@ -182,6 +200,6 @@ mod tests {
                 );
             }
             _ => panic!("Expected UriPackageOrWrapper::Package"),
-        }
+        };
     }
 }

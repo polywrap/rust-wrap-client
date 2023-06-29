@@ -8,6 +8,7 @@ use crate::{
  * and run build script to regenerate this file.
  */
 use jsonschema::JSONSchema;
+use polywrap_msgpack_serde::{from_slice};
 
 pub struct DeserializeManifestOptions {
     pub no_validate: bool,
@@ -18,8 +19,7 @@ pub fn deserialize_wrap_manifest(
     manifest: &[u8],
     options: Option<DeserializeManifestOptions>,
 ) -> Result<WrapManifest, super::error::Error> {
-    let any_wrap_manifest_json: serde_json::Value =
-        polywrap_msgpack::rmp_serde::from_slice(manifest)?;
+    let any_wrap_manifest_json: serde_json::Value = from_slice(manifest)?;
 
     let any_wrap_manifest = AnyManifest::from_json_value(any_wrap_manifest_json)?;
 

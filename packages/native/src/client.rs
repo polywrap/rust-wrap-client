@@ -168,10 +168,11 @@ mod test {
     use std::{collections::HashMap, sync::Arc};
     use polywrap_client::builder::PolywrapClientConfigBuilder;
     use polywrap_client::{client::PolywrapClient, builder::PolywrapClientConfig};
-    use polywrap_client::msgpack::msgpack;
 
     use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
+    use polywrap_msgpack_serde::to_vec;
     use polywrap_tests_utils::mocks::{get_mock_client, get_mock_invoker, get_mock_wrapper};
+    use serde::Serialize;
 
     use crate::{client::FFIClient, invoker::FFIInvoker, uri::FFIUri, wrapper::FFIWrapper};
 
@@ -234,6 +235,12 @@ mod test {
         assert_eq!(response.unwrap(), [4, 8]);
     }
 
+    #[derive(Serialize)]
+    pub struct AddArgs {
+        pub a: u32,
+        pub b: u32,
+    }
+
     #[test]
     fn ffi_invoke_raw_real() {
         let mut config = PolywrapClientConfig::new();
@@ -250,14 +257,11 @@ mod test {
         let result = ffi_client.invoke_raw(
             uri.clone(),
             "add",
-            Some(msgpack!({
-                "a": 2,
-                "b": 40
-            })),
+            Some(to_vec(&AddArgs { a: 2, b: 40 }).unwrap()),
             None,
             None,
         ).unwrap();
 
-        assert_eq!(result, msgpack!(42));
+        assert_eq!(result, to_vec(&42).unwrap());
     }
 }

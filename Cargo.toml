@@ -12,7 +12,6 @@ members = [
     "packages/uri",
     "packages/wasm",
     "packages/resolvers",
-    "packages/msgpack",
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
@@ -30,7 +29,6 @@ default-members = [
     "packages/uri",
     "packages/wasm",
     "packages/resolvers",
-    "packages/msgpack",
     "packages/manifest",
     "packages/builder",
     "packages/plugin",
@@ -50,7 +48,6 @@ polywrap_core = { version = "0.1.6-beta.7", path = "packages/core" }
 wrap_manifest_schemas = { version = "0.1.6-beta.7", path = "packages/manifest" }
 polywrap_resolvers = { version = "0.1.6-beta.7", path = "packages/resolvers" }
 polywrap_resolver_extensions = { version = "0.1.6-beta.7", path = "packages/resolver-extensions" }
-polywrap_msgpack = { version = "0.1.6-beta.7", path = "packages/msgpack" }
 polywrap_tests_utils = { version = "0.1.6-beta.7", path = "packages/tests-utils" }
 polywrap_plugin = { version = "0.1.6-beta.7", path = "packages/plugin" }
 polywrap_client_default_config = { version = "0.1.6-beta.7", path = "packages/default-config" }
@@ -61,9 +58,12 @@ polywrap_plugin_implementor = { version = "0.1.6-beta.7", path = "packages/plugi
 polywrap_fs_plugin = { version  = "0.1.6-beta.7", path = "packages/plugins/fs" }
 polywrap_http_plugin = { version  = "0.1.6-beta.7", path = "packages/plugins/http"  }
 
+polywrap_msgpack_serde = { git = "https://github.com/polywrap/msgpack-serde", branch = "namesty/wrap"}
+
+
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"
-thiserror = "1.0.37"
+thiserror = "1.0.40"
 jsonschema = "0.16.1"
 regex = "1.6.0"
 rmp-serde = "1.1.1"

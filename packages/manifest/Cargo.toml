@@ -9,7 +9,7 @@ license.workspace = true
 
 [dependencies]
 thiserror.workspace = true
-polywrap_msgpack.workspace = true
+polywrap_msgpack_serde.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 jsonschema.workspace = true

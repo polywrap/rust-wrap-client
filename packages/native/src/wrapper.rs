@@ -70,7 +70,8 @@ mod test {
 
     use std::sync::Arc;
 
-    use polywrap_client::{core::wrapper::Wrapper, msgpack::decode};
+    use polywrap_client::{core::wrapper::Wrapper};
+    use polywrap_msgpack_serde::from_slice;
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
 
     use crate::{invoker::FFIInvoker, wrapper::WrapperWrapping};
@@ -86,7 +87,7 @@ mod test {
         let (ffi_wrapper, ffi_invoker) = get_mocks();
         let response =
             ffi_wrapper.invoke("foo".to_string(), None, None, Arc::new(ffi_invoker));
-        assert!(decode::<bool>(&response.unwrap()).unwrap());
+        assert!(from_slice::<bool>(&response.unwrap()).unwrap());
     }
 
     #[test]
@@ -96,6 +97,6 @@ mod test {
         let response = ext_wrapper
             .invoke("foo", None, None, get_mock_invoker())
             .unwrap();
-        assert!(decode::<bool>(&response).unwrap());
+        assert!(from_slice::<bool>(&response).unwrap());
     }
 }

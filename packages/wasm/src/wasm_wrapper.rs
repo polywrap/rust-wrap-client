@@ -8,7 +8,7 @@ use polywrap_core::invoker::Invoker;
 use polywrap_core::wrapper::Encoding;
 use polywrap_core::wrapper::GetFileOptions;
 use polywrap_core::wrapper::Wrapper;
-use polywrap_msgpack::{decode, msgpack};
+use polywrap_msgpack_serde::{from_slice, to_vec};
 use serde::de::DeserializeOwned;
 use std::fmt::Formatter;
 use std::sync::Mutex;
@@ -50,7 +50,7 @@ impl WasmWrapper {
     ) -> Result<T, Error> {
         let result = self.invoke(method, args, env, invoker)?;
 
-        let result = decode(result.as_slice())?;
+        let result = from_slice(result.as_slice())?;
 
         Ok(result)
     }
@@ -72,7 +72,7 @@ impl Wrapper for WasmWrapper {
     ) -> Result<Vec<u8>, Error> {
         let args = match args {
             Some(args) => args.to_vec(),
-            None => msgpack!({}),
+            None => to_vec(&{}).unwrap()
         };
 
         let env = match env {

@@ -1,8 +1,15 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client_default_config::SystemClientConfig;
 use polywrap_core::uri::Uri;
-use polywrap_msgpack::msgpack;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
+use serde::Serialize;
+
+#[derive(Serialize)]
+pub struct ArgsAdd {
+    pub a: u32,
+    pub b: u32,
+}
 
 #[test]
 fn sanity() {
@@ -16,10 +23,7 @@ fn sanity() {
         .invoke::<u32>(
             &Uri::try_from(subinvoke_wrap_uri).unwrap(),
             "add",
-            Some(&msgpack!({
-                "a": 2,
-                "b": 40
-            })),
+            Some(&to_vec(&ArgsAdd { a: 2, b: 40 }).unwrap()),
             None,
             None,
         )

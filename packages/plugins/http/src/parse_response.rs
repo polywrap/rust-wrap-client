@@ -18,7 +18,6 @@ pub fn parse_response(
             Ok((header_name.to_string(), header_value.to_string()))
         })
         .collect::<Result<BTreeMap<String, String>, ParseResponseError>>()?;
-    let headers = Map(headers);
     let status = response.status();
     let status_text = response.status_text().to_string();
 

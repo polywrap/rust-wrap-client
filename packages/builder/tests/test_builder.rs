@@ -2,11 +2,23 @@ use std::{collections::HashMap, sync::Arc};
 
 use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_core::{macros::uri, package::WrapPackage, uri::Uri, wrapper::Wrapper};
-use polywrap_msgpack::msgpack;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::mocks::{
     get_different_mock_package, get_different_mock_wrapper, get_mock_invoker, get_mock_package,
     get_mock_wrapper, DifferentMockResolver, MockResolver,
 };
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct EnvOne {
+    a: String,
+    b: String,
+}
+
+#[derive(Serialize)]
+struct EnvTwo {
+    d: String,
+}
 
 #[test]
 fn test_env_methods() {
@@ -15,22 +27,39 @@ fn test_env_methods() {
 
     assert!(builder.envs.is_none());
 
-    builder.add_env(uri.clone(), msgpack!({ "d": "d" }));
+    builder.add_env(uri.clone(), to_vec(&EnvTwo { d: "d".to_string() }).unwrap());
 
     let current_env = builder.envs.clone().unwrap();
     let env_from_builder = current_env.get(&uri);
 
     assert!(env_from_builder.is_some());
-    assert_eq!(env_from_builder.unwrap(), &msgpack!({ "d": "d" }));
+    assert_eq!(
+        env_from_builder.unwrap(),
+        &to_vec(&EnvTwo { d: "d".to_string() }).unwrap()
+    );
 
     let mut envs = HashMap::new();
-    envs.insert(uri.clone(), msgpack!({"a": "a", "b": "b"}));
+    envs.insert(
+        uri.clone(),
+        to_vec(&EnvOne {
+            a: "a".to_string(),
+            b: "b".to_string(),
+        })
+        .unwrap(),
+    );
 
     builder.add_envs(envs);
 
     let current_env = builder.envs.clone().unwrap();
     let env_from_builder = current_env.get(&uri);
-    assert_eq!(env_from_builder.unwrap(), &msgpack!({ "a": "a", "b": "b" }));
+    assert_eq!(
+        env_from_builder.unwrap(),
+        &to_vec(&EnvOne {
+            a: "a".to_string(),
+            b: "b".to_string(),
+        })
+        .unwrap()
+    );
 
     builder.remove_env(&uri);
 

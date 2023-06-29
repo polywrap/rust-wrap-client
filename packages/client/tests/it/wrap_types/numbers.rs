@@ -1,6 +1,14 @@
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
+use polywrap_client_builder::PolywrapClientConfig;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct MethodArgs {
+    first: i64,
+    second: i64,
+}
 
 use crate::wrap_types::get_client;
 
@@ -16,10 +24,13 @@ fn numbers_test_case() {
         .invoke::<i8>(
             &uri,
             "i8Method",
-            Some(&msgpack!({
-                "first": -129,
-                "second": 10,
-            })),
+            Some(
+                &to_vec(&MethodArgs {
+                    first: -129,
+                    second: 10,
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -32,10 +43,13 @@ fn numbers_test_case() {
         .invoke::<u8>(
             &uri,
             "u8Method",
-            Some(&msgpack!({
-                "first": 256,
-                "second": 10,
-            })),
+            Some(
+                &to_vec(&MethodArgs {
+                    first: 256,
+                    second: 10,
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -48,10 +62,13 @@ fn numbers_test_case() {
         .invoke::<i16>(
             &uri,
             "i16Method",
-            Some(&msgpack!({
-                "first": -32769,
-                "second": 10,
-            })),
+            Some(
+                &to_vec(&MethodArgs {
+                    first: -32769,
+                    second: 10,
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -64,10 +81,13 @@ fn numbers_test_case() {
         .invoke::<u16>(
             &uri,
             "u16Method",
-            Some(&msgpack!({
-                "first": 65536,
-                "second": 10,
-            })),
+            Some(
+                &to_vec(&MethodArgs {
+                    first: 65536,
+                    second: 10,
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -80,10 +100,13 @@ fn numbers_test_case() {
         .invoke::<i32>(
             &uri,
             "i32Method",
-            Some(&msgpack!({
-                "first": -2147483649i64,
-                "second": 10,
-            })),
+            Some(
+                &to_vec(&MethodArgs {
+                    first: -2147483649i64,
+                    second: 10,
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -96,10 +119,13 @@ fn numbers_test_case() {
         .invoke::<u32>(
             &uri,
             "u32Method",
-            Some(&msgpack!({
-                "first": 4294967296u64,
-                "second": 10,
-            })),
+            Some(
+                &to_vec(&MethodArgs {
+                    first: 4294967296i64,
+                    second: 10,
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )

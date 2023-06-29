@@ -10,7 +10,7 @@ license.workspace = true
 [dependencies]
 polywrap_core.workspace = true
 polywrap_plugin.workspace = true
-polywrap_msgpack.workspace = true
+polywrap_msgpack_serde.workspace = true
 polywrap_resolvers.workspace = true
 wrap_manifest_schemas.workspace = true
 

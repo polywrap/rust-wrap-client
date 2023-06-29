@@ -1,6 +1,38 @@
 use polywrap_client::core::uri::Uri;
-use polywrap_client::msgpack::msgpack;
+use polywrap_client_builder::PolywrapClientConfig;
+use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
+use serde::Serialize;
+
+#[derive(Serialize)]
+struct BoolMethodArgs {
+    arg: u32,
+}
+
+#[derive(Serialize)]
+struct IntMethodArgs {
+    arg: bool,
+}
+
+#[derive(Serialize)]
+struct UintMethodArgs {
+    arg: Vec<u32>,
+}
+
+#[derive(Serialize)]
+struct BytesMethodArgs {
+    arg: f32,
+}
+
+#[derive(Serialize)]
+struct ArrayMethodProp {
+    prop: String,
+}
+
+#[derive(Serialize)]
+struct ArrayMethodArgs {
+    arg: ArrayMethodProp,
+}
 
 use crate::wrap_types::get_client;
 
@@ -16,9 +48,7 @@ fn invalid_test_case() {
         .invoke::<bool>(
             &uri,
             "boolMethod",
-            Some(&msgpack!({
-                "arg": 10,
-            })),
+            Some(&to_vec(&BoolMethodArgs { arg: 10 }).unwrap()),
             None,
             None,
         )
@@ -31,9 +61,7 @@ fn invalid_test_case() {
         .invoke::<i32>(
             &uri,
             "intMethod",
-            Some(&msgpack!({
-                "arg": true,
-            })),
+            Some(&to_vec(&IntMethodArgs { arg: true }).unwrap()),
             None,
             None,
         )
@@ -46,9 +74,7 @@ fn invalid_test_case() {
         .invoke::<u32>(
             &uri,
             "uIntMethod",
-            Some(&msgpack!({
-                "arg": [10],
-            })),
+            Some(&to_vec(&UintMethodArgs { arg: vec![10] }).unwrap()),
             None,
             None,
         )
@@ -61,26 +87,27 @@ fn invalid_test_case() {
         .invoke::<Vec<u8>>(
             &uri,
             "bytesMethod",
-            Some(&msgpack!({
-                "arg": 10.15,
-            })),
+            Some(&to_vec(&BytesMethodArgs { arg: 10.15 }).unwrap()),
             None,
             None,
         )
         .unwrap_err();
     assert!(invalid_bytes_float_sent
         .to_string()
-        .contains("Property must be of type 'bytes'. Found 'float64'."));
+        .contains("Property must be of type 'bytes'. Found 'float32'."));
 
     let invalid_array_map_sent = client
         .invoke::<Vec<i32>>(
             &uri,
             "arrayMethod",
-            Some(&msgpack!({
-                "arg": {
-                    "prop": "prop",
-                },
-            })),
+            Some(
+                &to_vec(&ArrayMethodArgs {
+                    arg: ArrayMethodProp {
+                        prop: "".to_string(),
+                    },
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )

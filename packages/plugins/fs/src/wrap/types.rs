@@ -4,7 +4,6 @@
 // NOTE: This is an auto-generated file.
 //       All modifications will be overwritten.
 use polywrap_core::{invoker::Invoker, uri::Uri};
-use polywrap_msgpack::{decode, serialize};
 use polywrap_plugin::{error::PluginError, BigInt, BigNumber, Map, JSON};
 use serde::{Serialize, Deserialize};
 
