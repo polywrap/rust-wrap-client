@@ -639,6 +639,27 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
 
     let wrap_load_env = Function::new_with_env(store, &context, load_env_signature, load_env);
 
+    let debug_log_signature = FunctionType::new(vec![Type::I32, Type::I32], vec![]);
+    let debug_log = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
+        let msg_offset = values[0].unwrap_i32() as u32;
+        let msg_length = values[1].unwrap_i32() as u32;
+        let mut msg_buffer: Vec<u8> = vec![0; msg_length as usize];
+
+        let mutable_context = context.as_mut();
+        let state = mutable_context.data().lock().unwrap();
+        let memory = state.memory.as_ref().unwrap();
+        let memory_view = memory.view(&mutable_context);
+
+        memory_view
+            .read(msg_offset.try_into().unwrap(), &mut msg_buffer)
+            .unwrap();
+        let msg = String::from_utf8(msg_buffer).unwrap();
+        println!("{}", format!("__wrap_debug_log: {msg}"));
+        Ok(vec![])
+    };
+
+    let wrap_debug_log = Function::new_with_env(store, &context, debug_log_signature, debug_log);
+
     imports! {
         "wrap" => {
             "__wrap_invoke_args" => wrap_invoke_args,
@@ -659,6 +680,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             "__wrap_getImplementations_result" => wrap_get_implementation_result,
             "__wrap_getImplementations_result_len" => wrap_get_implementation_result_len,
             "__wrap_load_env" => wrap_load_env,
+            "__wrap_debug_log" => wrap_debug_log
         },
         "env" => {
             "memory" => memory,
