@@ -1,5 +1,5 @@
 [workspace.package]
-version = "0.1.6-beta.7"
+version = "0.1.6-beta.8"
 license = "MIT"
 edition = "2021"
 rust-version = "1.69"
@@ -40,25 +40,25 @@ default-members = [
 ]
 
 [workspace.dependencies]
-polywrap_client = { version = "0.1.6-beta.7", path = "packages/client" } 
-polywrap_wasm = { version = "0.1.6-beta.7", path = "packages/wasm" }
-polywrap_client_builder = { version = "0.1.6-beta.7", path = "packages/builder" }
-polywrap_uri = { version = "0.1.6-beta.7", path = "packages/uri" }
-polywrap_core = { version = "0.1.6-beta.7", path = "packages/core" }
-wrap_manifest_schemas = { version = "0.1.6-beta.7", path = "packages/manifest" }
-polywrap_resolvers = { version = "0.1.6-beta.7", path = "packages/resolvers" }
-polywrap_resolver_extensions = { version = "0.1.6-beta.7", path = "packages/resolver-extensions" }
-polywrap_tests_utils = { version = "0.1.6-beta.7", path = "packages/tests-utils" }
-polywrap_plugin = { version = "0.1.6-beta.7", path = "packages/plugin" }
-polywrap_client_default_config = { version = "0.1.6-beta.7", path = "packages/default-config" }
-polywrap_core_macros = { version = "0.1.6-beta.7", path = "packages/core/macros" }
+polywrap_client = { version = "0.1.6-beta.8", path = "packages/client" } 
+polywrap_wasm = { version = "0.1.6-beta.8", path = "packages/wasm" }
+polywrap_client_builder = { version = "0.1.6-beta.8", path = "packages/builder" }
+polywrap_uri = { version = "0.1.6-beta.8", path = "packages/uri" }
+polywrap_core = { version = "0.1.6-beta.8", path = "packages/core" }
+wrap_manifest_schemas = { version = "0.1.6-beta.8", path = "packages/manifest" }
+polywrap_resolvers = { version = "0.1.6-beta.8", path = "packages/resolvers" }
+polywrap_resolver_extensions = { version = "0.1.6-beta.8", path = "packages/resolver-extensions" }
+polywrap_tests_utils = { version = "0.1.6-beta.8", path = "packages/tests-utils" }
+polywrap_plugin = { version = "0.1.6-beta.8", path = "packages/plugin" }
+polywrap_client_default_config = { version = "0.1.6-beta.8", path = "packages/default-config" }
+polywrap_core_macros = { version = "0.1.6-beta.8", path = "packages/core/macros" }
 
-polywrap_plugin_implementor = { version = "0.1.6-beta.7", path = "packages/plugin/implementor" }
+polywrap_plugin_implementor = { version = "0.1.6-beta.8", path = "packages/plugin/implementor" }
 
-polywrap_fs_plugin = { version  = "0.1.6-beta.7", path = "packages/plugins/fs" }
-polywrap_http_plugin = { version  = "0.1.6-beta.7", path = "packages/plugins/http"  }
+polywrap_fs_plugin = { version = "0.1.6-beta.8", path = "packages/plugins/fs" }
+polywrap_http_plugin = { version = "0.1.6-beta.8", path = "packages/plugins/http"  }
 
-polywrap_msgpack_serde = { git = "https://github.com/polywrap/msgpack-serde", branch = "namesty/wrap"}
+polywrap_msgpack_serde = "0.0.1"
 
 
 serde = { version = "1.0.145", features = ["derive"] }
