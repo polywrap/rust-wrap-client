@@ -9,11 +9,11 @@ use polywrap_client::core::resolution::uri_resolution_context::{
 
 use crate::uri::FFIUri;
 
-use super::uri_package_or_wrapper::FFIUriPackageOrWrapper;
+use super::uri_package_or_wrapper::IFFIUriPackageOrWrapper;
 
 pub struct FFIUriResolutionStep {
     pub source_uri: Arc<FFIUri>,
-    pub result: Box<dyn FFIUriPackageOrWrapper>,
+    pub result: Box<dyn IFFIUriPackageOrWrapper>,
     pub description: Option<String>,
     pub sub_history: Option<Vec<FFIUriResolutionStep>>,
 }

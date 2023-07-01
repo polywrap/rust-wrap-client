@@ -2,16 +2,16 @@ use std::{fmt::Debug, sync::Arc};
 
 use crate::{
     error::FFIError,
-    wrapper::{FFIWrapper, WrapperWrapping},
+    wrapper::{IFFIWrapper, WrapperWrapping},
 };
 use polywrap_client::core::{error::Error, package::WrapPackage, wrapper::Wrapper};
 
-pub trait FFIWrapPackage: Debug + Send + Sync {
-    fn create_wrapper(&self) -> Result<Box<dyn FFIWrapper>, FFIError>;
+pub trait IFFIWrapPackage: Debug + Send + Sync {
+    fn create_wrapper(&self) -> Result<Box<dyn IFFIWrapper>, FFIError>;
 }
 
-impl FFIWrapPackage for Arc<dyn WrapPackage> {
-    fn create_wrapper(&self) -> Result<Box<dyn FFIWrapper>, FFIError> {
+impl IFFIWrapPackage for Arc<dyn WrapPackage> {
+    fn create_wrapper(&self) -> Result<Box<dyn IFFIWrapper>, FFIError> {
         let arc_self = self.clone();
         let wrapper = WrapPackage::create_wrapper(arc_self.as_ref())?;
         Ok(Box::new(wrapper))
@@ -19,7 +19,7 @@ impl FFIWrapPackage for Arc<dyn WrapPackage> {
 }
 
 #[derive(Debug)]
-pub struct WrapPackageWrapping(pub Box<dyn FFIWrapPackage>);
+pub struct WrapPackageWrapping(pub Box<dyn IFFIWrapPackage>);
 
 impl WrapPackage for WrapPackageWrapping {
     fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error> {
@@ -31,7 +31,7 @@ impl WrapPackage for WrapPackageWrapping {
         &self,
         _: Option<&polywrap_client::core::package::GetManifestOptions>,
     ) -> Result<polywrap_client::wrap_manifest::versions::WrapManifest, Error> {
-        unimplemented!("get_manifest is not implemented for FFIWrapPackage")
+        unimplemented!("get_manifest is not implemented for IFFIWrapPackage")
     }
 }
 
@@ -44,9 +44,9 @@ mod test {
 
     use crate::invoker::FFIInvoker;
 
-    use super::FFIWrapPackage;
+    use super::IFFIWrapPackage;
 
-    fn get_mocks() -> (Box<dyn FFIWrapPackage>, FFIInvoker) {
+    fn get_mocks() -> (Box<dyn IFFIWrapPackage>, FFIInvoker) {
         (Box::new(get_mock_package()), FFIInvoker(get_mock_invoker()))
     }
 

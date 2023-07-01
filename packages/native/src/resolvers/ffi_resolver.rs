@@ -14,20 +14,20 @@ use polywrap_client::core::{
 use crate::{error::FFIError, invoker::FFIInvoker, uri::FFIUri};
 
 use super::{
-    resolution_context::FFIUriResolutionContext, uri_package_or_wrapper::FFIUriPackageOrWrapper,
+    resolution_context::FFIUriResolutionContext, uri_package_or_wrapper::IFFIUriPackageOrWrapper,
 };
 
-pub trait FFIUriResolver: Send + Sync + Debug {
+pub trait IFFIUriResolver: Send + Sync + Debug {
     fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
-    ) -> Result<Box<dyn FFIUriPackageOrWrapper>, FFIError>;
+    ) -> Result<Box<dyn IFFIUriPackageOrWrapper>, FFIError>;
 }
 
 #[derive(Debug)]
-pub struct UriResolverWrapping(pub Box<dyn FFIUriResolver>);
+pub struct UriResolverWrapping(pub Box<dyn IFFIUriResolver>);
 
 impl UriResolver for UriResolverWrapping {
     fn try_resolve_uri(

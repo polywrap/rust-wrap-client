@@ -7,7 +7,7 @@ use crate::{
     invoker::FFIInvoker,
     resolvers::resolution_context::FFIUriResolutionContext,
     uri::FFIUri,
-    wrapper::{FFIWrapper, WrapperWrapping},
+    wrapper::{IFFIWrapper, WrapperWrapping},
 };
 
 #[derive(Clone)]
@@ -81,7 +81,7 @@ impl FFIClient {
 
     pub fn invoke_wrapper_raw(
         &self,
-        wrapper: Box<dyn FFIWrapper>,
+        wrapper: Box<dyn IFFIWrapper>,
         uri: Arc<FFIUri>,
         method: &str,
         args: Option<Vec<u8>>,
@@ -117,7 +117,7 @@ impl FFIClient {
         &self,
         uri: Arc<FFIUri>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
-    ) -> Result<Box<dyn FFIWrapper>, FFIError> {
+    ) -> Result<Box<dyn IFFIWrapper>, FFIError> {
         let wrapper = self
             .inner_client
             .load_wrapper(&uri.0, resolution_context.map(|ctx| ctx.0.clone()))?;
@@ -174,7 +174,7 @@ mod test {
     use polywrap_tests_utils::mocks::{get_mock_client, get_mock_invoker, get_mock_wrapper};
     use serde::Serialize;
 
-    use crate::{client::FFIClient, invoker::FFIInvoker, uri::FFIUri, wrapper::FFIWrapper};
+    use crate::{client::FFIClient, invoker::FFIInvoker, uri::FFIUri, wrapper::IFFIWrapper};
 
     #[test]
     fn ffi_invoke_raw() {
@@ -198,7 +198,7 @@ mod test {
     #[test]
     fn ffi_invoke_wrapper_raw() {
         let ffi_client = FFIClient::new(get_mock_client());
-        let ffi_wrapper: Box<dyn FFIWrapper> = Box::new(get_mock_wrapper());
+        let ffi_wrapper: Box<dyn IFFIWrapper> = Box::new(get_mock_wrapper());
         let uri = Arc::new(FFIUri::from_string("mock/a"));
 
         let response = ffi_client.invoke_wrapper_raw(ffi_wrapper, uri, "", None, None, None);

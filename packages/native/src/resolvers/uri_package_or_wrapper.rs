@@ -6,9 +6,9 @@ use polywrap_client::core::{
 };
 
 use crate::{
-    package::{FFIWrapPackage, WrapPackageWrapping},
+    package::{IFFIWrapPackage, WrapPackageWrapping},
     uri::FFIUri,
-    wrapper::{FFIWrapper, WrapperWrapping},
+    wrapper::{IFFIWrapper, WrapperWrapping},
 };
 
 #[derive(Debug)]
@@ -18,25 +18,25 @@ pub enum FFIUriPackageOrWrapperKind {
     WRAPPER,
 }
 
-pub trait FFIUriWrapper {
+pub trait IFFIUriWrapper {
     fn get_uri(&self) -> Arc<FFIUri>;
-    fn get_wrapper(&self) -> Box<dyn FFIWrapper>;
+    fn get_wrapper(&self) -> Box<dyn IFFIWrapper>;
 }
 
-pub trait FFIUriWrapPackage {
+pub trait IFFIUriWrapPackage {
     fn get_uri(&self) -> Arc<FFIUri>;
-    fn get_package(&self) -> Box<dyn FFIWrapPackage>;
+    fn get_package(&self) -> Box<dyn IFFIWrapPackage>;
 }
 
-pub trait FFIUriPackageOrWrapper: Send + Sync {
+pub trait IFFIUriPackageOrWrapper: Send + Sync {
     fn get_kind(&self) -> FFIUriPackageOrWrapperKind;
     fn as_uri(&self) -> Arc<FFIUri>;
-    fn as_wrapper(&self) -> Box<dyn FFIUriWrapper>;
-    fn as_package(&self) -> Box<dyn FFIUriWrapPackage>;
+    fn as_wrapper(&self) -> Box<dyn IFFIUriWrapper>;
+    fn as_package(&self) -> Box<dyn IFFIUriWrapPackage>;
 }
 
-impl From<Box<dyn FFIUriPackageOrWrapper>> for UriPackageOrWrapper {
-    fn from(value: Box<dyn FFIUriPackageOrWrapper>) -> Self {
+impl From<Box<dyn IFFIUriPackageOrWrapper>> for UriPackageOrWrapper {
+    fn from(value: Box<dyn IFFIUriPackageOrWrapper>) -> Self {
         match value.as_ref().get_kind() {
             FFIUriPackageOrWrapperKind::URI => UriPackageOrWrapper::Uri(value.as_uri().0.clone()),
             FFIUriPackageOrWrapperKind::WRAPPER => {
@@ -57,7 +57,7 @@ impl From<Box<dyn FFIUriPackageOrWrapper>> for UriPackageOrWrapper {
     }
 }
 
-impl FFIUriPackageOrWrapper for UriPackageOrWrapper {
+impl IFFIUriPackageOrWrapper for UriPackageOrWrapper {
     fn get_kind(&self) -> FFIUriPackageOrWrapperKind {
         match self {
             UriPackageOrWrapper::Uri(_) => FFIUriPackageOrWrapperKind::URI,
@@ -73,7 +73,7 @@ impl FFIUriPackageOrWrapper for UriPackageOrWrapper {
         }
     }
 
-    fn as_wrapper(&self) -> Box<dyn FFIUriWrapper> {
+    fn as_wrapper(&self) -> Box<dyn IFFIUriWrapper> {
         match self {
             UriPackageOrWrapper::Wrapper(uri, wrapper) => {
                 Box::new(UriWrapper(uri.clone(), wrapper.clone()))
@@ -82,7 +82,7 @@ impl FFIUriPackageOrWrapper for UriPackageOrWrapper {
         }
     }
 
-    fn as_package(&self) -> Box<dyn FFIUriWrapPackage> {
+    fn as_package(&self) -> Box<dyn IFFIUriWrapPackage> {
         match self {
             UriPackageOrWrapper::Package(uri, package) => {
                 Box::new(UriWrapPackage(uri.clone(), package.clone()))
@@ -94,24 +94,24 @@ impl FFIUriPackageOrWrapper for UriPackageOrWrapper {
 
 pub struct UriWrapper(Uri, Arc<dyn Wrapper>);
 
-impl FFIUriWrapper for UriWrapper {
+impl IFFIUriWrapper for UriWrapper {
     fn get_uri(&self) -> Arc<FFIUri> {
         Arc::new(FFIUri(self.0.clone()))
     }
 
-    fn get_wrapper(&self) -> Box<dyn FFIWrapper> {
+    fn get_wrapper(&self) -> Box<dyn IFFIWrapper> {
         Box::new(self.1.clone())
     }
 }
 
 pub struct UriWrapPackage(Uri, Arc<dyn WrapPackage>);
 
-impl FFIUriWrapPackage for UriWrapPackage {
+impl IFFIUriWrapPackage for UriWrapPackage {
     fn get_uri(&self) -> Arc<FFIUri> {
         Arc::new(FFIUri(self.0.clone()))
     }
 
-    fn get_package(&self) -> Box<dyn FFIWrapPackage> {
+    fn get_package(&self) -> Box<dyn IFFIWrapPackage> {
         Box::new(self.1.clone())
     }
 }

@@ -39,14 +39,14 @@ interface FFIInvoker {
   sequence<u8>? get_env_by_uri(FFIUri uri);
 };
 
-callback interface FFIWrapper {
+callback interface IFFIWrapper {
   [Throws=FFIError]
   sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
 };
 
-callback interface FFIWrapPackage {
+callback interface IFFIWrapPackage {
   [Throws=FFIError]
-  FFIWrapper create_wrapper();
+  IFFIWrapper create_wrapper();
 };
 
 interface FFIWasmWrapper {
@@ -56,9 +56,9 @@ interface FFIWasmWrapper {
   sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
 };
 
-callback interface FFIUriResolver {
+callback interface IFFIUriResolver {
   [Throws=FFIError]
-  FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
+  IFFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };
 
 enum FFIUriPackageOrWrapperKind {
@@ -67,39 +67,39 @@ enum FFIUriPackageOrWrapperKind {
   "WRAPPER",
 };
 
-callback interface FFIUriWrapper {
+callback interface IFFIUriWrapper {
   FFIUri get_uri();
-  FFIWrapper get_wrapper();
+  IFFIWrapper get_wrapper();
 };
 
-callback interface FFIUriWrapPackage {
+callback interface IFFIUriWrapPackage {
   FFIUri get_uri();
-  FFIWrapPackage get_package();
+  IFFIWrapPackage get_package();
 };
 
-callback interface FFIUriPackageOrWrapper {
+callback interface IFFIUriPackageOrWrapper {
   FFIUriPackageOrWrapperKind get_kind();
   FFIUri as_uri();
-  FFIUriWrapper as_wrapper();
-  FFIUriWrapPackage as_package();
+  IFFIUriWrapper as_wrapper();
+  IFFIUriWrapPackage as_package();
 };
 
 interface FFIStaticUriResolver {
   [Throws=FFIError]
-  constructor(record<DOMString, FFIUriPackageOrWrapper> uri_map);
+  constructor(record<DOMString, IFFIUriPackageOrWrapper> uri_map);
   [Throws=FFIError]
-  FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
+  IFFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };
 
 interface FFIRecursiveUriResolver {
-  constructor(FFIUriResolver uri_resolver);
+  constructor(IFFIUriResolver uri_resolver);
   [Throws=FFIError]
-  FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
+  IFFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };
 
 dictionary FFIUriResolutionStep {
   FFIUri source_uri;
-  FFIUriPackageOrWrapper result;
+  IFFIUriPackageOrWrapper result;
   string? description;
   sequence<FFIUriResolutionStep>? sub_history;
 };
@@ -132,10 +132,10 @@ interface FFIClient {
   FFIInvoker as_invoker();
 
   [Throws=FFIError]
-  sequence<u8> invoke_wrapper_raw(FFIWrapper wrapper, FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
+  sequence<u8> invoke_wrapper_raw(IFFIWrapper wrapper, FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
 
   [Throws=FFIError]
-  FFIWrapper load_wrapper(FFIUri uri, FFIUriResolutionContext? resolution_context);
+  IFFIWrapper load_wrapper(FFIUri uri, FFIUriResolutionContext? resolution_context);
 };
 
 interface FFIBuilderConfig {
@@ -144,13 +144,13 @@ interface FFIBuilderConfig {
   void remove_env(FFIUri uri);
   void add_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
   void remove_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
-  void add_wrapper(FFIUri uri, FFIWrapper wrapper);
+  void add_wrapper(FFIUri uri, IFFIWrapper wrapper);
   void remove_wrapper(FFIUri uri);
-  void add_package(FFIUri uri, FFIWrapPackage package);
+  void add_package(FFIUri uri, IFFIWrapPackage package);
   void remove_package(FFIUri uri);
   void add_redirect(FFIUri from, FFIUri to);
   void remove_redirect(FFIUri from);
-  void add_resolver(FFIUriResolver resolver);
+  void add_resolver(IFFIUriResolver resolver);
   FFIClient build();
 };
 

@@ -10,8 +10,8 @@ use std::{collections::HashMap, sync::Arc};
 use crate::{error::FFIError, invoker::FFIInvoker, uri::FFIUri};
 
 use super::{
-    ffi_resolver::FFIUriResolver, resolution_context::FFIUriResolutionContext,
-    uri_package_or_wrapper::FFIUriPackageOrWrapper,
+    ffi_resolver::IFFIUriResolver, resolution_context::FFIUriResolutionContext,
+    uri_package_or_wrapper::IFFIUriPackageOrWrapper,
 };
 
 #[derive(Debug)]
@@ -21,7 +21,7 @@ pub struct FFIStaticUriResolver {
 
 impl FFIStaticUriResolver {
     pub fn new(
-        uri_map: HashMap<String, Box<dyn FFIUriPackageOrWrapper>>,
+        uri_map: HashMap<String, Box<dyn IFFIUriPackageOrWrapper>>,
     ) -> Result<FFIStaticUriResolver, FFIError> {
         let uri_map: Result<HashMap<Uri, UriPackageOrWrapper>, _> = uri_map
             .into_iter()
@@ -44,13 +44,13 @@ impl FFIStaticUriResolver {
     }
 }
 
-impl FFIUriResolver for FFIStaticUriResolver {
+impl IFFIUriResolver for FFIStaticUriResolver {
     fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
-    ) -> Result<Box<dyn FFIUriPackageOrWrapper>, FFIError> {
+    ) -> Result<Box<dyn IFFIUriPackageOrWrapper>, FFIError> {
         let result = self.inner_resolver.try_resolve_uri(
             &uri.0,
             invoker.0.clone(),
@@ -70,9 +70,9 @@ mod test {
     use crate::{
         invoker::FFIInvoker,
         resolvers::{
-            ffi_resolver::FFIUriResolver,
+            ffi_resolver::IFFIUriResolver,
             resolution_context::FFIUriResolutionContext,
-            uri_package_or_wrapper::{FFIUriPackageOrWrapper, FFIUriPackageOrWrapperKind},
+            uri_package_or_wrapper::{IFFIUriPackageOrWrapper, FFIUriPackageOrWrapperKind},
         },
         uri::FFIUri,
     };
@@ -83,7 +83,7 @@ mod test {
     fn ff_static_resolver_returns_error_with_bad_uri() {
         let mock_uri_package_or_wrapper = get_mock_uri_package_or_wrapper();
 
-        let ffi_uri_package_or_wrapper: Box<dyn FFIUriPackageOrWrapper> =
+        let ffi_uri_package_or_wrapper: Box<dyn IFFIUriPackageOrWrapper> =
             Box::new(mock_uri_package_or_wrapper);
         let ffi_static_resolver = FFIStaticUriResolver::new(HashMap::from([(
             "wrong-uri-format".to_string(),
@@ -102,7 +102,7 @@ mod test {
         let mock_uri_package_or_wrapper = get_mock_uri_package_or_wrapper();
         let ffi_uri = Arc::new(FFIUri::from_string("wrap/mock"));
 
-        let ffi_uri_package_or_wrapper: Box<dyn FFIUriPackageOrWrapper> =
+        let ffi_uri_package_or_wrapper: Box<dyn IFFIUriPackageOrWrapper> =
             Box::new(mock_uri_package_or_wrapper);
         let ffi_static_resolver = FFIStaticUriResolver::new(HashMap::from([(
             "wrap/mock".to_string(),
