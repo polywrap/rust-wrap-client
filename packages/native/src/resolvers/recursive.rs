@@ -6,9 +6,9 @@ use std::sync::Arc;
 use crate::{error::FFIError, invoker::FFIInvoker, uri::FFIUri};
 
 use super::{
-    ffi_resolver::{IFFIUriResolver, UriResolverWrapping},
+    ffi_resolver::{IFFIUriResolver, FFIUriResolver},
     resolution_context::FFIUriResolutionContext,
-    uri_package_or_wrapper::IFFIUriPackageOrWrapper,
+    uri_package_or_wrapper::{IFFIUriPackageOrWrapper, FFIUriPackageOrWrapper},
 };
 
 #[derive(Debug)]
@@ -17,15 +17,25 @@ pub struct FFIRecursiveUriResolver {
 }
 
 impl FFIRecursiveUriResolver {
-    pub fn new(uri_resolver_like: Box<dyn IFFIUriResolver>) -> FFIRecursiveUriResolver {
+    pub fn new(uri_resolver_like: Arc<FFIUriResolver>) -> FFIRecursiveUriResolver {
         FFIRecursiveUriResolver {
-            inner_resolver: (UriResolverWrapping(uri_resolver_like).as_uri_resolver()).into(),
+            inner_resolver: (uri_resolver_like.as_uri_resolver()).into(),
         }
+    }
+
+    pub fn try_resolve_uri(
+      &self,
+      uri: Arc<FFIUri>,
+      invoker: Arc<FFIInvoker>,
+      resolution_context: Arc<FFIUriResolutionContext>,
+    ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
+        let result = IFFIUriResolver::ffi_try_resolve_uri(self, uri, invoker, resolution_context)?;
+        Ok(Arc::new(FFIUriPackageOrWrapper(result)))
     }
 }
 
 impl IFFIUriResolver for FFIRecursiveUriResolver {
-    fn try_resolve_uri(
+    fn ffi_try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,

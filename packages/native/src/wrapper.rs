@@ -9,7 +9,7 @@ use polywrap_client::core::{
 use crate::{error::FFIError, invoker::FFIInvoker};
 
 pub trait IFFIWrapper: Debug + Send + Sync {
-    fn invoke(
+    fn ffi_invoke(
         &self,
         method: String,
         args: Option<Vec<u8>>,
@@ -19,7 +19,7 @@ pub trait IFFIWrapper: Debug + Send + Sync {
 }
 
 impl IFFIWrapper for Arc<dyn Wrapper> {
-    fn invoke(
+    fn ffi_invoke(
         &self,
         method: String,
         args: Option<Vec<u8>>,
@@ -39,9 +39,25 @@ impl IFFIWrapper for Arc<dyn Wrapper> {
 }
 
 #[derive(Debug)]
-pub struct WrapperWrapping(pub Box<dyn IFFIWrapper>);
+pub struct FFIWrapper(pub Box<dyn IFFIWrapper>);
 
-impl Wrapper for WrapperWrapping {
+impl FFIWrapper {
+    pub fn new(wrapper: Box<dyn IFFIWrapper>) -> Self {
+        Self(wrapper)
+    }
+
+    pub fn invoke(
+        &self,
+        method: &str,
+        args: Option<Vec<u8>>,
+        env: Option<Vec<u8>>,
+        invoker: Arc<FFIInvoker>,
+    ) -> Result<Vec<u8>, FFIError> {
+        self.0.ffi_invoke(method.to_owned(), args, env, invoker)
+    }
+}
+
+impl Wrapper for FFIWrapper {
     fn invoke(
         &self,
         method: &str,
@@ -52,12 +68,9 @@ impl Wrapper for WrapperWrapping {
         let args = args.map(|args| args.to_vec());
         let env = env.map(|env| env.to_vec());
 
-        Ok(self.0.invoke(
-            method.to_string(),
-            args,
-            env,
-            Arc::new(FFIInvoker(invoker)),
-        )?)
+        Ok(self
+            .0
+            .ffi_invoke(method.to_string(), args, env, Arc::new(FFIInvoker(invoker)))?)
     }
 
     fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
@@ -70,11 +83,11 @@ mod test {
 
     use std::sync::Arc;
 
-    use polywrap_client::{core::wrapper::Wrapper};
+    use polywrap_client::core::wrapper::Wrapper;
     use polywrap_msgpack_serde::from_slice;
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
 
-    use crate::{invoker::FFIInvoker, wrapper::WrapperWrapping};
+    use crate::{invoker::FFIInvoker, wrapper::FFIWrapper};
 
     use super::IFFIWrapper;
 
@@ -85,17 +98,16 @@ mod test {
     #[test]
     fn ffi_wrapper() {
         let (ffi_wrapper, ffi_invoker) = get_mocks();
-        let response =
-            ffi_wrapper.invoke("foo".to_string(), None, None, Arc::new(ffi_invoker));
+        let response = ffi_wrapper.ffi_invoke("foo".to_string(), None, None, Arc::new(ffi_invoker));
         assert!(from_slice::<bool>(&response.unwrap()).unwrap());
     }
 
     #[test]
     fn test_ext_wrapper() {
         let (ffi_wrapper, _) = get_mocks();
-        let ext_wrapper = WrapperWrapping(ffi_wrapper);
-        let response = ext_wrapper
-            .invoke("foo", None, None, get_mock_invoker())
+        let ext_wrapper = FFIWrapper(ffi_wrapper);
+        let response = 
+            Wrapper::invoke(&ext_wrapper, "foo", None, None, get_mock_invoker())
             .unwrap();
         assert!(from_slice::<bool>(&response).unwrap());
     }

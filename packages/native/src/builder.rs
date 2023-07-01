@@ -7,10 +7,8 @@ use polywrap_client::{
 
 use crate::{
     client::FFIClient,
-    package::{IFFIWrapPackage, WrapPackageWrapping},
-    resolvers::ffi_resolver::{IFFIUriResolver, UriResolverWrapping},
     uri::FFIUri,
-    wrapper::{IFFIWrapper, WrapperWrapping},
+    wrapper::{FFIWrapper}, package::FFIWrapPackage, resolvers::ffi_resolver::FFIUriResolver,
 };
 
 pub struct FFIBuilderConfig {
@@ -57,22 +55,22 @@ impl FFIBuilderConfig {
             .remove_interface_implementation(&interface_uri.0, &implementation_uri.0);
     }
 
-    pub fn add_wrapper(&self, uri: Arc<FFIUri>, wrapper: Box<dyn IFFIWrapper>) {
+    pub fn add_wrapper(&self, uri: Arc<FFIUri>, wrapper: Arc<FFIWrapper>) {
         self.inner_builder
             .lock()
             .unwrap()
-            .add_wrapper(uri.0.clone(), Arc::new(WrapperWrapping(wrapper)));
+            .add_wrapper(uri.0.clone(), wrapper);
     }
 
     pub fn remove_wrapper(&self, uri: Arc<FFIUri>) {
         self.inner_builder.lock().unwrap().remove_wrapper(&uri.0);
     }
 
-    pub fn add_package(&self, uri: Arc<FFIUri>, package: Box<dyn IFFIWrapPackage>) {
+    pub fn add_package(&self, uri: Arc<FFIUri>, package: Arc<FFIWrapPackage>) {
         self.inner_builder
             .lock()
             .unwrap()
-            .add_package(uri.0.clone(), Arc::new(WrapPackageWrapping(package)));
+            .add_package(uri.0.clone(), package);
     }
 
     pub fn remove_package(&self, uri: Arc<FFIUri>) {
@@ -90,11 +88,11 @@ impl FFIBuilderConfig {
         self.inner_builder.lock().unwrap().remove_redirect(&from.0);
     }
 
-    pub fn add_resolver(&self, resolver: Box<dyn IFFIUriResolver>) {
+    pub fn add_resolver(&self, resolver: Arc<FFIUriResolver>) {
         self.inner_builder
             .lock()
             .unwrap()
-            .add_resolver(Arc::from(UriResolverWrapping(resolver).as_uri_resolver()));
+            .add_resolver(resolver);
     }
 
     pub fn build(&self) -> Arc<FFIClient> {
@@ -117,7 +115,7 @@ mod test {
     };
     use serde::Serialize;
 
-    use crate::{package::IFFIWrapPackage, uri::FFIUri, wrapper::IFFIWrapper};
+    use crate::{package::{IFFIWrapPackage, FFIWrapPackage}, uri::FFIUri, wrapper::{IFFIWrapper, FFIWrapper}};
 
     use super::FFIBuilderConfig;
 
@@ -169,8 +167,8 @@ mod test {
             Box::new(get_different_mock_package());
         let uri_different_mock_package = Arc::new(FFIUri::from_string("package/b"));
 
-        builder.add_package(uri_mock_package.clone(), mock_package);
-        builder.add_package(uri_different_mock_package, different_mock_package);
+        builder.add_package(uri_mock_package.clone(), Arc::new(FFIWrapPackage(mock_package)));
+        builder.add_package(uri_different_mock_package, Arc::new(FFIWrapPackage(different_mock_package)));
         assert_eq!(
             builder
                 .inner_builder
@@ -205,8 +203,8 @@ mod test {
         let different_mock_wrapper: Box<dyn IFFIWrapper> = Box::new(get_different_mock_wrapper());
         let uri_different_mock_wrapper = Arc::new(FFIUri::from_string("wrap/b"));
 
-        builder.add_wrapper(uri_mock_wrapper.clone(), mock_package);
-        builder.add_wrapper(uri_different_mock_wrapper, different_mock_wrapper);
+        builder.add_wrapper(uri_mock_wrapper.clone(), Arc::new(FFIWrapper(mock_package)));
+        builder.add_wrapper(uri_different_mock_wrapper, Arc::new(FFIWrapper(different_mock_wrapper)));
         assert_eq!(
             builder
                 .inner_builder

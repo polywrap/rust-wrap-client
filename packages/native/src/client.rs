@@ -7,7 +7,7 @@ use crate::{
     invoker::FFIInvoker,
     resolvers::resolution_context::FFIUriResolutionContext,
     uri::FFIUri,
-    wrapper::{IFFIWrapper, WrapperWrapping},
+    wrapper::{FFIWrapper},
 };
 
 #[derive(Clone)]
@@ -81,7 +81,7 @@ impl FFIClient {
 
     pub fn invoke_wrapper_raw(
         &self,
-        wrapper: Box<dyn IFFIWrapper>,
+        wrapper: Arc<FFIWrapper>,
         uri: Arc<FFIUri>,
         method: &str,
         args: Option<Vec<u8>>,
@@ -94,7 +94,7 @@ impl FFIClient {
             let mut res_context_guard = resolution_context.0.lock().unwrap();
 
             Ok(self.inner_client.invoke_wrapper_raw(
-                &WrapperWrapping(wrapper),
+                wrapper.as_ref(),
                 &uri.0,
                 method,
                 args.as_deref(),
@@ -103,7 +103,7 @@ impl FFIClient {
             )?)
         } else {
             Ok(self.inner_client.invoke_wrapper_raw(
-                &WrapperWrapping(wrapper),
+                wrapper.as_ref(),
                 &uri.0,
                 method,
                 args.as_deref(),
@@ -117,12 +117,12 @@ impl FFIClient {
         &self,
         uri: Arc<FFIUri>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
-    ) -> Result<Box<dyn IFFIWrapper>, FFIError> {
+    ) -> Result<Arc<FFIWrapper>, FFIError> {
         let wrapper = self
             .inner_client
             .load_wrapper(&uri.0, resolution_context.map(|ctx| ctx.0.clone()))?;
 
-        Ok(Box::new(wrapper))
+        Ok(Arc::new(FFIWrapper(Box::new(wrapper))))
     }
 }
 
@@ -174,6 +174,7 @@ mod test {
     use polywrap_tests_utils::mocks::{get_mock_client, get_mock_invoker, get_mock_wrapper};
     use serde::Serialize;
 
+    use crate::wrapper::FFIWrapper;
     use crate::{client::FFIClient, invoker::FFIInvoker, uri::FFIUri, wrapper::IFFIWrapper};
 
     #[test]
@@ -190,7 +191,7 @@ mod test {
         let ffi_invoker = Arc::new(FFIInvoker(get_mock_invoker()));
         let uri = Arc::new(FFIUri::from_string("mock/a"));
         let wrapper = ffi_client.load_wrapper(uri, None).unwrap();
-        let response = wrapper.invoke("foo".to_string(), None, None, ffi_invoker);
+        let response = wrapper.invoke("foo", None, None, ffi_invoker);
 
         assert_eq!(response.unwrap(), vec![195]);
     }
@@ -201,7 +202,7 @@ mod test {
         let ffi_wrapper: Box<dyn IFFIWrapper> = Box::new(get_mock_wrapper());
         let uri = Arc::new(FFIUri::from_string("mock/a"));
 
-        let response = ffi_client.invoke_wrapper_raw(ffi_wrapper, uri, "", None, None, None);
+        let response = ffi_client.invoke_wrapper_raw(Arc::new(FFIWrapper(ffi_wrapper)), uri, "", None, None, None);
         assert_eq!(response.unwrap(), vec![6]);
     }
 

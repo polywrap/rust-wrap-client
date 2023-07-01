@@ -11,7 +11,7 @@ use crate::{error::FFIError, invoker::FFIInvoker, uri::FFIUri};
 
 use super::{
     ffi_resolver::IFFIUriResolver, resolution_context::FFIUriResolutionContext,
-    uri_package_or_wrapper::IFFIUriPackageOrWrapper,
+    uri_package_or_wrapper::{IFFIUriPackageOrWrapper, FFIUriPackageOrWrapper},
 };
 
 #[derive(Debug)]
@@ -21,7 +21,7 @@ pub struct FFIStaticUriResolver {
 
 impl FFIStaticUriResolver {
     pub fn new(
-        uri_map: HashMap<String, Box<dyn IFFIUriPackageOrWrapper>>,
+        uri_map: HashMap<String, Arc<FFIUriPackageOrWrapper>>,
     ) -> Result<FFIStaticUriResolver, FFIError> {
         let uri_map: Result<HashMap<Uri, UriPackageOrWrapper>, _> = uri_map
             .into_iter()
@@ -29,7 +29,7 @@ impl FFIStaticUriResolver {
                 Uri::try_from(uri)
                     .map_err(|e| FFIError::UriParseError { err: e.to_string() })
                     .map(|uri| {
-                        let uri_package_or_wrapper: UriPackageOrWrapper = variant.into();
+                        let uri_package_or_wrapper: UriPackageOrWrapper = variant.0.into();
                         (uri, uri_package_or_wrapper)
                     })
             })
@@ -42,10 +42,20 @@ impl FFIStaticUriResolver {
             inner_resolver: StaticResolver::new(uri_map),
         })
     }
+
+    pub fn try_resolve_uri(
+      &self,
+      uri: Arc<FFIUri>,
+      invoker: Arc<FFIInvoker>,
+      resolution_context: Arc<FFIUriResolutionContext>,
+    ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
+        let result = IFFIUriResolver::ffi_try_resolve_uri(self, uri, invoker, resolution_context)?;
+        Ok(Arc::new(FFIUriPackageOrWrapper(result)))
+    }
 }
 
 impl IFFIUriResolver for FFIStaticUriResolver {
-    fn try_resolve_uri(
+    fn ffi_try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,
@@ -70,9 +80,8 @@ mod test {
     use crate::{
         invoker::FFIInvoker,
         resolvers::{
-            ffi_resolver::IFFIUriResolver,
             resolution_context::FFIUriResolutionContext,
-            uri_package_or_wrapper::{IFFIUriPackageOrWrapper, FFIUriPackageOrWrapperKind},
+            uri_package_or_wrapper::{IFFIUriPackageOrWrapper, FFIUriPackageOrWrapperKind, FFIUriPackageOrWrapper},
         },
         uri::FFIUri,
     };
@@ -87,7 +96,7 @@ mod test {
             Box::new(mock_uri_package_or_wrapper);
         let ffi_static_resolver = FFIStaticUriResolver::new(HashMap::from([(
             "wrong-uri-format".to_string(),
-            ffi_uri_package_or_wrapper,
+            Arc::new(FFIUriPackageOrWrapper(ffi_uri_package_or_wrapper)),
         )]));
 
         assert!(ffi_static_resolver.is_err());
@@ -106,7 +115,7 @@ mod test {
             Box::new(mock_uri_package_or_wrapper);
         let ffi_static_resolver = FFIStaticUriResolver::new(HashMap::from([(
             "wrap/mock".to_string(),
-            ffi_uri_package_or_wrapper,
+            Arc::new(FFIUriPackageOrWrapper(ffi_uri_package_or_wrapper)),
         )]))
         .unwrap();
 
@@ -125,7 +134,7 @@ mod test {
             FFIUriPackageOrWrapperKind::WRAPPER => {
                 let wrapper = response.as_wrapper().get_wrapper();
                 let response = wrapper.invoke(
-                    "foo".to_string(),
+                    "foo",
                     None,
                     None,
                     Arc::new(FFIInvoker(get_mock_invoker())),

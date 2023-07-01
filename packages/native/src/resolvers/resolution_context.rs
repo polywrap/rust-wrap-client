@@ -9,11 +9,11 @@ use polywrap_client::core::resolution::uri_resolution_context::{
 
 use crate::uri::FFIUri;
 
-use super::uri_package_or_wrapper::IFFIUriPackageOrWrapper;
+use super::uri_package_or_wrapper::FFIUriPackageOrWrapper;
 
 pub struct FFIUriResolutionStep {
     pub source_uri: Arc<FFIUri>,
-    pub result: Box<dyn IFFIUriPackageOrWrapper>,
+    pub result: Arc<FFIUriPackageOrWrapper>,
     pub description: Option<String>,
     pub sub_history: Option<Vec<FFIUriResolutionStep>>,
 }
@@ -90,7 +90,7 @@ impl From<UriResolutionStep> for FFIUriResolutionStep {
     fn from(value: UriResolutionStep) -> Self {
         FFIUriResolutionStep {
             source_uri: Arc::new(FFIUri(value.source_uri)),
-            result: Box::new(value.result.unwrap()),
+            result: Arc::new(FFIUriPackageOrWrapper(Box::new(value.result.unwrap()))),
             description: value.description,
             sub_history: value
                 .sub_history
@@ -103,7 +103,7 @@ impl From<FFIUriResolutionStep> for UriResolutionStep {
     fn from(value: FFIUriResolutionStep) -> Self {
         UriResolutionStep {
             source_uri: value.source_uri.0.clone(),
-            result: Ok(value.result.into()),
+            result: Ok(value.result.0.into()),
             description: value.description,
             sub_history: value
                 .sub_history
