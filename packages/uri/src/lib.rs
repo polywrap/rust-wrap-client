@@ -1,26 +1,28 @@
-use std::fmt::Display;
+use std::{fmt::Display, str::FromStr};
 
 use regex::Regex;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize, Debug, Hash, Eq)]
+#[derive(Clone, Serialize, Deserialize, Debug, Hash, Eq)]
 pub struct Uri {
     authority: String,
     path: String,
     uri: String,
 }
 
-#[derive(Debug, Clone)]
-pub struct UriParseError(String);
+#[derive(Debug, Clone, PartialEq)]
+pub struct ParseError(pub String);
 
-impl Display for UriParseError {
+impl Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self.0)
     }
 }
 
+impl std::error::Error for ParseError {}
+
 impl Uri {
-    fn try_from_string(uri: &str) -> Result<Uri, UriParseError> {
+    fn try_from_string(uri: &str) -> Result<Uri, ParseError> {
         let mut processed = uri.to_string();
 
         while processed.starts_with('/') {
@@ -34,7 +36,7 @@ impl Uri {
         }
 
         if wrap_scheme_idx.is_some() && wrap_scheme_idx.unwrap() != 0 {
-            return Err(UriParseError(String::from(
+            return Err(ParseError(String::from(
                 "The wrap:// scheme must be at the beginning of the URI string".to_string(),
             )));
         }
@@ -44,7 +46,7 @@ impl Uri {
         let captures = reg.captures(&processed);
 
         if captures.as_ref().is_none() || captures.as_ref().unwrap().len() != 3 {
-            return Err(UriParseError(format!(
+            return Err(ParseError(format!(
                 r#"URI is malformed, here are some examples of valid URIs:
             wrap://ipfs/QmHASH
             wrap://ens/domain.eth
@@ -89,6 +91,12 @@ impl PartialEq for Uri {
     }
 }
 
+impl Display for Uri {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.uri)
+    }
+}
+
 impl From<Uri> for String {
     fn from(uri: Uri) -> Self {
         uri.to_string()
@@ -96,7 +104,7 @@ impl From<Uri> for String {
 }
 
 impl TryFrom<String> for Uri {
-    type Error = UriParseError;
+    type Error = ParseError;
 
     fn try_from(uri: String) -> Result<Self, Self::Error> {
         Uri::try_from_string(&uri)
@@ -104,16 +112,18 @@ impl TryFrom<String> for Uri {
 }
 
 impl TryFrom<&str> for Uri {
-    type Error = UriParseError;
+    type Error = ParseError;
 
     fn try_from(uri: &str) -> Result<Self, Self::Error> {
         Uri::try_from_string(uri)
     }
 }
 
-impl Display for Uri {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.uri)
+impl FromStr for Uri {
+    type Err = ParseError;
+
+    fn from_str(name: &str) -> Result<Self, Self::Err> {
+        Uri::try_from_string(name)
     }
 }
 
@@ -172,10 +182,19 @@ mod tests {
 
     #[test]
     fn string_try_into() {
-        let uri: Result<Uri, UriParseError> = "wrap://ipfs/QmHASH".try_into();
+        let uri: Result<Uri, ParseError> = "wrap://ipfs/QmHASH".try_into();
         assert!(uri.is_ok());
 
-        let bad_uri: Result<Uri, UriParseError> = "bad_uri".try_into();
+        let bad_uri: Result<Uri, ParseError> = "bad_uri".try_into();
+        assert!(bad_uri.is_err());
+    }
+
+    #[test]
+    fn parse_str() {
+        let uri: Uri = "wrap://ipfs/QmHASH".parse().unwrap();
+        assert_eq!(uri.uri(), "wrap://ipfs/QmHASH");
+
+        let bad_uri: Result<Uri, ParseError> = "bad_uri".parse();
         assert!(bad_uri.is_err());
     }
 
