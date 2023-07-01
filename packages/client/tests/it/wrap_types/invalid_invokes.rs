@@ -1,5 +1,3 @@
-use polywrap_client::core::uri::Uri;
-use polywrap_client_builder::PolywrapClientConfig;
 use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Serialize;
@@ -40,7 +38,9 @@ use crate::wrap_types::get_client;
 fn invalid_test_case() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let uri = Uri::try_from(format!("fs/{}/invalid-type/implementations/rs", path)).unwrap();
+    let uri = format!("fs/{}/invalid-type/implementations/rs", path)
+        .parse()
+        .unwrap();
 
     let client = get_client(None);
 

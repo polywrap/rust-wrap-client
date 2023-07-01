@@ -1,5 +1,5 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_client::core::{interface_implementation::InterfaceImplementations, uri::Uri};
+use polywrap_client::core::interface_implementation::InterfaceImplementations;
 
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
@@ -27,14 +27,13 @@ struct Args {
 fn test_interface_implementation() {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let implementation_uri = Uri::try_from(format!(
-        "fs/{path}/interface-invoke/01-implementation/implementations/as"
-    ))
-    .unwrap();
-    let wrapper_uri = Uri::try_from(format!(
-        "fs/{path}/interface-invoke/02-wrapper/implementations/as"
-    ))
-    .unwrap();
+    let implementation_uri =
+        format!("fs/{path}/interface-invoke/01-implementation/implementations/as")
+            .parse()
+            .unwrap();
+    let wrapper_uri = format!("fs/{path}/interface-invoke/02-wrapper/implementations/as")
+        .parse()
+        .unwrap();
 
     let mut interfaces: InterfaceImplementations = HashMap::new();
     interfaces.insert(

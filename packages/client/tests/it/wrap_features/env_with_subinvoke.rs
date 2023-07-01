@@ -5,7 +5,7 @@ use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
-use polywrap_msgpack_serde::{to_vec};
+use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
 use polywrap_resolvers::static_resolver::StaticResolver;
@@ -19,27 +19,27 @@ fn get_subinvoker_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    Uri::try_from(format!(
-        "fs/{path}/env-type/01-subinvoker/implementations/rs"
-    ))
-    .unwrap()
+    format!("fs/{path}/env-type/01-subinvoker/implementations/rs")
+        .parse()
+        .unwrap()
 }
 
 fn get_subinvoker_with_env_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    Uri::try_from(format!(
-        "fs/{path}/env-type/02-subinvoker-with-env/implementations/rs"
-    ))
-    .unwrap()
+    format!("fs/{path}/env-type/02-subinvoker-with-env/implementations/rs")
+        .parse()
+        .unwrap()
 }
 
 fn get_subinvoked_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    Uri::try_from(format!("fs/{path}/env-type/00-main/implementations/rs")).unwrap()
+    format!("fs/{path}/env-type/00-main/implementations/rs")
+        .parse()
+        .unwrap()
 }
 
 fn get_default_env() -> Env {

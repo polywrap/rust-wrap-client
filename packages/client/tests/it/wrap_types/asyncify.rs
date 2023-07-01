@@ -65,7 +65,9 @@ struct SetDataWithManyArgsArgs {
 fn get_client_and_uri() -> (PolywrapClient, Uri) {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let uri = Uri::try_from(format!("fs/{}/asyncify/implementations/rs", path)).unwrap();
+    let uri = format!("fs/{}/asyncify/implementations/rs", path)
+        .parse()
+        .unwrap();
 
     let memory_storage_plugin = MemoryStoragePlugin { value: 0 };
     let memory_storage_plugin_package: PluginPackage = memory_storage_plugin.into();

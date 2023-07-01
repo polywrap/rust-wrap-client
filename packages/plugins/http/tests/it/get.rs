@@ -1,4 +1,4 @@
-use polywrap_core::uri::Uri;
+use polywrap_core::{macros::uri, uri::Uri};
 use polywrap_http_plugin::wrap::types::Response;
 use polywrap_msgpack_serde::to_vec;
 use polywrap_plugin::{Map, JSON};
@@ -21,11 +21,14 @@ struct ArgsGet {
 fn simple_get() {
     let response = get_client()
         .invoke::<Response>(
-            &Uri::try_from("plugin/http").unwrap(),
+            &uri!("plugin/http"),
             "get",
-            Some(&to_vec(&ArgsGet {
-                url: "https://jsonplaceholder.typicode.com/todos/1".to_string(),
-            }).unwrap()),
+            Some(
+                &to_vec(&ArgsGet {
+                    url: "https://jsonplaceholder.typicode.com/todos/1".to_string(),
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )
@@ -64,7 +67,7 @@ fn params_get() {
     };
     let response = get_client()
         .invoke::<Response>(
-            &Uri::try_from("plugin/http").unwrap(),
+            &uri!("plugin/http"),
             "get",
             Some(&to_vec(&args).unwrap()),
             None,

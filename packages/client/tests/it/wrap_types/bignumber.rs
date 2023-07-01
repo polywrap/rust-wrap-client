@@ -23,7 +23,9 @@ struct ArgsObject {
 fn get_client_and_uri() -> (PolywrapClient, Uri) {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let uri = Uri::try_from(format!("fs/{}/bignumber-type/implementations/rs", path)).unwrap();
+    let uri = format!("fs/{}/bignumber-type/implementations/rs", path)
+        .parse()
+        .unwrap();
 
     (get_client(None), uri)
 }

@@ -120,7 +120,7 @@ impl UriResolver for UriResolverWrapper {
         );
 
         let uri = if let Some(resolved_uri) = result.uri {
-            Uri::try_from(resolved_uri)?
+            resolved_uri.parse()?
         } else {
             uri.clone()
         };
