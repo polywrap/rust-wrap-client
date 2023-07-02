@@ -91,6 +91,26 @@ impl FFIUriPackageOrWrapper {
   pub fn as_package(&self) -> Arc<FFIUriWrapPackage> {
     Arc::new(FFIUriWrapPackage(self.0.ffi_as_package()))
   }
+
+  pub fn to_uri_package_or_wrapper(self: Arc<Self>) -> UriPackageOrWrapper {
+    match self.as_ref().get_kind() {
+      FFIUriPackageOrWrapperKind::URI => UriPackageOrWrapper::Uri(self.as_uri().0.clone()),
+      FFIUriPackageOrWrapperKind::WRAPPER => {
+          let uri_wrapper = self.as_wrapper();
+          let uri = uri_wrapper.as_ref().get_uri();
+          let wrapper = uri_wrapper.as_ref().get_wrapper();
+
+          UriPackageOrWrapper::Wrapper(uri.0.clone(), wrapper)
+      }
+      FFIUriPackageOrWrapperKind::PACKAGE => {
+          let uri_package = self.as_package();
+          let uri = uri_package.as_ref().get_uri();
+          let package = uri_package.as_ref().get_package();
+
+          UriPackageOrWrapper::Package(uri.0.clone(), package)
+      }
+  }
+  }
 }
 
 impl From<Box<dyn IFFIUriPackageOrWrapper>> for UriPackageOrWrapper {

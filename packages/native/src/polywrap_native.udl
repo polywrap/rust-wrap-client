@@ -135,12 +135,6 @@ interface FFIStaticUriResolver {
   FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };
 
-interface FFIRecursiveUriResolver {
-  constructor(FFIUriResolver uri_resolver);
-  [Throws=FFIError]
-  FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
-};
-
 dictionary FFIUriResolutionStep {
   FFIUri source_uri;
   FFIUriPackageOrWrapper result;

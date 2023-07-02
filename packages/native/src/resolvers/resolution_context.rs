@@ -103,7 +103,7 @@ impl From<FFIUriResolutionStep> for UriResolutionStep {
     fn from(value: FFIUriResolutionStep) -> Self {
         UriResolutionStep {
             source_uri: value.source_uri.0.clone(),
-            result: Ok(value.result.0.into()),
+            result: Ok(value.result.to_uri_package_or_wrapper()),
             description: value.description,
             sub_history: value
                 .sub_history

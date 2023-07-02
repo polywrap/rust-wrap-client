@@ -29,7 +29,7 @@ impl FFIStaticUriResolver {
                 Uri::try_from(uri)
                     .map_err(|e| FFIError::UriParseError { err: e.to_string() })
                     .map(|uri| {
-                        let uri_package_or_wrapper: UriPackageOrWrapper = variant.0.into();
+                        let uri_package_or_wrapper: UriPackageOrWrapper = variant.to_uri_package_or_wrapper();
                         (uri, uri_package_or_wrapper)
                     })
             })
