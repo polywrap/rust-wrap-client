@@ -1,12 +1,11 @@
 use std::collections::HashMap;
 
 use polywrap_msgpack_serde::Error as MsgpackError;
-use polywrap_uri::UriParseError;
 
 #[derive(thiserror::Error, Debug, Clone)]
 pub enum Error {
     #[error("Error parsing URI: `{0}`")]
-    UriParseError(String),
+    UriParseError(#[from] polywrap_uri::ParseError),
     #[error("`{0}`\nResolution Stack: `{1:#?}`")]
     RedirectsError(String, HashMap<String, String>),
     #[error("`{0}`")]
@@ -37,10 +36,4 @@ pub enum Error {
     RuntimeError(String),
     #[error("`{0}`")]
     OtherError(String),
-}
-
-impl From<UriParseError> for Error {
-    fn from(e: UriParseError) -> Self {
-        Error::UriParseError(e.to_string())
-    }
 }

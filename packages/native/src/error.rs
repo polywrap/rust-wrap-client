@@ -46,9 +46,9 @@ pub enum FFIError {
 impl From<polywrap_client::core::error::Error> for FFIError {
     fn from(value: polywrap_client::core::error::Error) -> Self {
         match value {
-            polywrap_client::core::error::Error::UriParseError(err) => {
-                FFIError::UriParseError { err }
-            }
+            polywrap_client::core::error::Error::UriParseError(err) => FFIError::UriParseError {
+                err: err.to_string(),
+            },
             polywrap_client::core::error::Error::RedirectsError(err, resolution_stack) => {
                 FFIError::RedirectsError {
                     err,
@@ -78,7 +78,9 @@ impl From<polywrap_client::core::error::Error> for FFIError {
             }
             polywrap_client::core::error::Error::MsgpackError(err) => {
                 // let error
-                FFIError::MsgpackError { err: err.to_string() }
+                FFIError::MsgpackError {
+                    err: err.to_string(),
+                }
             }
             polywrap_client::core::error::Error::ManifestError(err) => {
                 FFIError::ManifestError { err }
@@ -101,9 +103,9 @@ impl From<polywrap_client::core::error::Error> for FFIError {
 impl From<FFIError> for polywrap_client::core::error::Error {
     fn from(value: FFIError) -> Self {
         match value {
-            FFIError::UriParseError { err } => {
-                polywrap_client::core::error::Error::UriParseError(err)
-            }
+            FFIError::UriParseError { err } => polywrap_client::core::error::Error::UriParseError(
+                polywrap_client::core::uri::ParseError(err),
+            ),
             FFIError::RedirectsError {
                 err,
                 resolution_stack,

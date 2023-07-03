@@ -1,7 +1,6 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
-use polywrap_core::uri::Uri;
 use polywrap_msgpack_serde::to_vec;
 
 use crate::fs::ArgsAdd;
@@ -18,7 +17,7 @@ fn sanity() {
     let client = PolywrapClient::new(config.into());
     let result = client
         .invoke::<u32>(
-            &Uri::try_from(SUBINVOKE_WRAP_URI).unwrap(),
+            &SUBINVOKE_WRAP_URI.parse().unwrap(),
             "add",
             Some(&to_vec(&ArgsAdd { a: 2, b: 40 }).unwrap()),
             None,

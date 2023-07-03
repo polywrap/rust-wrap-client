@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::io::Read;
 
 use crate::wrap::types::{Response, ResponseType};
-use polywrap_plugin::{error::PluginError, Map};
+use polywrap_plugin::error::PluginError;
 
 pub fn parse_response(
     response: ureq::Response,

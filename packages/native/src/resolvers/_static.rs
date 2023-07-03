@@ -26,7 +26,7 @@ impl FFIStaticUriResolver {
         let uri_map: Result<HashMap<Uri, UriPackageOrWrapper>, _> = uri_map
             .into_iter()
             .map(|(uri, variant)| {
-                Uri::try_from(uri)
+                uri.parse::<Uri>()
                     .map_err(|e| FFIError::UriParseError { err: e.to_string() })
                     .map(|uri| {
                         let uri_package_or_wrapper: UriPackageOrWrapper = variant.into();

@@ -1,6 +1,5 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client_default_config::SystemClientConfig;
-use polywrap_core::uri::Uri;
 use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::Serialize;
@@ -21,7 +20,7 @@ fn sanity() {
 
     let result = client
         .invoke::<u32>(
-            &Uri::try_from(subinvoke_wrap_uri).unwrap(),
+            &subinvoke_wrap_uri.parse().unwrap(),
             "add",
             Some(&to_vec(&ArgsAdd { a: 2, b: 40 }).unwrap()),
             None,

@@ -1,8 +1,7 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client_default_config::SystemClientConfig;
-use polywrap_core::uri::Uri;
-use serde::Serialize;
 use polywrap_msgpack_serde::to_vec;
+use serde::Serialize;
 
 const URI: &str =
     "http/https://raw.githubusercontent.com/polywrap/client-readiness/main/wraps/public";
@@ -19,7 +18,7 @@ fn sanity() {
 
     let result = client
         .invoke::<u32>(
-            &Uri::try_from(URI).unwrap(),
+            &URI.parse().unwrap(),
             "i8Method",
             Some(
                 &to_vec(&Args {
