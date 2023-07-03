@@ -21,7 +21,9 @@ interface FFIError {
 interface FFIUri {
   constructor([ByRef] string authority, [ByRef] string path, [ByRef] string uri);
 
-  string to_string_uri();
+  string authority();
+  string path();
+  string to_string();
 };
 
 interface FFIInvoker {

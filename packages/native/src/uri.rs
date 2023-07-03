@@ -24,7 +24,15 @@ impl FFIUri {
         }
     }
 
-    pub fn to_string_uri(&self) -> String {
+    pub fn authority(&self) -> String {
+        self.0.authority().to_string()
+    }
+
+    pub fn path(&self) -> String {
+        self.0.path().to_string()
+    }
+
+    pub fn to_string(&self) -> String {
         self.0.to_string()
     }
 }
@@ -138,5 +146,14 @@ mod test {
         let ffi_uri = ffi_uri_from_string("wrap://mock/a");
         let expected_uri = uri!("mock/a");
         assert_eq!(ffi_uri.unwrap().0, expected_uri);
+    }
+
+    #[test]
+    pub fn getters() {
+        let ffi_uri = ffi_uri_from_string("mock/a").unwrap();
+
+        assert_eq!(ffi_uri.authority(), "mock");
+        assert_eq!(ffi_uri.path(), "a");
+        assert_eq!(ffi_uri.to_string(), "wrap://mock/a");
     }
 }
