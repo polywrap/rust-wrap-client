@@ -39,9 +39,9 @@ impl FFIBuilderConfig {
     pub fn add_interface_implementations(
         &self,
         interface_uri: Arc<FFIUri>,
-        implementations_uri: Vec<Arc<FFIUri>>,
+        implementation_uris: Vec<Arc<FFIUri>>,
     ) {
-        let implementations = implementations_uri
+        let implementations = implementation_uris
             .clone()
             .iter()
             .map(|i| i.0.clone())
