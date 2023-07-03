@@ -106,18 +106,16 @@ impl FFIBuilderConfig {
 
 #[cfg(test)]
 mod test {
-    use std::{collections::HashMap, sync::Arc};
+    use std::collections::HashMap;
 
-    use polywrap_client::{
-        core::{macros::uri, uri::Uri},
-    };
+    use polywrap_client::core::{macros::uri, uri::Uri};
     use polywrap_msgpack_serde::to_vec;
     use polywrap_tests_utils::mocks::{
         get_different_mock_package, get_different_mock_wrapper, get_mock_package, get_mock_wrapper,
     };
     use serde::Serialize;
 
-    use crate::{package::FFIWrapPackage, uri::FFIUri, wrapper::FFIWrapper};
+    use crate::{package::FFIWrapPackage, uri::{ffi_uri_from_string}, wrapper::FFIWrapper};
 
     use super::FFIBuilderConfig;
 
@@ -134,7 +132,7 @@ mod test {
     #[test]
     fn adds_and_removes_env() {
         let builder = FFIBuilderConfig::new();
-        let uri = Arc::new(FFIUri::from_string("wrap://ens/some.eth"));
+        let uri = ffi_uri_from_string("wrap://ens/some.eth").unwrap();
         let env = to_vec(&Args {
             foo: "bar".to_string(),
         })
@@ -164,10 +162,10 @@ mod test {
     fn adds_and_removes_package() {
         let builder = FFIBuilderConfig::new();
         let mock_package: Box<dyn FFIWrapPackage> = Box::new(get_mock_package());
-        let uri_mock_package = Arc::new(FFIUri::from_string("package/a"));
+        let uri_mock_package = ffi_uri_from_string("package/a").unwrap();
         let different_mock_package: Box<dyn FFIWrapPackage> =
             Box::new(get_different_mock_package());
-        let uri_different_mock_package = Arc::new(FFIUri::from_string("package/b"));
+        let uri_different_mock_package = ffi_uri_from_string("package/b").unwrap();
 
         builder.add_package(uri_mock_package.clone(), mock_package);
         builder.add_package(uri_different_mock_package, different_mock_package);
@@ -201,12 +199,12 @@ mod test {
     fn adds_and_removes_wrapper() {
         let builder = FFIBuilderConfig::new();
         let mock_package: Box<dyn FFIWrapper> = Box::new(get_mock_wrapper());
-        let uri_mock_wrapper = Arc::new(FFIUri::from_string("wrap/a"));
+        let uri_mock_wrapper = ffi_uri_from_string("wrap/a");
         let different_mock_wrapper: Box<dyn FFIWrapper> = Box::new(get_different_mock_wrapper());
-        let uri_different_mock_wrapper = Arc::new(FFIUri::from_string("wrap/b"));
+        let uri_different_mock_wrapper = ffi_uri_from_string("wrap/b");
 
-        builder.add_wrapper(uri_mock_wrapper.clone(), mock_package);
-        builder.add_wrapper(uri_different_mock_wrapper, different_mock_wrapper);
+        builder.add_wrapper(uri_mock_wrapper.clone().unwrap(), mock_package);
+        builder.add_wrapper(uri_different_mock_wrapper.unwrap(), different_mock_wrapper);
         assert_eq!(
             builder
                 .inner_builder
@@ -219,7 +217,7 @@ mod test {
             2
         );
 
-        builder.remove_wrapper(uri_mock_wrapper);
+        builder.remove_wrapper(uri_mock_wrapper.unwrap());
         assert_eq!(
             builder
                 .inner_builder
@@ -237,12 +235,12 @@ mod test {
     fn adds_and_removes_redirects() {
         let builder = FFIBuilderConfig::new();
         builder.add_redirect(
-            Arc::new(FFIUri::from_string("wrap/a")),
-            Arc::new(FFIUri::from_string("wrap/b")),
+            ffi_uri_from_string("wrap/a").unwrap(),
+            ffi_uri_from_string("wrap/b").unwrap(),
         );
         builder.add_redirect(
-            Arc::new(FFIUri::from_string("wrap/c")),
-            Arc::new(FFIUri::from_string("wrap/d")),
+            ffi_uri_from_string("wrap/c").unwrap(),
+            ffi_uri_from_string("wrap/d").unwrap(),
         );
 
         let redirects = builder
@@ -264,9 +262,9 @@ mod test {
     #[test]
     fn adds_and_removes_interface_implementation() {
         let builder = FFIBuilderConfig::new();
-        let interface_uri = Arc::new(FFIUri::from_string("wrap://ens/interface.eth"));
-        let implementation_a_uri = Arc::new(FFIUri::from_string("wrap://ens/implementation-a.eth"));
-        let implementation_b_uri = Arc::new(FFIUri::from_string("wrap://ens/implementation-b.eth"));
+        let interface_uri = ffi_uri_from_string("wrap://ens/interface.eth").unwrap();
+        let implementation_a_uri = ffi_uri_from_string("wrap://ens/implementation-a.eth").unwrap();
+        let implementation_b_uri = ffi_uri_from_string("wrap://ens/implementation-b.eth").unwrap();
 
         builder.add_interface_implementation(interface_uri.clone(), implementation_a_uri);
         builder.add_interface_implementation(interface_uri.clone(), implementation_b_uri.clone());

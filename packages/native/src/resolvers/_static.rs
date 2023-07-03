@@ -74,13 +74,13 @@ mod test {
             resolution_context::FFIUriResolutionContext,
             uri_package_or_wrapper::{FFIUriPackageOrWrapper, FFIUriPackageOrWrapperKind},
         },
-        uri::FFIUri,
+        uri::{FFIUri, ffi_uri_from_string},
     };
 
     use super::FFIStaticUriResolver;
 
     #[test]
-    fn ff_static_resolver_returns_error_with_bad_uri() {
+    fn ffi_static_resolver_returns_error_with_bad_uri() {
         let mock_uri_package_or_wrapper = get_mock_uri_package_or_wrapper();
 
         let ffi_uri_package_or_wrapper: Box<dyn FFIUriPackageOrWrapper> =
@@ -98,9 +98,9 @@ mod test {
     }
 
     #[test]
-    fn ff_try_resolver_uri() {
+    fn ffi_try_resolver_uri() {
         let mock_uri_package_or_wrapper = get_mock_uri_package_or_wrapper();
-        let ffi_uri = Arc::new(FFIUri::from_string("wrap/mock"));
+        let ffi_uri = ffi_uri_from_string("wrap/mock").unwrap();
 
         let ffi_uri_package_or_wrapper: Box<dyn FFIUriPackageOrWrapper> =
             Box::new(mock_uri_package_or_wrapper);

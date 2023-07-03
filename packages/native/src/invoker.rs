@@ -60,17 +60,17 @@ impl FFIInvoker {
 
 #[cfg(test)]
 mod test {
-    use std::{collections::HashMap, sync::Arc};
+    use std::collections::HashMap;
 
     use polywrap_tests_utils::mocks::get_mock_invoker;
 
-    use crate::{invoker::FFIInvoker, uri::FFIUri};
+    use crate::{invoker::FFIInvoker, uri::ffi_uri_from_string};
 
     #[test]
     fn test_ffi_invoker() {
         let ffi_invoker = FFIInvoker(get_mock_invoker());
 
-        let uri = Arc::new(FFIUri::from_string("mock/a"));
+        let uri = ffi_uri_from_string("mock/a").unwrap();
         let response = ffi_invoker.invoke_raw(uri, "foo".to_string(), None, None, None);
         assert_eq!(response.unwrap(), vec![3]);
     }
@@ -79,7 +79,7 @@ mod test {
     fn test_ffi_get_implementations() {
         let ffi_invoker = FFIInvoker(get_mock_invoker());
 
-        let uri = Arc::new(FFIUri::from_string("mock/a"));
+        let uri = ffi_uri_from_string("mock/a").unwrap();
         let response = ffi_invoker.get_implementations(uri.clone());
         assert_eq!(response.unwrap(), vec![uri]);
     }
@@ -93,7 +93,7 @@ mod test {
             response.unwrap(),
             HashMap::from([(
                 ("mock/a".to_string()),
-                vec![Arc::new(FFIUri::from_string("mock/b"))]
+                vec![ffi_uri_from_string("mock/b").unwrap()]
             )])
         );
     }
@@ -101,8 +101,8 @@ mod test {
     #[test]
     fn test_get_env_by_uri() {
         let ffi_invoker = FFIInvoker(get_mock_invoker());
-        let ffi_uri = FFIUri::from_string("mock/a");
-        let response = ffi_invoker.get_env_by_uri(Arc::new(ffi_uri));
+        let ffi_uri = ffi_uri_from_string("mock/a");
+        let response = ffi_invoker.get_env_by_uri(ffi_uri.unwrap());
         assert_eq!(response.unwrap(), [0, 4]);
     }
 }

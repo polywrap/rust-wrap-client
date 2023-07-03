@@ -1,9 +1,17 @@
-use std::str::FromStr;
+use std::{str::FromStr, sync::Arc};
 
 use polywrap_client::core::uri::Uri;
 
+use crate::error::FFIError;
+
 #[derive(Clone, Debug, Hash, Eq)]
 pub struct FFIUri(pub Uri);
+
+pub fn ffi_uri_from_string(uri: &str) -> Result<Arc<FFIUri>, FFIError> {
+    let uri = Uri::try_from(uri);
+    uri.map_err(|e| FFIError::UriParseError { err: e.to_string() })
+        .map(|v| Arc::new(FFIUri(v)))
+}
 
 impl FFIUri {
     pub fn new(authority: &str, path: &str, uri: &str) -> Self {
@@ -14,10 +22,6 @@ impl FFIUri {
                 uri.to_owned(),
             ))
         }
-    }
-
-    pub fn from_string(uri: &str) -> Self {
-        uri.parse().unwrap()
     }
 
     pub fn to_string_uri(&self) -> String {
@@ -84,53 +88,55 @@ impl FromStr for FFIUri {
 
 #[cfg(test)]
 mod test {
+    use std::sync::Arc;
+
     use polywrap_client::core::{macros::uri, uri::Uri};
 
-    use crate::uri::FFIUri;
+    use crate::uri::{ffi_uri_from_string, FFIUri};
 
     #[test]
     pub fn string_into_ffi_uri() {
         let string_uri = "mock/a";
         let uri: FFIUri = string_uri.try_into().unwrap();
-        assert_eq!(FFIUri::from_string("wrap://mock/a"), uri);
+        assert_eq!(ffi_uri_from_string("wrap://mock/a").unwrap(), Arc::new(uri));
     }
 
     #[test]
     pub fn ffi_uri_to_string() {
-        let uri = FFIUri::from_string("wrap://mock/a");
-        assert_eq!(uri.to_string(), "wrap://mock/a");
+        let uri = ffi_uri_from_string("wrap://mock/a");
+        assert_eq!(uri.unwrap().to_string(), "wrap://mock/a");
     }
 
     #[test]
-    pub fn ffi_uri_from_string() {
-        let expected_uri = FFIUri::from_string("wrap://mock/a");
+    pub fn ffi_uri_from_string_test() {
+        let expected_uri = ffi_uri_from_string("wrap://mock/a");
         let str_uri = "mock/a";
         let uri: FFIUri = str_uri.parse().unwrap();
-        assert_eq!(uri, expected_uri);
+        assert_eq!(Arc::new(uri), expected_uri.clone().unwrap());
 
         let string_uri = String::from("mock/a");
         let uri: FFIUri = string_uri.parse().unwrap();
-        assert_eq!(uri, expected_uri);
+        assert_eq!(Arc::new(uri), expected_uri.unwrap());
     }
 
     #[test]
     pub fn string_from_ffi_uri() {
-        let uri = FFIUri::from_string("wrap://mock/a");
-        let string_uri = String::from(uri);
+        let uri = ffi_uri_from_string("wrap://mock/a");
+        let string_uri = String::from(uri.unwrap().0.uri());
         assert_eq!("wrap://mock/a".to_string(), string_uri);
     }
 
     #[test]
     pub fn uri_ffi_from_uri() {
         let uri = uri!("mock/a");
-        let expected_ffi_uri = FFIUri::from_string("wrap://mock/a");
-        assert_eq!(FFIUri::from(uri), expected_ffi_uri);
+        let expected_ffi_uri = ffi_uri_from_string("wrap://mock/a");
+        assert_eq!(Arc::new(FFIUri::from(uri)), expected_ffi_uri.unwrap());
     }
 
     #[test]
     pub fn uri_from_ffi_uri() {
-        let ffi_uri = FFIUri::from_string("wrap://mock/a");
+        let ffi_uri = ffi_uri_from_string("wrap://mock/a");
         let expected_uri = uri!("mock/a");
-        assert_eq!(Uri::from(ffi_uri), expected_uri);
+        assert_eq!(ffi_uri.unwrap().0, expected_uri);
     }
 }

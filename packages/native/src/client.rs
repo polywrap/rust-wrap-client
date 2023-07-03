@@ -165,21 +165,22 @@ impl Invoker for FFIClient {
 
 #[cfg(test)]
 mod test {
-    use std::{collections::HashMap, sync::Arc};
     use polywrap_client::builder::PolywrapClientConfigBuilder;
-    use polywrap_client::{client::PolywrapClient, builder::PolywrapClientConfig};
+    use polywrap_client::{builder::PolywrapClientConfig, client::PolywrapClient};
+    use std::{collections::HashMap, sync::Arc};
 
     use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
     use polywrap_msgpack_serde::to_vec;
     use polywrap_tests_utils::mocks::{get_mock_client, get_mock_invoker, get_mock_wrapper};
     use serde::Serialize;
 
+    use crate::uri::ffi_uri_from_string;
     use crate::{client::FFIClient, invoker::FFIInvoker, uri::FFIUri, wrapper::FFIWrapper};
 
     #[test]
     fn ffi_invoke_raw() {
         let ffi_client = FFIClient::new(get_mock_client());
-        let uri = Arc::new(FFIUri::from_string("mock/a"));
+        let uri = ffi_uri_from_string("mock/a").unwrap();
         let response = ffi_client.invoke_raw(uri, "", None, None, None);
         assert_eq!(response.unwrap(), vec![5]);
     }
@@ -188,7 +189,7 @@ mod test {
     fn ffi_load_wrapper() {
         let ffi_client = FFIClient::new(get_mock_client());
         let ffi_invoker = Arc::new(FFIInvoker(get_mock_invoker()));
-        let uri = Arc::new(FFIUri::from_string("mock/a"));
+        let uri = ffi_uri_from_string("mock/a").unwrap();
         let wrapper = ffi_client.load_wrapper(uri, None).unwrap();
         let response = wrapper.invoke("foo".to_string(), None, None, ffi_invoker);
 
@@ -199,7 +200,7 @@ mod test {
     fn ffi_invoke_wrapper_raw() {
         let ffi_client = FFIClient::new(get_mock_client());
         let ffi_wrapper: Box<dyn FFIWrapper> = Box::new(get_mock_wrapper());
-        let uri = Arc::new(FFIUri::from_string("mock/a"));
+        let uri = ffi_uri_from_string("mock/a").unwrap();
 
         let response = ffi_client.invoke_wrapper_raw(ffi_wrapper, uri, "", None, None, None);
         assert_eq!(response.unwrap(), vec![6]);
@@ -208,7 +209,7 @@ mod test {
     #[test]
     fn ffi_get_implementations() {
         let ffi_client = FFIClient::new(get_mock_client());
-        let uri = Arc::new(FFIUri::from_string("mock/c"));
+        let uri = ffi_uri_from_string("mock/c").unwrap();
         let response = ffi_client.get_implementations(uri.clone());
         assert_eq!(response.unwrap(), vec![uri]);
     }
@@ -221,7 +222,7 @@ mod test {
             response.unwrap(),
             HashMap::from([(
                 ("mock/c".to_string()),
-                vec![Arc::new(FFIUri::from_string("mock/d"))]
+                vec![ffi_uri_from_string("mock/d").unwrap()]
             )])
         );
     }
@@ -229,7 +230,7 @@ mod test {
     #[test]
     fn ffi_get_env_by_uri() {
         let ffi_client = FFIClient::new(get_mock_client());
-        let uri = Arc::new(FFIUri::from_string("mock/c"));
+        let uri = ffi_uri_from_string("mock/c").unwrap();
 
         let response = ffi_client.get_env_by_uri(uri);
         assert_eq!(response.unwrap(), [4, 8]);
@@ -247,20 +248,23 @@ mod test {
         config
             .add(SystemClientConfig::default().into())
             .add(Web3ClientConfig::default().into());
-    
+
         let client = Arc::from(PolywrapClient::new(config.into()));
         let ffi_client = FFIClient::new(client.clone());
 
-        const SUBINVOKE_WRAP_URI: &str = "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS";
-        let uri = Arc::new(FFIUri::from_string(SUBINVOKE_WRAP_URI));
+        const SUBINVOKE_WRAP_URI: &str =
+            "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS";
+        let uri = ffi_uri_from_string(SUBINVOKE_WRAP_URI).unwrap();
 
-        let result = ffi_client.invoke_raw(
-            uri.clone(),
-            "add",
-            Some(to_vec(&AddArgs { a: 2, b: 40 }).unwrap()),
-            None,
-            None,
-        ).unwrap();
+        let result = ffi_client
+            .invoke_raw(
+                uri.clone(),
+                "add",
+                Some(to_vec(&AddArgs { a: 2, b: 40 }).unwrap()),
+                None,
+                None,
+            )
+            .unwrap();
 
         assert_eq!(result, to_vec(&42).unwrap());
     }
