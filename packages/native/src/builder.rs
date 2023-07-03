@@ -4,6 +4,7 @@ use polywrap_client::{
     builder::{PolywrapClientConfig, PolywrapClientConfigBuilder},
     client::PolywrapClient,
 };
+use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
 
 use crate::{
     client::FFIClient,
@@ -97,6 +98,21 @@ impl FFIBuilderConfig {
             .add_resolver(Arc::from(UriResolverWrapping(resolver).as_uri_resolver()));
     }
 
+    pub fn add_system_defaults(&self) {
+        self.inner_builder
+            .lock()
+            .unwrap()
+            .add(SystemClientConfig::default().into())
+            .add(Web3ClientConfig::default().into());
+    }
+
+    pub fn add_web3_defaults(&self) {
+      self.inner_builder
+            .lock()
+            .unwrap()
+            .add(Web3ClientConfig::default().into());
+    }
+
     pub fn build(&self) -> Arc<FFIClient> {
         let config = self.inner_builder.lock().unwrap().clone();
         let client = Arc::new(PolywrapClient::new(config.into()));
@@ -108,9 +124,7 @@ impl FFIBuilderConfig {
 mod test {
     use std::{collections::HashMap, sync::Arc};
 
-    use polywrap_client::{
-        core::{macros::uri, uri::Uri},
-    };
+    use polywrap_client::core::{macros::uri, uri::Uri};
     use polywrap_msgpack_serde::to_vec;
     use polywrap_tests_utils::mocks::{
         get_different_mock_package, get_different_mock_wrapper, get_mock_package, get_mock_wrapper,

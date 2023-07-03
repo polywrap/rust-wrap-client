@@ -13,6 +13,7 @@ crate-type = ["staticlib", "cdylib"]
 polywrap_client.workspace = true
 polywrap_plugin.workspace = true
 polywrap_wasm.workspace = true
+polywrap_client_default_config.workspace = true
 polywrap_msgpack_serde.workspace = true
 
 thiserror.workspace = true

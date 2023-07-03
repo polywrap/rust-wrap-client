@@ -151,6 +151,8 @@ interface FFIBuilderConfig {
   void add_redirect(FFIUri from, FFIUri to);
   void remove_redirect(FFIUri from);
   void add_resolver(FFIUriResolver resolver);
+  void add_system_defaults();
+  void add_web3_defaults();
   FFIClient build();
 };
 
