@@ -2,6 +2,7 @@ use core::fmt;
 use polywrap_core::{
     error::Error,
     invoker::Invoker,
+    macros::uri,
     resolution::{
         uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
         uri_resolver::UriResolver,
@@ -34,8 +35,8 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
         invoker: &dyn Invoker,
         resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
-        let implementations = invoker
-            .get_implementations(&Uri::try_from("wrap://ens/uri-resolver.core.polywrap.eth")?)?;
+        let implementations =
+            invoker.get_implementations(&uri!("wrap://ens/uri-resolver.core.polywrap.eth"))?;
 
         let resolvers = implementations
             .into_iter()

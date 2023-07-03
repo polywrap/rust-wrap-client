@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use polywrap_client::core::uri::Uri;
 
 #[derive(Clone, Debug, Hash, Eq)]
@@ -15,7 +17,7 @@ impl FFIUri {
     }
 
     pub fn from_string(uri: &str) -> Self {
-        FFIUri(Uri::try_from(uri).unwrap())
+        uri.parse().unwrap()
     }
 
     pub fn to_string_uri(&self) -> String {
@@ -71,6 +73,15 @@ impl std::fmt::Display for FFIUri {
     }
 }
 
+impl FromStr for FFIUri {
+    type Err = polywrap_client::core::error::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let uri: Uri = s.try_into()?;
+        Ok(FFIUri(uri))
+    }
+}
+
 #[cfg(test)]
 mod test {
     use polywrap_client::core::{macros::uri, uri::Uri};
@@ -94,11 +105,11 @@ mod test {
     pub fn ffi_uri_from_string() {
         let expected_uri = FFIUri::from_string("wrap://mock/a");
         let str_uri = "mock/a";
-        let uri = FFIUri::try_from(str_uri).unwrap();
+        let uri: FFIUri = str_uri.parse().unwrap();
         assert_eq!(uri, expected_uri);
 
         let string_uri = String::from("mock/a");
-        let uri = FFIUri::try_from(string_uri).unwrap();
+        let uri: FFIUri = string_uri.parse().unwrap();
         assert_eq!(uri, expected_uri);
     }
 

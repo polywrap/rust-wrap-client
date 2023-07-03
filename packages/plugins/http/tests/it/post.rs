@@ -2,6 +2,7 @@ use polywrap_client::{
     core::uri::Uri,
     plugin::JSON::{from_str, json},
 };
+use polywrap_core::macros::uri;
 use polywrap_http_plugin::wrap::types::{Request, Response};
 use polywrap_msgpack_serde::to_vec;
 use serde::{Deserialize, Serialize};
@@ -27,7 +28,7 @@ fn post_method() {
     });
     let response = get_client()
         .invoke::<Response>(
-            &Uri::try_from("plugin/http").unwrap(),
+            &uri!("plugin/http"),
             "post",
             Some(
                 &to_vec(&ArgsPost {

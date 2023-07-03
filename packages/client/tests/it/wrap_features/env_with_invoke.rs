@@ -6,7 +6,7 @@ use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
 use polywrap_core::resolution::uri_resolver::UriResolver;
-use polywrap_msgpack_serde::{to_vec};
+use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::recursive_resolver::RecursiveResolver;
 use polywrap_resolvers::resolver_vec;
@@ -20,12 +20,14 @@ fn get_env_wrapper_uri() -> Uri {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
 
-    Uri::try_from(format!("fs/{path}/env-type/00-main/implementations/rs")).unwrap()
+    format!("fs/{path}/env-type/00-main/implementations/rs")
+        .parse()
+        .unwrap()
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct EnvObject {
-    pub prop: String
+    pub prop: String,
 }
 
 #[allow(non_snake_case)]
@@ -56,7 +58,9 @@ fn get_default_env() -> Env {
         optBool: None,
         en: 0,
         optEnum: None,
-        object: EnvObject { prop: "object string".to_string() },
+        object: EnvObject {
+            prop: "object string".to_string(),
+        },
         optObject: None,
         array: vec![32, 23],
     }
@@ -245,7 +249,10 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
         let client = {
             let mut envs: HashMap<Uri, Vec<u8>> = HashMap::new();
 
-            envs.insert(wrapper_uri.clone(), polywrap_msgpack_serde::to_vec(&env).unwrap());
+            envs.insert(
+                wrapper_uri.clone(),
+                polywrap_msgpack_serde::to_vec(&env).unwrap(),
+            );
 
             let resolvers = HashMap::from([(
                 redirect_from_uri.clone(),

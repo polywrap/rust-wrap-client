@@ -9,7 +9,9 @@ use super::get_client;
 fn get_client_and_uri() -> (PolywrapClient, Uri) {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let uri = Uri::try_from(format!("fs/{}/enum-type/implementations/rs", path)).unwrap();
+    let uri = format!("fs/{}/enum-type/implementations/rs", path)
+        .parse()
+        .unwrap();
 
     (get_client(None), uri)
 }
@@ -68,9 +70,9 @@ fn method_one_panic_invalid_value() {
 #[derive(Serialize)]
 #[allow(unused)]
 pub enum EnumArg {
-  OPTION1,
-  OPTION2,
-  OPTION3
+    OPTION1,
+    OPTION2,
+    OPTION3,
 }
 
 #[derive(Serialize)]
@@ -80,7 +82,6 @@ struct MethodTwoArgs {
     optEnumArray: Option<u32>,
 }
 
-
 #[test]
 fn method_two_success() {
     let (client, uri) = get_client_and_uri();
@@ -88,10 +89,13 @@ fn method_two_success() {
         .invoke::<Vec<i32>>(
             &uri,
             "method2",
-            Some(&to_vec(&MethodTwoArgs {
-                enumArray: vec![EnumArg::OPTION1, EnumArg::OPTION1, EnumArg::OPTION3],
-                optEnumArray: None,
-            }).unwrap()),
+            Some(
+                &to_vec(&MethodTwoArgs {
+                    enumArray: vec![EnumArg::OPTION1, EnumArg::OPTION1, EnumArg::OPTION3],
+                    optEnumArray: None,
+                })
+                .unwrap(),
+            ),
             None,
             None,
         )

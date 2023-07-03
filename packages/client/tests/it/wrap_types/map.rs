@@ -38,7 +38,9 @@ pub struct CustomMap {
 fn get_client_and_uri() -> (PolywrapClient, Uri) {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
-    let uri = Uri::try_from(format!("fs/{path}/map-type/implementations/rs")).unwrap();
+    let uri = format!("fs/{path}/map-type/implementations/rs")
+        .parse()
+        .unwrap();
     (get_client(None), uri)
 }
 
@@ -108,7 +110,9 @@ fn return_custom_map() {
         .invoke::<CustomMap>(
             &uri,
             "returnCustomMap",
-            Some(&polywrap_msgpack_serde::to_vec(&ArgsReturnCustomMap { foo: custom_map }).unwrap()),
+            Some(
+                &polywrap_msgpack_serde::to_vec(&ArgsReturnCustomMap { foo: custom_map }).unwrap(),
+            ),
             None,
             None,
         )

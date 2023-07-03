@@ -1,5 +1,5 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{client::ClientConfig, uri::Uri};
+use polywrap_core::client::ClientConfig;
 use polywrap_fs_plugin::FileSystemPlugin;
 use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
@@ -10,6 +10,8 @@ use serde_bytes::ByteBuf;
 use std::path::Path;
 use std::sync::Arc;
 use std::{env, fs};
+
+const FILE_SYSTEM_PLUGIN_URI: &str = "plugin/file-system";
 
 fn clean_up_temp_files() -> std::io::Result<()> {
     let current_dir = env::current_dir().unwrap();
@@ -37,7 +39,7 @@ fn get_client() -> PolywrapClient {
     let package = Arc::new(plugin_pkg);
 
     let resolver = StaticResolver::from(vec![StaticResolverLike::Package(
-        Uri::try_from("plugin/file-system").unwrap(),
+        FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         package,
     )]);
 
@@ -61,7 +63,7 @@ fn can_read_a_file() {
 
     let expected_contents = fs::read(&sample_file_path).unwrap();
     let result = client.invoke::<ByteBuf>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "readFile",
         Some(
             &to_vec(&ReadFileArgs {
@@ -86,7 +88,7 @@ fn should_fail_reading_a_nonexistent_file() {
     let non_existent_file_path = current_dir.join("nonexistent.txt");
 
     let result = client.invoke::<Vec<u8>>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "readFile",
         Some(
             &to_vec(&ReadFileArgs {
@@ -114,7 +116,7 @@ fn should_read_a_utf8_encoded_file_as_a_string() {
 
     let expected_contents = fs::read_to_string(&sample_file_path).unwrap();
     let result = client.invoke::<String>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "readFileAsString",
         Some(
             &to_vec(&ReadFileArgsAsString {
@@ -164,7 +166,7 @@ fn should_return_whether_a_file_exists_or_not() {
     let sample_file_path = current_dir.join("tests/samples/sample.txt");
 
     let result_file_exists = client.invoke::<bool>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "exists",
         Some(
             &to_vec(&ReadFileArgs {
@@ -184,7 +186,7 @@ fn should_return_whether_a_file_exists_or_not() {
     let nonexistent_file_path = current_dir.join("samples/this-file-should-not-exist.txt");
 
     let result_file_missing = client.invoke::<bool>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "exists",
         Some(
             &to_vec(&ReadFileArgs {
@@ -218,7 +220,7 @@ fn should_write_byte_data_to_a_file() {
 
     let bytes = vec![0, 1, 2, 3];
     let result = client.invoke::<Option<bool>>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "writeFile",
         Some(
             &to_vec(&WriteFileArgs {
@@ -255,7 +257,7 @@ fn should_remove_a_file() {
     fs::write(&temp_file_path, "test file contents").unwrap();
 
     let result = client.invoke::<bool>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "rm",
         Some(
             &to_vec(&RmArgs {
@@ -287,7 +289,7 @@ fn should_remove_a_directory_with_files_recursively() {
     fs::write(&file_in_dir_path, "test file contents").unwrap();
 
     let result = client.invoke::<bool>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "rm",
         Some(
             &to_vec(&RmArgs {
@@ -321,7 +323,7 @@ fn should_create_a_directory() {
     clean_up_temp_files().unwrap();
 
     let result = client.invoke::<bool>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "mkdir",
         Some(
             &to_vec(&MkDirArgs {
@@ -351,7 +353,7 @@ fn should_create_a_directory_recursively() {
     let dir_in_dir_path = temp_dir_path.join("inner");
 
     let result = client.invoke::<bool>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "mkdir",
         Some(
             &to_vec(&MkDirArgs {
@@ -387,7 +389,7 @@ fn should_remove_a_directory() {
     fs::create_dir(&temp_dir_path).unwrap();
 
     let result = client.invoke::<bool>(
-        &Uri::try_from("plugin/file-system").unwrap(),
+        &FILE_SYSTEM_PLUGIN_URI.parse().unwrap(),
         "rmdir",
         Some(
             &to_vec(&RmDirArgs {
