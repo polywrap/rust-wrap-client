@@ -175,7 +175,7 @@ mod test {
     use serde::Serialize;
 
     use crate::uri::ffi_uri_from_string;
-    use crate::{client::FFIClient, invoker::FFIInvoker, uri::FFIUri, wrapper::FFIWrapper};
+    use crate::{client::FFIClient, invoker::FFIInvoker, wrapper::FFIWrapper};
 
     #[test]
     fn ffi_invoke_raw() {

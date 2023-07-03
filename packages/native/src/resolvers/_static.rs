@@ -74,7 +74,7 @@ mod test {
             resolution_context::FFIUriResolutionContext,
             uri_package_or_wrapper::{FFIUriPackageOrWrapper, FFIUriPackageOrWrapperKind},
         },
-        uri::{FFIUri, ffi_uri_from_string},
+        uri::ffi_uri_from_string,
     };
 
     use super::FFIStaticUriResolver;

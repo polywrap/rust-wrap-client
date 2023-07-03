@@ -1,6 +1,6 @@
 use std::{str::FromStr, sync::Arc};
 
-use polywrap_client::core::uri::Uri;
+use polywrap_client::core::uri::{ParseError, Uri};
 
 use crate::error::FFIError;
 
@@ -8,7 +8,7 @@ use crate::error::FFIError;
 pub struct FFIUri(pub Uri);
 
 pub fn ffi_uri_from_string(uri: &str) -> Result<Arc<FFIUri>, FFIError> {
-    let uri = Uri::try_from(uri);
+    let uri: Result<Uri, ParseError> = uri.parse();
     uri.map_err(|e| FFIError::UriParseError { err: e.to_string() })
         .map(|v| Arc::new(FFIUri(v)))
 }
