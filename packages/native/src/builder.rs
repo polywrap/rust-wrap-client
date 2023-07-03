@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 use polywrap_client::{
     builder::{PolywrapClientConfig, PolywrapClientConfigBuilder},
     client::PolywrapClient,
+    core::uri::Uri,
 };
 
 use crate::{
@@ -33,6 +34,22 @@ impl FFIBuilderConfig {
 
     pub fn remove_env(&self, uri: Arc<FFIUri>) {
         self.inner_builder.lock().unwrap().remove_env(&uri.0);
+    }
+
+    pub fn add_interface_implementations(
+        &self,
+        interface_uri: Arc<FFIUri>,
+        implementations_uri: Vec<Arc<FFIUri>>,
+    ) {
+        let implementations = implementations_uri
+            .clone()
+            .iter()
+            .map(|i| i.0.clone())
+            .collect::<Vec<Uri>>();
+        self.inner_builder
+            .lock()
+            .unwrap()
+            .add_interface_implementations(interface_uri.0.clone(), implementations);
     }
 
     pub fn add_interface_implementation(
@@ -115,7 +132,7 @@ mod test {
     };
     use serde::Serialize;
 
-    use crate::{package::FFIWrapPackage, uri::{ffi_uri_from_string}, wrapper::FFIWrapper};
+    use crate::{package::FFIWrapPackage, uri::ffi_uri_from_string, wrapper::FFIWrapper};
 
     use super::FFIBuilderConfig;
 
@@ -266,8 +283,12 @@ mod test {
         let implementation_a_uri = ffi_uri_from_string("wrap://ens/implementation-a.eth").unwrap();
         let implementation_b_uri = ffi_uri_from_string("wrap://ens/implementation-b.eth").unwrap();
 
-        builder.add_interface_implementation(interface_uri.clone(), implementation_a_uri);
-        builder.add_interface_implementation(interface_uri.clone(), implementation_b_uri.clone());
+        let implementation_c_uri = ffi_uri_from_string("wrap://ens/implementation-c.eth").unwrap();
+        builder.add_interface_implementations(
+            interface_uri.clone(),
+            vec![implementation_a_uri, implementation_b_uri.clone()],
+        );
+        builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
 
         let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
             .inner_builder
@@ -281,7 +302,8 @@ mod test {
             implementations,
             Some(&vec![
                 uri!("wrap://ens/implementation-a.eth"),
-                uri!("wrap://ens/implementation-b.eth")
+                uri!("wrap://ens/implementation-b.eth"),
+                uri!("wrap://ens/implementation-c.eth")
             ])
         );
 
@@ -296,7 +318,10 @@ mod test {
         let implementations = interfaces.get(&interface_uri.to_string());
         assert_eq!(
             implementations,
-            Some(&vec![uri!("wrap://ens/implementation-a.eth"),])
+            Some(&vec![
+                uri!("wrap://ens/implementation-a.eth"),
+                uri!("wrap://ens/implementation-c.eth")
+            ])
         );
     }
 }
