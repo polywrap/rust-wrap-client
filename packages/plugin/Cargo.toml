@@ -22,6 +22,9 @@ serde.workspace = true
 bigdecimal.workspace = true
 num-bigint.workspace = true
 
+[dev-dependencies]
+polywrap_client_builder.workspace = true
+
 [features]
 default = ["implementor"]
 
