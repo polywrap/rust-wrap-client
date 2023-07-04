@@ -19,7 +19,6 @@ wrap_manifest_schemas.workspace = true
 thiserror.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-rmp-serde.workspace = true
 serde_bytes.workspace = true
 
 [dev-dependencies]
