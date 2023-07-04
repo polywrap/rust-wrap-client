@@ -315,4 +315,23 @@ mod test {
             Some(&vec![uri!("wrap://ens/implementation-a.eth"),])
         );
     }
+
+    #[test]
+    fn add_system_defaults() {
+        let builder = FFIBuilderConfig::new();
+        builder.add_system_defaults();
+        assert!(builder.inner_builder.lock().unwrap().redirects.is_some());
+        assert!(builder.inner_builder.lock().unwrap().interfaces.is_some());
+        assert!(builder.inner_builder.lock().unwrap().wrappers.is_some());
+        assert!(builder.inner_builder.lock().unwrap().packages.is_some());
+    }
+
+    #[test]
+    fn add_web3_defaults() {
+        let builder = FFIBuilderConfig::new();
+        builder.add_web3_defaults();
+        assert!(builder.inner_builder.lock().unwrap().envs.is_some());
+        assert!(builder.inner_builder.lock().unwrap().interfaces.is_some());
+        assert!(builder.inner_builder.lock().unwrap().wrappers.is_some());
+    }
 }
