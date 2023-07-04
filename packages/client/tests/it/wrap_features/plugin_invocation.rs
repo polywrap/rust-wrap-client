@@ -24,7 +24,7 @@ struct EnvVal {
 #[test]
 fn invoke_with_env() {
     let plugin = PluginEnv {};
-    let package: PluginPackage = plugin.into();
+    let package: PluginPackage<PluginEnv> = plugin.into();
     let module = Arc::new(package) as Arc<dyn WrapPackage>;
 
     let plugin_static_like = StaticResolverLike::Package(uri!("ens/env-plugin.eth"), module);

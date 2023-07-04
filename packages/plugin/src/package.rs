@@ -11,13 +11,13 @@ use wrap_manifest_schemas::versions::WrapManifest;
 
 use crate::{module::PluginModule, wrapper::PluginWrapper};
 
-pub struct PluginPackage {
+pub struct PluginPackage<T: PluginModule> {
     manifest: WrapManifest,
-    plugin_module: Arc<Mutex<Box<dyn PluginModule>>>,
+    plugin_module: Arc<Mutex<T>>,
 }
 
-impl PluginPackage {
-    pub fn new(plugin_module: Arc<Mutex<Box<dyn PluginModule>>>, manifest: WrapManifest) -> Self {
+impl<T: PluginModule> PluginPackage<T> {
+    pub fn new(plugin_module: Arc<Mutex<T>>, manifest: WrapManifest) -> Self {
         Self {
             plugin_module,
             manifest,
@@ -25,13 +25,13 @@ impl PluginPackage {
     }
 }
 
-impl PartialEq for PluginPackage {
+impl<T: PluginModule> PartialEq for PluginPackage<T> {
     fn eq(&self, other: &Self) -> bool {
         self == other
     }
 }
 
-impl Debug for PluginPackage {
+impl<T: PluginModule> Debug for PluginPackage<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(
             f,
@@ -46,7 +46,7 @@ impl Debug for PluginPackage {
     }
 }
 
-impl WrapPackage for PluginPackage {
+impl<T: PluginModule + 'static> WrapPackage for PluginPackage<T> {
     fn get_manifest(&self, _: Option<&GetManifestOptions>) -> Result<WrapManifest, Error> {
         Ok(self.manifest.clone())
     }

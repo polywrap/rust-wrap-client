@@ -147,16 +147,16 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
     };
 
     let from_impls = quote! {
-        impl From<#struct_ident> for polywrap_plugin::package::PluginPackage {
-            fn from(plugin: #struct_ident) -> polywrap_plugin::package::PluginPackage {
-                let plugin_module = Arc::new(std::sync::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
+        impl From<#struct_ident> for polywrap_plugin::package::PluginPackage<#struct_ident> {
+            fn from(plugin: #struct_ident) -> polywrap_plugin::package::PluginPackage<#struct_ident> {
+                let plugin_module = Arc::new(std::sync::Mutex::new(plugin));
                 polywrap_plugin::package::PluginPackage::new(plugin_module, get_manifest())
             }
         }
 
-        impl From<#struct_ident> for polywrap_plugin::wrapper::PluginWrapper {
-            fn from(plugin: #struct_ident) -> polywrap_plugin::wrapper::PluginWrapper {
-                let plugin_module = Arc::new(std::sync::Mutex::new(Box::new(plugin) as Box<dyn polywrap_plugin::module::PluginModule>));
+        impl From<#struct_ident> for polywrap_plugin::wrapper::PluginWrapper<#struct_ident> {
+            fn from(plugin: #struct_ident) -> polywrap_plugin::wrapper::PluginWrapper<#struct_ident> {
+                let plugin_module = Arc::new(std::sync::Mutex::new(plugin));
                 polywrap_plugin::wrapper::PluginWrapper::new(plugin_module)
             }
         }

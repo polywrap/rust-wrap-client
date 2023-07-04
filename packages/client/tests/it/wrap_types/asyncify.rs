@@ -70,8 +70,8 @@ fn get_client_and_uri() -> (PolywrapClient, Uri) {
         .unwrap();
 
     let memory_storage_plugin = MemoryStoragePlugin { value: 0 };
-    let memory_storage_plugin_package: PluginPackage = memory_storage_plugin.into();
-    let memory_storage_package: Arc<PluginPackage> = Arc::new(memory_storage_plugin_package);
+    let memory_storage_plugin_package: PluginPackage<MemoryStoragePlugin> = memory_storage_plugin.into();
+    let memory_storage_package: Arc<PluginPackage<MemoryStoragePlugin>> = Arc::new(memory_storage_plugin_package);
 
     let mut resolvers = HashMap::new();
     resolvers.insert(
