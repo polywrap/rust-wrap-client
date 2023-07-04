@@ -141,6 +141,7 @@ interface FFIBuilderConfig {
   constructor();
   void add_env(FFIUri uri, sequence<u8> env);
   void remove_env(FFIUri uri);
+  void add_interface_implementations(FFIUri interface_uri, sequence<FFIUri> implementation_uris);
   void add_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
   void remove_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
   void add_wrapper(FFIUri uri, FFIWrapper wrapper);

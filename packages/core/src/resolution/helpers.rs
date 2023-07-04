@@ -88,18 +88,6 @@ pub fn get_implementations(
     }
 
     Ok(implementation_uris)
-    // for interface in interfaces.keys() {
-
-    //     let mut fully_resolved_uri = implementation.clone();
-    //     if let Some(l) = loader {
-    //         let redirect_uri = l.try_resolve_uri(
-    //             &implementation.clone(),
-    //             resolution_context
-    //         ).await;
-    //     };
-
-    //     if implementation_uris.contains(x)
-    // }
 }
 
 pub fn get_env_from_resolution_path(
