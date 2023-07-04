@@ -23,7 +23,7 @@ interface FFIUri {
 
   string authority();
   string path();
-  string to_string();
+  string to_string_uri();
 };
 
 interface FFIInvoker {

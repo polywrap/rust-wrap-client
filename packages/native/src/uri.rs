@@ -32,7 +32,7 @@ impl FFIUri {
         self.0.path().to_string()
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn to_string_uri(&self) -> String {
         self.0.to_string()
     }
 }
@@ -45,7 +45,7 @@ impl PartialEq for FFIUri {
 
 impl From<FFIUri> for String {
     fn from(uri: FFIUri) -> Self {
-        uri.to_string()
+        uri.to_string_uri()
     }
 }
 
