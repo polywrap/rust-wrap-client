@@ -35,7 +35,7 @@ fn clean_up_temp_files() -> std::io::Result<()> {
 
 fn get_client() -> PolywrapClient {
     let fs_plugin = FileSystemPlugin {};
-    let plugin_pkg: PluginPackage = fs_plugin.into();
+    let plugin_pkg: PluginPackage<FileSystemPlugin> = fs_plugin.into();
     let package = Arc::new(plugin_pkg);
 
     let resolver = StaticResolver::from(vec![StaticResolverLike::Package(

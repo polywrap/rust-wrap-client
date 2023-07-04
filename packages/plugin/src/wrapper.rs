@@ -12,20 +12,18 @@ use polywrap_msgpack_serde::to_vec;
 
 use crate::module::PluginModule;
 
-type PluginModuleInstance = Arc<Mutex<Box<dyn (PluginModule)>>>;
-
 #[derive(Debug)]
-pub struct PluginWrapper {
-    instance: PluginModuleInstance,
+pub struct PluginWrapper<T: PluginModule> {
+    instance: Arc<Mutex<T>>,
 }
 
-impl PluginWrapper {
-    pub fn new(instance: PluginModuleInstance) -> Self {
+impl<T: PluginModule> PluginWrapper<T> {
+    pub fn new(instance: Arc<Mutex<T>>) -> Self {
         Self { instance }
     }
 }
 
-impl Wrapper for PluginWrapper {
+impl<T: PluginModule + 'static> Wrapper for PluginWrapper<T> {
     fn invoke(
         &self,
         method: &str,
@@ -57,7 +55,7 @@ impl Wrapper for PluginWrapper {
     }
 }
 
-impl PartialEq for PluginWrapper {
+impl<T: PluginModule> PartialEq for PluginWrapper<T> {
     fn eq(&self, other: &Self) -> bool {
         self == other
     }
