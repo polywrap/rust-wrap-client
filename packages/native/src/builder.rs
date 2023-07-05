@@ -5,6 +5,7 @@ use polywrap_client::{
     client::PolywrapClient,
     core::uri::Uri,
 };
+use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
 
 use crate::{
     client::FFIClient,
@@ -112,6 +113,21 @@ impl FFIBuilderConfig {
             .lock()
             .unwrap()
             .add_resolver(Arc::from(UriResolverWrapping(resolver).as_uri_resolver()));
+    }
+
+    pub fn add_system_defaults(&self) {
+        self.inner_builder
+            .lock()
+            .unwrap()
+            .add(SystemClientConfig::default().into())
+            .add(Web3ClientConfig::default().into());
+    }
+
+    pub fn add_web3_defaults(&self) {
+      self.inner_builder
+            .lock()
+            .unwrap()
+            .add(Web3ClientConfig::default().into());
     }
 
     pub fn build(&self) -> Arc<FFIClient> {
@@ -323,5 +339,24 @@ mod test {
                 uri!("wrap://ens/implementation-c.eth")
             ])
         );
+    }
+
+    #[test]
+    fn add_system_defaults() {
+        let builder = FFIBuilderConfig::new();
+        builder.add_system_defaults();
+        assert!(builder.inner_builder.lock().unwrap().redirects.is_some());
+        assert!(builder.inner_builder.lock().unwrap().interfaces.is_some());
+        assert!(builder.inner_builder.lock().unwrap().wrappers.is_some());
+        assert!(builder.inner_builder.lock().unwrap().packages.is_some());
+    }
+
+    #[test]
+    fn add_web3_defaults() {
+        let builder = FFIBuilderConfig::new();
+        builder.add_web3_defaults();
+        assert!(builder.inner_builder.lock().unwrap().envs.is_some());
+        assert!(builder.inner_builder.lock().unwrap().interfaces.is_some());
+        assert!(builder.inner_builder.lock().unwrap().wrappers.is_some());
     }
 }
