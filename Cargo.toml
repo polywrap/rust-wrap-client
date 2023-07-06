@@ -58,7 +58,7 @@ polywrap_plugin_implementor = { version = "0.1.6-beta.8", path = "packages/plugi
 polywrap_fs_plugin = { version = "0.1.6-beta.8", path = "packages/plugins/fs" }
 polywrap_http_plugin = { version = "0.1.6-beta.8", path = "packages/plugins/http"  }
 
-polywrap_msgpack_serde = "0.0.1"
+polywrap_msgpack_serde = "0.0.2-beta.1"
 
 
 serde = { version = "1.0.145", features = ["derive"] }
