@@ -1,6 +1,6 @@
 {
   "name": "@polywrap/ethereum-wallet-rs",
-  "description": "Polywrap HTTP Plugin in Rust",
+  "description": "Polywrap Ethereum Wallet Plugin in Rust",
   "version": "0.1.0",
   "scripts": {
     "codegen": "npx polywrap codegen"
