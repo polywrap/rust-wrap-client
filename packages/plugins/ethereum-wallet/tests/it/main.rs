@@ -1,4 +1,3 @@
-#![feature(assert_matches)]
 use polywrap_client::client::PolywrapClient;
 use polywrap_core::{client::ClientConfig, uri::Uri};
 use polywrap_ethereum_wallet_plugin::{

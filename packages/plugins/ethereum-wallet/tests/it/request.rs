@@ -1,5 +1,3 @@
-use std::assert_matches::assert_matches;
-
 use polywrap_core::uri::Uri;
 use polywrap_msgpack_serde::to_vec;
 use polywrap_plugin::JSON::{json, to_string, to_value, Value};
@@ -99,7 +97,7 @@ fn get_block_by_number() {
         None,
     );
     if let Ok(r) = response {
-        assert_matches!(to_value(r), Ok(_))
+        assert!(to_value(r).is_ok())
     } else {
         panic!("{}", response.unwrap_err())
     }
