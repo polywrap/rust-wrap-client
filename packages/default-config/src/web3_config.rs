@@ -1,10 +1,14 @@
 use polywrap_client_builder::PolywrapClientConfig;
-use polywrap_core::{client::ClientConfig, macros::uri, uri::Uri};
-use polywrap_msgpack_serde::{to_vec};
+use polywrap_core::{client::ClientConfig, macros::uri, package::WrapPackage, uri::Uri};
+use polywrap_ethereum_wallet_plugin::{
+    connection::Connection, connections::Connections, EthereumWalletPlugin,
+};
+use polywrap_msgpack_serde::to_vec;
+use polywrap_plugin::package::PluginPackage;
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc};
 
-use crate::embeds::{ipfs_http_client, ipfs_resolver};
+use crate::embeds::{ipfs_http_client, ipfs_resolver, ethers_core};
 
 pub struct Web3ClientConfig(PolywrapClientConfig);
 
@@ -23,6 +27,32 @@ pub struct IpfsEnv {
     fallback_providers: Vec<String>,
     retries: Retries,
 }
+
+impl Web3ClientConfig {
+    fn get_ethereum_plugin() -> PluginPackage<EthereumWalletPlugin> {
+        let mainnet_connection = Connection::new(
+            "https://mainnet.infura.io/v3/f1f688077be642c190ac9b28769daecf".to_string(),
+            None,
+        )
+        .unwrap();
+        let goerli_connection = Connection::new(
+            "https://goerli.infura.io/v3/f1f688077be642c190ac9b28769daecf".to_string(),
+            None,
+        )
+        .unwrap();
+        let connections = Connections::new(
+            HashMap::from([
+                ("mainnet".to_string(), mainnet_connection),
+                ("goerli".to_string(), goerli_connection),
+            ]),
+            Some("mainnet".to_string()),
+        );
+
+        let wallet_plugin = EthereumWalletPlugin::new(connections);
+        wallet_plugin.into()
+    }
+}
+
 impl Default for Web3ClientConfig {
     fn default() -> Self {
         Self(PolywrapClientConfig {
@@ -57,7 +87,15 @@ impl Default for Web3ClientConfig {
                     uri!("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
                     Arc::new(ipfs_resolver::wasm_wrapper()),
                 ),
+                (
+                    uri!("wrap://ens/ethers.wraps.eth:0.1.0"),
+                    Arc::new(ethers_core::wasm_wrapper())
+                )
             ]),
+            packages: Some(vec![(
+                uri!("ens/wraps.eth:ethereum-provider@2.0.0"),
+                Arc::new(Web3ClientConfig::get_ethereum_plugin()),
+            )]),
             ..Default::default()
         })
     }
