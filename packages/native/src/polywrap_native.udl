@@ -65,6 +65,11 @@ interface FFIWasmWrapper {
   sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
 };
 
+interface FFIWasmPackage {
+  [Throws=FFIError]
+  FFIWasmWrapper create_wrapper();
+};
+
 callback interface FFIUriResolver {
   [Throws=FFIError]
   FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
@@ -175,4 +180,13 @@ namespace polywrap_native {
 
   [Throws=FFIError]
   FFICompiledWasmModule ffi_compiled_wasm_module_from_bytecode([ByRef] sequence<u8> bytes);
+
+  [Throws=FFIError]
+  FFIWasmPackage ffi_wasm_package_from_bytecode([ByRef] sequence<u8> bytes);
+
+  [Throws=FFIError]
+  FFIWasmPackage ffi_wasm_package_from_serialized_module(FFISerializedWasmModule serialized_module, [ByRef] sequence<u8> bytes);
+  
+  [Throws=FFIError]
+  FFIWasmPackage ffi_wasm_package_from_compiled_wasm_module(FFICompiledWasmModule compiled_module, [ByRef] sequence<u8> bytes);
 };
