@@ -5,7 +5,6 @@ use std::sync::Arc;
 use polywrap_core::invoker::Invoker;
 use polywrap_plugin::{error::PluginError, module::PluginModule};
 use serde::{Serialize, Deserialize};
-use serde_bytes::ByteBuf;
 use super::types::*;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -27,7 +26,7 @@ pub struct ArgsExists {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsWriteFile {
     pub path: String,
-    #[serde(with = "serde_bytes")]
+    #[serde(with = "bytes")]
     pub data: Vec<u8>,
 }
 
@@ -50,7 +49,7 @@ pub struct ArgsRmdir {
 }
 
 pub trait Module: PluginModule {
-  fn read_file(&mut self, args: &ArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<ByteBuf, PluginError>;
+  fn read_file(&mut self, args: &ArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<bytes::ByteBuf, PluginError>;
 
   fn read_file_as_string(&mut self, args: &ArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, PluginError>;
 

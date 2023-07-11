@@ -4,9 +4,8 @@ use crate::{
     client::Client, error::Error, file_reader::FileReader,
     interface_implementation::InterfaceImplementations, invoker::Invoker, uri::Uri,
 };
-use polywrap_msgpack_serde::to_vec;
+use polywrap_msgpack_serde::{to_vec, bytes};
 use serde::Serialize;
-use serde_bytes::ByteBuf;
 
 fn combine_paths(a: &str, b: &str) -> String {
     let mut a = a.to_string();
@@ -63,7 +62,7 @@ impl FileReader for UriResolverExtensionFileReader {
             None,
         )?;
 
-        let result: ByteBuf = polywrap_msgpack_serde::from_slice(&result)?;
+        let result: bytes::ByteBuf = polywrap_msgpack_serde::from_slice(&result)?;
         Ok(result.into_vec())
     }
 }

@@ -14,10 +14,8 @@ polywrap_core.workspace = true
 wrap_manifest_schemas.workspace = true
 thiserror.workspace = true
 serde.workspace = true
-serde_json.workspace = true
 polywrap_plugin.workspace = true
 polywrap_msgpack_serde.workspace = true
-serde_bytes.workspace = true
 
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1.23.0", features = ["full"] }

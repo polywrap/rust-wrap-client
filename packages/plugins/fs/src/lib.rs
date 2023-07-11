@@ -8,7 +8,7 @@ use wrap::module::{
     Module,
 };
 pub mod wrap;
-use serde_bytes::ByteBuf;
+use polywrap_msgpack_serde::bytes;
 
 #[derive(Debug)]
 pub struct FileSystemPlugin;

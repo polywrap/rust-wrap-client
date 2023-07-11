@@ -6,7 +6,8 @@ use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 
 use polywrap_plugin::package::PluginPackage;
 use serde::Serialize;
-use serde_bytes::ByteBuf;
+use polywrap_msgpack_serde::bytes;
+use polywrap_msgpack_serde::bytes::ByteBuf;
 use std::path::Path;
 use std::sync::Arc;
 use std::{env, fs};
@@ -206,7 +207,7 @@ fn should_return_whether_a_file_exists_or_not() {
 #[derive(Serialize)]
 struct WriteFileArgs {
     path: String,
-    #[serde(with = "serde_bytes")]
+    #[serde(with = "bytes")]
     data: Vec<u8>,
 }
 

@@ -14,5 +14,4 @@ polywrap_core.workspace = true
 polywrap_wasm.workspace = true
 polywrap_msgpack_serde.workspace = true
 serde.workspace = true
-serde_bytes.workspace = true
 

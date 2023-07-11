@@ -1,7 +1,7 @@
 use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
-use serde_bytes::ByteBuf;
+use polywrap_msgpack_serde::bytes;
 
 use crate::wrap_types::get_client;
 
@@ -12,7 +12,7 @@ struct BytesMethodArgs {
 
 #[derive(Serialize, Deserialize)]
 struct Args {
-    #[serde(with = "serde_bytes")]
+    #[serde(with = "bytes")]
     prop: Vec<u8>,
 }
 
@@ -31,7 +31,7 @@ fn bytes_method() {
         },
     };
     let response = client
-        .invoke::<ByteBuf>(
+        .invoke::<bytes::ByteBuf>(
             &uri,
             "bytesMethod",
             Some(&to_vec(&args).unwrap()),

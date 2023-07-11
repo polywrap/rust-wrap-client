@@ -9,11 +9,12 @@ use polywrap_core::{
 };
 use polywrap_msgpack_serde::to_vec;
 use serde::{Deserialize, Serialize};
+use polywrap_msgpack_serde::bytes;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MaybeUriOrManifest {
     pub uri: Option<String>,
-    #[serde(with = "serde_bytes")]
+    #[serde(with = "bytes")]
     pub manifest: Option<Vec<u8>>,
 }
 

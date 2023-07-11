@@ -14,6 +14,7 @@ use polywrap_core::{
 use polywrap_msgpack_serde::{from_slice, to_vec};
 use polywrap_wasm::wasm_package::WasmPackage;
 use serde::{Deserialize, Serialize};
+use polywrap_msgpack_serde::bytes;
 
 pub struct UriResolverWrapper {
     pub implementation_uri: Uri,
@@ -22,7 +23,7 @@ pub struct UriResolverWrapper {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MaybeUriOrManifest {
     pub uri: Option<String>,
-    #[serde(with = "serde_bytes")]
+    #[serde(with = "bytes")]
     pub manifest: Option<Vec<u8>>,
 }
 

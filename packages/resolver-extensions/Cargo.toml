@@ -15,7 +15,6 @@ polywrap_wasm.workspace = true
 polywrap_msgpack_serde.workspace = true
 polywrap_resolvers.workspace = true
 serde.workspace = true
-serde_bytes.workspace = true
 
 [dev-dependencies]
 polywrap_tests_utils.workspace = true

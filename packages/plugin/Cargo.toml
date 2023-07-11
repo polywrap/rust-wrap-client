@@ -20,7 +20,6 @@ polywrap_plugin_implementor = { workspace = true, optional = true }
 
 serde.workspace = true
 bigdecimal.workspace = true
-num-bigint.workspace = true
 
 [features]
 default = ["implementor"]

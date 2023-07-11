@@ -8,6 +8,5 @@ pub mod wrapper;
 pub use polywrap_plugin_implementor as implementor;
 
 pub use bigdecimal::BigDecimal as BigNumber;
-pub use num_bigint::BigInt;
 pub use polywrap_msgpack_serde::Map;
 pub use serde_json as JSON;

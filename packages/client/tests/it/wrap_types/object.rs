@@ -1,6 +1,6 @@
 use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
-use polywrap_msgpack_serde::to_vec;
+use polywrap_msgpack_serde::{to_vec, bytes};
 use polywrap_tests_utils::helpers::get_tests_path;
 use serde::{Deserialize, Serialize};
 
@@ -34,7 +34,7 @@ struct Arg2 {
 
 #[derive(Serialize)]
 struct Arg3 {
-    #[serde(with = "serde_bytes")]
+    #[serde(with = "bytes")]
     prop: Vec<u8>,
 }
 

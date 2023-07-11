@@ -16,7 +16,6 @@ wrap_manifest_schemas.workspace = true
 serde.workspace = true
 
 rm_rf = "0.6.2"
-serde_bytes.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]
