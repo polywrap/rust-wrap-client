@@ -1,5 +1,5 @@
 use polywrap_client_builder::PolywrapClientConfig;
-use polywrap_core::{client::ClientConfig, macros::uri, package::WrapPackage, uri::Uri};
+use polywrap_core::{client::ClientConfig, macros::uri, uri::Uri};
 use polywrap_ethereum_wallet_plugin::{
     connection::Connection, connections::Connections, EthereumWalletPlugin,
 };
@@ -8,7 +8,7 @@ use polywrap_plugin::package::PluginPackage;
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc};
 
-use crate::embeds::{ipfs_http_client, ipfs_resolver, ethers_core};
+use crate::embeds::{ipfs_http_client, ipfs_resolver};
 
 pub struct Web3ClientConfig(PolywrapClientConfig);
 
@@ -86,10 +86,6 @@ impl Default for Web3ClientConfig {
                 (
                     uri!("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
                     Arc::new(ipfs_resolver::wasm_wrapper()),
-                ),
-                (
-                    uri!("wrap://ens/ethers.wraps.eth:0.1.0"),
-                    Arc::new(ethers_core::wasm_wrapper())
                 )
             ]),
             packages: Some(vec![(
