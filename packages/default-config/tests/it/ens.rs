@@ -16,6 +16,7 @@ fn sanity() {
     config
         .add(SystemClientConfig::default().into())
         .add(Web3ClientConfig::default().into());
+
     let client = PolywrapClient::new(config.into());
 
     let result = client.invoke::<u32>(
