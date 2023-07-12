@@ -5,32 +5,55 @@ use polywrap_msgpack_serde::to_vec;
 use serde::Serialize;
 
 #[derive(Serialize)]
-pub struct Keccak256Args {
-    pub message: String,
+pub struct ToWeiArgs {
+    pub eth: String,
 }
 
 #[test]
-fn sanity() {
-    let wrap_uri = format!("ens/wraps.eth:sha3@1.0.0");
+fn text_record_uri_resolver() {
+    let wrap_uri = format!("ens/ethers.wraps.eth:utils@0.1.1");
     let mut config = PolywrapClientConfig::new();
     config
         .add(SystemClientConfig::default().into())
         .add(Web3ClientConfig::default().into());
 
     let client = PolywrapClient::new(config.into());
-
-    let result = client.invoke::<u32>(
+    let result = client.invoke::<String>(
         &wrap_uri.parse().unwrap(),
-        "keccak_256",
+        "toWei",
         Some(
-            &to_vec(&Keccak256Args {
-                message: "test message to hash".to_string(),
+            &to_vec(&ToWeiArgs {
+                eth: "20".to_string(),
             })
             .unwrap(),
         ),
         None,
         None,
     );
-    print!("{:?}", &result);
-    assert!(result.is_ok());
+    assert_eq!(result.unwrap(), "20000000000000000000".to_string());
+}
+
+#[test]
+#[ignore]
+fn content_hash_uri_resolver() {
+    let wrap_uri = format!("ens/goerli/test-wraps.eth");
+    let mut config = PolywrapClientConfig::new();
+    config
+        .add(SystemClientConfig::default().into())
+        .add(Web3ClientConfig::default().into());
+
+    let client = PolywrapClient::new(config.into());
+    let result = client.invoke::<String>(
+        &wrap_uri.parse().unwrap(),
+        "toWei",
+        Some(
+            &to_vec(&ToWeiArgs {
+                eth: "20".to_string(),
+            })
+            .unwrap(),
+        ),
+        None,
+        None,
+    );
+    assert_eq!(result.unwrap(), "20000000000000000000".to_string());
 }

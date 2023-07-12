@@ -61,9 +61,8 @@ impl Default for Web3ClientConfig {
                     "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
                     vec![
                         uri!("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
-                        uri!("ens/wraps.eth:ens-ipfs-contenthash-uri-resolver-ext@1.0.2"),
                         uri!("ens/wraps.eth:ens-text-record-uri-resolver-ext@1.0.2"),
-                        uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2"),
+                        // uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2")
                     ],
                 ),
                 (
@@ -93,31 +92,23 @@ impl Default for Web3ClientConfig {
                     Arc::new(ipfs_resolver::wasm_wrapper()),
                 ),
             ]),
-            packages: Some(
-                vec![
-                    (
-                        uri!("ens/wraps.eth:ethereum-provider@2.0.0"),
-                        Arc::new(Web3ClientConfig::get_ethereum_plugin()),
-                    ),
-                    (
-                        uri!("ens/wraps.eth:ethereum-provider@1.1.0"),
-                        Arc::new(Web3ClientConfig::get_ethereum_plugin()),
-                    
-                    )
-                ]),
+            packages: Some(vec![(
+                uri!("wrap://ens/wraps.eth:ethereum-provider@2.0.0"),
+                Arc::new(Web3ClientConfig::get_ethereum_plugin()),
+            )]),
             redirects: Some(HashMap::from([
                 (
-                    uri!("ens/wraps.eth:ens-ipfs-contenthash-uri-resolver-ext@1.0.2"),
-                    uri!("wrap://ipfs/QmT54TKaQmNktg2eUVMUjWbjVDBSpapZvnFdkDrjejLebE"),
+                    uri!("wrap://ens/wraps.eth:ens@0.1.0"),
+                    uri!("wrap://ipfs/QmQS8cr21euKYW7hWAhiSYXgvdcAtbPbynKqRW2CzAJPYe"),
                 ),
                 (
                     uri!("ens/wraps.eth:ens-text-record-uri-resolver-ext@1.0.2"),
-                    uri!("wrap://ipfs/QmfNeLNN9iLJmiz1uSAWUptJpnAbzWu7QB9e1B9MVEM21w"),
+                    uri!("wrap://ipfs/Qmaqs7rmoW4AKtmfmBHrWw9iRNY8Bg78fcS1hpqB7R9gev"),
                 ),
-                (
-                    uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2"),
-                    uri!("wrap://ipfs/QmZn94mA1dNA9txvF6DWmYfnL5DSpJ7GKSfdQv53mKk5rQ"),
-                ),
+                // (
+                //     uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2"),
+                //     uri!("wrap://ipfs/QmV4S2BBwawQTxKCTCvjRuWt8EHkicZ3oM3S2B5JziAcrA"),
+                // )
             ])),
             ..Default::default()
         })
