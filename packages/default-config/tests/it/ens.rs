@@ -34,7 +34,6 @@ fn text_record_uri_resolver() {
 }
 
 #[test]
-#[ignore]
 fn content_hash_uri_resolver() {
     let wrap_uri = format!("ens/goerli/test-wraps.eth");
     let mut config = PolywrapClientConfig::new();

@@ -62,7 +62,8 @@ impl Default for Web3ClientConfig {
                     vec![
                         uri!("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
                         uri!("ens/wraps.eth:ens-text-record-uri-resolver-ext@1.0.2"),
-                        // uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2")
+                        uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2"),
+                        uri!("ens/wraps.eth:ens-ipfs-contenthash-uri-resolver-ext@1.0.1"),
                     ],
                 ),
                 (
@@ -105,10 +106,14 @@ impl Default for Web3ClientConfig {
                     uri!("ens/wraps.eth:ens-text-record-uri-resolver-ext@1.0.2"),
                     uri!("wrap://ipfs/Qmaqs7rmoW4AKtmfmBHrWw9iRNY8Bg78fcS1hpqB7R9gev"),
                 ),
-                // (
-                //     uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2"),
-                //     uri!("wrap://ipfs/QmV4S2BBwawQTxKCTCvjRuWt8EHkicZ3oM3S2B5JziAcrA"),
-                // )
+                (
+                    uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2"),
+                    uri!("wrap://ipfs/QmV4S2BBwawQTxKCTCvjRuWt8EHkicZ3oM3S2B5JziAcrA"),
+                ),
+                (
+                    uri!("ens/wraps.eth:ens-ipfs-contenthash-uri-resolver-ext@1.0.2"),
+                    uri!("wrap://ipfs/QmT54TKaQmNktg2eUVMUjWbjVDBSpapZvnFdkDrjejLebE"),
+                ),
             ])),
             ..Default::default()
         })
