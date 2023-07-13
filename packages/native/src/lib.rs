@@ -14,7 +14,11 @@ use error::*;
 use invoker::*;
 use package::*;
 use resolvers::{
-    _static::*, ffi_resolver::*, recursive::*, resolution_context::*, uri_package_or_wrapper::*,
+    // _static::*,
+    ffi_resolver::*,
+    // recursive::*,
+    resolution_context::*,
+    uri_package_or_wrapper::*,
 };
 use uri::*;
 use wasm_wrapper::*;

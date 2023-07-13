@@ -5,7 +5,7 @@ use polywrap_client::core::{client::Client, invoker::Invoker};
 use crate::{
     error::FFIError,
     invoker::FFIInvoker,
-    resolvers::resolution_context::FFIUriResolutionContext,
+    resolvers::{resolution_context::FFIUriResolutionContext, uri_package_or_wrapper::FFIUriPackageOrWrapper},
     uri::FFIUri,
     wrapper::{FFIWrapper, WrapperWrapping},
 };
@@ -123,6 +123,16 @@ impl FFIClient {
             .load_wrapper(&uri.0, resolution_context.map(|ctx| ctx.0.clone()))?;
 
         Ok(Box::new(wrapper))
+    }
+
+    pub fn try_resolve_uri(
+      &self,
+      uri: Arc<FFIUri>,
+      resolution_context: Option<FFIUriResolutionContext>,
+    ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
+      let result = self.inner_client.try_resolve_uri(&uri.0, resolution_context.map(|r| r.0))?;
+
+      Ok(Arc::new(FFIUriPackageOrWrapper(result)))
     }
 }
 

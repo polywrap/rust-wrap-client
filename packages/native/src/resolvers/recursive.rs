@@ -30,7 +30,7 @@ impl FFIUriResolver for FFIRecursiveUriResolver {
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
-    ) -> Result<Box<dyn FFIUriPackageOrWrapper>, FFIError> {
+    ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
         let result = self.inner_resolver.try_resolve_uri(
             &uri.0,
             invoker.0.clone(),

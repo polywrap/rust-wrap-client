@@ -23,7 +23,7 @@ pub trait FFIUriResolver: Send + Sync + Debug {
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
-    ) -> Result<Box<dyn FFIUriPackageOrWrapper>, FFIError>;
+    ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError>;
 }
 
 #[derive(Debug)]
@@ -43,7 +43,7 @@ impl UriResolver for UriResolverWrapping {
             Arc::new(ffi_resolution_context),
         )?;
 
-        Ok(result.into())
+        Ok(result.as_ref().0.clone())
     }
 }
 

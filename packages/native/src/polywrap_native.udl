@@ -76,7 +76,7 @@ callback interface FFIUriWrapPackage {
   FFIWrapPackage get_package();
 };
 
-callback interface FFIUriPackageOrWrapper {
+interface FFIUriPackageOrWrapper {
   FFIUriPackageOrWrapperKind get_kind();
   FFIUri as_uri();
   FFIUriWrapper as_wrapper();
