@@ -17,7 +17,7 @@ use super::{
     resolution_context::FFIUriResolutionContext, uri_package_or_wrapper::FFIUriPackageOrWrapper,
 };
 
-pub trait FFIUriResolver: Send + Sync + Debug {
+pub trait IFFIUriResolver: Send + Sync + Debug {
     fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
@@ -27,7 +27,7 @@ pub trait FFIUriResolver: Send + Sync + Debug {
 }
 
 #[derive(Debug)]
-pub struct UriResolverWrapping(pub Box<dyn FFIUriResolver>);
+pub struct UriResolverWrapping(pub Box<dyn IFFIUriResolver>);
 
 impl UriResolver for UriResolverWrapping {
     fn try_resolve_uri(

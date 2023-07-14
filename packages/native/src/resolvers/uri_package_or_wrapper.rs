@@ -4,9 +4,9 @@ use polywrap_client::core::resolution::uri_resolution_context::UriPackageOrWrapp
 
 use crate::{
     error::FFIError,
-    package::{FFIWrapPackage, WrapPackageWrapping},
+    package::{IFFIWrapPackage, WrapPackageWrapping},
     uri::FFIUri,
-    wrapper::{FFIWrapper, WrapperWrapping},
+    wrapper::{IFFIWrapper, WrapperWrapping},
 };
 
 #[derive(Debug)]
@@ -30,22 +30,22 @@ impl Display for FFIUriPackageOrWrapperKind {
 
 pub struct FFIUriWrapper {
   pub uri: Arc<FFIUri>,
-  pub wrapper: Box<dyn FFIWrapper>
+  pub wrapper: Box<dyn IFFIWrapper>
 }
 
 impl FFIUriWrapper {
-  pub fn new(uri: Arc<FFIUri>, wrapper: Box<dyn FFIWrapper>) -> Self {
+  pub fn new(uri: Arc<FFIUri>, wrapper: Box<dyn IFFIWrapper>) -> Self {
     FFIUriWrapper { uri, wrapper }
   }
 }
 
 pub struct FFIUriWrapPackage {
   pub uri: Arc<FFIUri>,
-  pub package: Box<dyn FFIWrapPackage>
+  pub package: Box<dyn IFFIWrapPackage>
 }
 
 impl FFIUriWrapPackage {
-  pub fn new(uri: Arc<FFIUri>, package: Box<dyn FFIWrapPackage>) -> Self {
+  pub fn new(uri: Arc<FFIUri>, package: Box<dyn IFFIWrapPackage>) -> Self {
     FFIUriWrapPackage { uri, package }
   }
 }
@@ -59,14 +59,14 @@ impl FFIUriPackageOrWrapper {
         Self(uri_package_or_wrapper)
     }
 
-    pub fn from_package(uri: Arc<FFIUri>, package: Box<dyn FFIWrapPackage>) -> Self {
+    pub fn from_package(uri: Arc<FFIUri>, package: Box<dyn IFFIWrapPackage>) -> Self {
         let uri_package_or_wrapper =
             UriPackageOrWrapper::Package(uri.as_ref().0.clone(), Arc::new(WrapPackageWrapping(package)));
 
         Self(uri_package_or_wrapper)
     }
 
-    pub fn from_wrapper(uri: Arc<FFIUri>, wrapper: Box<dyn FFIWrapper>) -> Self {
+    pub fn from_wrapper(uri: Arc<FFIUri>, wrapper: Box<dyn IFFIWrapper>) -> Self {
         let uri_package_or_wrapper =
             UriPackageOrWrapper::Wrapper(uri.as_ref().0.clone(), Arc::new(WrapperWrapping(wrapper)));
 

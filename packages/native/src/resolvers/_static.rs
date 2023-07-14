@@ -10,7 +10,7 @@ use std::{collections::HashMap, sync::Arc};
 use crate::{error::FFIError, invoker::FFIInvoker, uri::FFIUri};
 
 use super::{
-    ffi_resolver::FFIUriResolver, resolution_context::FFIUriResolutionContext,
+    ffi_resolver::IFFIUriResolver, resolution_context::FFIUriResolutionContext,
     uri_package_or_wrapper::FFIUriPackageOrWrapper,
 };
 
@@ -40,7 +40,7 @@ impl FFIStaticUriResolver {
     }
 }
 
-impl FFIUriResolver for FFIStaticUriResolver {
+impl IFFIUriResolver for FFIStaticUriResolver {
     fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
@@ -66,7 +66,7 @@ mod test {
     use crate::{
         invoker::FFIInvoker,
         resolvers::{
-            ffi_resolver::FFIUriResolver,
+            ffi_resolver::IFFIUriResolver,
             resolution_context::FFIUriResolutionContext,
             uri_package_or_wrapper::{FFIUriPackageOrWrapper, FFIUriPackageOrWrapperKind},
         },

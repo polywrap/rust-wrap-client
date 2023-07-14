@@ -8,7 +8,7 @@ use polywrap_client::core::{
 
 use crate::{error::FFIError, invoker::FFIInvoker};
 
-pub trait FFIWrapper: Debug + Send + Sync {
+pub trait IFFIWrapper: Debug + Send + Sync {
     fn invoke(
         &self,
         method: String,
@@ -18,7 +18,7 @@ pub trait FFIWrapper: Debug + Send + Sync {
     ) -> Result<Vec<u8>, FFIError>;
 }
 
-impl FFIWrapper for Arc<dyn Wrapper> {
+impl IFFIWrapper for Arc<dyn Wrapper> {
     fn invoke(
         &self,
         method: String,
@@ -39,7 +39,7 @@ impl FFIWrapper for Arc<dyn Wrapper> {
 }
 
 #[derive(Debug)]
-pub struct WrapperWrapping(pub Box<dyn FFIWrapper>);
+pub struct WrapperWrapping(pub Box<dyn IFFIWrapper>);
 
 impl Wrapper for WrapperWrapping {
     fn invoke(
@@ -76,9 +76,9 @@ mod test {
 
     use crate::{invoker::FFIInvoker, wrapper::WrapperWrapping};
 
-    use super::FFIWrapper;
+    use super::IFFIWrapper;
 
-    fn get_mocks() -> (Box<dyn FFIWrapper>, FFIInvoker) {
+    fn get_mocks() -> (Box<dyn IFFIWrapper>, FFIInvoker) {
         (Box::new(get_mock_wrapper()), FFIInvoker(get_mock_invoker()))
     }
 
