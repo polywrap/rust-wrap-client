@@ -12,15 +12,13 @@ use super::{
 };
 
 #[derive(Debug)]
-pub struct FFIRecursiveUriResolver {
-    inner_resolver: RecursiveResolver,
-}
+pub struct FFIRecursiveUriResolver(RecursiveResolver);
 
 impl FFIRecursiveUriResolver {
     pub fn new(uri_resolver_like: Box<dyn FFIUriResolver>) -> FFIRecursiveUriResolver {
-        FFIRecursiveUriResolver {
-            inner_resolver: (UriResolverWrapping(uri_resolver_like).as_uri_resolver()).into(),
-        }
+        FFIRecursiveUriResolver(
+          (UriResolverWrapping(uri_resolver_like).as_uri_resolver()).into()
+        )
     }
 }
 
@@ -31,7 +29,7 @@ impl FFIUriResolver for FFIRecursiveUriResolver {
         invoker: Arc<FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
     ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
-        let result = self.inner_resolver.try_resolve_uri(
+        let result = self.0.try_resolve_uri(
             &uri.0,
             invoker.0.clone(),
             resolution_context.0.clone(),

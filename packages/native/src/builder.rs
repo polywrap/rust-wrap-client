@@ -15,26 +15,22 @@ use crate::{
     wrapper::{FFIWrapper, WrapperWrapping},
 };
 
-pub struct FFIBuilderConfig {
-    pub inner_builder: Mutex<PolywrapClientConfig>,
-}
+pub struct FFIBuilderConfig(Mutex<PolywrapClientConfig>);
 
 impl FFIBuilderConfig {
     pub fn new() -> FFIBuilderConfig {
-        FFIBuilderConfig {
-            inner_builder: Mutex::new(PolywrapClientConfig::new()),
-        }
+        FFIBuilderConfig(Mutex::new(PolywrapClientConfig::new()))
     }
 
     pub fn add_env(&self, uri: Arc<FFIUri>, env: Vec<u8>) {
-        self.inner_builder
+        self.0
             .lock()
             .unwrap()
             .add_env(uri.0.clone(), env);
     }
 
     pub fn remove_env(&self, uri: Arc<FFIUri>) {
-        self.inner_builder.lock().unwrap().remove_env(&uri.0);
+        self.0.lock().unwrap().remove_env(&uri.0);
     }
 
     pub fn add_interface_implementations(
@@ -47,7 +43,7 @@ impl FFIBuilderConfig {
             .iter()
             .map(|i| i.0.clone())
             .collect::<Vec<Uri>>();
-        self.inner_builder
+        self.0
             .lock()
             .unwrap()
             .add_interface_implementations(interface_uri.0.clone(), implementations);
@@ -58,7 +54,7 @@ impl FFIBuilderConfig {
         interface_uri: Arc<FFIUri>,
         implementation_uri: Arc<FFIUri>,
     ) {
-        self.inner_builder
+        self.0
             .lock()
             .unwrap()
             .add_interface_implementation(interface_uri.0.clone(), implementation_uri.0.clone());
@@ -69,54 +65,54 @@ impl FFIBuilderConfig {
         interface_uri: Arc<FFIUri>,
         implementation_uri: Arc<FFIUri>,
     ) {
-        self.inner_builder
+        self.0
             .lock()
             .unwrap()
             .remove_interface_implementation(&interface_uri.0, &implementation_uri.0);
     }
 
     pub fn add_wrapper(&self, uri: Arc<FFIUri>, wrapper: Box<dyn FFIWrapper>) {
-        self.inner_builder
+        self.0
             .lock()
             .unwrap()
             .add_wrapper(uri.0.clone(), Arc::new(WrapperWrapping(wrapper)));
     }
 
     pub fn remove_wrapper(&self, uri: Arc<FFIUri>) {
-        self.inner_builder.lock().unwrap().remove_wrapper(&uri.0);
+        self.0.lock().unwrap().remove_wrapper(&uri.0);
     }
 
     pub fn add_package(&self, uri: Arc<FFIUri>, package: Box<dyn FFIWrapPackage>) {
-        self.inner_builder
+        self.0
             .lock()
             .unwrap()
             .add_package(uri.0.clone(), Arc::new(WrapPackageWrapping(package)));
     }
 
     pub fn remove_package(&self, uri: Arc<FFIUri>) {
-        self.inner_builder.lock().unwrap().remove_package(&uri.0);
+        self.0.lock().unwrap().remove_package(&uri.0);
     }
 
     pub fn add_redirect(&self, from: Arc<FFIUri>, to: Arc<FFIUri>) {
-        self.inner_builder
+        self.0
             .lock()
             .unwrap()
             .add_redirect(from.0.clone(), to.0.clone());
     }
 
     pub fn remove_redirect(&self, from: Arc<FFIUri>) {
-        self.inner_builder.lock().unwrap().remove_redirect(&from.0);
+        self.0.lock().unwrap().remove_redirect(&from.0);
     }
 
     pub fn add_resolver(&self, resolver: Box<dyn FFIUriResolver>) {
-        self.inner_builder
+        self.0
             .lock()
             .unwrap()
             .add_resolver(Arc::from(UriResolverWrapping(resolver).as_uri_resolver()));
     }
 
     pub fn add_system_defaults(&self) {
-        self.inner_builder
+        self.0
             .lock()
             .unwrap()
             .add(SystemClientConfig::default().into())
@@ -124,14 +120,14 @@ impl FFIBuilderConfig {
     }
 
     pub fn add_web3_defaults(&self) {
-      self.inner_builder
+      self.0
             .lock()
             .unwrap()
             .add(Web3ClientConfig::default().into());
     }
 
     pub fn build(&self) -> Arc<FFIClient> {
-        let config = self.inner_builder.lock().unwrap().clone();
+        let config = self.0.lock().unwrap().clone();
         let client = Arc::new(PolywrapClient::new(config.into()));
         Arc::new(FFIClient::new(client))
     }
@@ -173,7 +169,7 @@ mod test {
 
         builder.add_env(uri.clone(), env.clone());
 
-        let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
+        let envs = builder.0.lock().unwrap().clone().envs.unwrap();
         let current_env = envs.get(&uri!("wrap://ens/some.eth"));
         assert_eq!(&env, current_env.unwrap());
 
@@ -182,12 +178,12 @@ mod test {
         })
         .unwrap();
         builder.add_env(uri.clone(), new_env.clone());
-        let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
+        let envs = builder.0.lock().unwrap().clone().envs.unwrap();
         let current_env = envs.get(&uri!("wrap://ens/some.eth"));
         assert_eq!(&new_env, current_env.unwrap());
 
         builder.remove_env(uri);
-        let envs = builder.inner_builder.lock().unwrap().clone().envs;
+        let envs = builder.0.lock().unwrap().clone().envs;
         assert_eq!(None, envs);
     }
 
@@ -204,7 +200,7 @@ mod test {
         builder.add_package(uri_different_mock_package, different_mock_package);
         assert_eq!(
             builder
-                .inner_builder
+                .0
                 .lock()
                 .unwrap()
                 .clone()
@@ -217,7 +213,7 @@ mod test {
         builder.remove_package(uri_mock_package);
         assert_eq!(
             builder
-                .inner_builder
+                .0
                 .lock()
                 .unwrap()
                 .clone()
@@ -240,7 +236,7 @@ mod test {
         builder.add_wrapper(uri_different_mock_wrapper.unwrap(), different_mock_wrapper);
         assert_eq!(
             builder
-                .inner_builder
+                .0
                 .lock()
                 .unwrap()
                 .clone()
@@ -253,7 +249,7 @@ mod test {
         builder.remove_wrapper(uri_mock_wrapper.unwrap());
         assert_eq!(
             builder
-                .inner_builder
+                .0
                 .lock()
                 .unwrap()
                 .clone()
@@ -277,7 +273,7 @@ mod test {
         );
 
         let redirects = builder
-            .inner_builder
+            .0
             .lock()
             .unwrap()
             .clone()
@@ -307,7 +303,7 @@ mod test {
         builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
 
         let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
-            .inner_builder
+            .0
             .lock()
             .unwrap()
             .clone()
@@ -325,7 +321,7 @@ mod test {
 
         builder.remove_interface_implementation(interface_uri.clone(), implementation_b_uri);
         let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
-            .inner_builder
+            .0
             .lock()
             .unwrap()
             .clone()
@@ -345,18 +341,18 @@ mod test {
     fn add_system_defaults() {
         let builder = FFIBuilderConfig::new();
         builder.add_system_defaults();
-        assert!(builder.inner_builder.lock().unwrap().redirects.is_some());
-        assert!(builder.inner_builder.lock().unwrap().interfaces.is_some());
-        assert!(builder.inner_builder.lock().unwrap().wrappers.is_some());
-        assert!(builder.inner_builder.lock().unwrap().packages.is_some());
+        assert!(builder.0.lock().unwrap().redirects.is_some());
+        assert!(builder.0.lock().unwrap().interfaces.is_some());
+        assert!(builder.0.lock().unwrap().wrappers.is_some());
+        assert!(builder.0.lock().unwrap().packages.is_some());
     }
 
     #[test]
     fn add_web3_defaults() {
         let builder = FFIBuilderConfig::new();
         builder.add_web3_defaults();
-        assert!(builder.inner_builder.lock().unwrap().envs.is_some());
-        assert!(builder.inner_builder.lock().unwrap().interfaces.is_some());
-        assert!(builder.inner_builder.lock().unwrap().wrappers.is_some());
+        assert!(builder.0.lock().unwrap().envs.is_some());
+        assert!(builder.0.lock().unwrap().interfaces.is_some());
+        assert!(builder.0.lock().unwrap().wrappers.is_some());
     }
 }
