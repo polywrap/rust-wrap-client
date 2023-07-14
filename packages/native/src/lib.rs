@@ -14,9 +14,9 @@ use error::*;
 use invoker::*;
 use package::*;
 use resolvers::{
-    // _static::*,
+    _static::*,
     ffi_resolver::*,
-    // recursive::*,
+    recursive::*,
     resolution_context::*,
     uri_package_or_wrapper::*,
 };

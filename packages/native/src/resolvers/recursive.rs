@@ -37,6 +37,6 @@ impl FFIUriResolver for FFIRecursiveUriResolver {
             resolution_context.0.clone(),
         )?;
 
-        Ok(Box::new(result))
+        Ok(Arc::new(FFIUriPackageOrWrapper(result)))
     }
 }

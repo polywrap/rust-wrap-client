@@ -66,20 +66,23 @@ enum FFIUriPackageOrWrapperKind {
   "WRAPPER",
 };
 
-callback interface FFIUriWrapper {
-  FFIUri get_uri();
-  FFIWrapper get_wrapper();
+dictionary FFIUriWrapper {
+  FFIUri uri;
+  FFIWrapper wrapper;
 };
 
-callback interface FFIUriWrapPackage {
-  FFIUri get_uri();
-  FFIWrapPackage get_package();
+dictionary FFIUriWrapPackage {
+  FFIUri uri;
+  FFIWrapPackage package;
 };
 
 interface FFIUriPackageOrWrapper {
   FFIUriPackageOrWrapperKind get_kind();
+  [Throws=FFIError]
   FFIUri as_uri();
+  [Throws=FFIError]
   FFIUriWrapper as_wrapper();
+  [Throws=FFIError]
   FFIUriWrapPackage as_package();
 };
 
@@ -135,6 +138,9 @@ interface FFIClient {
 
   [Throws=FFIError]
   FFIWrapper load_wrapper(FFIUri uri, FFIUriResolutionContext? resolution_context);
+
+  [Throws=FFIError]
+  FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIUriResolutionContext? resolution_context);
 };
 
 interface FFIBuilderConfig {

@@ -128,9 +128,12 @@ impl FFIClient {
     pub fn try_resolve_uri(
       &self,
       uri: Arc<FFIUri>,
-      resolution_context: Option<FFIUriResolutionContext>,
+      resolution_context: Option<Arc<FFIUriResolutionContext>>,
     ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
-      let result = self.inner_client.try_resolve_uri(&uri.0, resolution_context.map(|r| r.0))?;
+      let result = self.inner_client.try_resolve_uri(
+        &uri.0,
+        resolution_context.map(|r| r.0.clone())
+      )?;
 
       Ok(Arc::new(FFIUriPackageOrWrapper(result)))
     }

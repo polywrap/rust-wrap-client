@@ -28,49 +28,47 @@ impl Display for FFIUriPackageOrWrapperKind {
     }
 }
 
-pub struct FFIUriWrapper(Arc<FFIUri>, Box<dyn FFIWrapper>);
-
-impl FFIUriWrapper {
-    pub fn get_uri(&self) -> Arc<FFIUri> {
-      self.0
-    }
-
-    pub fn get_wrapper(&self) -> Box<dyn FFIWrapper> {
-      self.1
-    }
+pub struct FFIUriWrapper {
+  pub uri: Arc<FFIUri>,
+  pub wrapper: Box<dyn FFIWrapper>
 }
 
-pub struct FFIUriWrapPackage(Arc<FFIUri>, Box<dyn FFIWrapPackage>);
+impl FFIUriWrapper {
+  pub fn new(uri: Arc<FFIUri>, wrapper: Box<dyn FFIWrapper>) -> Self {
+    FFIUriWrapper { uri, wrapper }
+  }
+}
+
+pub struct FFIUriWrapPackage {
+  pub uri: Arc<FFIUri>,
+  pub package: Box<dyn FFIWrapPackage>
+}
 
 impl FFIUriWrapPackage {
-    pub fn get_uri(&self) -> Arc<FFIUri> {
-      self.0
-    }
-
-    pub fn get_package(&self) -> Box<dyn FFIWrapPackage> {
-      self.1
-    }
+  pub fn new(uri: Arc<FFIUri>, package: Box<dyn FFIWrapPackage>) -> Self {
+    FFIUriWrapPackage { uri, package }
+  }
 }
 
 pub struct FFIUriPackageOrWrapper(pub UriPackageOrWrapper);
 
 impl FFIUriPackageOrWrapper {
     pub fn from_uri(uri: Arc<FFIUri>) -> Self {
-        let uri_package_or_wrapper = UriPackageOrWrapper::Uri(uri.0);
+        let uri_package_or_wrapper = UriPackageOrWrapper::Uri(uri.as_ref().0.clone());
 
         Self(uri_package_or_wrapper)
     }
 
     pub fn from_package(uri: Arc<FFIUri>, package: Box<dyn FFIWrapPackage>) -> Self {
         let uri_package_or_wrapper =
-            UriPackageOrWrapper::Package(uri.0, Arc::new(WrapPackageWrapping(package)));
+            UriPackageOrWrapper::Package(uri.as_ref().0.clone(), Arc::new(WrapPackageWrapping(package)));
 
         Self(uri_package_or_wrapper)
     }
 
     pub fn from_wrapper(uri: Arc<FFIUri>, wrapper: Box<dyn FFIWrapper>) -> Self {
         let uri_package_or_wrapper =
-            UriPackageOrWrapper::Wrapper(uri.0, Arc::new(WrapperWrapping(wrapper)));
+            UriPackageOrWrapper::Wrapper(uri.as_ref().0.clone(), Arc::new(WrapperWrapping(wrapper)));
 
         Self(uri_package_or_wrapper)
     }
@@ -86,8 +84,8 @@ impl FFIUriPackageOrWrapper {
     pub fn as_uri(&self) -> Result<Arc<FFIUri>, FFIError> {
         let kind = self.get_kind();
 
-        match self.0 {
-          UriPackageOrWrapper::Uri(uri) => todo!(),
+        match self.0.clone() {
+          UriPackageOrWrapper::Uri(uri) => Ok(Arc::new(FFIUri(uri))),
           _ => Err(FFIError::ResolutionError {
             err: format!(
                 "Cannot cast uri_package_or_wrapper as Package. This instance is of type '{}'",
@@ -97,15 +95,15 @@ impl FFIUriPackageOrWrapper {
         }
     }
 
-    pub fn as_wrapper(&self) -> Result<Arc<FFIUriWrapper>, FFIError> {
+    pub fn as_wrapper(&self) -> Result<FFIUriWrapper, FFIError> {
         let kind = self.get_kind();
 
-        match self.0 {
+        match self.0.clone() {
           UriPackageOrWrapper::Wrapper(uri, wrapper) => {
-            Ok(Arc::new(FFIUriWrapper(
+            Ok(FFIUriWrapper::new(
               Arc::new(FFIUri(uri)),
-              wrapper
-            )))
+              Box::new(wrapper)
+            ))
           },
           _ => Err(FFIError::ResolutionError {
             err: format!(
@@ -116,15 +114,15 @@ impl FFIUriPackageOrWrapper {
         }
     }
 
-    pub fn as_package(&self) -> Result<Arc<FFIUriWrapPackage>, FFIError> {
+    pub fn as_package(&self) -> Result<FFIUriWrapPackage, FFIError> {
         let kind = self.get_kind();
 
-        match self.0 {
+        match self.0.clone() {
           UriPackageOrWrapper::Package(uri, package) => {
-            Ok(Arc::new(FFIUriWrapPackage(
+            Ok(FFIUriWrapPackage::new(
               Arc::new(FFIUri(uri)),
-              package
-            )))
+              Box::new(package)
+            ))
           },
           _ => Err(FFIError::ResolutionError {
             err: format!(
