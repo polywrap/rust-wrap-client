@@ -70,7 +70,7 @@ mod test {
 
     use std::sync::Arc;
 
-    use polywrap_client::{core::wrapper::Wrapper};
+    use polywrap_client::core::wrapper::Wrapper;
     use polywrap_msgpack_serde::from_slice;
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
 
