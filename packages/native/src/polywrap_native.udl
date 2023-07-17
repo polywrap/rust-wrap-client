@@ -67,7 +67,7 @@ interface FFIWasmWrapper {
 
 callback interface IFFIUriResolver {
   [Throws=FFIError]
-  FFIUriPackageOrWrapper i_try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
+  FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };
 
 interface FFIUriResolver {

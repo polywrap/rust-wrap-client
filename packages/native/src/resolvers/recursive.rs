@@ -27,12 +27,12 @@ impl FFIRecursiveUriResolver {
       invoker: Arc<FFIInvoker>,
       resolution_context: Arc<FFIUriResolutionContext>,
   ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
-      self.i_try_resolve_uri(uri, invoker, resolution_context)
+      IFFIUriResolver::try_resolve_uri(self, uri, invoker, resolution_context)
   }
 }
 
 impl IFFIUriResolver for FFIRecursiveUriResolver {
-    fn i_try_resolve_uri(
+    fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,

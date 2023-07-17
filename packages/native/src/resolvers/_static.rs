@@ -45,12 +45,12 @@ impl FFIStaticUriResolver {
       invoker: Arc<FFIInvoker>,
       resolution_context: Arc<FFIUriResolutionContext>,
   ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
-      self.i_try_resolve_uri(uri, invoker, resolution_context)
+      IFFIUriResolver::try_resolve_uri(self, uri, invoker, resolution_context)
   }
 }
 
 impl IFFIUriResolver for FFIStaticUriResolver {
-    fn i_try_resolve_uri(
+    fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,
@@ -75,7 +75,6 @@ mod test {
     use crate::{
         invoker::FFIInvoker,
         resolvers::{
-            ffi_resolver::IFFIUriResolver,
             resolution_context::FFIUriResolutionContext,
             uri_package_or_wrapper::{FFIUriPackageOrWrapper, FFIUriPackageOrWrapperKind},
         },
@@ -116,7 +115,7 @@ mod test {
 
         let ffi_uri_resolution_context = Arc::new(FFIUriResolutionContext::new());
 
-        let response = ffi_static_resolver.i_try_resolve_uri(
+        let response = ffi_static_resolver.try_resolve_uri(
             ffi_uri,
             Arc::new(FFIInvoker(get_mock_invoker())),
             ffi_uri_resolution_context,
