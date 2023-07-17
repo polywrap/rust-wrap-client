@@ -6,7 +6,7 @@ use std::sync::Arc;
 use crate::{error::FFIError, invoker::FFIInvoker, uri::FFIUri};
 
 use super::{
-    ffi_resolver::{IFFIUriResolver, UriResolverWrapping},
+    ffi_resolver::{IFFIUriResolver, FFIUriResolver},
     resolution_context::FFIUriResolutionContext,
     uri_package_or_wrapper::FFIUriPackageOrWrapper,
 };
@@ -15,15 +15,24 @@ use super::{
 pub struct FFIRecursiveUriResolver(RecursiveResolver);
 
 impl FFIRecursiveUriResolver {
-    pub fn new(uri_resolver_like: Box<dyn IFFIUriResolver>) -> FFIRecursiveUriResolver {
+    pub fn new(uri_resolver_like: Arc<FFIUriResolver>) -> FFIRecursiveUriResolver {
         FFIRecursiveUriResolver(
-          (UriResolverWrapping(uri_resolver_like).as_uri_resolver()).into()
+          RecursiveResolver::new(uri_resolver_like)
         )
     }
+
+    pub fn try_resolve_uri(
+      &self,
+      uri: Arc<FFIUri>,
+      invoker: Arc<FFIInvoker>,
+      resolution_context: Arc<FFIUriResolutionContext>,
+  ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
+      self.i_try_resolve_uri(uri, invoker, resolution_context)
+  }
 }
 
 impl IFFIUriResolver for FFIRecursiveUriResolver {
-    fn try_resolve_uri(
+    fn i_try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,

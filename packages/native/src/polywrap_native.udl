@@ -40,12 +40,22 @@ interface FFIInvoker {
 
 callback interface IFFIWrapper {
   [Throws=FFIError]
+  sequence<u8> i_invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
+};
+
+interface FFIWrapper {
+  [Throws=FFIError]
   sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
 };
 
 callback interface IFFIWrapPackage {
   [Throws=FFIError]
-  IFFIWrapper create_wrapper();
+  IFFIWrapper i_create_wrapper();
+};
+
+interface FFIWrapPackage {
+  [Throws=FFIError]
+  FFIWrapper create_wrapper();
 };
 
 interface FFIWasmWrapper {
@@ -56,6 +66,11 @@ interface FFIWasmWrapper {
 };
 
 callback interface IFFIUriResolver {
+  [Throws=FFIError]
+  FFIUriPackageOrWrapper i_try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
+};
+
+interface FFIUriResolver {
   [Throws=FFIError]
   FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };
@@ -94,7 +109,7 @@ interface FFIStaticUriResolver {
 };
 
 interface FFIRecursiveUriResolver {
-  constructor(IFFIUriResolver uri_resolver);
+  constructor(FFIUriResolver uri_resolver);
   [Throws=FFIError]
   FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };
@@ -150,13 +165,13 @@ interface FFIBuilderConfig {
   void add_interface_implementations(FFIUri interface_uri, sequence<FFIUri> implementation_uris);
   void add_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
   void remove_interface_implementation(FFIUri interface_uri, FFIUri implementation_uri);
-  void add_wrapper(FFIUri uri, IFFIWrapper wrapper);
+  void add_wrapper(FFIUri uri, FFIWrapper wrapper);
   void remove_wrapper(FFIUri uri);
-  void add_package(FFIUri uri, IFFIWrapPackage package);
+  void add_package(FFIUri uri, FFIWrapPackage package);
   void remove_package(FFIUri uri);
   void add_redirect(FFIUri from, FFIUri to);
   void remove_redirect(FFIUri from);
-  void add_resolver(IFFIUriResolver resolver);
+  void add_resolver(FFIUriResolver resolver);
   void add_system_defaults();
   void add_web3_defaults();
   FFIClient build();

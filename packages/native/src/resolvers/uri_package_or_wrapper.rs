@@ -4,9 +4,9 @@ use polywrap_client::core::resolution::uri_resolution_context::UriPackageOrWrapp
 
 use crate::{
     error::FFIError,
-    package::{IFFIWrapPackage, WrapPackageWrapping},
+    package::{IFFIWrapPackage, FFIWrapPackage},
     uri::FFIUri,
-    wrapper::{IFFIWrapper, WrapperWrapping},
+    wrapper::{IFFIWrapper, FFIWrapper},
 };
 
 #[derive(Debug)]
@@ -61,14 +61,14 @@ impl FFIUriPackageOrWrapper {
 
     pub fn from_package(uri: Arc<FFIUri>, package: Box<dyn IFFIWrapPackage>) -> Self {
         let uri_package_or_wrapper =
-            UriPackageOrWrapper::Package(uri.as_ref().0.clone(), Arc::new(WrapPackageWrapping(package)));
+            UriPackageOrWrapper::Package(uri.as_ref().0.clone(), Arc::new(FFIWrapPackage(package)));
 
         Self(uri_package_or_wrapper)
     }
 
     pub fn from_wrapper(uri: Arc<FFIUri>, wrapper: Box<dyn IFFIWrapper>) -> Self {
         let uri_package_or_wrapper =
-            UriPackageOrWrapper::Wrapper(uri.as_ref().0.clone(), Arc::new(WrapperWrapping(wrapper)));
+            UriPackageOrWrapper::Wrapper(uri.as_ref().0.clone(), Arc::new(FFIWrapper(wrapper)));
 
         Self(uri_package_or_wrapper)
     }

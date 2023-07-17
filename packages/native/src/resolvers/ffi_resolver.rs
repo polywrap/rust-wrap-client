@@ -18,7 +18,7 @@ use super::{
 };
 
 pub trait IFFIUriResolver: Send + Sync + Debug {
-    fn try_resolve_uri(
+    fn i_try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,
@@ -27,9 +27,24 @@ pub trait IFFIUriResolver: Send + Sync + Debug {
 }
 
 #[derive(Debug)]
-pub struct UriResolverWrapping(pub Box<dyn IFFIUriResolver>);
+pub struct FFIUriResolver(pub Box<dyn IFFIUriResolver>);
 
-impl UriResolver for UriResolverWrapping {
+impl FFIUriResolver {
+    pub fn new(uri_resolver: Box<dyn IFFIUriResolver>) -> Self {
+        Self(uri_resolver)
+    }
+
+    pub fn try_resolve_uri(
+        &self,
+        uri: Arc<FFIUri>,
+        invoker: Arc<FFIInvoker>,
+        resolution_context: Arc<FFIUriResolutionContext>,
+    ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
+        self.0.i_try_resolve_uri(uri, invoker, resolution_context)
+    }
+}
+
+impl UriResolver for FFIUriResolver {
     fn try_resolve_uri(
         &self,
         uri: &polywrap_client::core::uri::Uri,
@@ -37,18 +52,12 @@ impl UriResolver for UriResolverWrapping {
         resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<UriPackageOrWrapper, polywrap_client::core::error::Error> {
         let ffi_resolution_context = FFIUriResolutionContext(resolution_context);
-        let result = self.0.try_resolve_uri(
+        let result = self.0.i_try_resolve_uri(
             Arc::new(uri.clone().into()),
             Arc::new(FFIInvoker(invoker)),
             Arc::new(ffi_resolution_context),
         )?;
 
         Ok(result.as_ref().0.clone())
-    }
-}
-
-impl UriResolverWrapping {
-    pub fn as_uri_resolver(self) -> Box<dyn UriResolver> {
-        Box::new(self) as Box<dyn UriResolver>
     }
 }
