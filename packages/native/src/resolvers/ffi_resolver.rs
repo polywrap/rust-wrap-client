@@ -26,6 +26,24 @@ pub trait IFFIUriResolver: Send + Sync + Debug {
     ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError>;
 }
 
+impl IFFIUriResolver for Arc<dyn UriResolver> {
+    fn try_resolve_uri(
+        &self,
+        uri: Arc<FFIUri>,
+        invoker: Arc<FFIInvoker>,
+        resolution_context: Arc<FFIUriResolutionContext>,
+    ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
+        let uri_package_or_wrapper = UriResolver::try_resolve_uri(
+            self.as_ref(),
+            &uri.0,
+            invoker.0.clone(),
+            resolution_context.0.clone(),
+        )?;
+
+        Ok(Arc::new(FFIUriPackageOrWrapper(uri_package_or_wrapper)))
+    }
+}
+
 #[derive(Debug)]
 pub struct FFIUriResolver(pub Box<dyn IFFIUriResolver>);
 
