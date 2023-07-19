@@ -7,6 +7,7 @@ pub mod resolvers;
 pub mod uri;
 pub mod wasm_wrapper;
 pub mod wrapper;
+pub mod wasm_package;
 
 use builder::*;
 use client::*;
@@ -19,5 +20,6 @@ use resolvers::{
 use uri::*;
 use wasm_wrapper::*;
 use wrapper::*;
+use wasm_package::*;
 
 uniffi::include_scaffolding!("polywrap_native");

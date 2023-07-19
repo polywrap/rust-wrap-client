@@ -43,6 +43,12 @@ pub enum FFIError {
     OtherError { err: String },
 }
 
+impl From<polywrap_wasm::error::WrapperError> for FFIError {
+    fn from(err: polywrap_wasm::error::WrapperError) -> Self {
+      FFIError::WrapperError { err: err.to_string() }
+    }
+}
+
 impl From<polywrap_client::core::error::Error> for FFIError {
     fn from(value: polywrap_client::core::error::Error) -> Self {
         match value {
