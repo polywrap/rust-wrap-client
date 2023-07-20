@@ -3,30 +3,10 @@ use polywrap_core::{client::ClientConfig, macros::uri, uri::Uri};
 use polywrap_ethereum_wallet_plugin::{
     connection::Connection, connections::Connections, EthereumWalletPlugin,
 };
-use polywrap_msgpack_serde::to_vec;
 use polywrap_plugin::package::PluginPackage;
-use serde::Serialize;
 use std::{collections::HashMap, sync::Arc};
 
-use crate::embeds::{ipfs_http_client, ipfs_resolver};
-
 pub struct Web3ClientConfig(PolywrapClientConfig);
-
-#[derive(Serialize)]
-pub struct Retries {
-    #[serde(rename = "tryResolveUri")]
-    try_resolve_uri: u8,
-    #[serde(rename = "getFile")]
-    get_file: u8,
-}
-
-#[derive(Serialize)]
-pub struct IpfsEnv {
-    provider: String,
-    #[serde(rename = "fallbackProviders")]
-    fallback_providers: Vec<String>,
-    retries: Retries,
-}
 
 impl Web3ClientConfig {
     fn get_ethereum_plugin() -> PluginPackage<EthereumWalletPlugin> {
@@ -60,39 +40,12 @@ impl Default for Web3ClientConfig {
                 (
                     "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
                     vec![
-                        uri!("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
                         uri!("ens/wraps.eth:ens-text-record-uri-resolver-ext@1.0.2"),
                         uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2"),
                         uri!("ens/wraps.eth:ens-ipfs-contenthash-uri-resolver-ext@1.0.1"),
                     ],
                 ),
-                (
-                    "wrap://ens/wraps.eth:ipfs-http-client@1.0.0".to_string(),
-                    vec![uri!("wrap://ens/wraps.eth:ipfs-http-client@1.0.0")],
-                ),
             ])),
-            envs: Some(HashMap::from([(
-                uri!("wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
-                to_vec(&IpfsEnv {
-                    provider: "https://ipfs.wrappers.io".to_string(),
-                    fallback_providers: vec!["https://ipfs.io".to_string()],
-                    retries: Retries {
-                        try_resolve_uri: 2,
-                        get_file: 2,
-                    },
-                })
-                .unwrap(),
-            )])),
-            wrappers: Some(vec![
-                (
-                    uri!("wrap://ens/wraps.eth:ipfs-http-client@1.0.0"),
-                    Arc::new(ipfs_http_client::wasm_wrapper()),
-                ),
-                (
-                    uri!("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
-                    Arc::new(ipfs_resolver::wasm_wrapper()),
-                ),
-            ]),
             packages: Some(vec![(
                 uri!("wrap://ens/wraps.eth:ethereum-provider@2.0.0"),
                 Arc::new(Web3ClientConfig::get_ethereum_plugin()),
