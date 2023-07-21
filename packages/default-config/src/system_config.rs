@@ -42,7 +42,7 @@ impl Default for SystemClientConfig {
                         uri!("plugin/file-system@1.0.0"),
                     ),
                     (
-                        uri!("wrapscan/polywrap/wrapscan-uri-resolver@1.0"),
+                        uri!("wrapscan.io/polywrap/wrapscan-uri-resolver@1.0"),
                         uri!("http/wraps.wrapscan.io/r/polywrap/wrapscan-uri-resolver@1.0"),
                     ),
                 ])),
@@ -53,7 +53,7 @@ impl Default for SystemClientConfig {
                             uri!("ens/wraps.eth:http-uri-resolver-ext@1.0.1"),
                             uri!("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1"),
                             uri!("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
-                            uri!("wrapscan/polywrap/wrapscan-uri-resolver@1.0")
+                            uri!("wrapscan.io/polywrap/wrapscan-uri-resolver@1.0")
                         ],
                     ),
                     (

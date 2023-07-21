@@ -12,7 +12,7 @@ fn sanity() {
     let client = PolywrapClient::new(config.into());
     client
         .load_wrapper(
-            &uri!("wrapscan/polywrap/wrapscan-uri-resolver@1.0.0"),
+            &uri!("wrapscan.io/polywrap/wrapscan-uri-resolver@1.0.0"),
             None
         ).unwrap();
 }
