@@ -53,10 +53,10 @@ impl Connection {
     }
 
     pub fn from_network(network: KnownNetwork, signer: Option<String>) -> Result<Self, String> {
-        let name = get_name(network);
+        let name = get_name(&network);
 
         if name.is_none() {
-            return Err(format!("Given network: {:#?} is not supported", network));
+            return Err(format!("Given network: {:#?} is not supported", &network));
         };
 
         let name = name.unwrap();
