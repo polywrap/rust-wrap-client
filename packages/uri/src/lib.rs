@@ -41,7 +41,7 @@ impl Uri {
             )));
         }
 
-        let reg = Regex::new("wrap://([a-z][a-z0-9-_]+)/(.*)").unwrap();
+        let reg = Regex::new("wrap://([a-z][a-z0-9-_.]+)/(.*)").unwrap();
 
         let captures = reg.captures(&processed);
 
