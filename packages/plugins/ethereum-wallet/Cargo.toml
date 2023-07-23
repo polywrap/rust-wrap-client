@@ -17,9 +17,9 @@ serde.workspace = true
 thiserror.workspace = true
 serde_bytes.workspace = true
 tokio.workspace = true
+lazy_static.workspace = true
 
 ethers = { version = "2.0.6" }
-lazy_static = { version = "1.4.0" }
 
 
 [dev-dependencies]
