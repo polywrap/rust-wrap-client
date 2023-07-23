@@ -9,7 +9,7 @@ use polywrap_client::core::{
 use crate::{error::FFIError, invoker::FFIInvoker};
 
 pub trait IFFIWrapper: Debug + Send + Sync {
-    fn i_invoke(
+    fn invoke(
         &self,
         method: String,
         args: Option<Vec<u8>>,
@@ -19,7 +19,7 @@ pub trait IFFIWrapper: Debug + Send + Sync {
 }
 
 impl IFFIWrapper for Arc<dyn Wrapper> {
-    fn i_invoke(
+    fn invoke(
         &self,
         method: String,
         args: Option<Vec<u8>>,
@@ -49,7 +49,7 @@ impl FFIWrapper {
         env: Option<Vec<u8>>,
         invoker: Arc<FFIInvoker>,
     ) -> Result<Vec<u8>, FFIError> {
-        self.0.i_invoke(method.to_string(), args, env, invoker)
+        self.0.invoke(method.to_string(), args, env, invoker)
     }
 }
 
@@ -64,7 +64,7 @@ impl Wrapper for FFIWrapper {
         let args = args.map(|args| args.to_vec());
         let env = env.map(|env| env.to_vec());
 
-        Ok(self.0.i_invoke(
+        Ok(self.0.invoke(
             method.to_string(),
             args,
             env,
@@ -81,7 +81,6 @@ impl Wrapper for FFIWrapper {
 mod test {
     use std::sync::Arc;
 
-    use polywrap_client::core::wrapper::Wrapper;
     use polywrap_msgpack_serde::from_slice;
     use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
 

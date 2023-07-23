@@ -40,7 +40,7 @@ interface FFIInvoker {
 
 callback interface IFFIWrapper {
   [Throws=FFIError]
-  sequence<u8> i_invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
+  sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
 };
 
 interface FFIWrapper {
@@ -50,7 +50,7 @@ interface FFIWrapper {
 
 callback interface IFFIWrapPackage {
   [Throws=FFIError]
-  IFFIWrapper i_create_wrapper();
+  IFFIWrapper create_wrapper();
 };
 
 interface FFIWrapPackage {
