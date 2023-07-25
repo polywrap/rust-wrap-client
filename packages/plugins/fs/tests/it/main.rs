@@ -8,8 +8,15 @@ use polywrap_plugin::package::PluginPackage;
 use serde::Serialize;
 use serde_bytes::ByteBuf;
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::{env, fs};
+use lazy_static::lazy_static;
+
+lazy_static! {
+    // This Mutex is a global one, shared across all the tests in this module.
+    // It's used to ensure that only one test can run at a time.
+    static ref TEST_MUTEX: Mutex<()> = Mutex::new(());
+}
 
 const FILE_SYSTEM_PLUGIN_URI: &str = "plugin/file-system";
 
@@ -216,6 +223,12 @@ fn should_write_byte_data_to_a_file() {
     let current_dir = env::current_dir().unwrap();
     let temp_file_path = current_dir.join("tests/samples/tempfile.dat");
 
+    // Try to acquire the lock. If another test is currently running (and thus
+    // holding the lock), this call will block until that test finishes.
+
+    // Try to acquire the lock. If another test is currently running (and thus
+    // holding the lock), this call will block until that test finishes.
+    let _guard = TEST_MUTEX.lock().unwrap();
     clean_up_temp_files().unwrap();
 
     let bytes = vec![0, 1, 2, 3];
@@ -252,6 +265,10 @@ fn should_remove_a_file() {
     let client = get_client();
     let current_dir = env::current_dir().unwrap();
     let temp_file_path = current_dir.join("tests/samples/tempfile.dat");
+
+    // Try to acquire the lock. If another test is currently running (and thus
+    // holding the lock), this call will block until that test finishes.
+    let _guard = TEST_MUTEX.lock().unwrap();
     clean_up_temp_files().unwrap();
 
     fs::write(&temp_file_path, "test file contents").unwrap();
@@ -283,6 +300,10 @@ fn should_remove_a_directory_with_files_recursively() {
     let current_dir = env::current_dir().unwrap();
     let temp_dir_path = current_dir.join("tests/samples/tempdir");
     let file_in_dir_path = temp_dir_path.join("inner.txt");
+
+    // Try to acquire the lock. If another test is currently running (and thus
+    // holding the lock), this call will block until that test finishes.
+    let _guard = TEST_MUTEX.lock().unwrap();
     clean_up_temp_files().unwrap();
 
     fs::create_dir(&temp_dir_path).unwrap();
@@ -320,6 +341,10 @@ fn should_create_a_directory() {
     let client = get_client();
     let current_dir = env::current_dir().unwrap();
     let temp_dir_path = current_dir.join("tests/samples/tempdir");
+
+    // Try to acquire the lock. If another test is currently running (and thus
+    // holding the lock), this call will block until that test finishes.
+    let _guard = TEST_MUTEX.lock().unwrap();
     clean_up_temp_files().unwrap();
 
     let result = client.invoke::<bool>(
@@ -346,6 +371,10 @@ fn should_create_a_directory() {
 #[test]
 fn should_create_a_directory_recursively() {
     let client = get_client();
+
+    // Try to acquire the lock. If another test is currently running (and thus
+    // holding the lock), this call will block until that test finishes.
+    let _guard = TEST_MUTEX.lock().unwrap();
     clean_up_temp_files().unwrap();
 
     let current_dir = env::current_dir().unwrap();
@@ -381,6 +410,10 @@ struct RmDirArgs {
 #[test]
 fn should_remove_a_directory() {
     let client = get_client();
+
+    // Try to acquire the lock. If another test is currently running (and thus
+    // holding the lock), this call will block until that test finishes.
+    let _guard = TEST_MUTEX.lock().unwrap();
     clean_up_temp_files().unwrap();
 
     let current_dir = env::current_dir().unwrap();
