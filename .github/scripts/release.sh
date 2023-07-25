@@ -16,6 +16,7 @@ packages=(
   "client"
   "plugins/http"
   "plugins/fs"
+  "plugins/ethereum-wallet"
   "default-config"
 )
 
