@@ -19,11 +19,11 @@ impl Module for FileSystemPlugin {
         &mut self,
         args: &ArgsReadFile,
         _: Arc<dyn Invoker>,
-    ) -> Result<Vec<u8>, PluginError> {
+    ) -> Result<ByteBuf, PluginError> {
         let result = fs::read(&args.path)
             .map_err(|e| FileSystemPluginError::ReadFileError(args.path.clone(), e))?;
 
-        Ok(ByteBuf::from(result).to_vec())
+        Ok(ByteBuf::from(result))
     }
 
     fn read_file_as_string(

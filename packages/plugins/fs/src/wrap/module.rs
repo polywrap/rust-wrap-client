@@ -2,6 +2,7 @@
 ///       All modifications will be overwritten.
 
 use std::sync::Arc;
+use bytes::ByteBuf;
 use polywrap_core::invoker::Invoker;
 use polywrap_plugin::{error::PluginError, module::PluginModule};
 use polywrap_msgpack_serde::{
@@ -14,7 +15,8 @@ use polywrap_msgpack_serde::{
   wrappers::{
     polywrap_bigint as bigint,
     polywrap_json as json
-  }
+  },
+  JSONString
 };
 use std::collections::BTreeMap;
 use serde::{Serialize, Deserialize};
@@ -39,8 +41,7 @@ pub struct ArgsExists {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsWriteFile {
     pub path: String,
-    #[serde(with = "bytes")]
-    pub data: Vec<u8>,
+    pub data: ByteBuf,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -62,7 +63,7 @@ pub struct ArgsRmdir {
 }
 
 pub trait Module: PluginModule {
-  fn read_file(&mut self, args: &ArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<Vec<u8>, PluginError>;
+  fn read_file(&mut self, args: &ArgsReadFile, invoker: Arc<dyn Invoker>) -> Result<ByteBuf, PluginError>;
 
   fn read_file_as_string(&mut self, args: &ArgsReadFileAsString, invoker: Arc<dyn Invoker>) -> Result<String, PluginError>;
 

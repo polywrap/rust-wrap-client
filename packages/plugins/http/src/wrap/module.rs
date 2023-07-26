@@ -2,6 +2,7 @@
 ///       All modifications will be overwritten.
 
 use std::sync::Arc;
+use bytes::ByteBuf;
 use polywrap_core::invoker::Invoker;
 use polywrap_plugin::{error::PluginError, module::PluginModule};
 use polywrap_msgpack_serde::{

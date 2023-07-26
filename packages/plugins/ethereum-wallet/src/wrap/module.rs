@@ -2,6 +2,7 @@
 ///       All modifications will be overwritten.
 
 use std::sync::Arc;
+use bytes::ByteBuf;
 use polywrap_core::invoker::Invoker;
 use polywrap_plugin::{error::PluginError, module::PluginModule};
 use polywrap_msgpack_serde::{
@@ -44,15 +45,13 @@ pub struct ArgsSignerAddress {
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsSignMessage {
-    #[serde(with = "bytes")]
-    pub message: Vec<u8>,
+    pub message: ByteBuf,
     pub connection: Option<Connection>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsSignTransaction {
-    #[serde(with = "bytes")]
-    pub rlp: Vec<u8>,
+    pub rlp: ByteBuf,
     pub connection: Option<Connection>,
 }
 
