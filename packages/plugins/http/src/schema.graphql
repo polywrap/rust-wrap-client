@@ -1,1 +1,1 @@
-#import * from "ens/wraps.eth:http@1.1.0"
+#import * from "wrapscan.io/polywrap/http@1.0"

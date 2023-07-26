@@ -4,4 +4,4 @@ project:
   name: ethereum-wallet
 source:
   module: ./Cargo.toml
-  schema: ./polywrap.graphql
+  schema: ./src/polywrap.graphql

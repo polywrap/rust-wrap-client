@@ -1,2 +1,2 @@
-#import * from "wrap://ens/wraps.eth:ethereum-provider@2.0.0"
-#import { Env } from "wrap://ens/wraps.eth:ethereum-provider@2.0.0"
+#import * from "wrapscan.io/polywrap/ethereum-wallet@1.0"
+#import { Env } from "wrapscan.io/polywrap/ethereum-wallet@1.0"

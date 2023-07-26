@@ -1,1 +1,1 @@
-#import * from "wrap://ens/wraps.eth:file-system@1.0.0"
+#import * from "wrapscan.io/polywrap/file-system@1.0"
