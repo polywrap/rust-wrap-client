@@ -8,6 +8,7 @@ pub mod uri;
 pub mod wasm_wrapper;
 pub mod wrapper;
 pub mod wasm_package;
+pub mod mocks;
 
 use builder::*;
 use client::*;
