@@ -27,8 +27,7 @@ impl FFIWrapPackage {
   }
 
   pub fn create_wrapper(&self) -> Result<Arc<FFIWrapper>, FFIError> {
-    let wrapper = WrapPackage::create_wrapper(self)?;
-    Ok(Arc::new(FFIWrapper(Box::new(wrapper))))
+    Ok(Arc::new(FFIWrapper(self.0.create_wrapper()?)))
   }
 }
 
