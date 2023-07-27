@@ -48,7 +48,7 @@ impl Default for SystemClientConfig {
                 ])),
                 interfaces: Some(HashMap::from([
                     (
-                        "wrapscan.io/polywrap/uri-resolver@1.0".to_string(),
+                        uri!("wrapscan.io/polywrap/uri-resolver@1.0"),
                         vec![
                             uri!("wrapscan.io/polywrap/wrapscan-uri-resolver@1.0"),
                             uri!("wrapscan.io/polywrap/http-uri-resolver@1.0"),
@@ -57,7 +57,7 @@ impl Default for SystemClientConfig {
                         ],
                     ),
                     (
-                        "wrapscan.io/polywrap/ipfs-http-client@1.0".to_string(),
+                        uri!("wrapscan.io/polywrap/ipfs-http-client@1.0"),
                         vec![uri!("wrapscan.io/polywrap/ipfs-http-client@1.0")],
                     ),
                 ])),

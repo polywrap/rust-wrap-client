@@ -82,7 +82,7 @@ fn test_interface_implementation_methods() {
     );
 
     let interfaces = builder.interfaces.clone().unwrap();
-    let implementations = interfaces.get(&interface_uri.to_string()).unwrap();
+    let implementations = interfaces.get(&interface_uri).unwrap();
     assert!(builder.interfaces.is_some());
     assert_eq!(
         implementations,
@@ -93,7 +93,7 @@ fn test_interface_implementation_methods() {
     builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
 
     let interfaces = builder.interfaces.clone().unwrap();
-    let implementations = interfaces.get(&interface_uri.to_string()).unwrap();
+    let implementations = interfaces.get(&interface_uri).unwrap();
     assert_eq!(
         implementations,
         &vec![
@@ -105,7 +105,7 @@ fn test_interface_implementation_methods() {
 
     builder.remove_interface_implementation(&interface_uri, &implementation_b_uri);
     let interfaces = builder.interfaces.clone().unwrap();
-    let implementations = interfaces.get(&interface_uri.to_string()).unwrap();
+    let implementations = interfaces.get(&interface_uri).unwrap();
     assert_eq!(
         implementations,
         &vec![implementation_a_uri, implementation_c_uri]

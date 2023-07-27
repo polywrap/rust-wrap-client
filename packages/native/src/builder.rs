@@ -306,14 +306,14 @@ mod test {
         );
         builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
 
-        let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
+        let interfaces = builder
             .inner_builder
             .lock()
             .unwrap()
             .clone()
             .interfaces
             .unwrap();
-        let implementations = interfaces.get(&interface_uri.to_string());
+        let implementations = interfaces.get(&interface_uri.0);
         assert_eq!(
             implementations,
             Some(&vec![
@@ -324,14 +324,14 @@ mod test {
         );
 
         builder.remove_interface_implementation(interface_uri.clone(), implementation_b_uri);
-        let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
+        let interfaces = builder
             .inner_builder
             .lock()
             .unwrap()
             .clone()
             .interfaces
             .unwrap();
-        let implementations = interfaces.get(&interface_uri.to_string());
+        let implementations = interfaces.get(&interface_uri.0);
         assert_eq!(
             implementations,
             Some(&vec![
