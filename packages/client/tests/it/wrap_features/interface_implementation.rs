@@ -37,7 +37,7 @@ fn test_interface_implementation() {
 
     let mut interfaces: InterfaceImplementations = HashMap::new();
     interfaces.insert(
-        "wrap://ens/interface.eth".to_string(),
+        "wrap://authority/interface".to_string(),
         vec![implementation_uri],
     );
 

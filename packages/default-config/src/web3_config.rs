@@ -36,36 +36,26 @@ impl Web3ClientConfig {
 impl Default for Web3ClientConfig {
     fn default() -> Self {
         Self(PolywrapClientConfig {
-            interfaces: Some(HashMap::from([
-                (
-                    "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
-                    vec![
-                        uri!("ens/wraps.eth:ens-text-record-uri-resolver-ext@1.0.2"),
-                        uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2"),
-                        uri!("ens/wraps.eth:ens-ipfs-contenthash-uri-resolver-ext@1.0.1"),
-                    ],
-                ),
-            ])),
+            interfaces: Some(HashMap::from([(
+                "wrapscan.io/polywrap/uri-resolver@1.0".to_string(),
+                vec![
+                    uri!("wrapscan.io/polywrap/ens-text-record-uri-resolver@1.0"),
+                    uri!("wrapscan.io/polywrap/ens-contenthash-uri-resolver@1.0"),
+                    uri!("wrapscan.io/polywrap/ens-ipfs-contenthash-uri-resolver@1.0"),
+                ],
+            )])),
             packages: Some(vec![(
-                uri!("wrap://ens/wraps.eth:ethereum-provider@2.0.0"),
+                uri!("plugin/ethereum-wallet@1.0"),
                 Arc::new(Web3ClientConfig::get_ethereum_plugin()),
             )]),
             redirects: Some(HashMap::from([
                 (
-                    uri!("wrap://ens/wraps.eth:ens@0.1.0"),
-                    uri!("wrap://ipfs/QmQS8cr21euKYW7hWAhiSYXgvdcAtbPbynKqRW2CzAJPYe"),
+                    uri!("wrapscan.io/polywrap/ens-text-record-uri-resolver@1.0"),
+                    uri!("wrap://ipfs/QmdYoDrXPxgjSoWuSWirWYxU5BLtpGVKd3z2GXKhW2VXLh"),
                 ),
                 (
-                    uri!("ens/wraps.eth:ens-text-record-uri-resolver-ext@1.0.2"),
-                    uri!("wrap://ipfs/Qmaqs7rmoW4AKtmfmBHrWw9iRNY8Bg78fcS1hpqB7R9gev"),
-                ),
-                (
-                    uri!("ens/wraps.eth:ens-uri-resolver-ext@1.0.2"),
-                    uri!("wrap://ipfs/QmV4S2BBwawQTxKCTCvjRuWt8EHkicZ3oM3S2B5JziAcrA"),
-                ),
-                (
-                    uri!("ens/wraps.eth:ens-ipfs-contenthash-uri-resolver-ext@1.0.2"),
-                    uri!("wrap://ipfs/QmT54TKaQmNktg2eUVMUjWbjVDBSpapZvnFdkDrjejLebE"),
+                    uri!("wrapscan.io/polywrap/ethereum-wallet@1.0"),
+                    uri!("plugin/ethereum-wallet@1.0"),
                 ),
             ])),
             ..Default::default()

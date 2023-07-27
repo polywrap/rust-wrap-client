@@ -34,48 +34,48 @@ impl Default for SystemClientConfig {
             PolywrapClientConfig {
                 redirects: Some(HashMap::from([
                     (
-                        uri!("wrap://ens/wraps.eth:http@1.1.0"),
+                        uri!("wrapscan.io/polywrap/http@1.0"),
                         uri!("plugin/http@1.1.0"),
                     ),
                     (
-                        uri!("wrap://ens/wraps.eth:file-system@1.0.0"),
+                        uri!("wrapscan.io/polywrap/file-system@1.0"),
                         uri!("plugin/file-system@1.0.0"),
                     ),
                     (
                         uri!("wrapscan.io/polywrap/wrapscan-uri-resolver@1.0"),
-                        uri!("http/wraps.wrapscan.io/r/polywrap/wrapscan-uri-resolver@1.0"),
+                        uri!("http/https://wraps.wrapscan.io/r/polywrap/wrapscan-uri-resolver@1.0"),
                     ),
                 ])),
                 interfaces: Some(HashMap::from([
                     (
-                        "wrap://ens/uri-resolver.core.polywrap.eth".to_string(),
+                        "wrapscan.io/polywrap/uri-resolver@1.0".to_string(),
                         vec![
-                            uri!("ens/wraps.eth:http-uri-resolver-ext@1.0.1"),
-                            uri!("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1"),
-                            uri!("ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
-                            uri!("wrapscan.io/polywrap/wrapscan-uri-resolver@1.0")
+                            uri!("wrapscan.io/polywrap/wrapscan-uri-resolver@1.0"),
+                            uri!("wrapscan.io/polywrap/http-uri-resolver@1.0"),
+                            uri!("wrapscan.io/polywrap/file-system-uri-resolver@1.0"),
+                            uri!("wrapscan.io/polywrap/async-ipfs-uri-resolver@1.0"),
                         ],
                     ),
                     (
-                        "wrap://ens/wraps.eth:ipfs-http-client@1.0.0".to_string(),
-                        vec![uri!("wrap://ens/wraps.eth:ipfs-http-client@1.0.0")],
+                        "wrapscan.io/polywrap/ipfs-http-client@1.0".to_string(),
+                        vec![uri!("wrapscan.io/polywrap/ipfs-http-client@1.0")],
                     ),
                 ])),
                 wrappers: Some(vec![
                     (
-                        uri!("ens/wraps.eth:file-system-uri-resolver-ext@1.0.1"),
+                        uri!("wrapscan.io/polywrap/file-system-uri-resolver@1.0"),
                         Arc::new(fs_resolver::wasm_wrapper()),
                     ),
                     (
-                        uri!("ens/wraps.eth:http-uri-resolver-ext@1.0.1"),
+                        uri!("wrapscan.io/polywrap/http-uri-resolver@1.0"),
                         Arc::new(http_resolver::wasm_wrapper()),
                     ),
                     (
-                        uri!("wrap://ens/wraps.eth:ipfs-http-client@1.0.0"),
+                        uri!("wrapscan.io/polywrap/ipfs-http-client@1.0"),
                         Arc::new(ipfs_http_client::wasm_wrapper()),
                     ),
                     (
-                        uri!("wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
+                        uri!("wrapscan.io/polywrap/async-ipfs-uri-resolver@1.0"),
                         Arc::new(ipfs_resolver::wasm_wrapper()),
                     ),
                 ]),
@@ -90,7 +90,7 @@ impl Default for SystemClientConfig {
                     ),
                 ]),
                 envs: Some(HashMap::from([(
-                    uri!("wrap://ens/wraps.eth:async-ipfs-uri-resolver-ext@1.0.1"),
+                    uri!("wrapscan.io/polywrap/async-ipfs-uri-resolver@1.0"),
                     to_vec(&IpfsEnv {
                         provider: "https://ipfs.wrappers.io".to_string(),
                         fallback_providers: vec!["https://ipfs.io".to_string()],

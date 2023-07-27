@@ -49,8 +49,8 @@ impl Uri {
             return Err(ParseError(format!(
                 r#"URI is malformed, here are some examples of valid URIs:
             wrap://ipfs/QmHASH
-            wrap://ens/domain.eth
-            ens/domain.eth
+            wrap://wrapscan.io/polywrap/cool-wrap
+            wrapscan.io/user/wrap
             Invalid URI Received: {uri}"#,
             )));
         }
@@ -136,7 +136,7 @@ mod tests {
     fn try_from_string_valid() {
         assert!(Uri::try_from_string("wrap://ipfs/QmHASH").is_ok());
         assert!(Uri::try_from_string("////wrap://ipfs/QmHASH").is_ok());
-        assert!(Uri::try_from_string("ens/domain.eth").is_ok());
+        assert!(Uri::try_from_string("wrapscan.io/user/cool-wrap").is_ok());
     }
 
     #[test]

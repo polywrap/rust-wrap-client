@@ -36,7 +36,7 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
         resolution_context: Arc<Mutex<UriResolutionContext>>,
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
         let implementations =
-            invoker.get_implementations(&uri!("wrap://ens/uri-resolver.core.polywrap.eth"))?;
+            invoker.get_implementations(&uri!("wrapscan.io/polywrap/uri-resolver@1.0"))?;
 
         let resolvers = implementations
             .into_iter()
