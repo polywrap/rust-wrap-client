@@ -51,6 +51,7 @@ impl Uri {
             wrap://ipfs/QmHASH
             wrap://wrapscan.io/polywrap/cool-wrap
             wrapscan.io/user/wrap
+            wrap://ens/domain.eth
             Invalid URI Received: {uri}"#,
             )));
         }

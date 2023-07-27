@@ -23,7 +23,7 @@ struct EnvTwo {
 #[test]
 fn test_env_methods() {
     let mut builder = PolywrapClientConfig::new();
-    let uri = uri!("wrap://authority/wrapper");
+    let uri = uri!("wrap://mock/wrapper");
 
     assert!(builder.envs.is_none());
 
@@ -70,9 +70,9 @@ fn test_env_methods() {
 fn test_interface_implementation_methods() {
     let mut builder = PolywrapClientConfig::new();
 
-    let interface_uri = uri!("wrap://authority/interface");
-    let implementation_a_uri = uri!("wrap://authority/implementation-a");
-    let implementation_b_uri = uri!("wrap://authority/implementation-b");
+    let interface_uri = uri!("wrap://mock/interface");
+    let implementation_a_uri = uri!("wrap://mock/implementation-a");
+    let implementation_b_uri = uri!("wrap://mock/implementation-b");
 
     assert!(builder.interfaces.is_none());
 
@@ -89,7 +89,7 @@ fn test_interface_implementation_methods() {
         &vec![implementation_a_uri.clone(), implementation_b_uri.clone()]
     );
 
-    let implementation_c_uri = uri!("wrap://authority/implementation-c");
+    let implementation_c_uri = uri!("wrap://mock/implementation-c");
     builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
 
     let interfaces = builder.interfaces.clone().unwrap();
@@ -117,12 +117,12 @@ fn test_redirects() {
     let mut builder = PolywrapClientConfig::new();
     assert!(builder.redirects.is_none());
 
-    let a_uri = uri!("authority/a");
-    let b_uri = uri!("authority/b");
-    let c_uri = uri!("authority/c");
-    let d_uri = uri!("authority/d");
-    let f_uri = uri!("authority/f");
-    let g_uri = uri!("authority/g");
+    let a_uri = uri!("mock/a");
+    let b_uri = uri!("mock/b");
+    let c_uri = uri!("mock/c");
+    let d_uri = uri!("mock/d");
+    let f_uri = uri!("mock/f");
+    let g_uri = uri!("mock/g");
 
     let redirects = HashMap::from([
         (c_uri.clone(), d_uri.clone()),
