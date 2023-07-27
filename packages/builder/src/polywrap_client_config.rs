@@ -134,17 +134,17 @@ impl PolywrapClientConfigBuilder for PolywrapClientConfig {
     ) -> &mut Self {
         match self.interfaces.as_mut() {
             Some(interfaces) => {
-                let current_interface = interfaces.get_mut(&interface_uri.to_string());
+                let current_interface = interfaces.get_mut(&interface_uri);
                 match current_interface {
                     Some(i) => i.push(implementation_uri),
                     None => {
-                        interfaces.insert(interface_uri.to_string(), vec![implementation_uri]);
+                        interfaces.insert(interface_uri, vec![implementation_uri]);
                     }
                 }
             }
             None => {
                 let mut interfaces = HashMap::new();
-                interfaces.insert(interface_uri.to_string(), vec![implementation_uri]);
+                interfaces.insert(interface_uri, vec![implementation_uri]);
                 self.interfaces = Some(interfaces);
             }
         }
@@ -158,7 +158,7 @@ impl PolywrapClientConfigBuilder for PolywrapClientConfig {
     ) -> &mut Self {
         match self.interfaces.as_mut() {
             Some(interfaces) => {
-                let current_interface = interfaces.get_mut(&interface_uri.to_string());
+                let current_interface = interfaces.get_mut(&interface_uri);
                 match current_interface {
                     Some(i) => {
                         for implementation_uri in implementation_uris {
@@ -168,13 +168,13 @@ impl PolywrapClientConfigBuilder for PolywrapClientConfig {
                         }
                     }
                     None => {
-                        interfaces.insert(interface_uri.to_string(), implementation_uris);
+                        interfaces.insert(interface_uri, implementation_uris);
                     }
                 };
             }
             None => {
                 let mut interfaces = HashMap::new();
-                interfaces.insert(interface_uri.to_string(), implementation_uris);
+                interfaces.insert(interface_uri, implementation_uris);
                 self.interfaces = Some(interfaces);
             }
         };
@@ -188,7 +188,7 @@ impl PolywrapClientConfigBuilder for PolywrapClientConfig {
         implementation_uri: &Uri,
     ) -> &mut Self {
         if let Some(interfaces) = self.interfaces.as_mut() {
-            let implementations = interfaces.get_mut(&interface_uri.to_string());
+            let implementations = interfaces.get_mut(&interface_uri);
             if let Some(implementations) = implementations {
                 let index = implementations.iter().position(|i| i == implementation_uri);
                 if let Some(i) = index {

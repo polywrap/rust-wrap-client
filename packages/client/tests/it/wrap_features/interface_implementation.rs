@@ -3,6 +3,8 @@ use polywrap_client::core::interface_implementation::InterfaceImplementations;
 
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
+use polywrap_core::macros::uri;
+use polywrap_core::uri::Uri;
 use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::base_resolver::BaseResolver;
 use polywrap_resolvers::simple_file_resolver::FilesystemResolver;
@@ -37,7 +39,7 @@ fn test_interface_implementation() {
 
     let mut interfaces: InterfaceImplementations = HashMap::new();
     interfaces.insert(
-        "wrap://authority/interface".to_string(),
+        uri!("authority/interface"),
         vec![implementation_uri],
     );
 

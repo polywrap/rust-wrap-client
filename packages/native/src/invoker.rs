@@ -33,14 +33,14 @@ impl FFIInvoker {
         Ok(uris)
     }
 
-    pub fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<FFIUri>>>> {
+    pub fn get_interfaces(&self) -> Option<HashMap<Arc<FFIUri>, Vec<Arc<FFIUri>>>> {
         let interfaces = self.0.get_interfaces();
-        let interfaces: Option<HashMap<String, Vec<Arc<FFIUri>>>> = interfaces.map(|interfaces| {
+        let interfaces = interfaces.map(|interfaces| {
             interfaces
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        key,
+                        Arc::new(FFIUri(key.clone())),
                         value
                             .into_iter()
                             .map(|uri| Arc::new(FFIUri(uri.clone())))
@@ -62,6 +62,7 @@ impl FFIInvoker {
 mod test {
     use std::collections::HashMap;
 
+    use polywrap_client::core::{macros::uri, uri::Uri};
     use polywrap_tests_utils::mocks::get_mock_invoker;
 
     use crate::{invoker::FFIInvoker, uri::ffi_uri_from_string};
@@ -92,7 +93,7 @@ mod test {
         assert_eq!(
             response.unwrap(),
             HashMap::from([(
-                ("mock/a".to_string()),
+                ffi_uri_from_string("mock/a").unwrap(),
                 vec![ffi_uri_from_string("mock/b").unwrap()]
             )])
         );

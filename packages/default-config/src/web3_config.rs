@@ -37,7 +37,7 @@ impl Default for Web3ClientConfig {
     fn default() -> Self {
         Self(PolywrapClientConfig {
             interfaces: Some(HashMap::from([(
-                "wrapscan.io/polywrap/uri-resolver@1.0".to_string(),
+                uri!("wrapscan.io/polywrap/uri-resolver@1.0"),
                 vec![
                     uri!("wrapscan.io/polywrap/ens-text-record-uri-resolver@1.0"),
                     uri!("wrapscan.io/polywrap/ens-contenthash-uri-resolver@1.0"),
