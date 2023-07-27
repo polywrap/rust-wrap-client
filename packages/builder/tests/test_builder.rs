@@ -68,11 +68,22 @@ fn test_env_methods() {
 
 #[test]
 fn test_interface_implementation_methods() {
-    let mut builder = PolywrapClientConfig::new();
-
     let interface_uri = uri!("wrap://mock/interface");
     let implementation_a_uri = uri!("wrap://mock/implementation-a");
     let implementation_b_uri = uri!("wrap://mock/implementation-b");
+
+    let another_interface_uri = uri!("wrap://mock/another-interface");
+
+    let mut builder = PolywrapClientConfig::new();
+    assert!(builder.interfaces.is_none());
+    builder.add_interface_implementation(interface_uri.clone(), implementation_a_uri.clone());
+    builder.add_interface_implementation(another_interface_uri, implementation_b_uri.clone());
+
+    assert!(builder.interfaces.is_some());
+    assert!(builder.interfaces.unwrap().len() == 2);
+
+    // Recreate builder again to test add interfaces implementations
+    let mut builder = PolywrapClientConfig::new();
 
     assert!(builder.interfaces.is_none());
 
@@ -251,9 +262,7 @@ fn test_wrappers() {
         .find(|(uri, _)| uri == &wrapper_uri)
         .unwrap();
 
-    let result_package_b = b_wrapper
-        .1
-        .invoke("bar", None, None, get_mock_invoker());
+    let result_package_b = b_wrapper.1.invoke("bar", None, None, get_mock_invoker());
     assert_eq!(result_package_b.unwrap(), [195]);
 }
 
