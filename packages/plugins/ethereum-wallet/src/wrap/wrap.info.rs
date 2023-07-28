@@ -243,7 +243,7 @@ pub fn get_manifest() -> WrapManifest {
             "type": "Connection"
           }
         ],
-        "comment": "    Sign a serialized unsigned transaction and return the signature. Throws if signer is missing.\nThis method requires a wallet-based signer with a private key, and is not needed for most use cases.\nTypically, transactions are sent by `request` and signed by the wallet.",
+        "comment": "  Sign a serialized unsigned transaction and return the signature. Throws if signer is missing.\nThis method requires a wallet-based signer with a private key, and is not needed for most use cases.\nTypically, transactions are sent by `request` and signed by the wallet.",
         "kind": 64,
         "name": "signTransaction",
         "required": true,

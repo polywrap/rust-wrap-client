@@ -4,7 +4,21 @@
 // NOTE: This is an auto-generated file.
 //       All modifications will be overwritten.
 use polywrap_core::{invoker::Invoker, uri::Uri};
-use polywrap_plugin::{error::PluginError, BigInt, BigNumber, Map, JSON};
+use polywrap_plugin::error::PluginError;
+use polywrap_msgpack_serde::{
+  to_vec,
+  from_slice,
+  BigInt,
+  BigNumber,
+  JSON,
+  bytes,
+  wrappers::{
+    polywrap_bigint as bigint,
+    polywrap_json as json
+  },
+  JSONString
+};
+use std::collections::BTreeMap;
 use serde::{Serialize, Deserialize};
 
 // Env START //
@@ -18,14 +32,14 @@ pub struct Response {
     pub status: i32,
     #[serde(rename = "statusText")]
     pub status_text: String,
-    pub headers: Option<Map<String, String>>,
+    pub headers: Option<BTreeMap<String, String>>,
     pub body: Option<String>,
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Request {
-    pub headers: Option<Map<String, String>>,
+    pub headers: Option<BTreeMap<String, String>>,
     #[serde(rename = "urlParams")]
-    pub url_params: Option<Map<String, String>>,
+    pub url_params: Option<BTreeMap<String, String>>,
     #[serde(rename = "responseType")]
     pub response_type: ResponseType,
     pub body: Option<String>,

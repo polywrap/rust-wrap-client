@@ -4,4 +4,4 @@ project:
   name: Http
 source:
   module: ./Cargo.toml
-  schema: ./src/schema.graphql
+  schema: ./polywrap.graphql

@@ -23,7 +23,7 @@ struct EnvTwo {
 #[test]
 fn test_env_methods() {
     let mut builder = PolywrapClientConfig::new();
-    let uri = uri!("wrap://ens/wrapper.eth");
+    let uri = uri!("wrap://mock/wrapper");
 
     assert!(builder.envs.is_none());
 
@@ -68,11 +68,22 @@ fn test_env_methods() {
 
 #[test]
 fn test_interface_implementation_methods() {
-    let mut builder = PolywrapClientConfig::new();
+    let interface_uri = uri!("wrap://mock/interface");
+    let implementation_a_uri = uri!("wrap://mock/implementation-a");
+    let implementation_b_uri = uri!("wrap://mock/implementation-b");
 
-    let interface_uri = uri!("wrap://ens/interface.eth");
-    let implementation_a_uri = uri!("wrap://ens/implementation-a.eth");
-    let implementation_b_uri = uri!("wrap://ens/implementation-b.eth");
+    let another_interface_uri = uri!("wrap://mock/another-interface");
+
+    let mut builder = PolywrapClientConfig::new();
+    assert!(builder.interfaces.is_none());
+    builder.add_interface_implementation(interface_uri.clone(), implementation_a_uri.clone());
+    builder.add_interface_implementation(another_interface_uri, implementation_b_uri.clone());
+
+    assert!(builder.interfaces.is_some());
+    assert!(builder.interfaces.unwrap().len() == 2);
+
+    // Recreate builder again to test add interfaces implementations
+    let mut builder = PolywrapClientConfig::new();
 
     assert!(builder.interfaces.is_none());
 
@@ -82,18 +93,18 @@ fn test_interface_implementation_methods() {
     );
 
     let interfaces = builder.interfaces.clone().unwrap();
-    let implementations = interfaces.get(&interface_uri.to_string()).unwrap();
+    let implementations = interfaces.get(&interface_uri).unwrap();
     assert!(builder.interfaces.is_some());
     assert_eq!(
         implementations,
         &vec![implementation_a_uri.clone(), implementation_b_uri.clone()]
     );
 
-    let implementation_c_uri = uri!("wrap://ens/implementation-c.eth");
+    let implementation_c_uri = uri!("wrap://mock/implementation-c");
     builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
 
     let interfaces = builder.interfaces.clone().unwrap();
-    let implementations = interfaces.get(&interface_uri.to_string()).unwrap();
+    let implementations = interfaces.get(&interface_uri).unwrap();
     assert_eq!(
         implementations,
         &vec![
@@ -105,7 +116,7 @@ fn test_interface_implementation_methods() {
 
     builder.remove_interface_implementation(&interface_uri, &implementation_b_uri);
     let interfaces = builder.interfaces.clone().unwrap();
-    let implementations = interfaces.get(&interface_uri.to_string()).unwrap();
+    let implementations = interfaces.get(&interface_uri).unwrap();
     assert_eq!(
         implementations,
         &vec![implementation_a_uri, implementation_c_uri]
@@ -117,12 +128,12 @@ fn test_redirects() {
     let mut builder = PolywrapClientConfig::new();
     assert!(builder.redirects.is_none());
 
-    let a_uri = uri!("ens/a.eth");
-    let b_uri = uri!("ens/b.eth");
-    let c_uri = uri!("ens/c.eth");
-    let d_uri = uri!("ens/d.eth");
-    let f_uri = uri!("ens/f.eth");
-    let g_uri = uri!("ens/g.eth");
+    let a_uri = uri!("mock/a");
+    let b_uri = uri!("mock/b");
+    let c_uri = uri!("mock/c");
+    let d_uri = uri!("mock/d");
+    let f_uri = uri!("mock/f");
+    let g_uri = uri!("mock/g");
 
     let redirects = HashMap::from([
         (c_uri.clone(), d_uri.clone()),
@@ -251,9 +262,7 @@ fn test_wrappers() {
         .find(|(uri, _)| uri == &wrapper_uri)
         .unwrap();
 
-    let result_package_b = b_wrapper
-        .1
-        .invoke("bar", None, None, get_mock_invoker());
+    let result_package_b = b_wrapper.1.invoke("bar", None, None, get_mock_invoker());
     assert_eq!(result_package_b.unwrap(), [195]);
 }
 

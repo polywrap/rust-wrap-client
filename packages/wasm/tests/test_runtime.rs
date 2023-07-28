@@ -96,7 +96,7 @@ fn invoke_from_bytecode() {
     let mock_invoker = MockInvoker::new(wrapper);
     let result = Arc::new(mock_invoker)
         .invoke_raw(
-            &uri!("ens/wrapper.eth"),
+            &uri!("mock/wrap"),
             "add",
             Some(&to_vec(&AddArgs { a: 1, b: 1 }).unwrap()),
             None,
@@ -126,7 +126,7 @@ fn invoke_from_compiled_module() {
     let mock_invoker = MockInvoker::new(wrapper);
     let result = Arc::new(mock_invoker)
         .invoke_raw(
-            &uri!("ens/wrapper.eth"),
+            &uri!("mock/wrap"),
             "add",
             Some(&to_vec(&AddArgs { a: 1, b: 1 }).unwrap()),
             None,
@@ -161,7 +161,7 @@ fn invoke_from_deserialized_module() {
     let mock_invoker = MockInvoker::new(wrapper);
     let result = Arc::new(mock_invoker)
         .invoke_raw(
-            &uri!("ens/wrapper.eth"),
+            &uri!("mock/wrap"),
             "add",
             Some(&to_vec(&AddArgs { a: 1, b: 1 }).unwrap()),
             None,

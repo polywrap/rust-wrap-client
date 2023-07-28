@@ -11,10 +11,11 @@ use ethers::{
     },
 };
 use polywrap_core::invoker::Invoker;
+use polywrap_msgpack_serde::{JSONString};
 use polywrap_plugin::{
     error::PluginError,
     implementor::plugin_impl,
-    JSON::{from_str, from_value, to_string, to_value, Value},
+    JSON::{from_str, from_value, to_value, Value},
 };
 use serde::{Deserialize, Serialize};
 use std::{str::FromStr, sync::Arc};
@@ -40,7 +41,7 @@ pub struct EthereumWalletPlugin {
 struct Params;
 
 impl Params {
-    fn sanatize(method: &str, params: &Option<String>) -> Vec<Value> {
+    fn sanatize(method: &str, params: &Option<JSONString>) -> Vec<Value> {
         if Params::is_transaction_method(method) {
             if let Some(params) = params {
                 match method {
@@ -56,7 +57,7 @@ impl Params {
                 "eth_feeHistory" => Params::parse::<FeeHistoryArgs>(params),
                 "eth_signTypedData_v4" => Params::parse::<SignTypedDataArgs>(params),
                 _ => {
-                    let p = from_str(params);
+                    let p = from_str(params.to_json().to_string().as_str());
                     if p.is_err() {
                         vec![]
                     } else {
@@ -69,8 +70,10 @@ impl Params {
         }
     }
 
-    fn parse<T: Serialize + for<'a> Deserialize<'a> + std::fmt::Debug>(values: &str) -> Vec<Value> {
-        let params_value = from_str::<Vec<T>>(values);
+    fn parse<T: Serialize + for<'a> Deserialize<'a> + std::fmt::Debug>(
+        values: &JSONString,
+    ) -> Vec<Value> {
+        let params_value = from_str::<Vec<T>>(values.to_json().to_string().as_str());
 
         if let Ok(v) = params_value {
             v.iter()
@@ -96,7 +99,11 @@ impl EthereumWalletPlugin {
 
 #[plugin_impl]
 impl Module for EthereumWalletPlugin {
-    fn request(&mut self, args: &ArgsRequest, _: Arc<dyn Invoker>) -> Result<String, PluginError> {
+    fn request(
+        &mut self,
+        args: &ArgsRequest,
+        _: Arc<dyn Invoker>,
+    ) -> Result<JSONString, PluginError> {
         let connection = self.connections.get_connection(args.connection.clone());
         let provider: &Provider<Http> = &connection.provider;
         let method = args.method.as_str();
@@ -108,15 +115,17 @@ impl Module for EthereumWalletPlugin {
                 let typed_data: TypedData = from_value(parameters[1].clone()).unwrap();
                 let hash = Runtime::block_on(&runtime, signer.sign_typed_data(&typed_data));
                 let hash = format!("0x{}", hash.unwrap().to_string());
-                to_string(&hash).map_err(PluginError::JSONError)
+                Ok(JSONString::new(Value::String(hash)))
             }
             "eth_sendTransaction" => {
                 let signer = connection.get_signer().unwrap();
                 let tx: TransactionRequest = from_value(parameters[0].clone()).unwrap();
                 let client = SignerMiddleware::new(provider, signer);
                 let hash = Runtime::block_on(&runtime, client.send_transaction(tx, None));
-                let hash = Value::String(format!("{:#?}", hash.unwrap().tx_hash()));
-                to_string(&hash).map_err(PluginError::JSONError)
+                Ok(JSONString::new(Value::String(format!(
+                    "{:#?}",
+                    hash.unwrap().tx_hash()
+                ))))
             }
             _ => {
                 let response = Runtime::block_on(
@@ -127,9 +136,9 @@ impl Module for EthereumWalletPlugin {
                 let result = response.map_err(|e| e.to_string()).unwrap();
 
                 match result {
-                    Value::String(r) => to_string(&r).map_err(PluginError::JSONError),
-                    Value::Object(object) => to_string(&object).map_err(PluginError::JSONError),
-                    _ => Ok("".to_string()),
+                    Value::String(r) => Ok(JSONString::new(Value::String(r))),
+                    Value::Object(object) => Ok(JSONString::new(Value::Object(object))),
+                    _ => Ok(JSONString::new(Value::String("".to_string()))),
                 }
             }
         }

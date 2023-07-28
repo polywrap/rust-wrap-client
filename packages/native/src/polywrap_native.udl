@@ -33,7 +33,7 @@ interface FFIInvoker {
   [Throws=FFIError]
   sequence<FFIUri> get_implementations(FFIUri uri);
 
-  record<DOMString, sequence<FFIUri>>? get_interfaces();
+  record<FFIUri, sequence<FFIUri>>? get_interfaces();
 
   sequence<u8>? get_env_by_uri(FFIUri uri);
 };
@@ -139,7 +139,7 @@ interface FFIClient {
   [Throws=FFIError]
   sequence<FFIUri> get_implementations(FFIUri uri);
 
-  record<DOMString, sequence<FFIUri>>? get_interfaces();
+  record<FFIUri, sequence<FFIUri>>? get_interfaces();
 
   sequence<u8>? get_env_by_uri(FFIUri uri);
 

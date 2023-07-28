@@ -165,7 +165,7 @@ mod test {
     #[test]
     fn adds_and_removes_env() {
         let builder = FFIBuilderConfig::new();
-        let uri = ffi_uri_from_string("wrap://ens/some.eth").unwrap();
+        let uri = ffi_uri_from_string("wrap://mock/some").unwrap();
         let env = to_vec(&Args {
             foo: "bar".to_string(),
         })
@@ -174,7 +174,7 @@ mod test {
         builder.add_env(uri.clone(), env.clone());
 
         let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
-        let current_env = envs.get(&uri!("wrap://ens/some.eth"));
+        let current_env = envs.get(&uri!("wrap://mock/some"));
         assert_eq!(&env, current_env.unwrap());
 
         let new_env = to_vec(&AnotherArgs {
@@ -183,7 +183,7 @@ mod test {
         .unwrap();
         builder.add_env(uri.clone(), new_env.clone());
         let envs = builder.inner_builder.lock().unwrap().clone().envs.unwrap();
-        let current_env = envs.get(&uri!("wrap://ens/some.eth"));
+        let current_env = envs.get(&uri!("wrap://mock/some"));
         assert_eq!(&new_env, current_env.unwrap());
 
         builder.remove_env(uri);
@@ -295,48 +295,48 @@ mod test {
     #[test]
     fn adds_and_removes_interface_implementation() {
         let builder = FFIBuilderConfig::new();
-        let interface_uri = ffi_uri_from_string("wrap://ens/interface.eth").unwrap();
-        let implementation_a_uri = ffi_uri_from_string("wrap://ens/implementation-a.eth").unwrap();
-        let implementation_b_uri = ffi_uri_from_string("wrap://ens/implementation-b.eth").unwrap();
+        let interface_uri = ffi_uri_from_string("wrap://mock/interface").unwrap();
+        let implementation_a_uri = ffi_uri_from_string("wrap://mock/implementation-a").unwrap();
+        let implementation_b_uri = ffi_uri_from_string("wrap://mock/implementation-b").unwrap();
 
-        let implementation_c_uri = ffi_uri_from_string("wrap://ens/implementation-c.eth").unwrap();
+        let implementation_c_uri = ffi_uri_from_string("wrap://mock/implementation-c").unwrap();
         builder.add_interface_implementations(
             interface_uri.clone(),
             vec![implementation_a_uri, implementation_b_uri.clone()],
         );
         builder.add_interface_implementation(interface_uri.clone(), implementation_c_uri.clone());
 
-        let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
+        let interfaces = builder
             .inner_builder
             .lock()
             .unwrap()
             .clone()
             .interfaces
             .unwrap();
-        let implementations = interfaces.get(&interface_uri.to_string());
+        let implementations = interfaces.get(&interface_uri.0);
         assert_eq!(
             implementations,
             Some(&vec![
-                uri!("wrap://ens/implementation-a.eth"),
-                uri!("wrap://ens/implementation-b.eth"),
-                uri!("wrap://ens/implementation-c.eth")
+                uri!("wrap://mock/implementation-a"),
+                uri!("wrap://mock/implementation-b"),
+                uri!("wrap://mock/implementation-c")
             ])
         );
 
         builder.remove_interface_implementation(interface_uri.clone(), implementation_b_uri);
-        let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> = builder
+        let interfaces = builder
             .inner_builder
             .lock()
             .unwrap()
             .clone()
             .interfaces
             .unwrap();
-        let implementations = interfaces.get(&interface_uri.to_string());
+        let implementations = interfaces.get(&interface_uri.0);
         assert_eq!(
             implementations,
             Some(&vec![
-                uri!("wrap://ens/implementation-a.eth"),
-                uri!("wrap://ens/implementation-c.eth")
+                uri!("wrap://mock/implementation-a"),
+                uri!("wrap://mock/implementation-c")
             ])
         );
     }
