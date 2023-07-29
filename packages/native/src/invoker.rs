@@ -33,14 +33,14 @@ impl FFIInvoker {
         Ok(uris)
     }
 
-    pub fn get_interfaces(&self) -> Option<HashMap<Arc<FFIUri>, Vec<Arc<FFIUri>>>> {
+    pub fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<FFIUri>>>> {
         let interfaces = self.0.get_interfaces();
         let interfaces = interfaces.map(|interfaces| {
             interfaces
                 .into_iter()
                 .map(|(key, value)| {
                     (
-                        Arc::new(FFIUri(key.clone())),
+                        key.to_string(),
                         value
                             .into_iter()
                             .map(|uri| Arc::new(FFIUri(uri.clone())))
@@ -93,7 +93,7 @@ mod test {
         assert_eq!(
             response.unwrap(),
             HashMap::from([(
-                ffi_uri_from_string("mock/a").unwrap(),
+                "wrap://mock/a".to_string(),
                 vec![ffi_uri_from_string("mock/b").unwrap()]
             )])
         );
