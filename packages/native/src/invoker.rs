@@ -93,7 +93,7 @@ mod test {
         assert_eq!(
             response.unwrap(),
             HashMap::from([(
-                "mock/a".to_string(),
+                "wrap://mock/a".to_string(),
                 vec![ffi_uri_from_string("mock/b").unwrap()]
             )])
         );
