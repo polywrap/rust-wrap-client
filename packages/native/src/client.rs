@@ -59,13 +59,13 @@ impl FFIClient {
             .collect())
     }
 
-    pub fn get_interfaces(&self) -> Option<HashMap<Arc<FFIUri>, Vec<Arc<FFIUri>>>> {
+    pub fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<FFIUri>>>> {
         if let Some(interfaces) = self.inner_client.get_interfaces() {
             let interfaces = interfaces
                 .into_iter()
                 .map(|(key, uris)| {
                     let uris = uris.into_iter().map(|uri| Arc::new(uri.into())).collect();
-                    (Arc::new(key.into()), uris)
+                    (key.to_string(), uris)
                 })
                 .collect();
 
@@ -221,7 +221,7 @@ mod test {
         assert_eq!(
             response.unwrap(),
             HashMap::from([(
-                ffi_uri_from_string("mock/c").unwrap(),
+                "mock/c".to_string(),
                 vec![ffi_uri_from_string("mock/d").unwrap()]
             )])
         );
