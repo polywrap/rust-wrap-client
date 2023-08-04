@@ -30,12 +30,12 @@ impl Display for FFIUriPackageOrWrapperKind {
 
 pub struct FFIUriWrapper {
   pub uri: Arc<FFIUri>,
-  pub wrapper: Box<dyn IFFIWrapper>
+  pub wrapper: Arc<FFIWrapper>
 }
 
 impl FFIUriWrapper {
   pub fn new(uri: Arc<FFIUri>, wrapper: Box<dyn IFFIWrapper>) -> Self {
-    FFIUriWrapper { uri, wrapper }
+    FFIUriWrapper { uri, wrapper: Arc::new(FFIWrapper(wrapper)) }
   }
 }
 

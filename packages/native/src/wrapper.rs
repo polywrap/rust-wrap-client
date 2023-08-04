@@ -42,6 +42,10 @@ impl IFFIWrapper for Arc<dyn Wrapper> {
 pub struct FFIWrapper(pub Box<dyn IFFIWrapper>);
 
 impl FFIWrapper {
+    pub fn new(wrapper: Box<dyn IFFIWrapper>) -> Self {
+        Self(wrapper)
+    }
+
     pub fn invoke(
         &self,
         method: &str,

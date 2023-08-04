@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::DerefMut, sync::Arc};
+use std::{collections::HashMap, ops::{DerefMut, Deref}, sync::Arc};
 
 use polywrap_client::core::{client::Client, invoker::Invoker};
 
@@ -81,7 +81,7 @@ impl FFIClient {
 
     pub fn invoke_wrapper_raw(
         &self,
-        wrapper: Box<dyn IFFIWrapper>,
+        wrapper: Arc<FFIWrapper>,
         uri: Arc<FFIUri>,
         method: &str,
         args: Option<Vec<u8>>,
@@ -94,7 +94,7 @@ impl FFIClient {
             let mut res_context_guard = resolution_context.0.lock().unwrap();
 
             Ok(self.inner_client.invoke_wrapper_raw(
-                &FFIWrapper(wrapper),
+                wrapper.deref(),
                 &uri.0,
                 method,
                 args.as_deref(),
@@ -103,7 +103,7 @@ impl FFIClient {
             )?)
         } else {
             Ok(self.inner_client.invoke_wrapper_raw(
-                &FFIWrapper(wrapper),
+                wrapper.deref(),
                 &uri.0,
                 method,
                 args.as_deref(),
@@ -117,12 +117,12 @@ impl FFIClient {
         &self,
         uri: Arc<FFIUri>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
-    ) -> Result<Box<dyn IFFIWrapper>, FFIError> {
+    ) -> Result<Arc<FFIWrapper>, FFIError> {
         let wrapper = self
             .inner_client
             .load_wrapper(&uri.0, resolution_context.map(|ctx| ctx.0.clone()))?;
 
-        Ok(Box::new(wrapper))
+        Ok(Arc::new(FFIWrapper(Box::new(wrapper))))
     }
 
     pub fn try_resolve_uri(
@@ -207,7 +207,7 @@ mod test {
         let ffi_client = FFIClient::new(get_mock_client());
         let ffi_invoker = Arc::new(FFIInvoker(get_mock_invoker()));
         let uri = ffi_uri_from_string("mock/a").unwrap();
-        let wrapper = FFIWrapper(ffi_client.load_wrapper(uri, None).unwrap());
+        let wrapper = ffi_client.load_wrapper(uri, None).unwrap();
         let response = wrapper.invoke("foo", None, None, ffi_invoker);
 
         assert_eq!(response.unwrap(), vec![195]);
@@ -216,7 +216,7 @@ mod test {
     #[test]
     fn ffi_invoke_wrapper_raw() {
         let ffi_client = FFIClient::new(get_mock_client());
-        let ffi_wrapper: Box<dyn IFFIWrapper> = Box::new(get_mock_wrapper());
+        let ffi_wrapper: Arc<FFIWrapper> = Arc::new(FFIWrapper::new(Box::new(get_mock_wrapper())));
         let uri = ffi_uri_from_string("mock/a").unwrap();
 
         let response = ffi_client.invoke_wrapper_raw(ffi_wrapper, uri, "", None, None, None);
@@ -391,7 +391,7 @@ mod test {
 
                 let result = wrapper
                     .invoke(
-                        "foo".to_string(),
+                        "foo",
                         None,
                         None,
                         ffi_client.as_invoker(),
