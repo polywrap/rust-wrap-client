@@ -7,7 +7,7 @@ use crate::{
     invoker::FFIInvoker,
     resolvers::{resolution_context::FFIUriResolutionContext, uri_package_or_wrapper::FFIUriPackageOrWrapper},
     uri::FFIUri,
-    wrapper::{IFFIWrapper, FFIWrapper},
+    wrapper::FFIWrapper
 };
 
 #[derive(Clone)]
@@ -192,7 +192,7 @@ mod test {
     use crate::resolvers::uri_package_or_wrapper::{FFIUriPackageOrWrapperKind, FFIUriWrapPackage, FFIUriWrapper};
     use crate::uri::ffi_uri_from_string;
     use crate::wrapper::FFIWrapper;
-    use crate::{client::FFIClient, invoker::FFIInvoker, wrapper::IFFIWrapper};
+    use crate::{client::FFIClient, invoker::FFIInvoker};
 
     #[test]
     fn ffi_invoke_raw() {
@@ -297,7 +297,6 @@ mod test {
         let client = Arc::from(PolywrapClient::new(config.into()));
         let ffi_client = FFIClient::new(client.clone());
 
-      
         let uri = ffi_uri_from_string(&from_uri.to_string()).unwrap();
 
         let result = ffi_client
