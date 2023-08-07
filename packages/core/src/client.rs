@@ -50,6 +50,7 @@ pub struct ClientConfig {
     pub interfaces: Option<InterfaceImplementations>,
 }
 
+/// Defines a type that can build a `ClientConfig`.
 pub trait ClientConfigBuilder {
     /// Builds a `ClientConfig` instance.
     fn build(self) -> ClientConfig;
