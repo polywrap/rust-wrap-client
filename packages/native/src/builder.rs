@@ -210,7 +210,7 @@ mod test {
     };
     use serde::Serialize;
 
-    use crate::{package::FFIWrapPackage, uri::ffi_uri_from_string, wrapper::FFIWrapper};
+    use crate::{package::FFIWrapPackage, uri::{ffi_uri_from_string, FFIUri}, wrapper::FFIWrapper};
 
     use super::FFIBuilderConfig;
 
@@ -238,6 +238,12 @@ mod test {
         let envs = builder.0.lock().unwrap().clone().envs.unwrap();
         let current_env = envs.get(&uri!("wrap://ens/some.eth"));
         assert_eq!(&env, current_env.unwrap());
+        assert_eq!(builder.get_envs().unwrap(), HashMap::from([
+            (
+                "wrap://ens/some.eth".to_string(),
+                env.clone()
+            )
+        ]));
 
         let new_env = to_vec(&AnotherArgs {
             bar: "foo".to_string(),
@@ -247,10 +253,17 @@ mod test {
         let envs = builder.0.lock().unwrap().clone().envs.unwrap();
         let current_env = envs.get(&uri!("wrap://ens/some.eth"));
         assert_eq!(&new_env, current_env.unwrap());
+        assert_eq!(builder.get_envs().unwrap(), HashMap::from([
+            (
+                "wrap://ens/some.eth".to_string(),
+                new_env.clone()
+            )
+        ]));
 
         builder.remove_env(uri);
         let envs = builder.0.lock().unwrap().clone().envs;
         assert_eq!(None, envs);
+        assert_eq!(builder.get_envs(), None);
     }
 
     #[test]
@@ -281,9 +294,11 @@ mod test {
         builder.add_wrapper(uri_mock_wrapper.clone().unwrap(), mock_package);
         builder.add_wrapper(uri_different_mock_wrapper.unwrap(), different_mock_wrapper);
         assert_eq!(builder.0.lock().unwrap().clone().wrappers.unwrap().len(), 2);
+        assert_eq!(builder.get_wrappers().unwrap().len(), 2);
 
         builder.remove_wrapper(uri_mock_wrapper.unwrap());
         assert_eq!(builder.0.lock().unwrap().clone().wrappers.unwrap().len(), 1);
+        assert_eq!(builder.get_wrappers().unwrap().len(), 1);
     }
 
     #[test]
@@ -306,6 +321,10 @@ mod test {
                 (uri!("wrap/c"), uri!("wrap/d")),
             ])
         );
+        assert_eq!(builder.get_redirects().unwrap(), HashMap::from([
+            ("wrap://wrap/a".to_string(), Arc::new(FFIUri(uri!("wrap/b")))),
+            ("wrap://wrap/c".to_string(), Arc::new(FFIUri(uri!("wrap/d")))),
+        ]));
     }
 
     #[test]
@@ -333,6 +352,19 @@ mod test {
                 uri!("wrap://ens/implementation-c.eth")
             ])
         );
+        assert_eq!(
+            builder.get_interfaces(),
+            Some(HashMap::from([
+                (
+                    "wrap://ens/interface.eth".to_string(),
+                    vec![
+                        Arc::new(FFIUri(uri!("wrap://ens/implementation-a.eth"))),
+                        Arc::new(FFIUri(uri!("wrap://ens/implementation-b.eth"))),
+                        Arc::new(FFIUri(uri!("wrap://ens/implementation-c.eth")))
+                    ]
+                )
+            ]))
+        );
 
         builder.remove_interface_implementation(interface_uri.clone(), implementation_b_uri);
         let interfaces: HashMap<String, Vec<polywrap_client::core::uri::Uri>> =
@@ -344,6 +376,18 @@ mod test {
                 uri!("wrap://ens/implementation-a.eth"),
                 uri!("wrap://ens/implementation-c.eth")
             ])
+        );
+        assert_eq!(
+            builder.get_interfaces(),
+            Some(HashMap::from([
+                (
+                    "wrap://ens/interface.eth".to_string(),
+                    vec![
+                        Arc::new(FFIUri(uri!("wrap://ens/implementation-a.eth"))),
+                        Arc::new(FFIUri(uri!("wrap://ens/implementation-c.eth")))
+                    ]
+                )
+            ]))
         );
     }
 
