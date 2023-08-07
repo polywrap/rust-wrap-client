@@ -25,6 +25,7 @@ use std::{
 
 use crate::subinvoker::Subinvoker;
 
+/// `PolywrapClient` is a client used for interacting, loading, resolving and invoking wraps.
 #[derive(Clone, Debug)]
 pub struct PolywrapClient {
     pub resolver: Arc<dyn UriResolver>,
@@ -33,6 +34,12 @@ pub struct PolywrapClient {
 }
 
 impl PolywrapClient {
+    /// Creates a new `PolywrapClient` from a given `ClientConfig`.
+    /// Instead of manually building the `ClientConfig` instance, the `PolywrapClientConfigBuilder` can be used.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `config`: A `ClientConfig` object containing the configuration for the client.
     pub fn new(config: ClientConfig) -> Self {
         let resolver = config.resolver;
         let envs = config.envs;
@@ -44,6 +51,16 @@ impl PolywrapClient {
         }
     }
 
+    /// Invokes a method on a given URI, decodes the result into `T` and returns it.
+    /// If the result of the invocation cannot be cast into `T`, an error will be thrown
+    /// 
+    /// # Arguments
+    /// 
+    /// * `uri`: `Uri` of the wrap to invoke.
+    /// * `method`: A string slice representing the method to be invoked.
+    /// * `args`: Optional msgpack buffer representing the arguments.
+    /// * `env`: Optional msgpack buffer representing the environment.
+    /// * `resolution_context`: TODO.
     pub fn invoke<T: DeserializeOwned>(
         &self,
         uri: &Uri,
@@ -57,6 +74,16 @@ impl PolywrapClient {
         from_slice(result.as_slice()).map_err(Error::MsgpackError)
     }
 
+    /// Invokes a method on a given `Wrapper` implementation instance, decodes the result into `TResult` and returns it
+    /// 
+    /// # Arguments
+    /// 
+    /// * `wrapper`: `Wrapper` implementation instance.
+    /// * `uri`: `Uri` of the wrap to invoke.
+    /// * `method`: A string slice representing the method to be invoked.
+    /// * `args`: Optional msgpack buffer representing the arguments.
+    /// * `env`: Optional msgpack buffer representing the environment.
+    /// * `resolution_context`: TODO.
     pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
         &self,
         wrapper: &TWrapper,
