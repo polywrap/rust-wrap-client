@@ -55,5 +55,4 @@ pub trait ClientConfigBuilder {
     fn build(self) -> ClientConfig;
 }
 
-/// A Client must implement the Invoker, WrapLoader, WrapInvoker, and UriResolverHandler traits.
 pub trait Client: Invoker + WrapLoader + WrapInvoker + UriResolverHandler {}

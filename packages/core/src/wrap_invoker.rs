@@ -3,7 +3,19 @@ use crate::{
     wrapper::Wrapper,
 };
 
+/// Defines an object capable of invoking wrappers
 pub trait WrapInvoker: Send + Sync {
+    /// Invokes a method on a given wrapper.
+    /// The method returns a Result containing either the msgpcack buffer of the response or an Error.
+    ///
+    /// # Arguments
+    ///
+    /// * `wrapper` - The wrapper to invoke
+    /// * `uri` - URI of the invoked wrapper.
+    /// * `method` - The name of the method to invoke.
+    /// * `args` - Optional msgpack buffer representing the arguments to the method.
+    /// * `env` - Optional msgpack buffer representing the environment for the method.
+    /// * `resolution_context` - Optional TODO.
     fn invoke_wrapper_raw(
         &self,
         wrapper: &dyn Wrapper,

@@ -4,6 +4,8 @@ use crate::{
     error::Error, interface_implementation::InterfaceImplementations,
     resolution::uri_resolution_context::UriResolutionContext, uri::Uri,
 };
+
+/// Defines an object capable of invoking on URIs
 pub trait Invoker: Send + Sync {
     /// Invokes a method on a given URI with optional arguments and environment.
     /// The method returns a Result containing either the msgpcack buffer of the response or an Error.

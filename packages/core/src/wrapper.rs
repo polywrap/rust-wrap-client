@@ -9,7 +9,7 @@ pub enum Encoding {
     UTF8,
 }
 
-/// Struct used to specify the options when getting a file.
+/// Specifies the options when getting a file.
 /// It contains a `path` field for the file path and an `encoding` field for the file encoding.
 pub struct GetFileOptions {
     /// The path of the file to get.
@@ -19,7 +19,6 @@ pub struct GetFileOptions {
 }
 
 /// Common interface for objects that can be invoked and can get files.
-/// It requires the implementing type to be Send, Sync, Debug, and Any.
 pub trait Wrapper: Send + Sync + Debug + Any {
     /// The `invoke` method is used to invoke the object with a method, arguments, environment, and invoker.
     /// It returns a Result containing a msgpack buffer on success, or an Error on failure.
