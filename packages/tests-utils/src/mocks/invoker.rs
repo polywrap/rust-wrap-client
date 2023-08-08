@@ -7,8 +7,46 @@ use polywrap_core::{
     invoker::Invoker, macros::uri, resolution::uri_resolution_context::UriResolutionContext,
     uri::Uri,
 };
+use polywrap_msgpack_serde::to_vec;
+use serde::{Deserialize, Serialize};
+use wrap_manifest_schemas::versions::WrapManifest;
 
 pub struct MockInvoker;
+
+impl MockInvoker {
+    // Manifest returned from invoke_raw when the tryResolveUri method is called
+    pub fn manifest_from_try_resolve_uri_result() -> WrapManifest {
+        wrap_manifest_schemas::versions::WrapManifest01 {
+            abi: wrap_manifest_schemas::versions::WrapManifest01Abi {
+                version: Some("1".to_string()),
+                enum_types: None,
+                env_type: None,
+                imported_enum_types: None,
+                imported_env_types: None,
+                imported_module_types: None,
+                imported_object_types: None,
+                interface_types: None,
+                module_type: None,
+                object_types: None,
+            },
+            name: "mock".to_string(),
+            version: "0.1".to_string(),
+            type_: "wasm".to_string(),
+        }
+    }
+
+    // URI returned from invoke_raw when the tryResolveUri method is called
+    pub fn uri_from_try_resolve_uri() -> Uri {
+        uri!("wrap://mock/resolved-uri")
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct MaybeUriOrManifest {
+    pub uri: Option<String>,
+    #[serde(with = "serde_bytes")]
+    pub manifest: Option<Vec<u8>>,
+}
 
 impl Invoker for MockInvoker {
     fn invoke_raw(
@@ -20,12 +58,13 @@ impl Invoker for MockInvoker {
         _: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         if method == "tryResolveUri" {
-            Ok([
-                132, 163, 97, 98, 105, 129, 167, 118, 101, 114, 115, 105, 111, 110, 161, 49, 164,
-                110, 97, 109, 101, 164, 109, 111, 99, 107, 164, 116, 121, 112, 101, 164, 119, 97,
-                115, 109, 167, 118, 101, 114, 115, 105, 111, 110, 163, 48, 46, 49,
-            ]
-            .to_vec())
+            let result: Vec<u8> = to_vec(&MaybeUriOrManifest {
+                uri: Some(MockInvoker::uri_from_try_resolve_uri().to_string()),
+                manifest: Some(to_vec(&MockInvoker::manifest_from_try_resolve_uri_result()).unwrap()),
+            })
+            .unwrap();
+
+            Ok(result)
         } else {
             Ok(vec![3])
         }

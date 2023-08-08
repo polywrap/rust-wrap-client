@@ -171,23 +171,7 @@ mod tests {
             )
             .unwrap();
 
-        let expected_manifest = wrap_manifest_schemas::versions::WrapManifest01 {
-            abi: wrap_manifest_schemas::versions::WrapManifest01Abi {
-                version: Some("1".to_string()),
-                enum_types: None,
-                env_type: None,
-                imported_enum_types: None,
-                imported_env_types: None,
-                imported_module_types: None,
-                imported_object_types: None,
-                interface_types: None,
-                module_type: None,
-                object_types: None,
-            },
-            name: "mock".to_string(),
-            version: "0.1".to_string(),
-            type_: "wasm".to_string(),
-        };
+        let expected_manifest = MockInvoker::manifest_from_try_resolve_uri_result();
 
         match result {
             UriPackageOrWrapper::Package(uri, package) => {

@@ -94,7 +94,7 @@ mod test {
     #[test]
     fn ffi_wrapper() {
         let (ffi_wrapper, ffi_invoker) = get_mocks();
-        let response = ffi_wrapper.invoke("foo", None, None, Arc::new(ffi_invoker));
+        let response: Result<Vec<u8>, crate::error::FFIError> = ffi_wrapper.invoke("foo", None, None, Arc::new(ffi_invoker));
         assert!(from_slice::<bool>(&response.unwrap()).unwrap());
     }
 }
