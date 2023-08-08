@@ -9,7 +9,7 @@ use polywrap_client::core::{
 use crate::{error::FFIError, invoker::FFIInvoker};
 
 pub trait IFFIWrapper: Debug + Send + Sync {
-    fn i_invoke(
+    fn invoke(
         &self,
         method: String,
         args: Option<Vec<u8>>,
@@ -19,7 +19,7 @@ pub trait IFFIWrapper: Debug + Send + Sync {
 }
 
 impl IFFIWrapper for Arc<dyn Wrapper> {
-    fn i_invoke(
+    fn invoke(
         &self,
         method: String,
         args: Option<Vec<u8>>,
@@ -42,6 +42,10 @@ impl IFFIWrapper for Arc<dyn Wrapper> {
 pub struct FFIWrapper(pub Box<dyn IFFIWrapper>);
 
 impl FFIWrapper {
+    pub fn new(wrapper: Box<dyn IFFIWrapper>) -> Self {
+        Self(wrapper)
+    }
+
     pub fn invoke(
         &self,
         method: &str,
@@ -49,7 +53,7 @@ impl FFIWrapper {
         env: Option<Vec<u8>>,
         invoker: Arc<FFIInvoker>,
     ) -> Result<Vec<u8>, FFIError> {
-        self.0.i_invoke(method.to_string(), args, env, invoker)
+        self.0.invoke(method.to_string(), args, env, invoker)
     }
 }
 
@@ -64,12 +68,9 @@ impl Wrapper for FFIWrapper {
         let args = args.map(|args| args.to_vec());
         let env = env.map(|env| env.to_vec());
 
-        Ok(self.0.i_invoke(
-            method.to_string(),
-            args,
-            env,
-            Arc::new(FFIInvoker(invoker)),
-        )?)
+        Ok(self
+            .0
+            .invoke(method.to_string(), args, env, Arc::new(FFIInvoker(invoker)))?)
     }
 
     fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
@@ -79,36 +80,21 @@ impl Wrapper for FFIWrapper {
 
 #[cfg(test)]
 mod test {
-
     use std::sync::Arc;
 
     use polywrap_msgpack_serde::from_slice;
-    use polywrap_tests_utils::mocks::{get_mock_invoker, get_mock_wrapper};
+    use polywrap_tests_utils::mocks::get_mock_invoker;
 
-    use crate::{invoker::FFIInvoker, wrapper::FFIWrapper};
+    use crate::{invoker::FFIInvoker, mocks::wrapper::get_mock_ffi_wrapper, wrapper::FFIWrapper};
 
-    use super::IFFIWrapper;
-
-    fn get_mocks() -> (Box<dyn IFFIWrapper>, FFIInvoker) {
-        (Box::new(get_mock_wrapper()), FFIInvoker(get_mock_invoker()))
+    fn get_mocks() -> (FFIWrapper, FFIInvoker) {
+        (get_mock_ffi_wrapper(), FFIInvoker(get_mock_invoker()))
     }
 
     #[test]
     fn ffi_wrapper() {
         let (ffi_wrapper, ffi_invoker) = get_mocks();
-        let ffi_wrapper = FFIWrapper(ffi_wrapper);
-        let response =
-            ffi_wrapper.invoke("foo", None, None, Arc::new(ffi_invoker));
+        let response: Result<Vec<u8>, crate::error::FFIError> = ffi_wrapper.invoke("foo", None, None, Arc::new(ffi_invoker));
         assert!(from_slice::<bool>(&response.unwrap()).unwrap());
-    }
-
-    #[test]
-    fn test_ext_wrapper() {
-        let (ffi_wrapper, _) = get_mocks();
-        let ext_wrapper = FFIWrapper(ffi_wrapper);
-        let response = ext_wrapper
-            .invoke("foo", None, None, Arc::new(FFIInvoker(get_mock_invoker())))
-            .unwrap();
-        assert!(from_slice::<bool>(&response).unwrap());
     }
 }

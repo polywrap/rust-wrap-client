@@ -78,7 +78,7 @@ mod test {
             resolution_context::FFIUriResolutionContext,
             uri_package_or_wrapper::{FFIUriPackageOrWrapper, FFIUriPackageOrWrapperKind},
         },
-        uri::ffi_uri_from_string, wrapper::FFIWrapper,
+        uri::ffi_uri_from_string,
     };
 
     use super::FFIStaticUriResolver;
@@ -126,7 +126,7 @@ mod test {
 
         match kind {
             FFIUriPackageOrWrapperKind::WRAPPER => {
-                let wrapper = FFIWrapper(response.as_wrapper().unwrap().wrapper);
+                let wrapper = response.as_wrapper().unwrap().wrapper;
                 let response = wrapper.invoke(
                     "foo",
                     None,

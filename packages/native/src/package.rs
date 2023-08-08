@@ -7,11 +7,11 @@ use crate::{
 use polywrap_client::core::{error::Error, package::WrapPackage, wrapper::Wrapper};
 
 pub trait IFFIWrapPackage: Debug + Send + Sync {
-    fn i_create_wrapper(&self) -> Result<Box<dyn IFFIWrapper>, FFIError>;
+    fn create_wrapper(&self) -> Result<Box<dyn IFFIWrapper>, FFIError>;
 }
 
 impl IFFIWrapPackage for Arc<dyn WrapPackage> {
-    fn i_create_wrapper(&self) -> Result<Box<dyn IFFIWrapper>, FFIError> {
+    fn create_wrapper(&self) -> Result<Box<dyn IFFIWrapper>, FFIError> {
         let arc_self = self.clone();
         let wrapper = WrapPackage::create_wrapper(arc_self.as_ref())?;
         Ok(Box::new(wrapper))
@@ -27,14 +27,13 @@ impl FFIWrapPackage {
   }
 
   pub fn create_wrapper(&self) -> Result<Arc<FFIWrapper>, FFIError> {
-    let wrapper = WrapPackage::create_wrapper(self)?;
-    Ok(Arc::new(FFIWrapper(Box::new(wrapper))))
+    Ok(Arc::new(FFIWrapper(self.0.create_wrapper()?)))
   }
 }
 
 impl WrapPackage for FFIWrapPackage {
     fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error> {
-        let ffi_wrapper = self.0.i_create_wrapper()?;
+        let ffi_wrapper = self.0.create_wrapper()?;
         Ok(Arc::new(FFIWrapper(ffi_wrapper)))
     }
 
@@ -64,7 +63,7 @@ mod test {
     #[test]
     fn test_ffi_package() {
         let (ffi_package, ffi_invoker) = get_mocks();
-        let ffi_wrapper = FFIWrapper(ffi_package.i_create_wrapper().unwrap());
+        let ffi_wrapper = FFIWrapper(ffi_package.create_wrapper().unwrap());
         let response =
             ffi_wrapper.invoke("foo", None, None, Arc::new(ffi_invoker));
         assert!(from_slice::<bool>(&response.unwrap()).unwrap());

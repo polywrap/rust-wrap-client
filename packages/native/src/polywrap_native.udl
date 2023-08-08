@@ -40,17 +40,19 @@ interface FFIInvoker {
 
 callback interface IFFIWrapper {
   [Throws=FFIError]
-  sequence<u8> i_invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
+  sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
 };
 
 interface FFIWrapper {
+  constructor(IFFIWrapper wrapper);
+
   [Throws=FFIError]
   sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
 };
 
 callback interface IFFIWrapPackage {
   [Throws=FFIError]
-  IFFIWrapper i_create_wrapper();
+  IFFIWrapper create_wrapper();
 };
 
 interface FFIWrapPackage {
@@ -58,8 +60,18 @@ interface FFIWrapPackage {
   FFIWrapper create_wrapper();
 };
 
+interface FFICompiledWasmModule {
+  [Throws=FFIError]
+  FFISerializedWasmModule serialize();
+};
+
+interface FFISerializedWasmModule {
+  [Throws=FFIError]
+  FFICompiledWasmModule deserialize();
+};
+
 interface FFIWasmWrapper {
-  constructor(sequence<u8> wasm_module);
+  constructor(FFICompiledWasmModule compiled_wasm_module);
 
   [Throws=FFIError]
   sequence<u8> invoke([ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIInvoker invoker);
@@ -75,6 +87,11 @@ interface FFIUriResolver {
   FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIInvoker invoker, FFIUriResolutionContext resolution_context);
 };
 
+interface FFIWasmPackage {
+  [Throws=FFIError]
+  FFIWasmWrapper create_wrapper();
+};
+
 enum FFIUriPackageOrWrapperKind {
   "URI",
   "PACKAGE",
@@ -83,7 +100,7 @@ enum FFIUriPackageOrWrapperKind {
 
 dictionary FFIUriWrapper {
   FFIUri uri;
-  IFFIWrapper wrapper;
+  FFIWrapper wrapper;
 };
 
 dictionary FFIUriWrapPackage {
@@ -149,10 +166,10 @@ interface FFIClient {
   FFIInvoker as_invoker();
 
   [Throws=FFIError]
-  sequence<u8> invoke_wrapper_raw(IFFIWrapper wrapper, FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
+  sequence<u8> invoke_wrapper_raw(FFIWrapper wrapper, FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
 
   [Throws=FFIError]
-  IFFIWrapper load_wrapper(FFIUri uri, FFIUriResolutionContext? resolution_context);
+  FFIWrapper load_wrapper(FFIUri uri, FFIUriResolutionContext? resolution_context);
 
   [Throws=FFIError]
   FFIUriPackageOrWrapper try_resolve_uri(FFIUri uri, FFIUriResolutionContext? resolution_context);
@@ -186,4 +203,19 @@ interface FFIBuilderConfig {
 namespace polywrap_native {
   [Throws=FFIError]
   FFIUri ffi_uri_from_string([ByRef] string uri);
+
+  [Throws=FFIError]
+  FFIWasmWrapper ffi_wasm_wrapper_from_bytecode([ByRef] sequence<u8> bytes);
+
+  [Throws=FFIError]
+  FFICompiledWasmModule ffi_compiled_wasm_module_from_bytecode([ByRef] sequence<u8> bytes);
+
+  [Throws=FFIError]
+  FFIWasmPackage ffi_wasm_package_from_bytecode([ByRef] sequence<u8> bytes);
+
+  [Throws=FFIError]
+  FFIWasmPackage ffi_wasm_package_from_serialized_module(FFISerializedWasmModule serialized_module, [ByRef] sequence<u8> bytes);
+  
+  [Throws=FFIError]
+  FFIWasmPackage ffi_wasm_package_from_compiled_wasm_module(FFICompiledWasmModule compiled_module, [ByRef] sequence<u8> bytes);
 };

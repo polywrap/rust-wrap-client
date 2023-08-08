@@ -1,7 +1,7 @@
 [package]
-name = "polywrap_fs_plugin"
-description = "Polywrap rust File system plugin"
+name = "polywrap_ethereum_wallet_plugin"
 
+description = "Polywrap rust Ethereum wallet plugin"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -14,11 +14,13 @@ polywrap_msgpack_serde.workspace = true
 polywrap_resolvers.workspace = true
 wrap_manifest_schemas.workspace = true
 serde.workspace = true
-
-rm_rf = "0.6.2"
-serde_bytes.workspace = true
 thiserror.workspace = true
+serde_bytes.workspace = true
+tokio.workspace = true
 lazy_static.workspace = true
+
+ethers = { version = "2.0.6" }
+
 
 [dev-dependencies]
 polywrap_client.workspace = true
