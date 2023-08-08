@@ -274,7 +274,7 @@ pub fn get_manifest() -> WrapManifest {
             },
             "type": "[FormDataEntry]"
           },
-          "comment": "    An alternative to the standard request body, 'formData' is expected to be in the 'multipart/form-data' format.\nIf present, the `body` property is not null, `formData` will be ignored.\nOtherwise, if formData is not null, the following header will be added to the request: 'Content-Type: multipart/form-data'.",
+          "comment": "  An alternative to the standard request body, 'formData' is expected to be in the 'multipart/form-data' format.\nIf present, the `body` property is not null, `formData` will be ignored.\nOtherwise, if formData is not null, the following header will be added to the request: 'Content-Type: multipart/form-data'.",
           "kind": 34,
           "name": "formData",
           "type": "[FormDataEntry]"

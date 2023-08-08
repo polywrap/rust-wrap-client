@@ -27,14 +27,14 @@ fn invoke_with_env() {
     let package: PluginPackage<PluginEnv> = plugin.into();
     let module = Arc::new(package) as Arc<dyn WrapPackage>;
 
-    let plugin_static_like = StaticResolverLike::Package(uri!("ens/env-plugin.eth"), module);
+    let plugin_static_like = StaticResolverLike::Package(uri!("plugin/env"), module);
     let static_resolver = StaticResolver::from(vec![plugin_static_like]);
 
     let env_val = to_vec(&EnvVal {
         foo: "bar".to_string(),
     })
     .unwrap();
-    let envs = HashMap::from([(uri!("ens/env-plugin.eth"), env_val)]);
+    let envs = HashMap::from([(uri!("plugin/env"), env_val)]);
     let client = PolywrapClient::new(ClientConfig {
         envs: Some(envs),
         interfaces: None,
@@ -47,7 +47,7 @@ fn invoke_with_env() {
     .unwrap();
     let invoke_result = client
         .invoke::<bool>(
-            &uri!("ens/env-plugin.eth"),
+            &uri!("plugin/env"),
             "checkEnvIsBar",
             Some(&env_val),
             None,

@@ -4,8 +4,19 @@
 // NOTE: This is an auto-generated file.
 //       All modifications will be overwritten.
 use polywrap_core::{invoker::Invoker, uri::Uri};
-use polywrap_plugin::{error::PluginError, BigInt, BigNumber, Map, JSON};
+use polywrap_plugin::error::PluginError;
+use polywrap_msgpack_serde::{
+  to_vec,
+  from_slice,
+  JSON,
+  bytes::ByteBuf,
+  JSONString,
+  BigNumber
+};
+use std::collections::BTreeMap;
 use serde::{Serialize, Deserialize};
+
+pub type BigInt = String;
 
 // Env START //
 

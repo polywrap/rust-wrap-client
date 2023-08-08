@@ -39,7 +39,7 @@ impl Invoker for MockClient {
         &self,
     ) -> Option<polywrap_core::interface_implementation::InterfaceImplementations> {
         Some(HashMap::from([(
-            ("mock/c".to_string()),
+            uri!("mock/c"),
             vec![uri!("mock/d")],
         )]))
     }
