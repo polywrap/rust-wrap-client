@@ -279,9 +279,11 @@ mod test {
         builder.add_package(uri_mock_package.clone(), mock_package);
         builder.add_package(uri_different_mock_package, different_mock_package);
         assert_eq!(builder.0.lock().unwrap().clone().packages.unwrap().len(), 2);
+        assert_eq!(builder.get_packages().unwrap().len(), 2);
 
         builder.remove_package(uri_mock_package);
         assert_eq!(builder.0.lock().unwrap().clone().packages.unwrap().len(), 1);
+        assert_eq!(builder.get_packages().unwrap().len(), 1);
     }
 
     #[test]
