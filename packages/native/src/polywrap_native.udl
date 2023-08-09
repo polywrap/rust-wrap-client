@@ -177,6 +177,12 @@ interface FFIClient {
 
 interface FFIBuilderConfig {
   constructor();
+  record<DOMString, sequence<FFIUri>>? get_interfaces();
+  record<DOMString, sequence<u8>>? get_envs();
+  sequence<FFIUriWrapper>? get_wrappers();
+  sequence<FFIUriWrapPackage>? get_packages();
+  record<DOMString, FFIUri>? get_redirects();
+  sequence<FFIUriResolver>? get_resolvers();
   void add_env(FFIUri uri, sequence<u8> env);
   void remove_env(FFIUri uri);
   void add_interface_implementations(FFIUri interface_uri, sequence<FFIUri> implementation_uris);
