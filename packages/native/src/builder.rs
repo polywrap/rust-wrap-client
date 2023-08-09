@@ -240,7 +240,7 @@ mod test {
         assert_eq!(&env, current_env.unwrap());
         assert_eq!(builder.get_envs().unwrap(), HashMap::from([
             (
-                "wrap://ens/some.eth".to_string(),
+                "wrap://mock/some".to_string(),
                 env.clone()
             )
         ]));
@@ -256,7 +256,7 @@ mod test {
         assert_eq!(&new_env, current_env.unwrap());
         assert_eq!(builder.get_envs().unwrap(), HashMap::from([
             (
-                "wrap://ens/some.eth".to_string(),
+                "wrap://mock/some".to_string(),
                 new_env.clone()
             )
         ]));
@@ -362,11 +362,11 @@ mod test {
             builder.get_interfaces(),
             Some(HashMap::from([
                 (
-                    "wrap://ens/interface.eth".to_string(),
+                    "wrap://mock/interface".to_string(),
                     vec![
-                        Arc::new(FFIUri(uri!("wrap://ens/implementation-a.eth"))),
-                        Arc::new(FFIUri(uri!("wrap://ens/implementation-b.eth"))),
-                        Arc::new(FFIUri(uri!("wrap://ens/implementation-c.eth")))
+                        Arc::new(FFIUri(uri!("wrap://mock/implementation-a"))),
+                        Arc::new(FFIUri(uri!("wrap://mock/implementation-b"))),
+                        Arc::new(FFIUri(uri!("wrap://mock/implementation-c")))
                     ]
                 )
             ]))
@@ -392,10 +392,10 @@ mod test {
             builder.get_interfaces(),
             Some(HashMap::from([
                 (
-                    "wrap://ens/interface.eth".to_string(),
+                    "wrap://mock/interface".to_string(),
                     vec![
-                        Arc::new(FFIUri(uri!("wrap://ens/implementation-a.eth"))),
-                        Arc::new(FFIUri(uri!("wrap://ens/implementation-c.eth")))
+                        Arc::new(FFIUri(uri!("wrap://mock/implementation-a"))),
+                        Arc::new(FFIUri(uri!("wrap://mock/implementation-c")))
                     ]
                 )
             ]))
