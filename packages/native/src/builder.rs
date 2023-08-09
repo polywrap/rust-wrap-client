@@ -328,6 +328,21 @@ mod test {
             ("wrap://wrap/a".to_string(), Arc::new(FFIUri(uri!("wrap/b")))),
             ("wrap://wrap/c".to_string(), Arc::new(FFIUri(uri!("wrap/d")))),
         ]));
+
+        builder.remove_redirect(
+            ffi_uri_from_string("wrap/a").unwrap(),
+        );
+
+        let redirects = builder.0.lock().unwrap().clone().redirects.unwrap();
+        assert_eq!(
+            redirects,
+            HashMap::from([
+                (uri!("wrap/c"), uri!("wrap/d")),
+            ])
+        );
+        assert_eq!(builder.get_redirects().unwrap(), HashMap::from([
+            ("wrap://wrap/c".to_string(), Arc::new(FFIUri(uri!("wrap/d")))),
+        ]));
     }
 
     #[test]
@@ -413,6 +428,8 @@ mod test {
         assert!(builder.0.lock().unwrap().interfaces.is_some());
         assert!(builder.0.lock().unwrap().wrappers.is_some());
         assert!(builder.0.lock().unwrap().packages.is_some());
+    
+        let _ = builder.build();
     }
 
     #[test]
@@ -422,5 +439,7 @@ mod test {
         assert!(builder.0.lock().unwrap().redirects.is_some());
         assert!(builder.0.lock().unwrap().interfaces.is_some());
         assert!(builder.0.lock().unwrap().packages.is_some());
+
+        let _ = builder.build();
     }
 }
