@@ -35,7 +35,7 @@ impl SerializedWasmModule {
     // Deserialize the module back into a CompiledWasmModule.
     pub fn deserialize(self) -> Result<CompiledWasmModule, WrapperError> {
         let store = Store::default();
-        let wasmer_module = Module::deserialize_checked(&store, &*self.compiled_bytes)?;
+        let wasmer_module = unsafe { Module::deserialize(&store, &*self.compiled_bytes)? };
 
         Ok(CompiledWasmModule {
             module: wasmer_module,

@@ -4,4 +4,4 @@ project:
   name: Fs
 source:
   module: ./Cargo.toml
-  schema: ./src/schema.graphql
+  schema: ./polywrap.graphql

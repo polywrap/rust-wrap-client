@@ -1,0 +1,2 @@
+#import * from "wrapscan.io/polywrap/ethereum-wallet@1.0"
+#import { Env } from "wrapscan.io/polywrap/ethereum-wallet@1.0"

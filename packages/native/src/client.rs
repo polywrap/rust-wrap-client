@@ -65,7 +65,7 @@ impl FFIClient {
                 .into_iter()
                 .map(|(key, uris)| {
                     let uris = uris.into_iter().map(|uri| Arc::new(uri.into())).collect();
-                    (key, uris)
+                    (key.to_string(), uris)
                 })
                 .collect();
 
@@ -238,7 +238,7 @@ mod test {
         assert_eq!(
             response.unwrap(),
             HashMap::from([(
-                ("mock/c".to_string()),
+                "wrap://mock/c".to_string(),
                 vec![ffi_uri_from_string("mock/d").unwrap()]
             )])
         );
