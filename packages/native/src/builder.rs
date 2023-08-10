@@ -119,8 +119,7 @@ impl FFIBuilderConfig {
         self.inner_builder
             .lock()
             .unwrap()
-            .add(SystemClientConfig::default().into())
-            .add(Web3ClientConfig::default().into());
+            .add(SystemClientConfig::default().into());
     }
 
     pub fn add_web3_defaults(&self) {
