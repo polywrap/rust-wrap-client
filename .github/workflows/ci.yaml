@@ -46,5 +46,8 @@ jobs:
           toolchain: 1.69.0
           override: true
 
+      - name: Instantiate IPFS node
+        run: npx polywrap infra up --modules=eth-ens-ipfs
+
       - name: Run examples
         run: .github/scripts/examples.sh
