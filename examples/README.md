@@ -18,8 +18,14 @@ Invokes the HTTP plugin, doing GET and POST requests
 cargo run --example http --release
 ```
 
-<!-- 2. Ethereum
+## Ipfs
 
+Invoke the IPFS Client wrap; adds file to a local IPFS node, and then retrieves it.
+Before running this example, you must instantiate a local IPFS node by running the following command:
+```
+$ npx polywrap infra up --modules=eth-ens-ipfs
+```
+And now you can run the example:
 ```shell
-cargo run --example ethereum --release
-``` -->
+cargo run --example ipfs --release
+```

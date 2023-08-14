@@ -30,15 +30,16 @@ fn main() {
     let logger_plugin = LoggerPlugin::new(None);
     let logger_package = PluginPackage::from(logger_plugin);
 
-    config.add_package(
-        uri!("wrapscan.io/polywrap/logger@1.0"),
-        Arc::new(logger_package),
-    );
-    config.add_interface_implementation(
-        uri!("wrapscan.io/polywrap/logger@1.0"),
-        uri!("wrapscan.io/polywrap/logger@1.0"),
-    );
-    config.add(SystemClientConfig::default().into());
+    config
+        .add_package(
+            uri!("wrapscan.io/polywrap/logger@1.0"),
+            Arc::new(logger_package),
+        )
+        .add_interface_implementation(
+            uri!("wrapscan.io/polywrap/logger@1.0"),
+            uri!("wrapscan.io/polywrap/logger@1.0"),
+        )
+        .add(SystemClientConfig::default().into());
     let client = PolywrapClient::new(config.build());
     let result: Result<bool, Error> = client.invoke(
         &wrap_uri,

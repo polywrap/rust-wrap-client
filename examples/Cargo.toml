@@ -27,3 +27,7 @@ path = "filesystem.rs"
 [[example]]
 name = "http"
 path = "http.rs"
+
+[[example]]
+name = "ipfs"
+path = "ipfs.rs"
