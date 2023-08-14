@@ -4,6 +4,9 @@ license = "MIT"
 edition = "2021"
 rust-version = "1.69"
 repository = "https://github.com/polywrap/rust-client"
+exclude = [
+    "examples"
+]
 
 [workspace]
 members = [
@@ -20,7 +23,9 @@ members = [
     "packages/default-config",
     "packages/plugins/http",
     "packages/plugins/fs",
-    "packages/plugins/ethereum-wallet"
+    "packages/plugins/ethereum-wallet",
+
+    "examples/"
 ]
 
 # Do not include test utils in default members

@@ -1,0 +1,23 @@
+[package]
+name = "client-examples"
+version = "0.0.0"
+publish = false
+
+[dev-dependencies]
+polywrap_core = { path = "../packages/core" }
+polywrap_client = { path = "../packages/client" }
+polywrap_client_builder = { path = "../packages/builder" }
+polywrap_client_default_config = { path = "../packages/default-config" }
+polywrap_plugin = { path = "../packages/plugin" }
+
+polywrap_msgpack_serde = "0.0.2-beta.5"
+serde = { version = "1.0.145", features = ["derive"] }
+polywrap_logger_plugin = { path = "../packages/plugins/logger"}
+
+[patch.crates-io]
+polywrap_plugin = { path = "../packages/plugin" }
+
+
+[[example]]
+name = "hello-world"
+path = "hello_world.rs"
