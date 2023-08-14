@@ -25,11 +25,3 @@ polywrap_ethereum_wallet_plugin.workspace = true
 [dev-dependencies]
 polywrap_client.workspace = true
 polywrap_tests_utils.workspace = true
-
-[[example]]
-name = "hello-world"
-path = "../../examples/hello_world.rs"
-
-[[example]]
-name = "ethereum"
-path = "../../examples/ethereum.rs"

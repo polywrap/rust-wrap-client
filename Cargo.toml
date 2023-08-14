@@ -60,6 +60,7 @@ polywrap_plugin_implementor = { version = "0.1.6-beta.13", path = "packages/plug
 polywrap_fs_plugin = { version = "0.1.6-beta.13", path = "packages/plugins/fs" }
 polywrap_http_plugin = { version = "0.1.6-beta.13", path = "packages/plugins/http"  }
 polywrap_ethereum_wallet_plugin = { version = "0.1.6-beta.13", path = "packages/plugins/ethereum-wallet" }
+polywrap_logger_plugin = { version = "0.1.6-beta.13", path = "packages/plugins/logger" }
 
 polywrap_msgpack_serde = "0.0.2-beta.5"
 tokio = { version = "1.28", features = ["full"] }
