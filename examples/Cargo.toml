@@ -10,33 +10,34 @@ polywrap_client_builder = { path = "../packages/builder" }
 polywrap_client_default_config = { path = "../packages/default-config" }
 polywrap_plugin = { path = "../packages/plugin" }
 
-polywrap_msgpack_serde = "0.0.2-beta.5"
-serde = { version = "1.0.145", features = ["derive"] }
 polywrap_logger_plugin = { path = "../packages/plugins/logger" }
 polywrap_fs_plugin = { path = "../packages/plugins/fs" }
 polywrap_http_plugin = { path = "../packages/plugins/http" }
 polywrap_ethereum_wallet_plugin = { path = "../packages/plugins/ethereum-wallet" }
 
-[[example]]
-name = "hello-world"
-path = "hello_world.rs"
+polywrap_msgpack_serde = "0.0.2-beta.5"
+serde = { version = "1.0.145", features = ["derive"] }
 
 [[example]]
-name = "fs"
-path = "filesystem.rs"
+name = "hello_world"
+path = "src/hello_world.rs"
+
+[[example]]
+name = "filesystem"
+path = "src/filesystem.rs"
 
 [[example]]
 name = "http"
-path = "http.rs"
+path = "src/http.rs"
 
 [[example]]
 name = "ipfs"
-path = "ipfs.rs"
+path = "src/ipfs.rs"
 
 [[example]]
 name = "ethers"
-path = "ethers.rs"
+path = "src/ethers.rs"
 
 [[example]]
 name = "ens"
-path = "ens.rs"
+path = "src/ens.rs"

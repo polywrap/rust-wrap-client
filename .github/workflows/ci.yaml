@@ -33,3 +33,18 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: cov.info
+
+  Examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.69.0
+          override: true
+
+      - name: Run examples
+        run: .github/scripts/examples.sh

@@ -82,7 +82,7 @@ fn main() {
         )
     }
 
-    println!("Balance in wei: {}", balance.clone().unwrap());
+    println!("Balance in Wei: {}", balance.clone().unwrap());
 
     let balance_in_eth = client.invoke::<String>(
         &ethers_util_uri,
@@ -104,7 +104,7 @@ fn main() {
         )
     }
 
-    println!("Balance in ETH: {}", balance_in_eth.clone().unwrap());
+    println!("Balance in Eth: {}", balance_in_eth.clone().unwrap());
 
     let domain = json!({
         "name": "Ether Mail",
