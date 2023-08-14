@@ -36,3 +36,7 @@ path = "ipfs.rs"
 [[example]]
 name = "ethers"
 path = "ethers.rs"
+
+[[example]]
+name = "ens"
+path = "ens.rs"
