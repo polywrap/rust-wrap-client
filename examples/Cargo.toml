@@ -14,10 +14,7 @@ polywrap_msgpack_serde = "0.0.2-beta.5"
 serde = { version = "1.0.145", features = ["derive"] }
 polywrap_logger_plugin = { path = "../packages/plugins/logger" }
 polywrap_fs_plugin = { path = "../packages/plugins/fs" }
-
-[patch.crates-io]
-polywrap_plugin = { path = "../packages/plugin" }
-
+polywrap_http_plugin = { path = "../packages/plugins/http" }
 
 [[example]]
 name = "hello-world"
@@ -26,3 +23,7 @@ path = "hello_world.rs"
 [[example]]
 name = "fs"
 path = "filesystem.rs"
+
+[[example]]
+name = "http"
+path = "http.rs"
