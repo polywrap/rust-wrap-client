@@ -38,7 +38,6 @@ fn main() {
         uri!("wrapscan.io/polywrap/logger@1.0"),
         uri!("wrapscan.io/polywrap/logger@1.0"),
     );
-    println!("hai");
     config.add(SystemClientConfig::default().into());
     let client = PolywrapClient::new(config.build());
     let result: Result<bool, Error> = client.invoke(
@@ -54,5 +53,7 @@ fn main() {
         None,
     );
 
-    println!("{:#?}", result);
+    if result.is_err() {
+        panic!("Error in hello world example")
+    }
 }

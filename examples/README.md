@@ -8,8 +8,14 @@ Invokes the logger wrap, which interacts with the logger plugin. It shows a prin
 cargo run --example hello-world --release
 ```
 
-2. Ethereum
+2. File system
+
+```shell
+cargo run --example fs --release
+```
+
+<!-- 2. Ethereum
 
 ```shell
 cargo run --example ethereum --release
-```
+``` -->
