@@ -1,13 +1,7 @@
 extern crate polywrap;
-extern crate polywrap_ethereum_wallet_plugin;
 extern crate serde;
 
-use std::{collections::HashMap, sync::Arc};
-
 use polywrap::*;
-use polywrap_ethereum_wallet_plugin::{
-    connection::Connection, connections::Connections, EthereumWalletPlugin,
-};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -27,25 +21,11 @@ struct GetResolverArgs {
 fn main() {
     let domain = "vitalik.eth".to_string();
     let ens_uri = uri!("wrapscan.io/polywrap/ens@1.0.0");
+
     let mut config = PolywrapClientConfig::new();
-    config.add(SystemClientConfig::default().into());
-
-    let mainnet_connection = Connection::new(
-        "https://mainnet.infura.io/v3/f1f688077be642c190ac9b28769daecf".to_string(),
-        None,
-    )
-    .unwrap();
-
-    let connections = Connections::new(
-        HashMap::from([("mainnet".to_string(), mainnet_connection)]),
-        Some("mainnet".to_string()),
-    );
-
-    let wallet_plugin = EthereumWalletPlugin::new(connections);
-    let plugin_pkg: PluginPackage<EthereumWalletPlugin> = wallet_plugin.into();
-    let package = Arc::new(plugin_pkg);
-
-    config.add_package(uri!("wrapscan.io/polywrap/ethereum-wallet@1.0"), package);
+    config
+        .add(SystemClientConfig::default().into())
+        .add(Web3ClientConfig::default().into());
 
     let client = PolywrapClient::new(config.build());
 

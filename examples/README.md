@@ -34,3 +34,9 @@ Invoke the Ethers core & util wraps, and uses the Ethereum Wallet plugin. It get
 ```shell
 $ cargo run --example ethers --release
 ```
+
+## ENS
+Invoke the ENS wrap, it gets the resolver & content hash of vitalik.eth
+```shell
+$ cargo run --example ens --release
+```
