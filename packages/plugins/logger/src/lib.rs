@@ -34,7 +34,6 @@ impl LoggerPlugin {
 #[plugin_impl]
 impl Module for LoggerPlugin {
     fn log(&mut self, args: &ArgsLog, _: Arc<dyn Invoker>) -> Result<bool, PluginError> {
-        println!("hola:)");
         match self.log_func {
             Some(ref func) => {
                 func(args.level, &args.message);
@@ -43,7 +42,7 @@ impl Module for LoggerPlugin {
                 LogLevel::DEBUG => debug!("{}", args.message),
                 LogLevel::WARN => warn!("{}", args.message),
                 LogLevel::ERROR => error!("{}", args.message),
-                LogLevel::INFO => println!("{}", args.message),
+                LogLevel::INFO => info!("{}", args.message),
                 _ => {
                     return Err(PluginError::InvocationError {
                         exception: format!("Unknown log level"),
