@@ -25,6 +25,16 @@ struct Args {
     arg: ModuleMethodResponse,
 }
 
+#[derive(Serialize)]
+struct AbstractMethodArgs {
+    arg: Object,
+}
+
+#[derive(Serialize)]
+struct Object {
+    str: String,
+}
+
 #[test]
 fn test_interface_implementation() {
     let test_path = get_tests_path().unwrap();
@@ -38,10 +48,7 @@ fn test_interface_implementation() {
         .unwrap();
 
     let mut interfaces: InterfaceImplementations = HashMap::new();
-    interfaces.insert(
-        uri!("authority/interface"),
-        vec![implementation_uri],
-    );
+    interfaces.insert(uri!("authority/interface"), vec![implementation_uri]);
 
     let file_reader = SimpleFileReader::new();
     let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
@@ -74,4 +81,23 @@ fn test_interface_implementation() {
         )
         .unwrap();
     assert_eq!(invoke_result, mock_response);
+
+    let abstract_method_result = client
+        .invoke::<String>(
+            &wrapper_uri,
+            "abstractModuleMethod",
+            Some(
+                &to_vec(&AbstractMethodArgs {
+                    arg: Object {
+                        str: "test".to_string(),
+                    },
+                })
+                .unwrap(),
+            ),
+            None,
+            None,
+        )
+        .unwrap();
+
+    assert_eq!(abstract_method_result, "test".to_string())
 }
