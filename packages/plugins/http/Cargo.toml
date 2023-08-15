@@ -8,19 +8,14 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-polywrap_core.workspace = true
 polywrap_plugin.workspace = true
-polywrap_msgpack_serde.workspace = true
-polywrap_resolvers.workspace = true
-wrap_manifest_schemas.workspace = true
+serde.workspace = true
+thiserror.workspace = true
 
 ureq.workspace = true
 multipart = "0.18.0"
-
 base64.workspace = true
-serde.workspace = true
-thiserror.workspace = true
-serde_json.workspace = true
 
 [dev-dependencies]
 polywrap_client.workspace = true
+polywrap_resolvers.workspace = true

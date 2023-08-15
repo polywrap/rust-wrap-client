@@ -1,10 +1,8 @@
 use polywrap_client::client::PolywrapClient;
-use polywrap_core::{client::ClientConfig, uri::Uri};
+use polywrap_plugin::*;
 use polywrap_ethereum_wallet_plugin::{
     connection::Connection, connections::Connections, EthereumWalletPlugin,
 };
-use polywrap_msgpack_serde::to_vec;
-use polywrap_plugin::package::PluginPackage;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc};
@@ -91,8 +89,7 @@ fn get_signer_address() {
 
 #[derive(Serialize)]
 struct SignMessageArgs {
-    #[serde(with = "serde_bytes")]
-    message: Vec<u8>,
+    message: ByteBuf,
 }
 
 #[test]
@@ -103,7 +100,7 @@ fn sign_message() {
         "signMessage",
         Some(
             &to_vec(&SignMessageArgs {
-                message: "Hello World".as_bytes().to_vec(),
+                message: ByteBuf::from("Hello World".as_bytes()),
             })
             .unwrap(),
         ),

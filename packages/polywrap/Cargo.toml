@@ -1,0 +1,25 @@
+[package]
+name = "polywrap"
+description = "Polywrap Client implementation in rust"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+polywrap_core.workspace = true
+polywrap_msgpack_serde.workspace = true
+polywrap_resolvers.workspace = true
+polywrap_client_builder.workspace = true
+polywrap_client.workspace = true
+polywrap_wasm.workspace = true
+polywrap_plugin.workspace = true
+wrap_manifest_schemas.workspace = true
+polywrap_client_default_config.workspace = true
+polywrap_resolver_extensions.workspace = true
+
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+bigdecimal.workspace = true

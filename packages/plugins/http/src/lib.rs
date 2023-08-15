@@ -2,8 +2,7 @@ use crate::{
     parse_request::parse_request, parse_response::parse_response, wrap::wrap_info::get_manifest,
 };
 use multipart::client::lazy::Multipart;
-use polywrap_core::invoker::Invoker;
-use polywrap_plugin::{error::PluginError, implementor::plugin_impl, JSON};
+use polywrap_plugin::*;
 use std::{io::Cursor, sync::Arc};
 use ureq::{Request as UreqRequest, Response as UreqResponse};
 use wrap::{
@@ -122,7 +121,7 @@ pub enum HttpPluginError {
     #[error("Error sending request: `{0}`")]
     SendRequestError(String),
     #[error("Error parsing JSON: `{0}`")]
-    JSONParseError(serde_json::Error),
+    JSONParseError(JSON::Error),
     #[error("Error decoding base64 of form value: `{0}`")]
     FormValueBase64DecodeError(base64::DecodeError),
     #[error("Error preparing multipart data: `{0}`")]
