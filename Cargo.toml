@@ -7,6 +7,7 @@ repository = "https://github.com/polywrap/rust-client"
 
 [workspace]
 members = [
+    "packages/polywrap",
     "packages/client",
     "packages/core",
     "packages/uri",
@@ -25,6 +26,7 @@ members = [
 
 # Do not include test utils in default members
 default-members = [
+    "packages/polywrap",
     "packages/client",
     "packages/core",
     "packages/uri",
@@ -42,7 +44,8 @@ default-members = [
 ]
 
 [workspace.dependencies]
-polywrap_client = { version = "0.1.6-beta.13", path = "packages/client" } 
+polywrap = { version = "0.1.6-beta.13", path = "packages/polywrap" }
+polywrap_client = { version = "0.1.6-beta.13", path = "packages/client" }
 polywrap_wasm = { version = "0.1.6-beta.13", path = "packages/wasm" }
 polywrap_client_builder = { version = "0.1.6-beta.13", path = "packages/builder" }
 polywrap_uri = { version = "0.1.6-beta.13", path = "packages/uri" }
@@ -58,7 +61,7 @@ polywrap_core_macros = { version = "0.1.6-beta.13", path = "packages/core/macros
 polywrap_plugin_implementor = { version = "0.1.6-beta.13", path = "packages/plugin/implementor" }
 
 polywrap_fs_plugin = { version = "0.1.6-beta.13", path = "packages/plugins/fs" }
-polywrap_http_plugin = { version = "0.1.6-beta.13", path = "packages/plugins/http"  }
+polywrap_http_plugin = { version = "0.1.6-beta.13", path = "packages/plugins/http" }
 polywrap_ethereum_wallet_plugin = { version = "0.1.6-beta.13", path = "packages/plugins/ethereum-wallet" }
 
 polywrap_msgpack_serde = "0.0.2-beta.5"

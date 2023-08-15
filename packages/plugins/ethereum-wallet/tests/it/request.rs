@@ -1,6 +1,4 @@
-use polywrap_core::uri::Uri;
-use polywrap_msgpack_serde::to_vec;
-use polywrap_plugin::JSON::{json, to_string, to_value, Value};
+use polywrap_plugin::*;
 use serde::Serialize;
 
 use crate::{get_client, ConnectionArgs};
