@@ -17,4 +17,3 @@ lazy_static.workspace = true
 
 [dev-dependencies]
 polywrap_client.workspace = true
-polywrap_resolvers.workspace = true

@@ -1,6 +1,8 @@
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::{
+    client::PolywrapClient,
+    resolvers::static_resolver::{StaticResolver, StaticResolverLike},
+};
 use polywrap_fs_plugin::FileSystemPlugin;
-use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 
 use lazy_static::lazy_static;
 use polywrap_plugin::*;

@@ -18,4 +18,3 @@ base64.workspace = true
 
 [dev-dependencies]
 polywrap_client.workspace = true
-polywrap_resolvers.workspace = true

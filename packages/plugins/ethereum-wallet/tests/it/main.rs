@@ -1,9 +1,11 @@
-use polywrap_client::client::PolywrapClient;
-use polywrap_plugin::*;
+use polywrap_client::{
+    client::PolywrapClient,
+    resolvers::static_resolver::{StaticResolver, StaticResolverLike},
+};
 use polywrap_ethereum_wallet_plugin::{
     connection::Connection, connections::Connections, EthereumWalletPlugin,
 };
-use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
+use polywrap_plugin::*;
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc};
 
