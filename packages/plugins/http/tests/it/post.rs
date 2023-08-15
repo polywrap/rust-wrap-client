@@ -1,10 +1,5 @@
-use polywrap_client::{
-    core::uri::Uri,
-    plugin::JSON::{from_str, json},
-};
-use polywrap_core::macros::uri;
+use polywrap_plugin::*;
 use polywrap_http_plugin::wrap::types::{Request, Response};
-use polywrap_msgpack_serde::to_vec;
 use serde::{Deserialize, Serialize};
 
 use crate::get_client;
