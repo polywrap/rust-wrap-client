@@ -8,16 +8,17 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-thiserror.workspace = true
 polywrap_core.workspace = true
+polywrap_uri.workspace = true
 wrap_manifest_schemas.workspace = true
 polywrap_msgpack_serde.workspace = true
-serde_json.workspace = true
 
 Inflector = "0.11.4"
 
 polywrap_plugin_implementor = { workspace = true, optional = true }
 
+serde_json.workspace = true
+thiserror.workspace = true
 serde.workspace = true
 bigdecimal.workspace = true
 num-bigint.workspace = true

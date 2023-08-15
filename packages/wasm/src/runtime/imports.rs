@@ -6,6 +6,8 @@ use wasmer::{
     Value, RuntimeError,
 };
 
+use crate::runtime::instance::SubinvokeImplementationState;
+
 use super::instance::State;
 
 pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>>) -> Imports {
@@ -376,12 +378,22 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
 
         match result {
             Ok(r) => {
-                state.subinvoke.result = Some(r);
+                let subinvoke_state = SubinvokeImplementationState {
+                    result: Some(r),
+                    args: args_buffer,
+                    error: None
+                };
+                state.subinvoke_implementation = Some(subinvoke_state);
                 Ok(vec![Value::I32(1)])
             }
             Err(e) => {
                 let error = format!("interface implementation subinvoke failed for uri: {interface} with error: {e}");
-                state.subinvoke.error = Some(error);
+                let subinvoke_state = SubinvokeImplementationState {
+                    result: None,
+                    args: args_buffer,
+                    error: Some(error)
+                };
+                state.subinvoke_implementation = Some(subinvoke_state);
                 Ok(vec![Value::I32(0)])
             }
         }

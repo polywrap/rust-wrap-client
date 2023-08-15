@@ -1,7 +1,5 @@
-use polywrap_core::{macros::uri, uri::Uri};
 use polywrap_http_plugin::wrap::types::Response;
-use polywrap_msgpack_serde::to_vec;
-use polywrap_plugin::{Map, JSON};
+use polywrap_plugin::*;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
