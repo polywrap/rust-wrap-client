@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use polywrap_client::core::Error;
+use polywrap_client::core::error::Error;
 
 #[derive(thiserror::Error, Debug, Clone)]
 pub enum FFIError {
