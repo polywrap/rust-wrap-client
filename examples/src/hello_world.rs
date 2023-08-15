@@ -1,21 +1,11 @@
-extern crate polywrap_client;
-extern crate polywrap_client_builder;
-extern crate polywrap_client_default_config;
-extern crate polywrap_core;
+extern crate polywrap;
 extern crate polywrap_logger_plugin;
-extern crate polywrap_msgpack_serde;
-extern crate polywrap_plugin;
 extern crate serde;
 
 use std::sync::Arc;
 
-use polywrap_client::client::PolywrapClient;
-use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
-use polywrap_client_default_config::SystemClientConfig;
-use polywrap_core::{client::ClientConfigBuilder, error::Error, macros::uri, uri::Uri};
+use polywrap::*;
 use polywrap_logger_plugin::LoggerPlugin;
-use polywrap_msgpack_serde::to_vec;
-use polywrap_plugin::package::PluginPackage;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -41,7 +31,7 @@ fn main() {
         )
         .add(SystemClientConfig::default().into());
     let client = PolywrapClient::new(config.build());
-    let result: Result<bool, Error> = client.invoke(
+    let result = client.invoke::<bool>(
         &wrap_uri,
         "info",
         Some(

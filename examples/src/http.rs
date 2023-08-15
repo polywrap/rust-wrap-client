@@ -1,23 +1,11 @@
-extern crate polywrap_client;
-extern crate polywrap_client_builder;
-extern crate polywrap_client_default_config;
-extern crate polywrap_core;
+extern crate polywrap;
 extern crate polywrap_http_plugin;
-extern crate polywrap_msgpack_serde;
-extern crate polywrap_plugin;
 extern crate serde;
 
 use std::{collections::HashMap, sync::Arc};
 
-use polywrap_client::client::PolywrapClient;
-use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
-use polywrap_core::{client::ClientConfigBuilder, error::Error, macros::uri, uri::Uri};
+use polywrap::*;
 use polywrap_http_plugin::HttpPlugin;
-use polywrap_msgpack_serde::{
-    to_vec,
-    JSON::{self, json},
-};
-use polywrap_plugin::package::PluginPackage;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
@@ -55,7 +43,7 @@ fn main() {
     config.add_package(uri.clone(), Arc::new(http_package));
 
     let client = PolywrapClient::new(config.build());
-    let get_result: Result<Response, Error> = client.invoke(
+    let get_result = client.invoke::<Response>(
         &uri,
         "get",
         Some(
@@ -77,7 +65,7 @@ fn main() {
 
     println!("Get method response: {:#?}", get_result.unwrap());
 
-    let post_result: Result<Response, Error> = client.invoke(
+    let post_result = client.invoke::<Response>(
         &uri,
         "post",
         Some(

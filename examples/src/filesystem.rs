@@ -1,20 +1,11 @@
-extern crate polywrap_client;
-extern crate polywrap_client_builder;
-extern crate polywrap_client_default_config;
-extern crate polywrap_core;
+extern crate polywrap;
 extern crate polywrap_fs_plugin;
-extern crate polywrap_msgpack_serde;
-extern crate polywrap_plugin;
 extern crate serde;
 
 use std::sync::Arc;
 
-use polywrap_client::client::PolywrapClient;
-use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
-use polywrap_core::{client::ClientConfigBuilder, error::Error, macros::uri, uri::Uri};
+use polywrap::*;
 use polywrap_fs_plugin::FileSystemPlugin;
-use polywrap_msgpack_serde::{to_vec, bytes::ByteBuf};
-use polywrap_plugin::package::PluginPackage;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -39,7 +30,7 @@ fn main() {
     let data = "Hello world!";
 
     let client = PolywrapClient::new(config.build());
-    let write_file_result: Result<bool, Error> = client.invoke(
+    let write_file_result = client.invoke::<bool>(
         &uri,
         "writeFile",
         Some(
@@ -62,7 +53,7 @@ fn main() {
 
     println!("File created!");
 
-    let read_file_result: Result<ByteBuf, Error> = client.invoke(
+    let read_file_result = client.invoke::<ByteBuf>(
         &uri,
         "readFile",
         Some(
@@ -87,7 +78,7 @@ fn main() {
         String::from_utf8(read_file_result.unwrap().to_vec())
     );
 
-    let remove_file_result: Result<bool, Error> = client.invoke(
+    let remove_file_result = client.invoke::<bool>(
         &uri,
         "rm",
         Some(&to_vec(&FileArgs { path: file_path }).unwrap()),

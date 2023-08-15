@@ -17,5 +17,8 @@ pub use resolvers::*;
 pub use wasm::*;
 pub use resolver_extensions::*;
 
+// Serde JSON also has a to_vec method so this makes
+// the msgpack to_vec the one exported by default
+pub use msgpack::to_vec;
 pub use serde::*;
 pub use serde_json::*;

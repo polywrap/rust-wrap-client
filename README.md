@@ -19,6 +19,7 @@ Create a new Polywrap Client Config Builder instance, add the bundles you want t
 
 ```rust
 use polywrap::*;
+use serde::*;
 
 #[derive(Serialize)]
 struct CatArgs {

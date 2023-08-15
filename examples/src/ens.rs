@@ -1,23 +1,13 @@
-extern crate polywrap_client;
-extern crate polywrap_client_builder;
-extern crate polywrap_client_default_config;
-extern crate polywrap_core;
+extern crate polywrap;
 extern crate polywrap_ethereum_wallet_plugin;
-extern crate polywrap_msgpack_serde;
-extern crate polywrap_plugin;
 extern crate serde;
 
 use std::{collections::HashMap, sync::Arc};
 
-use polywrap_client::client::PolywrapClient;
-use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
-use polywrap_client_default_config::SystemClientConfig;
-use polywrap_core::{client::ClientConfigBuilder, macros::uri, uri::Uri};
+use polywrap::*;
 use polywrap_ethereum_wallet_plugin::{
     connection::Connection, connections::Connections, EthereumWalletPlugin,
 };
-use polywrap_msgpack_serde::to_vec;
-use polywrap_plugin::package::PluginPackage;
 use serde::Serialize;
 
 #[derive(Serialize)]

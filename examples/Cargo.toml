@@ -4,18 +4,13 @@ version = "0.0.0"
 publish = false
 
 [dev-dependencies]
-polywrap_core = { path = "../packages/core" }
-polywrap_client = { path = "../packages/client" }
-polywrap_client_builder = { path = "../packages/builder" }
-polywrap_client_default_config = { path = "../packages/default-config" }
-polywrap_plugin = { path = "../packages/plugin" }
+polywrap = { path = "../packages/polywrap" }
 
 polywrap_logger_plugin = { path = "../packages/plugins/logger" }
 polywrap_fs_plugin = { path = "../packages/plugins/fs" }
 polywrap_http_plugin = { path = "../packages/plugins/http" }
 polywrap_ethereum_wallet_plugin = { path = "../packages/plugins/ethereum-wallet" }
 
-polywrap_msgpack_serde = "0.0.2-beta.5"
 serde = { version = "1.0.145", features = ["derive"] }
 
 [[example]]

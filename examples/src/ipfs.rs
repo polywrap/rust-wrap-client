@@ -1,17 +1,8 @@
-extern crate polywrap_client;
-extern crate polywrap_client_builder;
-extern crate polywrap_client_default_config;
-extern crate polywrap_core;
+extern crate polywrap;
 extern crate polywrap_http_plugin;
-extern crate polywrap_msgpack_serde;
-extern crate polywrap_plugin;
 extern crate serde;
 
-use polywrap_client::{client::PolywrapClient, core::uri::Uri};
-use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
-use polywrap_client_default_config::SystemClientConfig;
-use polywrap_core::{client::ClientConfigBuilder, macros::uri};
-use polywrap_msgpack_serde::{bytes::ByteBuf, to_vec};
+use polywrap::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
