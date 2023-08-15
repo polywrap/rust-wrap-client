@@ -18,6 +18,7 @@ packages=(
   "plugins/fs"
   "plugins/ethereum-wallet"
   "default-config"
+  "polywrap"
 )
 
 # Iterate through the packages and publish them one by one
