@@ -1,0 +1,3 @@
+coverage:
+  ignore:
+    - "packages/native/src/mocks/*"

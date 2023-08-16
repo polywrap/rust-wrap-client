@@ -21,7 +21,7 @@ impl IFFIWrapper for MockWrapper {
     ) -> Result<Vec<u8>, FFIError> {
         // In Msgpack: True = [195] and False = [194]
         match method.as_str() {
-            "bar" => Ok(vec![195]),
+            "foo" => Ok(vec![195]),
             "error_method" => Err(FFIError::InvokeError {
                 uri: "mock/ffi-wrap".to_string(),
                 method: "error_method".to_string(),
