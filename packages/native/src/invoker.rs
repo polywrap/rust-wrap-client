@@ -25,7 +25,7 @@ impl FFIInvoker {
 
     pub fn get_implementations(&self, uri: Arc<FFIUri>) -> Result<Vec<Arc<FFIUri>>, FFIError> {
         let uris = self.0.get_implementations(&uri.0)?;
-        let uris: Vec<Arc<FFIUri>> = uris
+        let uris = uris
             .into_iter()
             .map(|uri| Arc::new(FFIUri(uri.clone())))
             .collect();
@@ -54,7 +54,7 @@ impl FFIInvoker {
     }
 
     pub fn get_env_by_uri(&self, uri: Arc<FFIUri>) -> Option<Vec<u8>> {
-        self.0.get_env_by_uri(&uri.0).map(|env| env.to_vec())
+        self.0.get_env_by_uri(&uri.0)
     }
 }
 
@@ -62,7 +62,6 @@ impl FFIInvoker {
 mod test {
     use std::collections::HashMap;
 
-    use polywrap_client::core::{macros::uri, uri::Uri};
     use polywrap_tests_utils::mocks::get_mock_invoker;
 
     use crate::{invoker::FFIInvoker, uri::ffi_uri_from_string};

@@ -17,19 +17,52 @@ use super::{
     resolution_context::FFIUriResolutionContext, uri_package_or_wrapper::FFIUriPackageOrWrapper,
 };
 
-pub trait FFIUriResolver: Send + Sync + Debug {
+pub trait IFFIUriResolver: Send + Sync + Debug {
     fn try_resolve_uri(
         &self,
         uri: Arc<FFIUri>,
         invoker: Arc<FFIInvoker>,
         resolution_context: Arc<FFIUriResolutionContext>,
-    ) -> Result<Box<dyn FFIUriPackageOrWrapper>, FFIError>;
+    ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError>;
+}
+
+impl IFFIUriResolver for Arc<dyn UriResolver> {
+    fn try_resolve_uri(
+        &self,
+        uri: Arc<FFIUri>,
+        invoker: Arc<FFIInvoker>,
+        resolution_context: Arc<FFIUriResolutionContext>,
+    ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
+        let uri_package_or_wrapper = UriResolver::try_resolve_uri(
+            self.as_ref(),
+            &uri.0,
+            invoker.0.clone(),
+            resolution_context.0.clone(),
+        )?;
+
+        Ok(Arc::new(FFIUriPackageOrWrapper(uri_package_or_wrapper)))
+    }
 }
 
 #[derive(Debug)]
-pub struct UriResolverWrapping(pub Box<dyn FFIUriResolver>);
+pub struct FFIUriResolver(pub Box<dyn IFFIUriResolver>);
 
-impl UriResolver for UriResolverWrapping {
+impl FFIUriResolver {
+    pub fn new(uri_resolver: Box<dyn IFFIUriResolver>) -> Self {
+        Self(uri_resolver)
+    }
+
+    pub fn try_resolve_uri(
+        &self,
+        uri: Arc<FFIUri>,
+        invoker: Arc<FFIInvoker>,
+        resolution_context: Arc<FFIUriResolutionContext>,
+    ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
+        self.0.try_resolve_uri(uri, invoker, resolution_context)
+    }
+}
+
+impl UriResolver for FFIUriResolver {
     fn try_resolve_uri(
         &self,
         uri: &polywrap_client::core::uri::Uri,
@@ -43,12 +76,6 @@ impl UriResolver for UriResolverWrapping {
             Arc::new(ffi_resolution_context),
         )?;
 
-        Ok(result.into())
-    }
-}
-
-impl UriResolverWrapping {
-    pub fn as_uri_resolver(self) -> Box<dyn UriResolver> {
-        Box::new(self) as Box<dyn UriResolver>
+        Ok(result.as_ref().0.clone())
     }
 }

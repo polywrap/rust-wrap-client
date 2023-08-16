@@ -59,3 +59,4 @@ pub fn get_mock_wrapper() -> Arc<dyn Wrapper> {
 pub fn get_different_mock_wrapper() -> Arc<dyn Wrapper> {
     Arc::new(DifferentMockWrapper {})
 }
+

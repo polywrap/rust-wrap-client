@@ -27,7 +27,6 @@ uniffi = { version = "0.24.2", features = [ "build" ] }
 
 [dev-dependencies]
 polywrap_tests_utils.workspace = true
-polywrap_client_default_config.workspace = true
 
 [[bin]]
 name = "uniffi-bindgen"
