@@ -68,9 +68,9 @@ impl Wrapper for FFIWrapper {
         let args = args.map(|args| args.to_vec());
         let env = env.map(|env| env.to_vec());
 
-        Ok(self
-            .0
-            .invoke(method.to_string(), args, env, Arc::new(FFIInvoker(invoker)))?)
+        self.0
+            .invoke(method.to_string(), args, env, Arc::new(FFIInvoker(invoker)))
+            .map_err(|e| e.into())
     }
 
     fn get_file(&self, _: &GetFileOptions) -> Result<Vec<u8>, Error> {
@@ -82,10 +82,14 @@ impl Wrapper for FFIWrapper {
 mod test {
     use std::sync::Arc;
 
+    use polywrap_client::core::{error::Error, wrapper::Wrapper};
     use polywrap_msgpack_serde::from_slice;
     use polywrap_tests_utils::mocks::get_mock_invoker;
 
-    use crate::{invoker::FFIInvoker, mocks::wrapper::get_mock_ffi_wrapper, wrapper::FFIWrapper};
+    use crate::{
+        error::FFIError, invoker::FFIInvoker, mocks::wrapper::get_mock_ffi_wrapper,
+        wrapper::FFIWrapper,
+    };
 
     fn get_mocks() -> (FFIWrapper, FFIInvoker) {
         (get_mock_ffi_wrapper(), FFIInvoker(get_mock_invoker()))
@@ -94,7 +98,47 @@ mod test {
     #[test]
     fn ffi_wrapper() {
         let (ffi_wrapper, ffi_invoker) = get_mocks();
-        let response: Result<Vec<u8>, crate::error::FFIError> = ffi_wrapper.invoke("foo", None, None, Arc::new(ffi_invoker));
+        let response: Result<Vec<u8>, crate::error::FFIError> =
+            ffi_wrapper.invoke("foo", None, None, Arc::new(ffi_invoker));
         assert!(from_slice::<bool>(&response.unwrap()).unwrap());
+    }
+
+    #[test]
+    fn ffi_wrapper_invocation_with_error() {
+        let (ffi_wrapper, ffi_invoker) = get_mocks();
+        let response = ffi_wrapper.invoke("error_method", None, None, Arc::new(ffi_invoker));
+        assert!(response.is_err());
+        let error = response.unwrap_err();
+        match error {
+            FFIError::InvokeError { uri, method, err } => {
+                assert_eq!(uri, "mock/ffi-wrap");
+                assert_eq!(method, "error_method");
+                assert_eq!(err, "error from mock ffi wrapper");
+            }
+            _ => panic!("Unexpected error type received"),
+        }
+    }
+
+    #[test]
+    fn wrapper_invoke_passing_ffi_wrapper() {
+        let (ffi_wrapper, _) = get_mocks();
+        let response = Wrapper::invoke(&ffi_wrapper, "foo", None, None, get_mock_invoker());
+        assert!(from_slice::<bool>(&response.unwrap()).unwrap());
+    }
+
+    #[test]
+    fn wrapper_invocake_with_error_passing_ffi_wrapper() {
+        let (ffi_wrapper, _) = get_mocks();
+        let response = Wrapper::invoke(&ffi_wrapper, "error_method", None, None, get_mock_invoker());
+        assert!(response.is_err());
+        let error = response.unwrap_err();
+        match error {
+            Error::InvokeError(uri, method, err) => {
+                assert_eq!(uri, "mock/ffi-wrap");
+                assert_eq!(method, "error_method");
+                assert_eq!(err, "error from mock ffi wrapper");
+            }
+            _ => panic!("Unexpected error type received"),
+        }
     }
 }

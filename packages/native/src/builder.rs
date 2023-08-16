@@ -209,7 +209,7 @@ mod test {
     };
     use serde::Serialize;
 
-    use crate::{package::FFIWrapPackage, uri::{ffi_uri_from_string, FFIUri}, wrapper::FFIWrapper};
+    use crate::{package::FFIWrapPackage, uri::{ffi_uri_from_string, FFIUri}, wrapper::FFIWrapper, resolvers::{_static::FFIStaticUriResolver, ffi_resolver::FFIUriResolver}};
 
     use super::FFIBuilderConfig;
 
@@ -416,6 +416,18 @@ mod test {
                 )
             ]))
         );
+    }
+
+    #[test]
+    fn adds_and_get_resolvers() {
+        let builder = FFIBuilderConfig::new();
+        let static_resolver = FFIStaticUriResolver::new(HashMap::new()).unwrap();
+        builder.add_resolver(Arc::new(FFIUriResolver::new(Box::new(static_resolver))));
+
+        assert!(builder.0.lock().unwrap().resolvers.is_some());
+
+        let resolvers = builder.get_resolvers().unwrap();
+        assert_eq!(resolvers.len(), 1);
     }
 
     #[test]
