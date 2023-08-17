@@ -20,10 +20,31 @@ jobs:
       - name: Read VERSION into env.RELEASE_VERSION
         run: echo RELEASE_VERSION=$(cat VERSION) >> $GITHUB_ENV
 
+      - name: Check If Tag Exists
+        id: tag_check
+        shell: bash -ex {0}
+        run: |
+          GET_API_URL="https://api.github.com/repos/${{github.repository}}/git/ref/tags/${{env.RELEASE_VERSION}}"
+          http_status_code=$(curl -LI $GET_API_URL -o /dev/null -w '%{http_code}\n' -s \
+            -H "Authorization: token ${GITHUB_TOKEN}")
+          if [ "$http_status_code" -ne "404" ] ; then
+            echo TAG_EXISTS=true >> $GITHUB_ENV
+          else
+            echo TAG_EXISTS=false >> $GITHUB_ENV
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Git Identity
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{github.repository}}
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: 1.69.0
           override: true
 
       - name: Publish workspace packages to crates.io
@@ -41,3 +62,27 @@ jobs:
               repo: context.repo.repo,
               body: '**[Crates.io Release Published](https://crates.io/search?q=polywrap) `${{env.RELEASE_VERSION}}`** 🎉'
             })
+
+      - name: Create Git Tag
+        if: env.TAG_EXISTS == 'false'
+        uses: azu/action-package-version-to-git-tag@v1
+        with:
+          version: ${{ env.RELEASE_VERSION }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repo: ${{ github.repository }}
+          git_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Create Release
+        id: create_release
+        if: env.TAG_EXISTS == 'false' && github.event.pull_request.merged == true
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          # Copy Pull Request's tile and body to Release Note
+          release_name: ${{ github.event.pull_request.title }}
+          body: |
+            ${{ github.event.pull_request.body }}
+          draft: false
+          prerelease: false
