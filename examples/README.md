@@ -1,10 +1,5 @@
 # Polywrap Rust Client Examples
 
-## Hello world
-Invokes the logger wrap, which interacts with the logger plugin. It shows a println message from WASM world
-```shell
-$ cargo run --example hello-world --release
-```
 
 ## File system
 Invokes the File System plugin; which creats, reads and deletes a file
@@ -29,6 +24,12 @@ $ npx polywrap infra up --modules=eth-ens-ipfs
 And now you can run the example:
 ```shell
 $ cargo run --example ipfs --release
+```
+
+## Logger
+Invokes the logger wrap, which interacts with the logger plugin. It shows a println message from WASM world
+```shell
+$ cargo run --example logger --release
 ```
 
 ## Ethers

@@ -9,5 +9,4 @@ pub use polywrap_resolvers as resolvers;
 pub use polywrap_wasm as wasm;
 pub use wrap_manifest_schemas as wrap_manifest;
 
-// Make PolywrapClient accessible
 pub use client::*;
