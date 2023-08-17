@@ -1,6 +1,6 @@
 [package]
 name = "client-examples"
-version = "0.1.6-beta.14"
+version = "0.1.7"
 publish = false
 
 [dev-dependencies]
