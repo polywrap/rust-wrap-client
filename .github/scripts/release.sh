@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit script if any command fails
+set -e
+
 # Define an array of your packages in the order they should be published
 packages=(
   "manifest"
