@@ -425,7 +425,7 @@ mod test {
         assert!(builder.0.lock().unwrap().envs.is_some());
         assert!(builder.0.lock().unwrap().redirects.is_some());
         assert!(builder.0.lock().unwrap().interfaces.is_some());
-        assert!(builder.0.lock().unwrap().wrappers.is_some());
+        assert!(builder.0.lock().unwrap().wrappers.is_none());
         assert!(builder.0.lock().unwrap().packages.is_some());
     
         let _ = builder.build();
