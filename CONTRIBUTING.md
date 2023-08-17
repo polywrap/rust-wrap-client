@@ -7,9 +7,9 @@ Contributions are more than welcome. If you find a bug or have suggestions for i
 
 ## Pre-Requisites
 
-You must rust installed on your machine. If you don't, you can install it [here](https://www.rust-lang.org/tools/install).
+You must have rust installed on your machine. If you don't, you can install it [here](https://www.rust-lang.org/tools/install).
 
-Version `1.69.0` its used in the workspace, so once you have rustup installed you can set the version with the following command:
+Version `1.69.0` is used in the workspace, so once you have rust installed you can set the version with the following command:
 ```shell
 $ rustup override set 1.69.0
 ```
