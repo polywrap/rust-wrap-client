@@ -1,38 +1,69 @@
-# Polywrap Rust client
+![polywrap-banner](https://raw.githubusercontent.com/polywrap/branding/master/assets/banner.png)
 
-Implementation of a client compatible with the [WRAP Protocol](https://github.com/polywrap/specification) in rust
+# Rust Client [![codecov](https://codecov.io/gh/polywrap/rust-client/branch/main/graph/badge.svg?token=Z0VNH4R5UR)](https://codecov.io/gh/polywrap/rust-client)
 
-[![codecov](https://codecov.io/gh/polywrap/rust-client/branch/main/graph/badge.svg?token=Z0VNH4R5UR)](https://codecov.io/gh/polywrap/rust-client)
+Implementation of the Polywrap client in Rust.
 
-![Public Release Announcement](https://user-images.githubusercontent.com/5522128/177473887-2689cf25-7937-4620-8ca5-17620729a65d.png)
+## Installation
 
-## Overview
+Add this to your Cargo.toml:
 
-
-| Feature | |
-| -- | -- |
-| **Invoke**  | ✅ | 
-| Subinvoke | ✅ |
-| Interfaces | ✅ | 
-| Env Configuration | ✅ |
-| Client Config | ✅ |
-| Plugin Wrapper | ✅ |
-| Wrap Manifest | ✅ |
-| **Uri Resolution** | ⚙️ |
-| Uri: Filesystem | ✅ |
-| Uri: Http | ✅ |
-| Uri: IPFS | ❌ |
-| Uri: ENS | ❌ |
-
-
-
-## Build & Test
-
-Before running tests, cases need to be generated. To do so, run:
-```bash
-cargo run --package polywrap_tests_utils --bin generate
+```toml
+[dependencies]
+polywrap = 0.1.6
 ```
-Now you will be able to run tests:
-```bash
-cargo test
+
+## Getting started
+
+Create a new Polywrap Client Config Builder instance, add the bundles you want to use, and then create a new Polywrap Client instance from the builder.
+
+```rust
+use polywrap::*;
+use serde::*;
+
+#[derive(Serialize)]
+struct CatArgs {
+    cid: String,
+    #[serde(rename = "ipfsProvider")]
+    ipfs_provider: String,
+}
+
+fn main() {
+    let mut config = PolywrapClientConfig::new();
+    config.add(SystemClientConfig::default().into());
+    let client = PolywrapClient::new(config.build());
+
+    let result = client.invoke::<ByteBuf>(
+        uri!("wrapscan.io/polywrap/ipfs-client@1.0"),
+        "cat",
+        Some(&to_vec(
+            &CatArgs {
+                cid: "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR".to_string(),
+                ipfs_provider: "https://ipfs.io".to_string(),
+            }
+        ).unwrap()),
+        None,
+        None
+    );
+
+    if result.is_err() {
+        // Handle error
+    };
+
+    println!(
+        "Cat Result: {}",
+        String::from_utf8(result.unwrap().to_vec()).unwrap()
+    );
+}
 ```
+
+## Resources
+
+- [Documentation](https://docs.polywrap.io/)
+- [Examples](./examples/)
+- [Features supported](https://github.com/polywrap/client-readiness/tree/main/clients/rs/src/features)
+- [Support](https://discord.polywrap.io)
+
+## Contributions
+
+Please check out our [contributing guide](./CONTRIBUTING.md) for guidelines about how to proceed.

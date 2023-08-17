@@ -1,0 +1,10 @@
+format: 0.4.0
+project:
+  name: logger-plugin
+  type: plugin/rust
+source:
+  module: ./Cargo.toml
+  schema: ./polywrap.graphql
+  import_abis:
+    - uri: wrapscan.io/polywrap/logger@1.0
+      abi: ../../interface/polywrap.graphql

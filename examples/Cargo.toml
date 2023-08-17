@@ -1,0 +1,38 @@
+[package]
+name = "client-examples"
+version = "0.0.0"
+publish = false
+
+[dev-dependencies]
+polywrap = { path = "../packages/polywrap" }
+
+polywrap_logger_plugin = { path = "../packages/plugins/logger" }
+polywrap_fs_plugin = { path = "../packages/plugins/fs" }
+polywrap_http_plugin = { path = "../packages/plugins/http" }
+polywrap_ethereum_wallet_plugin = { path = "../packages/plugins/ethereum-wallet" }
+
+serde = { version = "1.0.145", features = ["derive"] }
+
+[[example]]
+name = "logger"
+path = "src/logger.rs"
+
+[[example]]
+name = "filesystem"
+path = "src/filesystem.rs"
+
+[[example]]
+name = "http"
+path = "src/http.rs"
+
+[[example]]
+name = "ipfs"
+path = "src/ipfs.rs"
+
+[[example]]
+name = "ethers"
+path = "src/ethers.rs"
+
+[[example]]
+name = "ens"
+path = "src/ens.rs"
