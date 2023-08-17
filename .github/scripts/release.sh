@@ -28,10 +28,10 @@ packages=(
 for package in "${packages[@]}"; do
   echo "Publishing $package..."
   cd packages/$package
-  cargo build --release
   echo "Generating documentation for $package..."
   cargo doc --no-deps
   echo "Publishing $package..."
   cargo publish --token "${CRATES_IO_TOKEN}"
+  rm -rf target/
   cd -
 done
