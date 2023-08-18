@@ -1,4 +1,5 @@
 name: CD-Rust
+
 on:
   # When Pull Request is merged
   pull_request_target:
@@ -27,106 +28,101 @@ jobs:
           GET_API_URL="https://api.github.com/repos/${{github.repository}}/git/ref/tags/${{env.RELEASE_VERSION}}"
           http_status_code=$(curl -LI $GET_API_URL -o /dev/null -w '%{http_code}\n' -s \
             -H "Authorization: token ${GITHUB_TOKEN}")
-          if [ "$http_status_code" -ne "404" ] ; then
-            echo TAG_EXISTS=true >> $GITHUB_ENV
-          else
-            echo TAG_EXISTS=false >> $GITHUB_ENV
-          fi
+          echo "::set-output name=tag_exists::$([[ "$http_status_code" -ne "404" ]] && echo true || echo false)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  Core-Release:
+  Core-Crates-Release:
     runs-on: ubuntu-latest
     needs: Check-tag
-    if: env.TAG_EXISTS == 'false'
+    if: needs.Check-tag.outputs.tag_exists == 'false'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.pull_request.base.ref }}
 
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 1
-        ref: ${{ github.event.pull_request.base.ref }}
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.69.0
+          override: true
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: 1.69.0
-        override: true
+      - name: Publish core crates to crates.io
+        run: .github/scripts/release.sh core
+        env:
+          CRATES_IO_TOKEN: ${{secrets.POLYWRAP_BUILD_BOT_CRATES_PAT}}
 
-    - name: Publish core crates to crates.io
-      run: .github/scripts/release.sh core
-      env:
-        CRATES_IO_TOKEN: ${{secrets.POLYWRAP_BUILD_BOT_CRATES_PAT}}
-
-  External-Release:
+  External-Crates-Release:
     runs-on: ubuntu-latest
-    needs: Core-Release
-    if: env.TAG_EXISTS == 'false'
+    needs: Core-Crates-Release
+    if: needs.Check-tag.outputs.tag_exists == 'false'
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.pull_request.base.ref }}
 
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 1
-        ref: ${{ github.event.pull_request.base.ref }}
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.69.0
+          override: true
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: 1.69.0
-        override: true
+      - name: Publish external crates to crates.io
+        run: .github/scripts/release.sh external
+        env:
+          CRATES_IO_TOKEN: ${{secrets.POLYWRAP_BUILD_BOT_CRATES_PAT}}
 
-    - name: Publish external crates to crates.io
-      run: .github/scripts/release.sh external
-      env:
-        CRATES_IO_TOKEN: ${{secrets.POLYWRAP_BUILD_BOT_CRATES_PAT}}
-
-    - uses: actions/github-script@0.8.0
-      with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
-        script: |
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: '**[Crates.io Release Published](https://crates.io/search?q=polywrap) `${{env.RELEASE_VERSION}}`** 🎉'
-          })
+      - uses: actions/github-script@0.8.0
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '**[Crates.io Release Published](https://crates.io/search?q=polywrap) `${{env.RELEASE_VERSION}}`** 🎉'
+            })
 
   Create-Gh-Tag-And-Release:
     runs-on: ubuntu-latest
-    needs: External-Release
-    if: env.TAG_EXISTS == 'false'
+    needs: External-Crates-Release
+    if: needs.Check-tag.outputs.tag_exists == 'false'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          ref: ${{ github.event.pull_request.base.ref }}
 
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 1
-        ref: ${{ github.event.pull_request.base.ref }}
+      - name: Set Git Identity
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{github.repository}}
 
-    - name: Set Git Identity
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{github.repository}}
+      - name: Create Git Tag
+        uses: azu/action-package-version-to-git-tag@v1
+        with:
+          version: ${{ env.RELEASE_VERSION }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_repo: ${{ github.repository }}
+          git_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}
 
-    - name: Create Git Tag
-      if: env.TAG_EXISTS == 'false'
-      uses: azu/action-package-version-to-git-tag@v1
-      with:
-        version: ${{ env.RELEASE_VERSION }}
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        github_repo: ${{ github.repository }}
-        git_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}
-
-    - name: Create Release
-      id: create_release
-      if: env.TAG_EXISTS == 'false' && github.event.pull_request.merged == true
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.RELEASE_VERSION }}
-        # Copy Pull Request's tile and body to Release Note
-        release_name: ${{ github.event.pull_request.title }}
-        body: |
-          ${{ github.event.pull_request.body }}
-        draft: false
-        prerelease: false
+      - name: Create Release
+        id: create_release
+        if: github.event.pull_request.merged == true
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.RELEASE_VERSION }}
+          # Copy Pull Request's tile and body to Release Note
+          release_name: ${{ github.event.pull_request.title }}
+          body: |
+            ${{ github.event.pull_request.body }}
+          draft: false
+          prerelease: false
