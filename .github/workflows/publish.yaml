@@ -1,5 +1,8 @@
 name: CD-Rust
 on:
+  push:
+    branches:
+      - fix/publish-workflow
   # When Pull Request is merged
   pull_request_target:
     types: [closed]
