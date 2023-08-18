@@ -13,22 +13,10 @@ struct Args {
     first: u32,
     second: u32,
 }
-use std::time::Instant;
+
 #[test]
 fn sanity() {
-    // measure time
-    let now = Instant::now();
-
     let client = PolywrapClient::new(SystemClientConfig::default().into());
-    let elapsed1 = now.elapsed();
-    println!("Elapsed: {:.2?}", elapsed1);
-    let client = PolywrapClient::new(SystemClientConfig::default().into());
-    let elapsed2 = now.elapsed();
-    println!("Elapsed: {:.2?}", elapsed2 - elapsed1);
-    let client = PolywrapClient::new(SystemClientConfig::default().into());
-
-
-    // panic!("TEST");
 
     let result = client
         .invoke::<u32>(
@@ -47,8 +35,4 @@ fn sanity() {
         .unwrap();
 
     assert_eq!(result, 42);
-    let elapsed3 = now.elapsed();
-    println!("Elapsed: {:.2?}", elapsed3 - elapsed2);
-    // panic!("TEST");
-
 }

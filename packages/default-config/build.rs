@@ -10,7 +10,6 @@ fn main() {
             continue;
         }
 
-        println!("{}", format!("{}/wrap.wasm", directory.path().to_str().unwrap()));
         let wasm = fs::read(format!("{}/wrap.wasm", directory.path().to_str().unwrap())).unwrap();
 
         let compiled_module = WasmModule::WasmBytecode(wasm.into()).compile().unwrap();
