@@ -38,13 +38,13 @@ else
 fi
 
 # Iterate through the packages and publish them one by one
-for package in "${packages[@]}"; do
-  echo "Publishing $package..."
-  cd packages/$package
-  echo "Generating documentation for $package..."
-  cargo doc --no-deps
-  echo "Publishing $package..."
-  cargo publish --token "${CRATES_IO_TOKEN}"
-  rm -rf target/
-  cd -
-done
+# for package in "${packages[@]}"; do
+#   echo "Publishing $package..."
+#   cd packages/$package
+#   echo "Generating documentation for $package..."
+#   cargo doc --no-deps
+#   echo "Publishing $package..."
+#   cargo publish --token "${CRATES_IO_TOKEN}"
+#   rm -rf target/
+#   cd -
+# done

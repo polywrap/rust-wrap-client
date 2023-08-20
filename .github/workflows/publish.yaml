@@ -1,6 +1,9 @@
 name: CD-Rust
 
 on:
+  push:
+    branches:
+      - publish-experimental
   # When Pull Request is merged
   pull_request_target:
     types: [closed]
@@ -8,9 +11,6 @@ on:
 jobs:
   Core-Crates-Release:
     runs-on: ubuntu-latest
-    if: |
-        github.event.pull_request.user.login == 'polywrap-build-bot' &&
-        github.event.pull_request.merged == true
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -50,16 +50,16 @@ jobs:
         env:
           CRATES_IO_TOKEN: ${{secrets.POLYWRAP_BUILD_BOT_CRATES_PAT}}
 
-      - uses: actions/github-script@0.8.0
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '**[Crates.io Release Published](https://crates.io/search?q=polywrap) `${{env.RELEASE_VERSION}}`** 🎉'
-            })
+      # - uses: actions/github-script@0.8.0
+      #   with:
+      #     github-token: ${{secrets.GITHUB_TOKEN}}
+      #     script: |
+      #       github.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: '**[Crates.io Release Published](https://crates.io/search?q=polywrap) `${{env.RELEASE_VERSION}}`** 🎉'
+      #       })
 
   Create-Gh-Tag-And-Release:
     runs-on: ubuntu-latest
@@ -77,13 +77,17 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{github.repository}}
 
+      - name: Read VERSION into env.RELEASE_VERSION
+        run: echo RELEASE_VERSION=$(cat VERSION) >> $GITHUB_ENV
+
       - name: Create Git Tag
-        uses: azu/action-package-version-to-git-tag@v1
+        uses: pkgdeps/git-tag-action@v2
         with:
           version: ${{ env.RELEASE_VERSION }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_repo: ${{ github.repository }}
-          git_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}
+          git_commit_sha: ${{ github.sha }}
+
 
       - name: Create Release
         id: create_release
