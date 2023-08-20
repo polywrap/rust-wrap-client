@@ -6,36 +6,11 @@ on:
     types: [closed]
 
 jobs:
-  Check-tag:
+  Core-Crates-Release:
     runs-on: ubuntu-latest
     if: |
       github.event.pull_request.user.login == 'polywrap-build-bot' &&
       github.event.pull_request.merged == true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
-          ref: ${{ github.event.pull_request.base.ref }}
-
-      - name: Read VERSION into env.RELEASE_VERSION
-        run: echo RELEASE_VERSION=$(cat VERSION) >> $GITHUB_ENV
-
-      - name: Check If Tag Exists
-        id: tag_check
-        shell: bash -ex {0}
-        run: |
-          GET_API_URL="https://api.github.com/repos/${{github.repository}}/git/ref/tags/${{env.RELEASE_VERSION}}"
-          http_status_code=$(curl -LI $GET_API_URL -o /dev/null -w '%{http_code}\n' -s \
-            -H "Authorization: token ${GITHUB_TOKEN}")
-          echo "::set-output name=tag_exists::$([[ "$http_status_code" -ne "404" ]] && echo true || echo false)"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  Core-Crates-Release:
-    runs-on: ubuntu-latest
-    needs: Check-tag
-    if: needs.Check-tag.outputs.tag_exists == 'false'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -57,7 +32,6 @@ jobs:
   External-Crates-Release:
     runs-on: ubuntu-latest
     needs: Core-Crates-Release
-    if: needs.Check-tag.outputs.tag_exists == 'false'
     steps: 
       - name: Checkout
         uses: actions/checkout@v3
@@ -90,7 +64,6 @@ jobs:
   Create-Gh-Tag-And-Release:
     runs-on: ubuntu-latest
     needs: External-Crates-Release
-    if: needs.Check-tag.outputs.tag_exists == 'false'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -104,13 +77,17 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{github.repository}}
 
+      - name: Read VERSION into env.RELEASE_VERSION
+        run: echo RELEASE_VERSION=$(cat VERSION) >> $GITHUB_ENV
+
       - name: Create Git Tag
-        uses: azu/action-package-version-to-git-tag@v1
+        uses: pkgdeps/git-tag-action@v2
         with:
           version: ${{ env.RELEASE_VERSION }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_repo: ${{ github.repository }}
-          git_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}
+          git_commit_sha: ${{ github.sha }}
+
 
       - name: Create Release
         id: create_release
