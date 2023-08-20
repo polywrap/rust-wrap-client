@@ -1,7 +1,7 @@
 use std::{fs, path::Path};
 
 use polywrap_tests_utils::helpers::get_tests_path;
-use polywrap_wasm::wasm_module::WasmModule;
+use polywrap_wasm::wasm_module::{WasmModule, SerializedWasmModule};
 
 #[test]
 fn wasm_module_serialization() {
@@ -18,7 +18,10 @@ fn wasm_module_serialization() {
 
     let result = module.serialize().unwrap();
 
-    let result = result.deserialize();
+    let bytes = result.serialize_for_storage();
+    let serialized_module = SerializedWasmModule::deserialize_from_storage(&bytes);
+
+    let result = serialized_module.deserialize();
 
     assert!(result.is_ok());
 }

@@ -59,12 +59,12 @@ impl WasmPackage {
         wasm_bytes: Vec<u8>,
         file_reader: Arc<dyn FileReader>,
         manifest: Option<Vec<u8>>,
-    ) -> Result<Self, WrapperError> {
-        Ok(Self {
+    ) -> Self {
+        Self {
             file_reader: Arc::new(InMemoryFileReader::new(file_reader, None, Some(wasm_bytes))),
             manifest,
             wasm_module: Arc::new(Mutex::new(Some(WasmModule::Compiled(wasm_module)))),
-        })
+        }
     }
 
     pub fn from_wasm_module(
@@ -72,12 +72,12 @@ impl WasmPackage {
         wasm_bytes: Vec<u8>,
         file_reader: Arc<dyn FileReader>,
         manifest: Option<Vec<u8>>,
-    ) -> Result<Self, WrapperError> {
-        Ok(Self {
+    ) -> Self {
+        Self {
             file_reader: Arc::new(InMemoryFileReader::new(file_reader, None, Some(wasm_bytes))),
             manifest,
             wasm_module: Arc::new(Mutex::new(Some(wasm_module))),
-        })
+        }
     }
 
     pub fn get_wasm_module(&self) -> Result<Vec<u8>, polywrap_core::error::Error> {

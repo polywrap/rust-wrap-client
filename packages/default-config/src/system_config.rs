@@ -61,24 +61,6 @@ impl Default for SystemClientConfig {
                         vec![uri!("wrapscan.io/polywrap/ipfs-http-client@1.0")],
                     ),
                 ])),
-                wrappers: Some(vec![
-                    (
-                        uri!("wrapscan.io/polywrap/file-system-uri-resolver@1.0"),
-                        Arc::new(fs_resolver::wasm_wrapper()),
-                    ),
-                    (
-                        uri!("wrapscan.io/polywrap/http-uri-resolver@1.0"),
-                        Arc::new(http_resolver::wasm_wrapper()),
-                    ),
-                    (
-                        uri!("wrapscan.io/polywrap/ipfs-http-client@1.0"),
-                        Arc::new(ipfs_http_client::wasm_wrapper()),
-                    ),
-                    (
-                        uri!("wrapscan.io/polywrap/async-ipfs-uri-resolver@1.0"),
-                        Arc::new(ipfs_resolver::wasm_wrapper()),
-                    ),
-                ]),
                 packages: Some(vec![
                     (
                         uri!("plugin/file-system@1.0.0"),
@@ -87,6 +69,22 @@ impl Default for SystemClientConfig {
                     (
                         uri!("plugin/http@1.1.0"),
                         Arc::new(PluginPackage::from(HttpPlugin {})),
+                    ),
+                    (
+                        uri!("wrapscan.io/polywrap/file-system-uri-resolver@1.0"),
+                        Arc::new(fs_resolver::wasm_package()),
+                    ),
+                    (
+                        uri!("wrapscan.io/polywrap/http-uri-resolver@1.0"),
+                        Arc::new(http_resolver::wasm_package()),
+                    ),
+                    (
+                        uri!("wrapscan.io/polywrap/ipfs-http-client@1.0"),
+                        Arc::new(ipfs_http_client::wasm_package()),
+                    ),
+                    (
+                        uri!("wrapscan.io/polywrap/async-ipfs-uri-resolver@1.0"),
+                        Arc::new(ipfs_resolver::wasm_package()),
                     ),
                 ]),
                 envs: Some(HashMap::from([(
