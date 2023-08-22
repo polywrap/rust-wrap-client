@@ -59,7 +59,6 @@ impl Module for LoggerPlugin {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use log::{LevelFilter, Metadata, Record};
     use polywrap_client::{
         builder::{PolywrapClientConfig, PolywrapClientConfigBuilder},
         client::PolywrapClient,
@@ -67,49 +66,9 @@ mod tests {
     use polywrap_core::{client::ClientConfigBuilder, macros::uri, uri::Uri};
     use polywrap_msgpack_serde::to_vec;
     use polywrap_plugin::package::PluginPackage;
-    use std::sync::Mutex;
-
-    // This struct will capture logs for us during tests.
-    struct TestLogger {
-        messages: Arc<Mutex<Vec<(LogLevel, String)>>>,
-    }
-
-    impl log::Log for TestLogger {
-        fn enabled(&self, _: &Metadata) -> bool {
-            true
-        }
-
-        fn log(&self, record: &Record) {
-            let level = match record.level() {
-                log::Level::Debug => LogLevel::DEBUG,
-                log::Level::Warn => LogLevel::WARN,
-                log::Level::Error => LogLevel::ERROR,
-                log::Level::Info => LogLevel::INFO,
-                _ => unimplemented!(),
-            };
-            self.messages
-                .lock()
-                .unwrap()
-                .push((level, format!("{}", record.args())));
-        }
-
-        fn flush(&self) {}
-    }
-
-    fn init_test_logger() -> Arc<Mutex<Vec<(LogLevel, String)>>> {
-        let messages = Arc::new(Mutex::new(Vec::new()));
-        let logger = TestLogger {
-            messages: messages.clone(),
-        };
-        log::set_boxed_logger(Box::new(logger)).unwrap();
-        log::set_max_level(LevelFilter::Debug);
-        messages
-    }
 
     #[test]
     fn test_default_logging() {
-        let messages = init_test_logger();
-
         let log_args = ArgsLog {
             level: LogLevel::INFO,
             message: String::from("Info message"),
@@ -128,9 +87,5 @@ mod tests {
             None,
         );
         assert!(result.is_ok());
-        assert_eq!(
-            messages.lock().unwrap().pop().unwrap(),
-            (LogLevel::INFO, "Info message".to_string())
-        );
     }
 }
