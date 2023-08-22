@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
+use env_logger::Env;
 use log::{debug, error, info, warn};
-use polywrap_core::invoker::Invoker;
-use polywrap_plugin::{error::PluginError, implementor::plugin_impl};
+use polywrap_plugin::*;
 use std::fmt::Debug;
 use wrap::{
     module::{ArgsLog, Module},
@@ -11,6 +11,7 @@ use wrap::{
 };
 
 pub mod wrap;
+pub use env_logger;
 
 // 1. Define a new trait
 pub trait LogFuncTrait: Fn(LogLevel, &str) + Debug + Send + Sync {}
@@ -34,6 +35,7 @@ impl LoggerPlugin {
 #[plugin_impl]
 impl Module for LoggerPlugin {
     fn log(&mut self, args: &ArgsLog, _: Arc<dyn Invoker>) -> Result<bool, PluginError> {
+        env_logger::Builder::from_env(Env::default().default_filter_or("trace")).init();
         match self.log_func {
             Some(ref func) => {
                 func(args.level, &args.message);
