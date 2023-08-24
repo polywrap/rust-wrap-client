@@ -9,6 +9,7 @@ exclude = [
 ]
 
 [workspace]
+resolver = "2"
 members = [
     "packages/polywrap",
     "packages/client",
