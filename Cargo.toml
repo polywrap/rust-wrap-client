@@ -78,7 +78,7 @@ tokio = { version = "1.28", features = ["full"] }
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"
 thiserror = "1.0.40"
-jsonschema = "0.16.1"
+jsonschema = { version = "0.16.1", default-features = false }
 regex = "1.6.0"
 ureq = "2.5.0"
 
