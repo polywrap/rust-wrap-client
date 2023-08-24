@@ -17,8 +17,10 @@ pub use resolvers::*;
 pub use wasm::*;
 pub use resolver_extensions::*;
 
-// Serde JSON also has a to_vec method so this makes
-// the msgpack to_vec the one exported by default
-pub use msgpack::to_vec;
+pub use crate::core::error::Error;
+
+// Serde JSON also has a to_vec and from slice method so this makes
+// the msgpack to_vec and from_slice the one exported by default
+pub use msgpack::{to_vec, from_slice};
 pub use serde::*;
 pub use serde_json::*;

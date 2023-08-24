@@ -23,6 +23,7 @@ external_packages=(
   "plugins/http"
   "plugins/fs"
   "plugins/ethereum-wallet"
+  "plugins/logger"
   "default-config"
   "polywrap"
 )

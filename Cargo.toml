@@ -25,6 +25,7 @@ members = [
     "packages/plugins/http",
     "packages/plugins/fs",
     "packages/plugins/ethereum-wallet",
+    "packages/plugins/logger",
 
     "examples/"
 ]
@@ -45,7 +46,8 @@ default-members = [
     "packages/default-config",
     "packages/plugins/http",
     "packages/plugins/fs",
-    "packages/plugins/ethereum-wallet"
+    "packages/plugins/ethereum-wallet",
+    "packages/plugins/logger"
 ]
 
 [workspace.dependencies]

@@ -1,6 +1,7 @@
 use polywrap_client_builder::PolywrapClientConfig;
 use polywrap_fs_plugin::FileSystemPlugin;
 use polywrap_http_plugin::HttpPlugin;
+use polywrap_logger_plugin::LoggerPlugin;
 
 use polywrap_core::{client::ClientConfig, macros::uri, uri::Uri};
 use polywrap_msgpack_serde::to_vec;
@@ -60,6 +61,10 @@ impl Default for SystemClientConfig {
                         uri!("wrapscan.io/polywrap/ipfs-http-client@1.0"),
                         vec![uri!("wrapscan.io/polywrap/ipfs-http-client@1.0")],
                     ),
+                    (
+                        uri!("wrapscan.io/polywrap/logger@1.0"),
+                        vec![uri!("wrapscan.io/polywrap/logger@1.0")],
+                    ),
                 ])),
                 packages: Some(vec![
                     (
@@ -85,6 +90,10 @@ impl Default for SystemClientConfig {
                     (
                         uri!("wrapscan.io/polywrap/async-ipfs-uri-resolver@1.0"),
                         Arc::new(ipfs_resolver::wasm_package()),
+                    ),
+                    (
+                        uri!("wrapscan.io/polywrap/logger@1.0"),
+                        Arc::new(PluginPackage::from(LoggerPlugin::new(None))),
                     ),
                 ]),
                 envs: Some(HashMap::from([(
