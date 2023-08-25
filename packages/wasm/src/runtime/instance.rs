@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use polywrap_core::invoker::Invoker;
 use wasmer::{Instance, Memory, MemoryType, Module, Store, Value};
+use wasmer_compiler_llvm::LLVM;
 
 use crate::error::WrapperError;
 
@@ -63,7 +64,8 @@ impl WasmInstance {
         memory_initial_limits: u8,
         state: Arc<Mutex<State>>,
     ) -> Result<Self, WrapperError> {
-        let mut store = Store::default();
+        let compiler = LLVM::new();
+        let mut store = Store::new(compiler);
         let memory = WasmInstance::create_memory(&mut store, memory_initial_limits)?;
 
         state.lock().unwrap().memory = Some(memory.clone());
