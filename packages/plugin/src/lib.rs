@@ -14,7 +14,7 @@ pub use wrapper::*;
 
 pub use implementor::*;
 pub use polywrap_core::{client::*, invoker::*, macros::*, *};
-pub use polywrap_msgpack_serde::{bytes::ByteBuf, to_vec, Map, *};
+pub use polywrap_msgpack_serde::{serde_bytes::ByteBuf, to_vec, Map, *};
 pub use polywrap_plugin_implementor as implementor;
 pub use polywrap_uri::*;
 pub use wrap_manifest_schemas::{versions::*, *};

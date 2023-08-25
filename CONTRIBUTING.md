@@ -7,12 +7,7 @@ Contributions are more than welcome. If you find a bug or have suggestions for i
 
 ## Pre-Requisites
 
-You must have rust installed on your machine. If you don't, you can install it [here](https://www.rust-lang.org/tools/install).
-
-Version `1.69.0` is used in the workspace, so once you have rust installed you can set the version with the following command:
-```shell
-$ rustup override set 1.69.0
-```
+You must have rust installed on your machine. If you don't, you can install it [here](https://www.rust-lang.org/tools/install). Make sure you're using stable version and not nightly
 
 ## Build and test
 

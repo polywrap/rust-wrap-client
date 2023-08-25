@@ -2,13 +2,14 @@
 version = "0.1.8-beta.2"
 license = "MIT"
 edition = "2021"
-rust-version = "1.69"
+rust-version = "1.70"
 repository = "https://github.com/polywrap/rust-client"
 exclude = [
     "examples"
 ]
 
 [workspace]
+resolver = "2"
 members = [
     "packages/polywrap",
     "packages/client",
@@ -72,13 +73,13 @@ polywrap_http_plugin = { version = "0.1.8-beta.2", path = "packages/plugins/http
 polywrap_ethereum_wallet_plugin = { version = "0.1.8-beta.2", path = "packages/plugins/ethereum-wallet" }
 polywrap_logger_plugin = { version = "0.1.8-beta.2", path = "packages/plugins/logger" }
 
-polywrap_msgpack_serde = "0.0.2-beta.5"
+polywrap_msgpack_serde = "0.0.2-beta.7"
 tokio = { version = "1.28", features = ["full"] }
 
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.87"
 thiserror = "1.0.40"
-jsonschema = "0.16.1"
+jsonschema = { version = "0.16.1", default-features = false }
 regex = "1.6.0"
 ureq = "2.5.0"
 
