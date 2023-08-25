@@ -144,7 +144,7 @@ jobs:
           committer: GitHub <noreply@github.com>
           author: ${{env.BUILD_BOT}} <${{env.BUILD_BOT}}@users.noreply.github.com>
           commit-message: "${{env.RELEASE_VERSION}}"
-          title: '(prep/release): rust client (${{env.RELEASE_VERSION}})'
+          title: 'Release: v${{env.RELEASE_VERSION}}'
           body: |
             ## Rust client (${{env.RELEASE_VERSION}})
 
