@@ -14,7 +14,7 @@ fn text_record_uri_resolver() {
     let wrap_uri = format!("ens/ethers.wraps.eth:utils@0.1.1");
     let mut config = PolywrapClientConfig::new();
     config
-        .add(SystemClientConfig::default().into())
+        .add(SystemClientConfig::precompiled().into())
         .add(Web3ClientConfig::default().into());
 
     let client = PolywrapClient::new(config.into());
