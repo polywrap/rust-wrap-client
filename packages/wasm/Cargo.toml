@@ -19,7 +19,7 @@ base64.workspace = true
 serde_bytes.workspace = true
 
 wasmer = "4.1.0"
-wasmer-compiler-llvm = "4.1.0"
+# wasmer-compiler-llvm = "4.1.0"
 bytes = "1.4.0"
 
 [dev-dependencies]
