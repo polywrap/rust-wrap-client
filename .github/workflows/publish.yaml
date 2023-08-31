@@ -50,6 +50,9 @@ jobs:
         env:
           CRATES_IO_TOKEN: ${{secrets.POLYWRAP_BUILD_BOT_CRATES_PAT}}
 
+      - name: Read VERSION into env.RELEASE_VERSION
+        run: echo RELEASE_VERSION=$(cat VERSION) >> $GITHUB_ENV
+
       - uses: actions/github-script@0.8.0
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
