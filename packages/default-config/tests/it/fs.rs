@@ -16,7 +16,7 @@ fn sanity() {
     let path = test_path.into_os_string().into_string().unwrap();
     let subinvoke_wrap_uri = format!("fs/{path}/subinvoke/00-subinvoke/implementations/rs");
 
-    let client = PolywrapClient::new(SystemClientConfig::default().into());
+    let client = PolywrapClient::new(SystemClientConfig::precompiled().into());
 
     let result = client
         .invoke::<u32>(

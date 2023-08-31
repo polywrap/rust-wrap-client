@@ -6,10 +6,18 @@ const WRAP_INFO: &[u8] = include_bytes!("./wrap.info");
 const WRAP_WASM: &[u8] = include_bytes!("./wrap.wasm");
 const WRAP_SERIALIZED_BYTES: &[u8] = include_bytes!("./wrap.serialized");
 
-pub fn wasm_package() -> WasmPackage {
+pub fn precompiled_wasm_package() -> WasmPackage {
     let module = SerializedWasmModule::deserialize_from_storage(WRAP_SERIALIZED_BYTES);
     WasmPackage::from_wasm_module(
         WasmModule::Serialized(module),
+        WRAP_WASM.to_vec(),
+        Arc::new(SimpleFileReader::new()),
+        Some(WRAP_INFO.to_vec()),
+    )
+}
+
+pub fn lazy_loaded_wasm_package() -> WasmPackage {
+    WasmPackage::from_bytecode(
         WRAP_WASM.to_vec(),
         Arc::new(SimpleFileReader::new()),
         Some(WRAP_INFO.to_vec()),

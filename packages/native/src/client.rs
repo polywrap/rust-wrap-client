@@ -263,7 +263,7 @@ mod test {
     fn ffi_invoke_raw_real() {
         let mut config = PolywrapClientConfig::new();
         config
-            .add(SystemClientConfig::default().into())
+            .add(SystemClientConfig::precompiled().into())
             .add(Web3ClientConfig::default().into());
 
         let client = Arc::from(PolywrapClient::new(config.into()));
@@ -321,7 +321,7 @@ mod test {
     fn ffi_try_resolve_uri_to_package() {
         let mut config = PolywrapClientConfig::new();
         config
-            .add(SystemClientConfig::default().into())
+            .add(SystemClientConfig::precompiled().into())
             .add(Web3ClientConfig::default().into());
 
         let client = Arc::from(PolywrapClient::new(config.into()));

@@ -10,7 +10,7 @@ const SUBINVOKE_WRAP_URI: &str = "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4
 #[test]
 fn sanity() {
     let mut config = PolywrapClientConfig::new();
-    config.add(SystemClientConfig::default().into());
+    config.add(SystemClientConfig::precompiled().into());
 
     let client = PolywrapClient::new(config.into());
     let result = client

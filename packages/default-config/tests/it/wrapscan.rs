@@ -7,7 +7,7 @@ use polywrap_core::{wrap_loader::WrapLoader, uri::Uri, macros::uri};
 fn sanity() {
     let mut config = PolywrapClientConfig::new();
     config
-        .add(SystemClientConfig::default().into());
+        .add(SystemClientConfig::precompiled().into());
 
     let client = PolywrapClient::new(config.into());
     client

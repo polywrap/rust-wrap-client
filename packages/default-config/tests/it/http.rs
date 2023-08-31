@@ -35,4 +35,24 @@ fn sanity() {
         .unwrap();
 
     assert_eq!(result, 42);
+
+    let client = PolywrapClient::new(SystemClientConfig::precompiled().into());
+
+    let result = client
+        .invoke::<u32>(
+            &URI.parse().unwrap(),
+            "i8Method",
+            Some(
+                &to_vec(&Args {
+                    first: 2,
+                    second: 40,
+                })
+                .unwrap(),
+            ),
+            None,
+            None,
+        )
+        .unwrap();
+
+    assert_eq!(result, 42);
 }
