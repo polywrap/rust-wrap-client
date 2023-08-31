@@ -1,6 +1,6 @@
 use core::panic;
 
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client_default_config::SystemClientConfig;
 use polywrap_msgpack_serde::to_vec;
 use serde::Serialize;
@@ -16,7 +16,7 @@ struct Args {
 
 #[test]
 fn sanity() {
-    let client = PolywrapClient::new(SystemClientConfig::default().into());
+    let client = Client::new(SystemClientConfig::default().into());
 
     let result = client
         .invoke::<u32>(
@@ -36,7 +36,7 @@ fn sanity() {
 
     assert_eq!(result, 42);
 
-    let client = PolywrapClient::new(SystemClientConfig::precompiled().into());
+    let client = Client::new(SystemClientConfig::precompiled().into());
 
     let result = client
         .invoke::<u32>(

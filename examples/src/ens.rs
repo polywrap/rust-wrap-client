@@ -27,7 +27,7 @@ fn main() {
         .add(SystemClientConfig::default().into())
         .add(Web3ClientConfig::default().into());
 
-    let client = PolywrapClient::new(config.build());
+    let client = Client::new(config.build());
 
     let resolver_address = client.invoke::<String>(
         &ens_uri,

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    client::Client, error::Error, file_reader::FileReader,
+    client::CoreClient, error::Error, file_reader::FileReader,
     interface_implementation::InterfaceImplementations, invoker::Invoker, uri::Uri,
 };
 use polywrap_msgpack_serde::to_vec;
@@ -71,7 +71,7 @@ impl FileReader for UriResolverExtensionFileReader {
 pub fn get_implementations(
     wrapper_uri: &Uri,
     interfaces: Option<InterfaceImplementations>,
-    _: &dyn Client,
+    _: &dyn CoreClient,
 ) -> Result<Vec<Uri>, Error> {
     let mut implementation_uris: Vec<Uri> = vec![];
 
@@ -92,7 +92,7 @@ pub fn get_implementations(
 
 pub fn get_env_from_resolution_path(
     resolution_path: &[Uri],
-    client: &dyn Client,
+    client: &dyn CoreClient,
 ) -> Option<Vec<u8>> {
     for uri in resolution_path.iter() {
         let env = client.get_env_by_uri(uri);

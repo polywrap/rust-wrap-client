@@ -15,7 +15,7 @@ fn main() {
     let mut config = PolywrapClientConfig::new();
 
     config.add(SystemClientConfig::default().into());
-    let client = PolywrapClient::new(config.build());
+    let client = Client::new(config.build());
     let result = client.invoke::<bool>(
         &wrap_uri,
         "info",

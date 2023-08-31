@@ -1,4 +1,4 @@
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client::core::uri::Uri;
 
 use polywrap_core::client::ClientConfig;
@@ -82,7 +82,7 @@ struct Env {
     array: Vec<i32>,
 }
 
-fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) -> PolywrapClient {
+fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) -> Client {
     let subinvoker_uri = get_subinvoker_uri();
     let subinvoked_uri = get_subinvoked_uri();
 
@@ -112,7 +112,7 @@ fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) ->
         interfaces: None,
     };
 
-    PolywrapClient::new(config)
+    Client::new(config)
 }
 
 #[derive(Serialize)]
@@ -319,7 +319,7 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
             interfaces: None,
         };
 
-        PolywrapClient::new(config)
+        Client::new(config)
     };
 
     let result = client

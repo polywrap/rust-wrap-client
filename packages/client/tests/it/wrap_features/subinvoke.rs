@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client::core::uri::Uri;
 use polywrap_core::client::ClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
@@ -50,7 +50,7 @@ fn subinvoke_test() {
         envs: None,
         interfaces: None,
     };
-    let client = PolywrapClient::new(config);
+    let client = Client::new(config);
 
     let invoke_result = client
         .invoke::<u32>(

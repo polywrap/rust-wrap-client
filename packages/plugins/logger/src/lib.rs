@@ -61,7 +61,7 @@ mod tests {
     use super::*;
     use polywrap_client::{
         builder::{PolywrapClientConfig, PolywrapClientConfigBuilder},
-        client::PolywrapClient,
+        client::Client,
     };
     use polywrap_core::{client::ClientConfigBuilder, macros::uri, uri::Uri};
     use polywrap_msgpack_serde::to_vec;
@@ -78,7 +78,7 @@ mod tests {
         let logger_plugin = LoggerPlugin::new(None);
         let logger_package: PluginPackage<LoggerPlugin> = PluginPackage::from(logger_plugin);
         builder.add_package(uri!("plugin/logger"), Arc::new(logger_package));
-        let client = PolywrapClient::new(builder.build());
+        let client = Client::new(builder.build());
         let result = client.invoke::<bool>(
             &uri!("plugin/logger"),
             "log",

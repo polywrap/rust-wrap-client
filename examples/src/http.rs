@@ -42,7 +42,7 @@ fn main() {
 
     config.add_package(uri.clone(), Arc::new(http_package));
 
-    let client = PolywrapClient::new(config.build());
+    let client = Client::new(config.build());
     let get_result = client.invoke::<Response>(
         &uri,
         "get",

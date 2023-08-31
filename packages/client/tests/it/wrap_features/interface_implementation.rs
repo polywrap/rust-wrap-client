@@ -1,4 +1,4 @@
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client::core::interface_implementation::InterfaceImplementations;
 
 use polywrap_core::client::ClientConfig;
@@ -56,7 +56,7 @@ fn test_interface_implementation() {
         Box::new(fs_resolver),
         Box::new(StaticResolver::new(HashMap::new())),
     );
-    let client = PolywrapClient::new(ClientConfig {
+    let client = Client::new(ClientConfig {
         envs: None,
         interfaces: Some(interfaces),
         resolver: Arc::new(base_resolver),

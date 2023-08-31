@@ -17,7 +17,7 @@ $ cargo run --package polywrap_tests_utils --bin generate
 ```
 Now you will be able to run tests of all crates:
 ```shell
-$ cargo test
+$ cargo test --release
 ```
 
 ## Feedback and discussions

@@ -50,7 +50,7 @@ fn main() {
 
     config.add_package(uri!("wrapscan.io/polywrap/ethereum-wallet@1.0"), package);
 
-    let client = PolywrapClient::new(config.build());
+    let client = Client::new(config.build());
 
     let balance = client.invoke::<String>(
         &ethers_core_uri,

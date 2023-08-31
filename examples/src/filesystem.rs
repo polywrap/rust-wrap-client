@@ -29,7 +29,7 @@ fn main() {
     let file_path = "./fs-example.txt".to_string();
     let data = "Hello world!";
 
-    let client = PolywrapClient::new(config.build());
+    let client = Client::new(config.build());
     let write_file_result = client.invoke::<bool>(
         &uri,
         "writeFile",

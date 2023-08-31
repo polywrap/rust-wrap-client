@@ -39,7 +39,7 @@ fn main() {
 
     let config = config.build();
 
-    let client = PolywrapClient::new(config);
+    let client = Client::new(config);
 
     let file_name = "hello-world.txt";
     let file_data = "Hello World!!!";

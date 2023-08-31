@@ -1,4 +1,4 @@
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_client_default_config::SystemClientConfig;
 use polywrap_msgpack_serde::to_vec;
@@ -12,7 +12,7 @@ fn sanity() {
     let mut config = PolywrapClientConfig::new();
     config.add(SystemClientConfig::precompiled().into());
 
-    let client = PolywrapClient::new(config.into());
+    let client = Client::new(config.into());
     let result = client
         .invoke::<u32>(
             &SUBINVOKE_WRAP_URI.parse().unwrap(),

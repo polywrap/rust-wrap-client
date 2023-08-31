@@ -1,4 +1,4 @@
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
 use polywrap_msgpack_serde::to_vec;
@@ -17,7 +17,7 @@ fn text_record_uri_resolver() {
         .add(SystemClientConfig::precompiled().into())
         .add(Web3ClientConfig::default().into());
 
-    let client = PolywrapClient::new(config.into());
+    let client = Client::new(config.into());
     let result = client.invoke::<String>(
         &wrap_uri.parse().unwrap(),
         "toWei",
@@ -41,7 +41,7 @@ fn content_hash_uri_resolver() {
         .add(SystemClientConfig::default().into())
         .add(Web3ClientConfig::default().into());
 
-    let client = PolywrapClient::new(config.into());
+    let client = Client::new(config.into());
     let result = client.invoke::<String>(
         &wrap_uri.parse().unwrap(),
         "toWei",

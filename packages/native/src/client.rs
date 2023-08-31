@@ -1,6 +1,6 @@
 use std::{collections::HashMap, ops::{DerefMut, Deref}, sync::Arc};
 
-use polywrap_client::core::{client::Client, invoker::Invoker};
+use polywrap_client::core::{client::CoreClient, invoker::Invoker};
 
 use crate::{
     error::FFIError,
@@ -12,11 +12,11 @@ use crate::{
 
 #[derive(Clone)]
 pub struct FFIClient {
-    inner_client: Arc<dyn Client>,
+    inner_client: Arc<dyn CoreClient>,
 }
 
 impl FFIClient {
-    pub fn new(client: Arc<dyn Client>) -> FFIClient {
+    pub fn new(client: Arc<dyn CoreClient>) -> FFIClient {
         Self {
             inner_client: client,
         }
@@ -181,7 +181,7 @@ mod test {
     use polywrap_client::builder::PolywrapClientConfigBuilder;
     use polywrap_client::core::macros::uri;
     use polywrap_client::core::uri::Uri;
-    use polywrap_client::{builder::PolywrapClientConfig, client::PolywrapClient};
+    use polywrap_client::{builder::PolywrapClientConfig, client::Client};
     use std::{collections::HashMap, sync::Arc};
 
     use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
@@ -266,7 +266,7 @@ mod test {
             .add(SystemClientConfig::precompiled().into())
             .add(Web3ClientConfig::default().into());
 
-        let client = Arc::from(PolywrapClient::new(config.into()));
+        let client = Arc::from(Client::new(config.into()));
         let ffi_client = FFIClient::new(client.clone());
 
         const SUBINVOKE_WRAP_URI: &str =
@@ -294,7 +294,7 @@ mod test {
         let mut config: PolywrapClientConfig = PolywrapClientConfig::new();
         config.add_redirect(from_uri.clone(), to_uri.clone());
 
-        let client = Arc::from(PolywrapClient::new(config.into()));
+        let client = Arc::from(Client::new(config.into()));
         let ffi_client = FFIClient::new(client.clone());
 
         let uri = ffi_uri_from_string(&from_uri.to_string()).unwrap();
@@ -324,7 +324,7 @@ mod test {
             .add(SystemClientConfig::precompiled().into())
             .add(Web3ClientConfig::default().into());
 
-        let client = Arc::from(PolywrapClient::new(config.into()));
+        let client = Arc::from(Client::new(config.into()));
         let ffi_client = FFIClient::new(client.clone());
 
         const SUBINVOKE_WRAP_URI: &str =
@@ -368,7 +368,7 @@ mod test {
         config
             .add_wrapper("wrap://mock/uri".parse().unwrap(), Arc::new(MockWrapper));
 
-        let client = Arc::from(PolywrapClient::new(config.into()));
+        let client = Arc::from(Client::new(config.into()));
         let ffi_client = FFIClient::new(client.clone());
 
         const SUBINVOKE_WRAP_URI: &str =

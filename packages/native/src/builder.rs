@@ -5,7 +5,7 @@ use std::{
 
 use polywrap_client::{
     builder::{PolywrapClientConfig, PolywrapClientConfigBuilder},
-    client::PolywrapClient,
+    client::Client,
     core::uri::Uri,
 };
 use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
@@ -193,7 +193,7 @@ impl FFIBuilderConfig {
 
     pub fn build(&self) -> Arc<FFIClient> {
         let config = self.0.lock().unwrap().clone();
-        let client = Arc::new(PolywrapClient::new(config.into()));
+        let client = Arc::new(Client::new(config.into()));
         Arc::new(FFIClient::new(client))
     }
 }
