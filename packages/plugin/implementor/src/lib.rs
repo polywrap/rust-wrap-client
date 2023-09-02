@@ -102,18 +102,8 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
                 }
             };
 
-            let output = if output_is_option {
-                quote! {
-                  if let Some(r) = result {
-                    Ok(polywrap_msgpack_serde::to_vec(&r)?)
-                  } else {
-                    Ok(vec![])
-                  }
-                }
-            } else {
-                quote! {
-                  Ok(polywrap_msgpack_serde::to_vec(&result)?)
-                }
+            let output = quote! {
+                Ok(polywrap_msgpack_serde::to_vec(&result)?)
             };
 
             quote! {
