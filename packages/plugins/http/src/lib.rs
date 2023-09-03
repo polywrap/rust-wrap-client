@@ -12,7 +12,6 @@ use wrap::{
 pub mod parse_request;
 pub mod parse_response;
 pub mod wrap;
-use tokio::task;
 
 pub enum RequestMethod {
     GET,
@@ -29,27 +28,9 @@ impl Module for HttpPlugin {
         args: &ArgsGet,
         _: Arc<dyn Invoker>,
     ) -> Result<Option<Response>, PluginError> {
-        // let response = parse_request(&args.url, args.request.clone(), RequestMethod::GET)
-        //     .call()
-        //     .map_err(|e| HttpPluginError::SendRequestError(e.to_string()))?;
-
-        // let response_type = if let Some(r) = &args.request {
-        //     r.response_type
-        // } else {
-        //     ResponseType::TEXT
-        // };
-
-        // let parsed_response = parse_response(response, response_type)?;
-
-        // Ok(Some(parsed_response))
-        // use reqwest instead:
-        let request = reqwest::get(&args.url);
-
-        let response = task::block_in_place(|| {
-            tokio::runtime::Handle::current().block_on(
-                request
-            )
-        }).unwrap();
+        let response = parse_request(&args.url, args.request.clone(), RequestMethod::GET)
+            .call()
+            .map_err(|e| HttpPluginError::SendRequestError(e.to_string()))?;
 
         let response_type = if let Some(r) = &args.request {
             r.response_type
@@ -57,20 +38,9 @@ impl Module for HttpPlugin {
             ResponseType::TEXT
         };
 
-        // Ok(Some(Response { status: , status_text: (), headers: (), body: () }))
-        let body = task::block_in_place(|| {
-            tokio::runtime::Handle::current().block_on(
-                response.bytes()
-            )
-        }).unwrap();
-        Ok(Some(Response {
-             status: 200,
-             status_text: String::from("OK"),
-               headers: None, 
-               body: Some(String::from_utf8_lossy(&body.to_vec()).to_string()) 
-            })
-        )
-        
+        let parsed_response = parse_response(response, response_type)?;
+
+        Ok(Some(parsed_response))
     }
 
     fn post(
