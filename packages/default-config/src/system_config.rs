@@ -1,5 +1,6 @@
 use polywrap_client_builder::PolywrapClientConfig;
 use polywrap_fs_plugin::FileSystemPlugin;
+use polywrap_get_wrap_file_plugin::GetWrapFilePlugin;
 use polywrap_http_plugin::HttpPlugin;
 use polywrap_logger_plugin::LoggerPlugin;
 
@@ -95,15 +96,19 @@ fn build_config(packages: Option<Vec<(Uri, Arc<dyn WrapPackage>)>>) -> SystemCli
     let plugins: Vec<(Uri, Arc<dyn WrapPackage>)> = vec![
         (
             uri!("plugin/file-system@1.0.0"),
-            Arc::new(PluginPackage::from(FileSystemPlugin {})),
+            Arc::new(PluginPackage::from(FileSystemPlugin)),
         ),
         (
             uri!("plugin/http@1.1.0"),
-            Arc::new(PluginPackage::from(HttpPlugin {})),
+            Arc::new(PluginPackage::from(HttpPlugin)),
         ),
         (
             uri!("wrapscan.io/polywrap/logger@1.0"),
             Arc::new(PluginPackage::from(LoggerPlugin::new(None))),
+        ),
+        (
+            uri!("http/http.wrappers.dev/u/test/get-wrap-file"),
+            Arc::new(PluginPackage::from(GetWrapFilePlugin)),
         ),
     ];
 

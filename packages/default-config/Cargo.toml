@@ -24,6 +24,7 @@ polywrap_fs_plugin.workspace = true
 polywrap_http_plugin.workspace = true
 polywrap_ethereum_wallet_plugin.workspace = true
 polywrap_logger_plugin.workspace = true
+polywrap_get_wrap_file_plugin.workspace = true
 
 [dev-dependencies]
 polywrap_client.workspace = true

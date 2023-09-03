@@ -13,7 +13,7 @@ use polywrap_core::{
     uri_resolver_handler::UriResolverHandler,
     wrap_invoker::WrapInvoker,
     wrap_loader::WrapLoader,
-    wrapper::Wrapper,
+    wrapper::{Wrapper, GetFileOptions},
 };
 use polywrap_msgpack_serde::from_slice;
 use serde::de::DeserializeOwned;
@@ -152,6 +152,72 @@ impl Invoker for PolywrapClient {
         );
 
         result
+    }
+
+    fn get_file(
+        &self, 
+        uri: &Uri, 
+        path: String,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
+    ) -> Result<Option<Vec<u8>>, Error> {
+        let resolution_context = match resolution_context {
+            None => Arc::new(Mutex::new(UriResolutionContext::new())),
+            Some(ctx) => ctx,
+        };
+
+        let loaded_wrapper_context = resolution_context.lock().unwrap().create_sub_context();
+        let loaded_wrapper_context = Arc::new(Mutex::new(loaded_wrapper_context));
+
+        let load_result = self
+            .clone()
+            .load_wrapper(uri, Some(loaded_wrapper_context.clone()));
+
+        if load_result.is_err() {
+            let error = load_result.err().unwrap();
+
+            resolution_context
+                .lock()
+                .unwrap()
+                .track_step(UriResolutionStep {
+                    source_uri: uri.clone(),
+                    result: Err(error.clone()),
+                    description: Some(format!("Client.loadWrapper({uri})")),
+                    sub_history: Some(loaded_wrapper_context.lock().unwrap().get_history().clone()),
+                });
+
+            return Err(Error::LoadWrapperError(uri.to_string(), error.to_string()));
+        }
+
+        let resolution_path = loaded_wrapper_context.lock().unwrap().get_resolution_path();
+        let resolution_path = if !resolution_path.is_empty() {
+            resolution_path
+        } else {
+            vec![uri.clone()]
+        };
+
+        let resolved_uri = resolution_path.last().unwrap();
+
+        let wrapper = load_result.unwrap();
+
+        resolution_context
+            .lock()
+            .unwrap()
+            .track_step(UriResolutionStep {
+                source_uri: uri.clone(),
+                result: Ok(UriPackageOrWrapper::Wrapper(
+                    resolved_uri.clone(),
+                    wrapper.clone(),
+                )),
+                description: Some("Client.loadWrapper".to_string()),
+                sub_history: Some(loaded_wrapper_context.lock().unwrap().get_history().clone()),
+            });
+
+        let result = wrapper.get_file(&GetFileOptions {
+            path,
+            encoding: None
+        }).ok();
+
+        Ok(result)
     }
 
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {

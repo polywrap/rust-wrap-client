@@ -174,6 +174,15 @@ impl Invoker for FFIClient {
     fn get_env_by_uri(&self, uri: &polywrap_client::core::uri::Uri) -> Option<Vec<u8>> {
         self.inner_client.get_env_by_uri(uri)
     }
+
+    fn get_file(
+            &self, 
+            uri: &polywrap_plugin::Uri, 
+            path: String,
+            resolution_context: Option<Arc<std::sync::Mutex<polywrap_plugin::resolution::uri_resolution_context::UriResolutionContext>>>,
+        ) -> Result<Option<Vec<u8>>, polywrap_plugin::polywrap_core::error::Error> {
+            self.inner_client.get_file(uri, path, resolution_context)
+    }
 }
 
 #[cfg(test)]

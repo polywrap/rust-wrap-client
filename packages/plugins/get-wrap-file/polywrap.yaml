@@ -1,0 +1,7 @@
+format: 0.3.0
+project:
+  type: plugin/rust
+  name: get-wrap-file
+source:
+  module: ./Cargo.toml
+  schema: ./polywrap.graphql

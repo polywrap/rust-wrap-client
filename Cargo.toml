@@ -27,6 +27,7 @@ members = [
     "packages/plugins/fs",
     "packages/plugins/ethereum-wallet",
     "packages/plugins/logger",
+    "packages/plugins/get-wrap-file",
 
     "examples/"
 ]
@@ -48,7 +49,8 @@ default-members = [
     "packages/plugins/http",
     "packages/plugins/fs",
     "packages/plugins/ethereum-wallet",
-    "packages/plugins/logger"
+    "packages/plugins/logger",
+    "packages/plugins/get-wrap-file"
 ]
 
 [workspace.dependencies]
@@ -72,6 +74,7 @@ polywrap_fs_plugin = { version = "0.1.9-beta.2", path = "packages/plugins/fs" }
 polywrap_http_plugin = { version = "0.1.9-beta.2", path = "packages/plugins/http" }
 polywrap_ethereum_wallet_plugin = { version = "0.1.9-beta.2", path = "packages/plugins/ethereum-wallet" }
 polywrap_logger_plugin = { version = "0.1.9-beta.2", path = "packages/plugins/logger" }
+polywrap_get_wrap_file_plugin = { version = "0.1.9-beta.2", path = "packages/plugins/get-wrap-file" }
 
 polywrap_msgpack_serde = "0.0.2-beta.7"
 tokio = { version = "1.28", features = ["full"] }

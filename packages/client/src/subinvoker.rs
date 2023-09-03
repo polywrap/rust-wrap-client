@@ -44,4 +44,12 @@ impl Invoker for Subinvoker {
     fn get_env_by_uri(&self, uri: &Uri) -> Option<Vec<u8>> {
         self.invoker.get_env_by_uri(uri)
     }
+    fn get_file(
+        &self,
+        uri: &Uri,
+        path: String,
+        _: Option<Arc<Mutex<UriResolutionContext>>>,
+    ) -> Result<Option<Vec<u8>>, Error> {
+        self.invoker.get_file(uri, path, None)
+    }
 }

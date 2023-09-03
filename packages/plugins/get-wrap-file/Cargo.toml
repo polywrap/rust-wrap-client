@@ -1,0 +1,16 @@
+[package]
+name = "polywrap_get_wrap_file_plugin"
+description = "Polywrap Get WRAP File Plugin in Rust"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+polywrap_plugin.workspace = true
+polywrap_core.workspace = true
+polywrap_msgpack_serde.workspace = true
+wrap_manifest_schemas.workspace = true
+serde.workspace = true
+thiserror.workspace = true

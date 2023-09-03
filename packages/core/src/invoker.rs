@@ -13,6 +13,12 @@ pub trait Invoker: Send + Sync {
         env: Option<&[u8]>,
         resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error>;
+    fn get_file(
+        &self, 
+        uri: &Uri, 
+        path: String,
+        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
+    ) -> Result<Option<Vec<u8>>, Error>;
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error>;
     fn get_interfaces(&self) -> Option<InterfaceImplementations>;
     fn get_env_by_uri(&self, uri: &Uri) -> Option<Vec<u8>>;
