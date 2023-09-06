@@ -28,7 +28,7 @@ struct ToEthArgs {
 fn main() {
     let ethers_core_uri = uri!("wrapscan.io/polywrap/ethers@1.0.0");
     let ethers_util_uri = uri!("wrapscan.io/polywrap/ethers-utils@1.0.0");
-    let mut config = PolywrapClientConfig::new();
+    let mut config = ClientConfig::new();
     config.add(SystemClientConfig::default().into());
 
     let mainnet_connection = Connection::new(

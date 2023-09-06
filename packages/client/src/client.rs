@@ -1,5 +1,5 @@
 use polywrap_core::{
-    client::{CoreClient, ClientConfig},
+    client::{CoreClient, CoreClientConfig},
     error::Error,
     interface_implementation::InterfaceImplementations,
     invoker::Invoker,
@@ -33,7 +33,7 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(config: ClientConfig) -> Self {
+    pub fn new(config: CoreClientConfig) -> Self {
         let resolver = config.resolver;
         let envs = config.envs;
         let interfaces = config.interfaces;
@@ -269,7 +269,7 @@ impl CoreClient for Client {}
 #[cfg(test)]
 mod client_tests {
     use polywrap_core::{
-        client::ClientConfig, resolution::uri_resolution_context::UriPackageOrWrapper, uri::Uri,
+        client::CoreClientConfig, resolution::uri_resolution_context::UriPackageOrWrapper, uri::Uri,
         uri_resolver_handler::UriResolverHandler, wrap_loader::WrapLoader,
     };
     use polywrap_msgpack_serde::from_slice;
@@ -280,7 +280,7 @@ mod client_tests {
 
     #[test]
     fn invoke() {
-        let client = Client::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,
@@ -295,7 +295,7 @@ mod client_tests {
 
     #[test]
     fn invoke_wrapper() {
-        let client = Client::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,
@@ -319,7 +319,7 @@ mod client_tests {
 
     #[test]
     fn load_wrapper() {
-        let client = Client::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,
@@ -336,7 +336,7 @@ mod client_tests {
 
     #[test]
     fn try_resolve_uri() {
-        let client = Client::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,

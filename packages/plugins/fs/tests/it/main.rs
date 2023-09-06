@@ -49,7 +49,7 @@ fn get_client() -> Client {
         package,
     )]);
 
-    Client::new(ClientConfig {
+    Client::new(CoreClientConfig {
         resolver: Arc::new(resolver),
         interfaces: None,
         envs: None,

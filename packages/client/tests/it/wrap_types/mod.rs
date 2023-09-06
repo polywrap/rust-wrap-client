@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use polywrap_client::client::Client;
 use polywrap_core::{
-    client::ClientConfig, file_reader::SimpleFileReader,
+    client::CoreClientConfig, file_reader::SimpleFileReader,
     resolution::uri_resolution_context::UriPackageOrWrapper, uri::Uri,
 };
 use polywrap_resolvers::{
@@ -36,7 +36,7 @@ pub fn get_client(static_resolvers: Option<HashMap<Uri, UriPackageOrWrapper>>) -
         Box::new(StaticResolver::new(static_resolver)),
     );
 
-    let config = ClientConfig {
+    let config = CoreClientConfig {
         resolver: Arc::new(base_resolver),
         envs: None,
         interfaces: None,

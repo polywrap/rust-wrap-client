@@ -4,7 +4,7 @@ use std::{
 };
 
 use polywrap_client::{
-    builder::{PolywrapClientConfig, PolywrapClientConfigBuilder},
+    builder::{ClientConfig, ClientConfigBuilder},
     client::Client,
     core::uri::Uri,
 };
@@ -21,11 +21,11 @@ use crate::{
     wrapper::FFIWrapper,
 };
 
-pub struct FFIBuilderConfig(Mutex<PolywrapClientConfig>);
+pub struct FFIBuilderConfig(Mutex<ClientConfig>);
 
 impl FFIBuilderConfig {
     pub fn new() -> FFIBuilderConfig {
-        FFIBuilderConfig(Mutex::new(PolywrapClientConfig::new()))
+        FFIBuilderConfig(Mutex::new(ClientConfig::new()))
     }
 
     pub fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<FFIUri>>>> {

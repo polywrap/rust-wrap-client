@@ -12,7 +12,7 @@ struct LogMessageArgs {
 
 fn main() {
     let wrap_uri = uri!("wrapscan.io/polywrap/logging@1.0.0");
-    let mut config = PolywrapClientConfig::new();
+    let mut config = ClientConfig::new();
 
     config.add(SystemClientConfig::default().into());
     let client = Client::new(config.build());

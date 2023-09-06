@@ -34,7 +34,7 @@ fn main() {
     let ipfs_provider = "http://localhost:5001";
     let uri = uri!("wrapscan.io/polywrap/ipfs-http-client@1.0");
 
-    let mut config = PolywrapClientConfig::new();
+    let mut config = ClientConfig::new();
     config.add(SystemClientConfig::default().into());
 
     let config = config.build();

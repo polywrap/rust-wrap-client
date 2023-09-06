@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use polywrap_client::client::Client;
 use polywrap_client::core::uri::Uri;
-use polywrap_core::client::ClientConfig;
+use polywrap_core::client::CoreClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
@@ -45,7 +45,7 @@ fn subinvoke_test() {
         Box::new(StaticResolver::new(resolvers)),
     );
 
-    let config = ClientConfig {
+    let config = CoreClientConfig {
         resolver: Arc::new(base_resolver),
         envs: None,
         interfaces: None,

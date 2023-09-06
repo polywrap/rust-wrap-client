@@ -21,7 +21,7 @@ struct FileArgs {
 
 fn main() {
     let uri = uri!("wrapscan.io/polywrap/file-system@1.0");
-    let mut config = PolywrapClientConfig::new();
+    let mut config = ClientConfig::new();
     let fs_package = PluginPackage::from(FileSystemPlugin {});
 
     config.add_package(uri.clone(), Arc::new(fs_package));

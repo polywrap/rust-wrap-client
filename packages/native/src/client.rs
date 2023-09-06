@@ -178,10 +178,10 @@ impl Invoker for FFIClient {
 
 #[cfg(test)]
 mod test {
-    use polywrap_client::builder::PolywrapClientConfigBuilder;
+    use polywrap_client::builder::ClientConfigBuilder;
     use polywrap_client::core::macros::uri;
     use polywrap_client::core::uri::Uri;
-    use polywrap_client::{builder::PolywrapClientConfig, client::Client};
+    use polywrap_client::{builder::ClientConfig, client::Client};
     use std::{collections::HashMap, sync::Arc};
 
     use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
@@ -261,7 +261,7 @@ mod test {
 
     #[test]
     fn ffi_invoke_raw_real() {
-        let mut config = PolywrapClientConfig::new();
+        let mut config = ClientConfig::new();
         config
             .add(SystemClientConfig::precompiled().into())
             .add(Web3ClientConfig::default().into());
@@ -291,7 +291,7 @@ mod test {
         let from_uri: Uri = uri!("wrap://mock/from");
         let to_uri: Uri = uri!("wrap://mock/to");
 
-        let mut config: PolywrapClientConfig = PolywrapClientConfig::new();
+        let mut config: ClientConfig = ClientConfig::new();
         config.add_redirect(from_uri.clone(), to_uri.clone());
 
         let client = Arc::from(Client::new(config.into()));
@@ -319,7 +319,7 @@ mod test {
 
     #[test]
     fn ffi_try_resolve_uri_to_package() {
-        let mut config = PolywrapClientConfig::new();
+        let mut config = ClientConfig::new();
         config
             .add(SystemClientConfig::precompiled().into())
             .add(Web3ClientConfig::default().into());
@@ -364,7 +364,7 @@ mod test {
 
     #[test]
     fn ffi_try_resolve_uri_to_wrapper() {
-        let mut config = PolywrapClientConfig::new();
+        let mut config = ClientConfig::new();
         config
             .add_wrapper("wrap://mock/uri".parse().unwrap(), Arc::new(MockWrapper));
 

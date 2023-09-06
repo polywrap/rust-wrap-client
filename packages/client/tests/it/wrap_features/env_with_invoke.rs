@@ -1,7 +1,7 @@
 use polywrap_client::client::Client;
 use polywrap_client::core::uri::Uri;
 
-use polywrap_core::client::ClientConfig;
+use polywrap_core::client::CoreClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
@@ -86,7 +86,7 @@ fn build_client(uri: &Uri, env: Option<&[u8]>) -> Client {
         Box::new(fs_resolver),
         Box::new(StaticResolver::new(resolvers)),
     );
-    let config = ClientConfig {
+    let config = CoreClientConfig {
         envs: Some(envs),
         resolver: Arc::new(base_resolver),
         interfaces: None,
@@ -224,7 +224,7 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
             let file_reader = SimpleFileReader::new();
             let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
 
-            let config = ClientConfig {
+            let config = CoreClientConfig {
                 envs: Some(envs),
                 // Use the RecursiveResolver because it tracks resolution path (unlike BaseResolver)
                 resolver: Arc::new(RecursiveResolver::from(resolver_vec![
@@ -262,7 +262,7 @@ fn env_can_be_registered_for_any_uri_in_resolution_path() {
             let file_reader = SimpleFileReader::new();
             let fs_resolver = FilesystemResolver::new(Arc::new(file_reader));
 
-            let config = ClientConfig {
+            let config = CoreClientConfig {
                 envs: Some(envs),
                 // Use the RecursiveResolver because it tracks resolution path (unlike BaseResolver)
                 resolver: Arc::new(RecursiveResolver::from(resolver_vec![
