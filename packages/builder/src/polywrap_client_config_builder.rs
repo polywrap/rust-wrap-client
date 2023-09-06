@@ -1,14 +1,14 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_core::{
-    client::ClientConfigBuilder, package::WrapPackage, resolution::uri_resolver::UriResolver,
+    client::CoreClientConfigBuilder, package::WrapPackage, resolution::uri_resolver::UriResolver,
     uri::Uri, wrapper::Wrapper,
 };
 
-use crate::PolywrapClientConfig;
+use crate::ClientConfig;
 
-pub trait PolywrapClientConfigBuilder: ClientConfigBuilder {
-    fn add(&mut self, config: PolywrapClientConfig) -> &mut Self;
+pub trait ClientConfigBuilder: CoreClientConfigBuilder {
+    fn add(&mut self, config: ClientConfig) -> &mut Self;
     fn add_env(&mut self, uri: Uri, env: Vec<u8>) -> &mut Self;
     fn add_envs(&mut self, env: HashMap<Uri, Vec<u8>>) -> &mut Self;
     fn remove_env(&mut self, uri: &Uri) -> &mut Self;

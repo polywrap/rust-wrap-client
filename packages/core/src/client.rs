@@ -34,14 +34,14 @@ impl From<(&Uri, &Uri)> for UriRedirect {
 }
 
 #[derive(Debug)]
-pub struct ClientConfig {
+pub struct CoreClientConfig {
     pub resolver: Arc<dyn UriResolver>,
     pub envs: Option<HashMap<Uri, Vec<u8>>>,
     pub interfaces: Option<InterfaceImplementations>,
 }
 
-pub trait ClientConfigBuilder {
-    fn build(self) -> ClientConfig;
+pub trait CoreClientConfigBuilder {
+    fn build(self) -> CoreClientConfig;
 }
 
-pub trait Client: Invoker + WrapLoader + WrapInvoker + UriResolverHandler {}
+pub trait CoreClient: Invoker + WrapLoader + WrapInvoker + UriResolverHandler {}

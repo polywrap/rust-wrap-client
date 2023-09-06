@@ -1,7 +1,7 @@
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client::core::interface_implementation::InterfaceImplementations;
 
-use polywrap_core::client::ClientConfig;
+use polywrap_core::client::CoreClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::uri::Uri;
@@ -56,7 +56,7 @@ fn test_interface_implementation() {
         Box::new(fs_resolver),
         Box::new(StaticResolver::new(HashMap::new())),
     );
-    let client = PolywrapClient::new(ClientConfig {
+    let client = Client::new(CoreClientConfig {
         envs: None,
         interfaces: Some(interfaces),
         resolver: Arc::new(base_resolver),

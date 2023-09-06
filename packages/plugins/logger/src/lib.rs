@@ -60,10 +60,10 @@ impl Module for LoggerPlugin {
 mod tests {
     use super::*;
     use polywrap_client::{
-        builder::{PolywrapClientConfig, PolywrapClientConfigBuilder},
-        client::PolywrapClient,
+        builder::{ClientConfig, ClientConfigBuilder},
+        client::Client,
     };
-    use polywrap_core::{client::ClientConfigBuilder, macros::uri, uri::Uri};
+    use polywrap_core::{client::CoreClientConfigBuilder, macros::uri, uri::Uri};
     use polywrap_msgpack_serde::to_vec;
     use polywrap_plugin::package::PluginPackage;
 
@@ -74,11 +74,11 @@ mod tests {
             message: String::from("Info message"),
         };
 
-        let mut builder = PolywrapClientConfig::new();
+        let mut builder = ClientConfig::new();
         let logger_plugin = LoggerPlugin::new(None);
         let logger_package: PluginPackage<LoggerPlugin> = PluginPackage::from(logger_plugin);
         builder.add_package(uri!("plugin/logger"), Arc::new(logger_package));
-        let client = PolywrapClient::new(builder.build());
+        let client = Client::new(builder.build());
         let result = client.invoke::<bool>(
             &uri!("plugin/logger"),
             "log",

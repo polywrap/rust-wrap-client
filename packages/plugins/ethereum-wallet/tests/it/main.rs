@@ -1,5 +1,5 @@
 use polywrap_client::{
-    client::PolywrapClient,
+    client::Client,
     resolvers::static_resolver::{StaticResolver, StaticResolverLike},
 };
 use polywrap_ethereum_wallet_plugin::{
@@ -18,7 +18,7 @@ pub struct ConnectionArgs {
     node: Option<String>,
 }
 
-fn get_client() -> PolywrapClient {
+fn get_client() -> Client {
     let bsc_connection = Connection::new(
         "https://bsc-dataseed1.binance.org/".to_string(),
         Some(String::from(
@@ -53,7 +53,7 @@ fn get_client() -> PolywrapClient {
         package,
     )]);
 
-    PolywrapClient::new(ClientConfig {
+    Client::new(CoreClientConfig {
         resolver: Arc::new(resolver),
         interfaces: None,
         envs: None,

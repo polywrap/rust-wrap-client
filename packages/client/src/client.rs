@@ -1,5 +1,5 @@
 use polywrap_core::{
-    client::{Client, ClientConfig},
+    client::{CoreClient, CoreClientConfig},
     error::Error,
     interface_implementation::InterfaceImplementations,
     invoker::Invoker,
@@ -26,14 +26,14 @@ use std::{
 use crate::subinvoker::Subinvoker;
 
 #[derive(Clone, Debug)]
-pub struct PolywrapClient {
+pub struct Client {
     pub resolver: Arc<dyn UriResolver>,
     pub envs: Option<HashMap<Uri, Vec<u8>>>,
     pub interfaces: Option<InterfaceImplementations>,
 }
 
-impl PolywrapClient {
-    pub fn new(config: ClientConfig) -> Self {
+impl Client {
+    pub fn new(config: CoreClientConfig) -> Self {
         let resolver = config.resolver;
         let envs = config.envs;
         let interfaces = config.interfaces;
@@ -73,7 +73,7 @@ impl PolywrapClient {
     }
 }
 
-impl Invoker for PolywrapClient {
+impl Invoker for Client {
     fn invoke_raw(
         &self,
         uri: &Uri,
@@ -175,7 +175,7 @@ impl Invoker for PolywrapClient {
     }
 }
 
-impl WrapLoader for PolywrapClient {
+impl WrapLoader for Client {
     fn load_wrapper(
         &self,
         uri: &Uri,
@@ -203,7 +203,7 @@ impl WrapLoader for PolywrapClient {
     }
 }
 
-impl WrapInvoker for PolywrapClient {
+impl WrapInvoker for Client {
     fn invoke_wrapper_raw(
         &self,
         wrapper: &dyn Wrapper,
@@ -248,7 +248,7 @@ impl WrapInvoker for PolywrapClient {
     }
 }
 
-impl UriResolverHandler for PolywrapClient {
+impl UriResolverHandler for Client {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
@@ -264,23 +264,23 @@ impl UriResolverHandler for PolywrapClient {
     }
 }
 
-impl Client for PolywrapClient {}
+impl CoreClient for Client {}
 
 #[cfg(test)]
 mod client_tests {
     use polywrap_core::{
-        client::ClientConfig, resolution::uri_resolution_context::UriPackageOrWrapper, uri::Uri,
+        client::CoreClientConfig, resolution::uri_resolution_context::UriPackageOrWrapper, uri::Uri,
         uri_resolver_handler::UriResolverHandler, wrap_loader::WrapLoader,
     };
     use polywrap_msgpack_serde::from_slice;
     use polywrap_tests_utils::mocks::{get_mock_resolver, MockWrapper};
     use std::sync::Arc;
 
-    use super::PolywrapClient;
+    use super::Client;
 
     #[test]
     fn invoke() {
-        let client = PolywrapClient::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,
@@ -295,7 +295,7 @@ mod client_tests {
 
     #[test]
     fn invoke_wrapper() {
-        let client = PolywrapClient::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,
@@ -319,7 +319,7 @@ mod client_tests {
 
     #[test]
     fn load_wrapper() {
-        let client = PolywrapClient::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,
@@ -336,7 +336,7 @@ mod client_tests {
 
     #[test]
     fn try_resolve_uri() {
-        let client = PolywrapClient::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,

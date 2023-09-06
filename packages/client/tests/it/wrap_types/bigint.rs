@@ -1,5 +1,5 @@
 use num_bigint::BigInt;
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client::core::uri::Uri;
 use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
@@ -7,7 +7,7 @@ use serde::Serialize;
 
 use crate::wrap_types::get_client;
 
-fn get_client_and_uri() -> (PolywrapClient, Uri) {
+fn get_client_and_uri() -> (Client, Uri) {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let uri = format!("fs/{}/bigint-type/implementations/rs", path)

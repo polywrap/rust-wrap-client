@@ -2,7 +2,7 @@
 mod plugin_state_tests {
     use std::sync::{Arc, Mutex};
 
-    use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
+    use polywrap_client_builder::{ClientConfig, ClientConfigBuilder};
     use polywrap_core::wrapper::Wrapper;
     use polywrap_plugin::{module::PluginModule, error::PluginError, wrapper::PluginWrapper};
 
@@ -27,7 +27,7 @@ mod plugin_state_tests {
 
   #[test]
   pub fn it_adds_concrete_plugin_without_losing_state_access() {
-    let mut config = PolywrapClientConfig::new();
+    let mut config = ClientConfig::new();
     let plugin = Arc::new(Mutex::new(CounterPlugin { counter: 7 }));
     let plugin_wrapper = Arc::new(PluginWrapper::new(plugin.clone()));
     config.add_wrapper("foo/bar".try_into().unwrap(), plugin_wrapper.clone() as Arc<dyn Wrapper>);

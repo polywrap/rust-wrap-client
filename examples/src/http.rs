@@ -37,12 +37,12 @@ struct PostArgs {
 
 fn main() {
     let uri = uri!("wrapscan.io/polywrap/http@1.0");
-    let mut config = PolywrapClientConfig::new();
+    let mut config = ClientConfig::new();
     let http_package = PluginPackage::from(HttpPlugin {});
 
     config.add_package(uri.clone(), Arc::new(http_package));
 
-    let client = PolywrapClient::new(config.build());
+    let client = Client::new(config.build());
     let get_result = client.invoke::<Response>(
         &uri,
         "get",

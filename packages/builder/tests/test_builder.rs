@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
+use polywrap_client_builder::{ClientConfig, ClientConfigBuilder};
 use polywrap_core::{macros::uri, package::WrapPackage, uri::Uri, wrapper::Wrapper};
 use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::mocks::{
@@ -22,7 +22,7 @@ struct EnvTwo {
 
 #[test]
 fn test_env_methods() {
-    let mut builder = PolywrapClientConfig::new();
+    let mut builder = ClientConfig::new();
     let uri = uri!("wrap://mock/wrapper");
 
     assert!(builder.envs.is_none());
@@ -74,7 +74,7 @@ fn test_interface_implementation_methods() {
 
     let another_interface_uri = uri!("wrap://mock/another-interface");
 
-    let mut builder = PolywrapClientConfig::new();
+    let mut builder = ClientConfig::new();
     assert!(builder.interfaces.is_none());
     builder.add_interface_implementation(interface_uri.clone(), implementation_a_uri.clone());
     builder.add_interface_implementation(another_interface_uri, implementation_b_uri.clone());
@@ -83,7 +83,7 @@ fn test_interface_implementation_methods() {
     assert!(builder.interfaces.unwrap().len() == 2);
 
     // Recreate builder again to test add interfaces implementations
-    let mut builder = PolywrapClientConfig::new();
+    let mut builder = ClientConfig::new();
 
     assert!(builder.interfaces.is_none());
 
@@ -125,7 +125,7 @@ fn test_interface_implementation_methods() {
 
 #[test]
 fn test_redirects() {
-    let mut builder = PolywrapClientConfig::new();
+    let mut builder = ClientConfig::new();
     assert!(builder.redirects.is_none());
 
     let a_uri = uri!("mock/a");
@@ -146,7 +146,7 @@ fn test_redirects() {
     let builder_redirects = builder.redirects.unwrap();
     assert_eq!(builder_redirects, redirects);
 
-    let mut builder = PolywrapClientConfig::new();
+    let mut builder = ClientConfig::new();
     assert!(builder.redirects.is_none());
 
     builder.add_redirect(a_uri.clone(), b_uri.clone());
@@ -163,7 +163,7 @@ fn test_redirects() {
 
 #[test]
 fn test_packages() {
-    let mut builder = PolywrapClientConfig::new();
+    let mut builder = ClientConfig::new();
     assert!(builder.packages.is_none());
 
     let uri_a: Uri = String::from("wrap://package/a").try_into().unwrap();
@@ -192,7 +192,7 @@ fn test_packages() {
 
     // We need to recreate the builder because when we do builder.packages.unwrap
     // the ownership is given, not allowing us to call the builder again
-    let mut builder = PolywrapClientConfig::new();
+    let mut builder = ClientConfig::new();
 
     let modified_uri_package_b = (uri_b.clone(), get_different_mock_package());
 
@@ -213,7 +213,7 @@ fn test_packages() {
 
 #[test]
 fn test_wrappers() {
-    let mut builder = PolywrapClientConfig::new();
+    let mut builder = ClientConfig::new();
     assert!(builder.wrappers.is_none());
 
     let uri_wrapper_a = (
@@ -242,7 +242,7 @@ fn test_wrappers() {
 
     // We need to recreate the builder because when we do builder.wrappers.unwrap
     // the ownership is given, not allowing us to call the builder again
-    let mut builder = PolywrapClientConfig::new();
+    let mut builder = ClientConfig::new();
 
     let modified_uri_wrapper_b = (
         String::from("wrap://wrapper/b").try_into().unwrap(),
@@ -268,7 +268,7 @@ fn test_wrappers() {
 
 #[test]
 fn test_resolvers() {
-    let mut builder = PolywrapClientConfig::new();
+    let mut builder = ClientConfig::new();
     assert!(builder.resolvers.is_none());
     builder.add_resolvers(vec![Arc::new(MockResolver {})]);
     assert!(builder.resolvers.is_some());

@@ -1,5 +1,5 @@
-use polywrap_client::client::PolywrapClient;
-use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
+use polywrap_client::client::Client;
+use polywrap_client_builder::{ClientConfig, ClientConfigBuilder};
 use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
 use polywrap_msgpack_serde::to_vec;
 use serde::Serialize;
@@ -12,12 +12,12 @@ pub struct ToWeiArgs {
 #[test]
 fn text_record_uri_resolver() {
     let wrap_uri = format!("ens/ethers.wraps.eth:utils@0.1.1");
-    let mut config = PolywrapClientConfig::new();
+    let mut config = ClientConfig::new();
     config
         .add(SystemClientConfig::precompiled().into())
         .add(Web3ClientConfig::default().into());
 
-    let client = PolywrapClient::new(config.into());
+    let client = Client::new(config.into());
     let result = client.invoke::<String>(
         &wrap_uri.parse().unwrap(),
         "toWei",
@@ -36,12 +36,12 @@ fn text_record_uri_resolver() {
 #[test]
 fn content_hash_uri_resolver() {
     let wrap_uri = format!("ens/goerli/test-wraps.eth");
-    let mut config = PolywrapClientConfig::new();
+    let mut config = ClientConfig::new();
     config
         .add(SystemClientConfig::default().into())
         .add(Web3ClientConfig::default().into());
 
-    let client = PolywrapClient::new(config.into());
+    let client = Client::new(config.into());
     let result = client.invoke::<String>(
         &wrap_uri.parse().unwrap(),
         "toWei",

@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_core::{
-    client::{ClientConfig, ClientConfigBuilder},
+    client::{CoreClientConfig, CoreClientConfigBuilder},
     interface_implementation::InterfaceImplementations,
     package::WrapPackage,
     resolution::uri_resolver::UriResolver,
@@ -10,10 +10,10 @@ use polywrap_core::{
 };
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 
-use crate::{PolywrapBaseResolver, PolywrapBaseResolverOptions, PolywrapClientConfigBuilder};
+use crate::{PolywrapBaseResolver, PolywrapBaseResolverOptions, ClientConfigBuilder};
 
 #[derive(Default, Clone)]
-pub struct PolywrapClientConfig {
+pub struct ClientConfig {
     pub interfaces: Option<InterfaceImplementations>,
     pub envs: Option<HashMap<Uri, Vec<u8>>>,
     pub wrappers: Option<Vec<(Uri, Arc<dyn Wrapper>)>>,
@@ -22,7 +22,7 @@ pub struct PolywrapClientConfig {
     pub resolvers: Option<Vec<Arc<dyn UriResolver>>>,
 }
 
-impl PolywrapClientConfig {
+impl ClientConfig {
     pub fn new() -> Self {
         // We don't want to use the default constructor here because it may change
         // and then `new` would no longer create an empty config.
@@ -65,8 +65,8 @@ impl PolywrapClientConfig {
     }
 }
 
-impl PolywrapClientConfigBuilder for PolywrapClientConfig {
-    fn add(&mut self, config: PolywrapClientConfig) -> &mut Self {
+impl ClientConfigBuilder for ClientConfig {
+    fn add(&mut self, config: ClientConfig) -> &mut Self {
         if let Some(e) = config.envs {
             self.add_envs(e);
         };
@@ -323,11 +323,11 @@ impl PolywrapClientConfigBuilder for PolywrapClientConfig {
     }
 }
 
-impl ClientConfigBuilder for PolywrapClientConfig {
-    fn build(self) -> ClientConfig {
+impl CoreClientConfigBuilder for ClientConfig {
+    fn build(self) -> CoreClientConfig {
         // We first build the resolver because it needs a reference to self
         // this way we don't need to clone `envs`, and `interfaces`.
-        ClientConfig {
+        CoreClientConfig {
             resolver: PolywrapBaseResolver::new(PolywrapBaseResolverOptions {
                 static_resolver: self.build_static_resolver(),
                 dynamic_resolvers: self.resolvers,
@@ -339,8 +339,8 @@ impl ClientConfigBuilder for PolywrapClientConfig {
     }
 }
 
-impl Into<ClientConfig> for PolywrapClientConfig {
-    fn into(self) -> ClientConfig {
+impl Into<CoreClientConfig> for ClientConfig {
+    fn into(self) -> CoreClientConfig {
         self.build()
     }
 }

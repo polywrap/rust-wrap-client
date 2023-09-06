@@ -1,9 +1,9 @@
-use polywrap_client_builder::PolywrapClientConfig;
+use polywrap_client_builder::ClientConfig;
 use polywrap_fs_plugin::FileSystemPlugin;
 use polywrap_http_plugin::HttpPlugin;
 use polywrap_logger_plugin::LoggerPlugin;
 
-use polywrap_core::{client::ClientConfig, macros::uri, uri::Uri, package::WrapPackage};
+use polywrap_core::{client::CoreClientConfig, macros::uri, uri::Uri, package::WrapPackage};
 use polywrap_msgpack_serde::to_vec;
 use polywrap_plugin::package::PluginPackage;
 use serde::Serialize;
@@ -11,7 +11,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::embeds::{fs_resolver, http_resolver, ipfs_http_client, ipfs_resolver};
 
-pub struct SystemClientConfig(PolywrapClientConfig);
+pub struct SystemClientConfig(ClientConfig);
 
 impl SystemClientConfig {
     pub fn precompiled() -> Self {
@@ -79,14 +79,14 @@ impl Default for SystemClientConfig {
     }
 }
 
-impl Into<PolywrapClientConfig> for SystemClientConfig {
-    fn into(self) -> PolywrapClientConfig {
+impl Into<ClientConfig> for SystemClientConfig {
+    fn into(self) -> ClientConfig {
         self.0
     }
 }
 
-impl Into<ClientConfig> for SystemClientConfig {
-    fn into(self) -> ClientConfig {
+impl Into<CoreClientConfig> for SystemClientConfig {
+    fn into(self) -> CoreClientConfig {
         self.0.into()
     }
 }
@@ -113,7 +113,7 @@ fn build_config(packages: Option<Vec<(Uri, Arc<dyn WrapPackage>)>>) -> SystemCli
     };
 
     SystemClientConfig({
-        PolywrapClientConfig {
+        ClientConfig {
             redirects: Some(HashMap::from([
                 (
                     uri!("wrapscan.io/polywrap/http@1.0"),

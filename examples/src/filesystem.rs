@@ -21,7 +21,7 @@ struct FileArgs {
 
 fn main() {
     let uri = uri!("wrapscan.io/polywrap/file-system@1.0");
-    let mut config = PolywrapClientConfig::new();
+    let mut config = ClientConfig::new();
     let fs_package = PluginPackage::from(FileSystemPlugin {});
 
     config.add_package(uri.clone(), Arc::new(fs_package));
@@ -29,7 +29,7 @@ fn main() {
     let file_path = "./fs-example.txt".to_string();
     let data = "Hello world!";
 
-    let client = PolywrapClient::new(config.build());
+    let client = Client::new(config.build());
     let write_file_result = client.invoke::<bool>(
         &uri,
         "writeFile",
