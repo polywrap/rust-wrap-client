@@ -82,6 +82,8 @@ impl Invoker for Client {
         env: Option<&[u8]>,
         resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
+        println!("Client.invoke_raw({}): {}", uri, method);
+
         let resolution_context = match resolution_context {
             None => Arc::new(Mutex::new(UriResolutionContext::new())),
             Some(ctx) => ctx,
