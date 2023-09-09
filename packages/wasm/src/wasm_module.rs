@@ -43,6 +43,22 @@ impl SerializedWasmModule {
             store: Arc::new(store),
         })
     }
+
+    pub fn serialize_for_storage(&self) -> Vec<u8> {
+        let mut bytes = vec![self.memory_initial_limits];
+        bytes.extend_from_slice(&self.compiled_bytes);
+        bytes
+    }
+
+    pub fn deserialize_from_storage(bytes: &[u8]) -> Self {
+        let memory_initial_limits = bytes[0];
+        let compiled_bytes = bytes[1..].to_vec().into();
+
+        SerializedWasmModule {
+            compiled_bytes,
+            memory_initial_limits,
+        }
+    }
 }
 
 #[derive(Clone)]

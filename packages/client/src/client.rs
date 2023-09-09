@@ -1,5 +1,5 @@
 use polywrap_core::{
-    client::{Client, ClientConfig},
+    client::{CoreClient, CoreClientConfig},
     error::Error,
     interface_implementation::InterfaceImplementations,
     invoker::Invoker,
@@ -27,20 +27,20 @@ use crate::subinvoker::Subinvoker;
 
 /// `PolywrapClient` is a client used for interacting, loading, resolving and invoking wraps.
 #[derive(Clone, Debug)]
-pub struct PolywrapClient {
+pub struct Client {
     pub resolver: Arc<dyn UriResolver>,
     pub envs: Option<HashMap<Uri, Vec<u8>>>,
     pub interfaces: Option<InterfaceImplementations>,
 }
 
-impl PolywrapClient {
-    /// Creates a new `PolywrapClient` from a given `ClientConfig`.
-    /// Instead of manually building the `ClientConfig` instance, the `PolywrapClientConfigBuilder` can be used.
-    /// 
+impl Client {
+    /// Creates a new `PolywrapClient` from a given `CoreClientConfig`.
+    /// Instead of manually building the `CoreClientConfig` instance, the `ClientConfigBuilder` can be used.
+    ///
     /// # Arguments
-    /// 
-    /// * `config`: A `ClientConfig` object containing the configuration for the client.
-    pub fn new(config: ClientConfig) -> Self {
+    ///
+    /// * `config`: A `CoreClientConfig` object containing the configuration for the client.
+    pub fn new(config: CoreClientConfig) -> Self {
         let resolver = config.resolver;
         let envs = config.envs;
         let interfaces = config.interfaces;
@@ -53,9 +53,9 @@ impl PolywrapClient {
 
     /// Invokes a method on a given URI, decodes the result into `T` and returns it.
     /// If the result of the invocation cannot be cast into `T`, an error will be thrown
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `uri`: `Uri` of the wrap to invoke.
     /// * `method`: A string slice representing the method to be invoked.
     /// * `args`: Optional msgpack buffer representing the arguments.
@@ -75,9 +75,9 @@ impl PolywrapClient {
     }
 
     /// Invokes a method on a given `Wrapper` implementation instance, decodes the result into `TResult` and returns it
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `wrapper`: `Wrapper` implementation instance.
     /// * `uri`: `Uri` of the wrap to invoke.
     /// * `method`: A string slice representing the method to be invoked.
@@ -100,7 +100,7 @@ impl PolywrapClient {
     }
 }
 
-impl Invoker for PolywrapClient {
+impl Invoker for Client {
     fn invoke_raw(
         &self,
         uri: &Uri,
@@ -202,7 +202,7 @@ impl Invoker for PolywrapClient {
     }
 }
 
-impl WrapLoader for PolywrapClient {
+impl WrapLoader for Client {
     fn load_wrapper(
         &self,
         uri: &Uri,
@@ -230,7 +230,7 @@ impl WrapLoader for PolywrapClient {
     }
 }
 
-impl WrapInvoker for PolywrapClient {
+impl WrapInvoker for Client {
     fn invoke_wrapper_raw(
         &self,
         wrapper: &dyn Wrapper,
@@ -275,7 +275,7 @@ impl WrapInvoker for PolywrapClient {
     }
 }
 
-impl UriResolverHandler for PolywrapClient {
+impl UriResolverHandler for Client {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
@@ -291,23 +291,23 @@ impl UriResolverHandler for PolywrapClient {
     }
 }
 
-impl Client for PolywrapClient {}
+impl CoreClient for Client {}
 
 #[cfg(test)]
 mod client_tests {
     use polywrap_core::{
-        client::ClientConfig, resolution::uri_resolution_context::UriPackageOrWrapper, uri::Uri,
-        uri_resolver_handler::UriResolverHandler, wrap_loader::WrapLoader,
+        client::CoreClientConfig, resolution::uri_resolution_context::UriPackageOrWrapper,
+        uri::Uri, uri_resolver_handler::UriResolverHandler, wrap_loader::WrapLoader,
     };
     use polywrap_msgpack_serde::from_slice;
     use polywrap_tests_utils::mocks::{get_mock_resolver, MockWrapper};
     use std::sync::Arc;
 
-    use super::PolywrapClient;
+    use super::Client;
 
     #[test]
     fn invoke() {
-        let client = PolywrapClient::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,
@@ -322,7 +322,7 @@ mod client_tests {
 
     #[test]
     fn invoke_wrapper() {
-        let client = PolywrapClient::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,
@@ -346,7 +346,7 @@ mod client_tests {
 
     #[test]
     fn load_wrapper() {
-        let client = PolywrapClient::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,
@@ -363,7 +363,7 @@ mod client_tests {
 
     #[test]
     fn try_resolve_uri() {
-        let client = PolywrapClient::new(ClientConfig {
+        let client = Client::new(CoreClientConfig {
             resolver: get_mock_resolver(),
             envs: None,
             interfaces: None,

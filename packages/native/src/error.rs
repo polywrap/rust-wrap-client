@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use polywrap_client::core::error::Error;
+
 #[derive(thiserror::Error, Debug, Clone)]
 pub enum FFIError {
     #[error("Error parsing URI: `{err}`")]
@@ -49,112 +51,112 @@ impl From<polywrap_wasm::error::WrapperError> for FFIError {
     }
 }
 
-impl From<polywrap_client::core::error::Error> for FFIError {
-    fn from(value: polywrap_client::core::error::Error) -> Self {
+impl From<Error> for FFIError {
+    fn from(value: Error) -> Self {
         match value {
-            polywrap_client::core::error::Error::UriParseError(err) => FFIError::UriParseError {
+            Error::UriParseError(err) => FFIError::UriParseError {
                 err: err.to_string(),
             },
-            polywrap_client::core::error::Error::RedirectsError(err, resolution_stack) => {
+            Error::RedirectsError(err, resolution_stack) => {
                 FFIError::RedirectsError {
                     err,
                     resolution_stack,
                 }
             }
-            polywrap_client::core::error::Error::WrapperError(err) => {
+            Error::WrapperError(err) => {
                 FFIError::WrapperError { err }
             }
-            polywrap_client::core::error::Error::WrapperCreateError(err) => {
+            Error::WrapperCreateError(err) => {
                 FFIError::WrapperCreateError { err }
             }
-            polywrap_client::core::error::Error::InvokeError(uri, method, err) => {
+            Error::InvokeError(uri, method, err) => {
                 FFIError::InvokeError { uri, method, err }
             }
-            polywrap_client::core::error::Error::LoadWrapperError(uri, err) => {
+            Error::LoadWrapperError(uri, err) => {
                 FFIError::LoadWrapperError { uri, err }
             }
-            polywrap_client::core::error::Error::WasmWrapperError(err) => {
+            Error::WasmWrapperError(err) => {
                 FFIError::WasmWrapperError { err }
             }
-            polywrap_client::core::error::Error::ResolutionError(err) => {
+            Error::ResolutionError(err) => {
                 FFIError::ResolutionError { err }
             }
-            polywrap_client::core::error::Error::UriNotFoundError(uri) => {
+            Error::UriNotFoundError(uri) => {
                 FFIError::UriNotFoundError { uri }
             }
-            polywrap_client::core::error::Error::MsgpackError(err) => {
+            Error::MsgpackError(err) => {
                 // let error
                 FFIError::MsgpackError {
                     err: err.to_string(),
                 }
             }
-            polywrap_client::core::error::Error::ManifestError(err) => {
+            Error::ManifestError(err) => {
                 FFIError::ManifestError { err }
             }
-            polywrap_client::core::error::Error::FileReadError(err) => {
+            Error::FileReadError(err) => {
                 FFIError::FileReadError { err }
             }
-            polywrap_client::core::error::Error::ResolverError(err) => {
+            Error::ResolverError(err) => {
                 FFIError::ResolverError { err }
             }
-            polywrap_client::core::error::Error::PluginError(err) => FFIError::PluginError { err },
-            polywrap_client::core::error::Error::RuntimeError(err) => {
+            Error::PluginError(err) => FFIError::PluginError { err },
+            Error::RuntimeError(err) => {
                 FFIError::RuntimeError { err }
             }
-            polywrap_client::core::error::Error::OtherError(err) => FFIError::OtherError { err },
+            Error::OtherError(err) => FFIError::OtherError { err },
         }
     }
 }
 
-impl From<FFIError> for polywrap_client::core::error::Error {
+impl From<FFIError> for Error {
     fn from(value: FFIError) -> Self {
         match value {
-            FFIError::UriParseError { err } => polywrap_client::core::error::Error::UriParseError(
+            FFIError::UriParseError { err } => Error::UriParseError(
                 polywrap_client::core::uri::ParseError(err),
             ),
             FFIError::RedirectsError {
                 err,
                 resolution_stack,
-            } => polywrap_client::core::error::Error::RedirectsError(err, resolution_stack),
+            } => Error::RedirectsError(err, resolution_stack),
             FFIError::WrapperError { err } => {
-                polywrap_client::core::error::Error::WrapperError(err)
+                Error::WrapperError(err)
             }
             FFIError::WrapperCreateError { err } => {
-                polywrap_client::core::error::Error::WrapperCreateError(err)
+                Error::WrapperCreateError(err)
             }
             FFIError::InvokeError { uri, method, err } => {
-                polywrap_client::core::error::Error::InvokeError(uri, method, err)
+                Error::InvokeError(uri, method, err)
             }
             FFIError::LoadWrapperError { uri, err } => {
-                polywrap_client::core::error::Error::LoadWrapperError(uri, err)
+                Error::LoadWrapperError(uri, err)
             }
             FFIError::WasmWrapperError { err } => {
-                polywrap_client::core::error::Error::WasmWrapperError(err)
+                Error::WasmWrapperError(err)
             }
             FFIError::ResolutionError { err } => {
-                polywrap_client::core::error::Error::ResolutionError(err)
+                Error::ResolutionError(err)
             }
             FFIError::UriNotFoundError { uri } => {
-                polywrap_client::core::error::Error::UriNotFoundError(uri)
+                Error::UriNotFoundError(uri)
             }
             FFIError::MsgpackError { err } => {
                 let msgpack = polywrap_msgpack_serde::Error::Message(err);
-                polywrap_client::core::error::Error::MsgpackError(msgpack)
+                Error::MsgpackError(msgpack)
             }
             FFIError::ManifestError { err } => {
-                polywrap_client::core::error::Error::ManifestError(err)
+                Error::ManifestError(err)
             }
             FFIError::FileReadError { err } => {
-                polywrap_client::core::error::Error::FileReadError(err)
+                Error::FileReadError(err)
             }
             FFIError::ResolverError { err } => {
-                polywrap_client::core::error::Error::ResolverError(err)
+                Error::ResolverError(err)
             }
-            FFIError::PluginError { err } => polywrap_client::core::error::Error::PluginError(err),
+            FFIError::PluginError { err } => Error::PluginError(err),
             FFIError::RuntimeError { err } => {
-                polywrap_client::core::error::Error::RuntimeError(err)
+                Error::RuntimeError(err)
             }
-            FFIError::OtherError { err } => polywrap_client::core::error::Error::OtherError(err),
+            FFIError::OtherError { err } => Error::OtherError(err),
         }
     }
 }

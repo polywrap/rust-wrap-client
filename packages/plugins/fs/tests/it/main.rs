@@ -1,16 +1,15 @@
-use polywrap_client::client::PolywrapClient;
-use polywrap_core::client::ClientConfig;
+use polywrap_client::{
+    client::Client,
+    resolvers::static_resolver::{StaticResolver, StaticResolverLike},
+};
 use polywrap_fs_plugin::FileSystemPlugin;
-use polywrap_msgpack_serde::to_vec;
-use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 
-use polywrap_plugin::package::PluginPackage;
+use lazy_static::lazy_static;
+use polywrap_plugin::*;
 use serde::Serialize;
-use serde_bytes::ByteBuf;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::{env, fs};
-use lazy_static::lazy_static;
 
 lazy_static! {
     // This Mutex is a global one, shared across all the tests in this module.
@@ -40,7 +39,7 @@ fn clean_up_temp_files() -> std::io::Result<()> {
     Ok(())
 }
 
-fn get_client() -> PolywrapClient {
+fn get_client() -> Client {
     let fs_plugin = FileSystemPlugin {};
     let plugin_pkg: PluginPackage<FileSystemPlugin> = fs_plugin.into();
     let package = Arc::new(plugin_pkg);
@@ -50,7 +49,7 @@ fn get_client() -> PolywrapClient {
         package,
     )]);
 
-    PolywrapClient::new(ClientConfig {
+    Client::new(CoreClientConfig {
         resolver: Arc::new(resolver),
         interfaces: None,
         envs: None,
@@ -213,8 +212,7 @@ fn should_return_whether_a_file_exists_or_not() {
 #[derive(Serialize)]
 struct WriteFileArgs {
     path: String,
-    #[serde(with = "serde_bytes")]
-    data: Vec<u8>,
+    data: ByteBuf,
 }
 
 #[test]
@@ -238,7 +236,7 @@ fn should_write_byte_data_to_a_file() {
         Some(
             &to_vec(&WriteFileArgs {
                 path: temp_file_path.to_str().unwrap().to_string(),
-                data: bytes,
+                data: ByteBuf::from(bytes),
             })
             .unwrap(),
         ),

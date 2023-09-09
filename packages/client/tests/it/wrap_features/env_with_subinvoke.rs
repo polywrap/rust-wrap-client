@@ -1,7 +1,7 @@
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client::core::uri::Uri;
 
-use polywrap_core::client::ClientConfig;
+use polywrap_core::client::CoreClientConfig;
 use polywrap_core::file_reader::SimpleFileReader;
 use polywrap_core::macros::uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
@@ -82,7 +82,7 @@ struct Env {
     array: Vec<i32>,
 }
 
-fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) -> PolywrapClient {
+fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) -> Client {
     let subinvoker_uri = get_subinvoker_uri();
     let subinvoked_uri = get_subinvoked_uri();
 
@@ -106,13 +106,13 @@ fn build_client(subinvoker_env: Option<&[u8]>, subinvoked_env: Option<&[u8]>) ->
         Box::new(fs_resolver),
         Box::new(StaticResolver::new(resolvers)),
     );
-    let config = ClientConfig {
+    let config = CoreClientConfig {
         envs: Some(envs),
         resolver: Arc::new(base_resolver),
         interfaces: None,
     };
 
-    PolywrapClient::new(config)
+    Client::new(config)
 }
 
 #[derive(Serialize)]
@@ -313,13 +313,13 @@ fn subinvoker_env_does_not_override_subinvoked_env() {
             Box::new(fs_resolver),
             Box::new(StaticResolver::new(resolvers)),
         );
-        let config = ClientConfig {
+        let config = CoreClientConfig {
             envs: Some(envs),
             resolver: Arc::new(base_resolver),
             interfaces: None,
         };
 
-        PolywrapClient::new(config)
+        Client::new(config)
     };
 
     let result = client

@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use polywrap_core::invoker::Invoker;
 use wasmer::{Instance, Memory, MemoryType, Module, Store, Value};
+// use wasmer_compiler_llvm::LLVM;
 
 use crate::error::WrapperError;
 
@@ -63,6 +64,12 @@ impl WasmInstance {
         memory_initial_limits: u8,
         state: Arc<Mutex<State>>,
     ) -> Result<Self, WrapperError> {
+        // This has been commented because it introduces the OS dependency of LLVM
+        // Research needs to be done on how to easily install this.
+        // https://github.com/wasmerio/wasmer/tree/master/lib/compiler-llvm
+        // let compiler = LLVM::new();
+        // let mut store = Store::new(compiler);
+
         let mut store = Store::default();
         let memory = WasmInstance::create_memory(&mut store, memory_initial_limits)?;
 

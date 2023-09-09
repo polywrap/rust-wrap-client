@@ -7,6 +7,8 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 
+build = "build.rs"
+
 [dependencies]
 serde_json.workspace = true
 serde.workspace = true
@@ -21,7 +23,11 @@ base64.workspace = true
 polywrap_fs_plugin.workspace = true
 polywrap_http_plugin.workspace = true
 polywrap_ethereum_wallet_plugin.workspace = true
+polywrap_logger_plugin.workspace = true
 
 [dev-dependencies]
 polywrap_client.workspace = true
 polywrap_tests_utils.workspace = true
+
+[build-dependencies]
+polywrap_wasm.workspace = true

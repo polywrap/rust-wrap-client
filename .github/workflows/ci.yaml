@@ -17,7 +17,7 @@ jobs:
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.69.0
+          toolchain: 1.72.0
           override: true
 
       - name: Generate test cases
@@ -27,9 +27,27 @@ jobs:
         uses: taiki-e/install-action@cargo-llvm-cov
 
       - name: Test & Generate code coverage
-        run: cargo llvm-cov --all-features --workspace --lcov --output-path cov.info --ignore-filename-regex tests-utils
+        run: cargo llvm-cov --all-features --workspace --lcov --output-path cov.info --ignore-filename-regex tests-utils --release
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
         with:
           files: cov.info
+
+  Examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.72.0
+          override: true
+
+      - name: Instantiate IPFS node
+        run: npx polywrap infra up --modules=eth-ens-ipfs
+
+      - name: Run examples
+        run: .github/scripts/examples.sh

@@ -1,11 +1,11 @@
-use polywrap_client::client::PolywrapClient;
-use polywrap_core::{client::ClientConfig, uri::Uri};
+use polywrap_client::{
+    client::Client,
+    resolvers::static_resolver::{StaticResolver, StaticResolverLike},
+};
 use polywrap_ethereum_wallet_plugin::{
     connection::Connection, connections::Connections, EthereumWalletPlugin,
 };
-use polywrap_msgpack_serde::to_vec;
-use polywrap_plugin::package::PluginPackage;
-use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
+use polywrap_plugin::*;
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc};
 
@@ -18,7 +18,7 @@ pub struct ConnectionArgs {
     node: Option<String>,
 }
 
-fn get_client() -> PolywrapClient {
+fn get_client() -> Client {
     let bsc_connection = Connection::new(
         "https://bsc-dataseed1.binance.org/".to_string(),
         Some(String::from(
@@ -53,7 +53,7 @@ fn get_client() -> PolywrapClient {
         package,
     )]);
 
-    PolywrapClient::new(ClientConfig {
+    Client::new(CoreClientConfig {
         resolver: Arc::new(resolver),
         interfaces: None,
         envs: None,
@@ -91,8 +91,7 @@ fn get_signer_address() {
 
 #[derive(Serialize)]
 struct SignMessageArgs {
-    #[serde(with = "serde_bytes")]
-    message: Vec<u8>,
+    message: ByteBuf,
 }
 
 #[test]
@@ -103,7 +102,7 @@ fn sign_message() {
         "signMessage",
         Some(
             &to_vec(&SignMessageArgs {
-                message: "Hello World".as_bytes().to_vec(),
+                message: ByteBuf::from("Hello World".as_bytes()),
             })
             .unwrap(),
         ),

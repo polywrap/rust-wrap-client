@@ -19,3 +19,5 @@ cov.info
 node_modules
 yarn-error.log
 .DS_Store
+.polywrap
+wrap.serialized

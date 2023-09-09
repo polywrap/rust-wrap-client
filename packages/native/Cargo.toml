@@ -20,14 +20,13 @@ thiserror.workspace = true
 serde_json.workspace = true
 serde.workspace = true
 
-uniffi = { version = "0.24.2", features = [ "cli" ] }
+uniffi = { version = "0.24.2", features = [ "cli" ], default-features = false }
 
 [build-dependencies]
-uniffi = { version = "0.24.2", features = [ "build" ] }
+uniffi = { version = "0.24.2", features = [ "build" ], default-features = false }
 
 [dev-dependencies]
 polywrap_tests_utils.workspace = true
-polywrap_client_default_config.workspace = true
 
 [[bin]]
 name = "uniffi-bindgen"

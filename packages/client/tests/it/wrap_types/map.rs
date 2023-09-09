@@ -1,4 +1,4 @@
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client::core::uri::Uri;
 
 use polywrap_client::plugin::Map;
@@ -35,7 +35,7 @@ pub struct CustomMap {
     pub nestedMap: Map<String, Map<String, u32>>,
 }
 
-fn get_client_and_uri() -> (PolywrapClient, Uri) {
+fn get_client_and_uri() -> (Client, Uri) {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let uri = format!("fs/{path}/map-type/implementations/rs")

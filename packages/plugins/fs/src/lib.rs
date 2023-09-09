@@ -1,14 +1,12 @@
 use crate::wrap::wrap_info::get_manifest;
 use std::{fs, path::Path, sync::Arc};
 
-use polywrap_core::invoker::Invoker;
-use polywrap_plugin::{error::PluginError, implementor::plugin_impl};
+use polywrap_plugin::*;
 use wrap::module::{
     ArgsExists, ArgsMkdir, ArgsReadFile, ArgsReadFileAsString, ArgsRm, ArgsRmdir, ArgsWriteFile,
     Module,
 };
 pub mod wrap;
-use serde_bytes::ByteBuf;
 
 #[derive(Debug)]
 pub struct FileSystemPlugin;

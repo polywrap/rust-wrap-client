@@ -1,0 +1,22 @@
+[package]
+name = "polywrap_logger_plugin"
+description = "Polywrap rust logger plugin"
+
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+polywrap_plugin.workspace = true
+
+base64.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+serde_json.workspace = true
+
+log = "0.4"
+env_logger = "0.10"
+
+[dev-dependencies]
+polywrap_client.workspace = true

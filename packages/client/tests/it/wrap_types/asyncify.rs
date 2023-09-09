@@ -1,4 +1,4 @@
-use polywrap_client::client::PolywrapClient;
+use polywrap_client::client::Client;
 use polywrap_client::core::macros::uri;
 use polywrap_client::core::uri::Uri;
 use polywrap_core::resolution::uri_resolution_context::UriPackageOrWrapper;
@@ -62,7 +62,7 @@ struct SetDataWithManyArgsArgs {
     valueL: String,
 }
 
-fn get_client_and_uri() -> (PolywrapClient, Uri) {
+fn get_client_and_uri() -> (Client, Uri) {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let uri = format!("fs/{}/asyncify/implementations/rs", path)
