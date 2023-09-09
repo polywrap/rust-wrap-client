@@ -9,7 +9,7 @@ use polywrap_plugin::package::PluginPackage;
 use serde::Serialize;
 use std::{collections::HashMap, sync::Arc};
 
-use crate::embeds::{fs_resolver, http_resolver, ipfs_http_client, ipfs_resolver};
+use crate::embeds::{fs_resolver, http_resolver, ipfs_http_client, ipfs_resolver, wrapscan_resolver};
 
 pub struct SystemClientConfig(ClientConfig);
 
@@ -32,6 +32,10 @@ impl SystemClientConfig {
                 uri!("wrapscan.io/polywrap/async-ipfs-uri-resolver@1.0"),
                 Arc::new(ipfs_resolver::precompiled_wasm_package()),
             ),
+            (
+                uri!("wrapscan.io/polywrap/wrapscan-uri-resolver@1.0"),
+                Arc::new(wrapscan_resolver::precompiled_wasm_package()),
+            )
         ]))
     }
 
@@ -53,6 +57,10 @@ impl SystemClientConfig {
                 uri!("wrapscan.io/polywrap/async-ipfs-uri-resolver@1.0"),
                 Arc::new(ipfs_resolver::lazy_loaded_wasm_package()),
             ),
+            (
+                uri!("wrapscan.io/polywrap/wrapscan-uri-resolver@1.0"),
+                Arc::new(wrapscan_resolver::lazy_loaded_wasm_package()),
+            )
         ]))
     }
 }
@@ -122,10 +130,6 @@ fn build_config(packages: Option<Vec<(Uri, Arc<dyn WrapPackage>)>>) -> SystemCli
                 (
                     uri!("wrapscan.io/polywrap/file-system@1.0"),
                     uri!("plugin/file-system@1.0.0"),
-                ),
-                (
-                    uri!("wrapscan.io/polywrap/wrapscan-uri-resolver@1.0"),
-                    uri!("http/https://wraps.wrapscan.io/r/polywrap/wrapscan-uri-resolver@1.0"),
                 ),
             ])),
             interfaces: Some(HashMap::from([
