@@ -82,6 +82,7 @@ impl Invoker for PolywrapClient {
         env: Option<&[u8]>,
         resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
     ) -> Result<Vec<u8>, Error> {
+        println!("Client.invoke_raw({}): {}", uri, method);
         let resolution_context = match resolution_context {
             None => Arc::new(Mutex::new(UriResolutionContext::new())),
             Some(ctx) => ctx,
@@ -151,7 +152,13 @@ impl Invoker for PolywrapClient {
             Some(res_context_guard.borrow_mut()),
         );
 
-        result
+        match result {
+                   Ok(res) => {
+                       println!("Client.result({}): {}, {:?}", uri, method, res);
+                       Ok(res)
+                   },
+                   Err(err) => Err(err)
+               }
     }
 
     fn get_implementations(&self, uri: &Uri) -> Result<Vec<Uri>, Error> {
