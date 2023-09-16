@@ -68,13 +68,11 @@ impl UriResolver for ResolutionResultCacheResolver {
         &self,
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if let Some(cache_result) = self.cache.lock().unwrap().get(uri) {
             let result = cache_result.clone().deref().clone();
             resolution_context
-                .lock()
-                .unwrap()
                 .track_step(UriResolutionStep {
                     source_uri: uri.clone(),
                     result: result.clone(),
@@ -84,14 +82,11 @@ impl UriResolver for ResolutionResultCacheResolver {
             return result;
         }
 
-        let sub_context = resolution_context
-            .lock()
-            .unwrap()
+        let mut sub_context = resolution_context
             .create_sub_history_context();
-        let sub_context = Arc::new(Mutex::new(sub_context));
         let result = self
             .resolver
-            .try_resolve_uri(uri, invoker.clone(), sub_context.clone());
+            .try_resolve_uri(uri, invoker.clone(), &mut sub_context);
 
         if result.is_ok() {
             let skip_cache = (self.skip_cache)(uri);
@@ -105,12 +100,10 @@ impl UriResolver for ResolutionResultCacheResolver {
         }
 
         resolution_context
-            .lock()
-            .unwrap()
             .track_step(UriResolutionStep {
                 source_uri: uri.clone(),
                 result: result.clone(),
-                sub_history: Some(sub_context.lock().unwrap().get_history().clone()),
+                sub_history: Some(sub_context.get_history().clone()),
                 description: Some("ResolutionResultCacheResolver".to_string()),
             });
 

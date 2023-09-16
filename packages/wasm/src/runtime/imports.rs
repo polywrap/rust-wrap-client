@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
 
+use polywrap_core::{invoker::InvokerContextBuilder, resolution::uri_resolution_context::UriResolutionContext};
 use polywrap_msgpack_serde::to_vec;
 use wasmer::{
     imports, Function, FunctionEnv, FunctionEnvMut, FunctionType, Imports, Memory, Store, Type,
@@ -194,7 +195,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             state
                 .invoker
                 .clone()
-                .invoke_raw(&uri, &method, Some(&args_buffer), None, None);
+                .invoke_raw(&uri, &method, Some(&args_buffer), None);
 
         match result {
             Ok(res) => {
@@ -372,8 +373,11 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             &uri,
             &method,
             Some(&args_buffer),
-            Some(&state.env),
-            None,
+            Some(
+                InvokerContextBuilder::default(&mut UriResolutionContext::new())
+                    .env(Some(&state.env))
+                    .build()
+            )
         );
 
         match result {

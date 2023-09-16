@@ -60,7 +60,6 @@ impl FileReader for UriResolverExtensionFileReader {
             "getFile",
             Some(&invoker_args),
             None,
-            None,
         )?;
 
         let result: ByteBuf = polywrap_msgpack_serde::from_slice(&result)?;

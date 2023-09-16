@@ -16,9 +16,9 @@ use polywrap_core::{
     wrapper::Wrapper,
 };
 use polywrap_msgpack_serde::from_slice;
+use polywrap_plugin::InvokerContext;
 use serde::de::DeserializeOwned;
 use std::{
-    borrow::BorrowMut,
     collections::HashMap,
     sync::{Arc, Mutex},
 };
@@ -49,10 +49,9 @@ impl Client {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&[u8]>,
-        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
+        context: Option<InvokerContext>,
     ) -> Result<T, Error> {
-        let result = self.invoke_raw(uri, method, args, env, resolution_context)?;
+        let result = self.invoke_raw(uri, method, args, context)?;
 
         from_slice(result.as_slice()).map_err(Error::MsgpackError)
     }
@@ -63,11 +62,10 @@ impl Client {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        context: Option<InvokerContext>,
     ) -> Result<TResult, Error> {
         let result =
-            self.invoke_wrapper_raw(wrapper, uri, method, args, env, resolution_context)?;
+            self.invoke_wrapper_raw(wrapper, uri, method, args, context)?;
 
         from_slice(result.as_slice()).map_err(Error::MsgpackError)
     }
@@ -79,38 +77,32 @@ impl Invoker for Client {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&[u8]>,
-        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
+        context: Option<InvokerContext>,
     ) -> Result<Vec<u8>, Error> {
-        let resolution_context = match resolution_context {
-            None => Arc::new(Mutex::new(UriResolutionContext::new())),
-            Some(ctx) => ctx,
-        };
+        let mut default_resolution_context = UriResolutionContext::new();
+        let context = context.unwrap_or(InvokerContext::default(&mut default_resolution_context));
 
-        let loaded_wrapper_context = resolution_context.lock().unwrap().create_sub_context();
-        let loaded_wrapper_context = Arc::new(Mutex::new(loaded_wrapper_context));
+        let mut loaded_wrapper_context = context.resolution_context.create_sub_context();
 
         let load_result = self
             .clone()
-            .load_wrapper(uri, Some(loaded_wrapper_context.clone()));
+            .load_wrapper(uri, Some(&mut loaded_wrapper_context));
 
         if load_result.is_err() {
             let error = load_result.err().unwrap();
 
-            resolution_context
-                .lock()
-                .unwrap()
+            context.resolution_context
                 .track_step(UriResolutionStep {
                     source_uri: uri.clone(),
                     result: Err(error.clone()),
                     description: Some(format!("Client.loadWrapper({uri})")),
-                    sub_history: Some(loaded_wrapper_context.lock().unwrap().get_history().clone()),
+                    sub_history: Some(loaded_wrapper_context.get_history().clone()),
                 });
 
             return Err(Error::LoadWrapperError(uri.to_string(), error.to_string()));
         }
 
-        let resolution_path = loaded_wrapper_context.lock().unwrap().get_resolution_path();
+        let resolution_path = loaded_wrapper_context.get_resolution_path();
         let resolution_path = if !resolution_path.is_empty() {
             resolution_path
         } else {
@@ -121,9 +113,7 @@ impl Invoker for Client {
 
         let wrapper = load_result.unwrap();
 
-        resolution_context
-            .lock()
-            .unwrap()
+        context.resolution_context
             .track_step(UriResolutionStep {
                 source_uri: uri.clone(),
                 result: Ok(UriPackageOrWrapper::Wrapper(
@@ -131,24 +121,26 @@ impl Invoker for Client {
                     wrapper.clone(),
                 )),
                 description: Some("Client.loadWrapper".to_string()),
-                sub_history: Some(loaded_wrapper_context.lock().unwrap().get_history().clone()),
+                sub_history: Some(loaded_wrapper_context.get_history().clone()),
             });
 
-        let env = if env.is_some() {
-            env.map(|e| e.to_vec())
+        let env = if context.env.is_some() {
+            context.env.map(|e| e.to_vec())
         } else {
             get_env_from_resolution_path(&resolution_path, self)
         };
-
-        let mut res_context_guard = resolution_context.lock().unwrap();
 
         let result = self.invoke_wrapper_raw(
             &*wrapper,
             uri,
             method,
             args,
-            env.as_deref(),
-            Some(res_context_guard.borrow_mut()),
+            Some(InvokerContext {
+                resolution_context: context.resolution_context,
+                env: env.as_deref(),
+                caller_context: context.caller_context,
+                overriden_own_context: context.overriden_own_context,
+            })
         );
 
         result
@@ -179,10 +171,11 @@ impl WrapLoader for Client {
     fn load_wrapper(
         &self,
         uri: &Uri,
-        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
+        resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<Arc<dyn Wrapper>, Error> {
+        let mut default_resolution_context = UriResolutionContext::new();
         let resolution_context = match resolution_context {
-            None => Arc::new(Mutex::new(UriResolutionContext::new())),
+            None => &mut default_resolution_context,
             Some(ctx) => ctx,
         };
 
@@ -210,30 +203,28 @@ impl WrapInvoker for Client {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        context: Option<InvokerContext>,
     ) -> Result<Vec<u8>, Error> {
-        let mut empty_res_context = UriResolutionContext::new();
-        let resolution_context = match resolution_context {
-            None => &mut empty_res_context,
-            Some(ctx) => ctx,
-        };
-
-        let subinvocation_context = resolution_context.create_sub_context();
+        let mut default_resolution_context = UriResolutionContext::new();
+        let context = context.unwrap_or(InvokerContext::default(&mut default_resolution_context));
+        let subinvocation_context = context.resolution_context.create_sub_context();
         let subinvocation_context = Arc::new(Mutex::new(subinvocation_context));
 
         let subinvoker = Arc::new(Subinvoker::new(
             Arc::new(self.clone()),
+            context.resolution_context.clone(),
+            context.caller_context.cloned(),
+            context.overriden_own_context.cloned(),
             subinvocation_context.clone(),
         ));
 
         let invoke_result = wrapper
-            .invoke(method, args, env, subinvoker)
+            .invoke(method, args, context.env, subinvoker)
             .map_err(|e| Error::InvokeError(uri.to_string(), method.to_string(), e.to_string()));
 
         let subinvocation_context = subinvocation_context.lock().unwrap();
 
-        resolution_context.track_step(UriResolutionStep {
+        context.resolution_context.track_step(UriResolutionStep {
             source_uri: uri.clone(),
             result: if invoke_result.is_ok() {
                 Ok(UriPackageOrWrapper::Uri(uri.clone()))
@@ -252,12 +243,13 @@ impl UriResolverHandler for Client {
     fn try_resolve_uri(
         &self,
         uri: &Uri,
-        resolution_context: Option<Arc<Mutex<UriResolutionContext>>>,
+        resolution_context: Option<&mut UriResolutionContext>,
     ) -> Result<UriPackageOrWrapper, Error> {
         let uri_resolver = self.resolver.clone();
+        let mut default_resolution_context = UriResolutionContext::new();
         let resolution_context = match resolution_context {
             Some(r) => r,
-            None => Arc::new(Mutex::new(UriResolutionContext::new())),
+            None => &mut default_resolution_context,
         };
 
         uri_resolver.try_resolve_uri(uri, Arc::new(self.clone()), resolution_context)

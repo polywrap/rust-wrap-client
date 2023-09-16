@@ -2,7 +2,7 @@ use core::fmt;
 use polywrap_core::resolution::uri_resolution_context::UriResolutionStep;
 use polywrap_core::resolution::uri_resolver::UriResolver;
 use polywrap_core::{error::Error, invoker::Invoker, uri::Uri};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use polywrap_core::resolution::uri_resolution_context::{
     UriPackageOrWrapper, UriResolutionContext,
@@ -20,7 +20,7 @@ impl UriResolver for RedirectResolver {
         &self,
         uri: &Uri,
         _: Arc<dyn Invoker>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let result: Result<UriPackageOrWrapper, Error> = {
             if uri.to_string() != self.from.to_string() {
@@ -31,8 +31,6 @@ impl UriResolver for RedirectResolver {
         };
 
         resolution_context
-            .lock()
-            .unwrap()
             .track_step(UriResolutionStep {
                 source_uri: uri.clone(),
                 description: Some(format!("Redirect ({} - {})", self.from, self.to)),

@@ -1,7 +1,7 @@
 use std::{
     fmt, fs,
     path::Path,
-    sync::{Arc, Mutex},
+    sync::Arc,
 };
 
 use polywrap_core::{
@@ -31,7 +31,7 @@ impl UriResolver for FilesystemResolver {
         &self,
         uri: &Uri,
         _invoker: Arc<dyn Invoker>,
-        _: Arc<Mutex<UriResolutionContext>>,
+        _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.authority() != "fs" && uri.authority() != "file" {
             return Ok(UriPackageOrWrapper::Uri(uri.clone()));

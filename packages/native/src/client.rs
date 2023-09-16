@@ -34,6 +34,7 @@ impl FFIClient {
         args: Option<Vec<u8>>,
         env: Option<Vec<u8>>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
+        caller_resolution_context: Option<Arc<FFIUriResolutionContext>>,
     ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
         let args = args.as_deref();
         let env = env.as_deref();
@@ -44,6 +45,7 @@ impl FFIClient {
             args,
             env,
             resolution_context.map(|ctx| ctx.0.clone()),
+            caller_resolution_context.map(|ctx| ctx.0.lock().unwrap().clone()),
         )
     }
 
@@ -87,11 +89,13 @@ impl FFIClient {
         args: Option<Vec<u8>>,
         env: Option<Vec<u8>>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
+        caller_resolution_context: Option<Arc<FFIUriResolutionContext>>
     ) -> Result<Vec<u8>, FFIError> {
         let args = args.as_deref();
 
         if let Some(resolution_context) = resolution_context {
             let mut res_context_guard = resolution_context.0.lock().unwrap();
+            let caller_resolution_context = caller_resolution_context.map(|ctx| ctx.0.lock().unwrap().clone());
 
             Ok(self.inner_client.invoke_wrapper_raw(
                 wrapper.deref(),
@@ -100,8 +104,10 @@ impl FFIClient {
                 args.as_deref(),
                 env.as_deref(),
                 Some(res_context_guard.deref_mut()),
+                caller_resolution_context,
             )?)
         } else {
+            let caller_resolution_context = caller_resolution_context.map(|ctx| ctx.0.lock().unwrap().clone());
             Ok(self.inner_client.invoke_wrapper_raw(
                 wrapper.deref(),
                 &uri.0,
@@ -109,6 +115,7 @@ impl FFIClient {
                 args.as_deref(),
                 env.as_deref(),
                 None,
+                caller_resolution_context,
             )?)
         }
     }
@@ -153,9 +160,10 @@ impl Invoker for FFIClient {
                 >,
             >,
         >,
+        caller_resolution_context: Option<polywrap_client::core::resolution::uri_resolution_context::UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_client::core::error::Error> {
         self.inner_client
-            .invoke_raw(uri, method, args, env, resolution_context)
+            .invoke_raw(uri, method, args, env, resolution_context, caller_resolution_context)
     }
 
     fn get_implementations(

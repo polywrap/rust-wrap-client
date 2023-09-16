@@ -1,6 +1,6 @@
 use crate::{
-    error::Error, resolution::uri_resolution_context::UriResolutionContext, uri::Uri,
-    wrapper::Wrapper,
+    error::Error, uri::Uri,
+    wrapper::Wrapper, invoker::InvokerContext,
 };
 
 pub trait WrapInvoker: Send + Sync {
@@ -10,7 +10,6 @@ pub trait WrapInvoker: Send + Sync {
         uri: &Uri,
         method: &str,
         args: Option<&[u8]>,
-        env: Option<&[u8]>,
-        resolution_context: Option<&mut UriResolutionContext>,
+        context: Option<InvokerContext>,
     ) -> Result<Vec<u8>, Error>;
 }

@@ -67,7 +67,7 @@ impl UriResolver for FFIUriResolver {
         &self,
         uri: &polywrap_client::core::uri::Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, polywrap_client::core::error::Error> {
         let ffi_resolution_context = FFIUriResolutionContext(resolution_context);
         let result = self.0.try_resolve_uri(

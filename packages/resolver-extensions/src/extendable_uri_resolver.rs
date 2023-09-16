@@ -33,7 +33,7 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
         &self,
         _: &Uri,
         invoker: &dyn Invoker,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
         let implementations =
             invoker.get_implementations(&uri!("wrapscan.io/polywrap/uri-resolver@1.0"))?;
@@ -42,8 +42,6 @@ impl UriResolverAggregatorBase for ExtendableUriResolver {
             .into_iter()
             .filter_map(|implementation| {
                 if !resolution_context
-                    .lock()
-                    .unwrap()
                     .is_resolving(&implementation)
                 {
                     let wrapper = Arc::new(UriResolverWrapper::new(implementation));
@@ -71,10 +69,10 @@ impl UriResolver for ExtendableUriResolver {
         &self,
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let resolvers =
-            self.get_uri_resolvers(uri, invoker.as_ref(), resolution_context.clone())?;
+            self.get_uri_resolvers(uri, invoker.as_ref(), resolution_context)?;
 
         if resolvers.is_empty() {
             let uri = UriPackageOrWrapper::Uri(uri.clone());

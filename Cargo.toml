@@ -48,7 +48,7 @@ default-members = [
     "packages/plugins/http",
     "packages/plugins/fs",
     "packages/plugins/ethereum-wallet",
-    "packages/plugins/logger"
+    "packages/plugins/logger",
 ]
 
 [workspace.dependencies]
@@ -85,7 +85,7 @@ ureq = "2.5.0"
 
 proc-macro2 = "1.0"
 quote = "1.0"
-syn = { version = "1.0.105", features=["full", "extra-traits", "visit"] }
+syn = { version = "*", features=["full", "extra-traits", "visit"] }
 base64 = "0.13.1"
 bigdecimal = "0.3.0"
 num-bigint = "0.4.3"

@@ -28,7 +28,7 @@ interface FFIUri {
 
 interface FFIInvoker {
   [Throws=FFIError]
-  sequence<u8> invoke_raw(FFIUri uri, string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
+  sequence<u8> invoke_raw(FFIUri uri, string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context, FFIUriResolutionContext? caller_resolution_context);
 
   [Throws=FFIError]
   sequence<FFIUri> get_implementations(FFIUri uri);
@@ -134,7 +134,7 @@ interface FFIUriResolutionContext {
 
 interface FFIClient {
   [Throws=FFIError]
-  sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
+  sequence<u8> invoke_raw(FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context, FFIUriResolutionContext? caller_resolution_context);
 
   [Throws=FFIError]
   sequence<FFIUri> get_implementations(FFIUri uri);
@@ -146,7 +146,7 @@ interface FFIClient {
   FFIInvoker as_invoker();
 
   [Throws=FFIError]
-  sequence<u8> invoke_wrapper_raw(FFIWrapper wrapper, FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context);
+  sequence<u8> invoke_wrapper_raw(FFIWrapper wrapper, FFIUri uri, [ByRef] string method, sequence<u8>? args, sequence<u8>? env, FFIUriResolutionContext? resolution_context, FFIUriResolutionContext? caller_resolution_context);
 
   [Throws=FFIError]
   FFIWrapper load_wrapper(FFIUri uri, FFIUriResolutionContext? resolution_context);

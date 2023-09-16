@@ -13,7 +13,7 @@ use polywrap_core::{
 };
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::Arc,
 };
 
 pub enum StaticResolverLike {
@@ -68,7 +68,7 @@ impl UriResolver for StaticResolver {
         &self,
         uri: &Uri,
         _: Arc<dyn Invoker>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let uri_package_or_wrapper = self.uri_map.get(&uri);
         let (description, result) = if let Some(found) = uri_package_or_wrapper {
@@ -94,8 +94,6 @@ impl UriResolver for StaticResolver {
         };
 
         resolution_context
-            .lock()
-            .unwrap()
             .track_step(UriResolutionStep {
                 description: Some(description),
                 source_uri: uri.clone(),

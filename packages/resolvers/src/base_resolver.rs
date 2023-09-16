@@ -6,7 +6,7 @@ use polywrap_core::{
     resolution::uri_resolver::UriResolver,
     uri::Uri,
 };
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 pub struct BaseResolver {
     fs_resolver: Box<dyn UriResolver>,
@@ -27,12 +27,12 @@ impl UriResolver for BaseResolver {
         &self,
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let redirected_uri = self.static_resolver.try_resolve_uri(
             uri,
             invoker.clone(),
-            resolution_context.clone(),
+            resolution_context,
         )?;
 
         if let UriPackageOrWrapper::Uri(redirected_uri) = redirected_uri {

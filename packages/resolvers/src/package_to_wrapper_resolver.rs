@@ -9,7 +9,7 @@ use polywrap_core::{
     uri::Uri,
 };
 use std::fmt;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 /// A URI resolver that converts WrapPackages to a Wrappers as they pass through
 pub struct PackageToWrapperResolver {
@@ -64,19 +64,17 @@ impl UriResolver for PackageToWrapperResolver {
         &self,
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let result =
             self.resolver
-                .try_resolve_uri(uri, invoker.clone(), resolution_context.clone());
+                .try_resolve_uri(uri, invoker.clone(), resolution_context);
         let final_result = match result {
             Ok(uri_package_or_wrapper) => self.package_to_wrapper(uri_package_or_wrapper),
             Err(_) => result,
         };
 
         resolution_context
-            .lock()
-            .unwrap()
             .track_step(UriResolutionStep {
                 source_uri: uri.clone(),
                 result: final_result.clone(),

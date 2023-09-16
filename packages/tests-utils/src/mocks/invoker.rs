@@ -1,13 +1,14 @@
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::Arc,
 };
 
 use polywrap_core::{
-    invoker::Invoker, macros::uri, resolution::uri_resolution_context::UriResolutionContext,
+    invoker::Invoker, macros::uri,
     uri::Uri,
 };
 use polywrap_msgpack_serde::to_vec;
+use polywrap_plugin::InvokerContext;
 use serde::{Deserialize, Serialize};
 use wrap_manifest_schemas::versions::WrapManifest;
 
@@ -55,7 +56,7 @@ impl Invoker for MockInvoker {
         method: &str,
         _: Option<&[u8]>,
         _: Option<&[u8]>,
-        _: Option<Arc<Mutex<UriResolutionContext>>>,
+        _: Option<InvokerContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         if method == "tryResolveUri" {
             let result: Vec<u8> = to_vec(&MaybeUriOrManifest {

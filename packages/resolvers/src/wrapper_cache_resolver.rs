@@ -40,10 +40,10 @@ impl WrapperCacheResolver {
 
     fn cache_resolution_path(
         &self,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &UriResolutionContext,
         wrapper: Arc<dyn Wrapper>,
     ) {
-        let resolution_path = resolution_context.lock().unwrap().get_resolution_path();
+        let resolution_path = resolution_context.get_resolution_path();
         for uri in resolution_path {
             self.cache.lock().unwrap().set(uri, wrapper.clone());
         }
@@ -66,13 +66,11 @@ impl UriResolver for WrapperCacheResolver {
         &self,
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if let Some(wrapper) = self.cache.lock().unwrap().get(uri) {
             let result = Ok(UriPackageOrWrapper::Wrapper(uri.clone(), wrapper.clone()));
             resolution_context
-                .lock()
-                .unwrap()
                 .track_step(UriResolutionStep {
                     source_uri: uri.clone(),
                     result: result.clone(),
@@ -82,28 +80,23 @@ impl UriResolver for WrapperCacheResolver {
             return result;
         }
 
-        let sub_context = resolution_context
-            .lock()
-            .unwrap()
+        let mut sub_context = resolution_context
             .create_sub_history_context();
-        let sub_context = Arc::new(Mutex::new(sub_context));
         let result = self
             .resolver
-            .try_resolve_uri(uri, invoker.clone(), sub_context.clone());
+            .try_resolve_uri(uri, invoker.clone(), &mut sub_context);
 
         if result.is_ok() {
             if let UriPackageOrWrapper::Wrapper(_, wrapper) = result.clone().unwrap() {
-                self.cache_resolution_path(sub_context.clone(), wrapper.clone());
+                self.cache_resolution_path(&sub_context, wrapper.clone());
             }
         }
 
         resolution_context
-            .lock()
-            .unwrap()
             .track_step(UriResolutionStep {
                 source_uri: uri.clone(),
                 result: result.clone(),
-                sub_history: Some(sub_context.lock().unwrap().get_history().clone()),
+                sub_history: Some(sub_context.get_history().clone()),
                 description: Some("WrapperCacheResolver".to_string()),
             });
 

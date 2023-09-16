@@ -60,17 +60,17 @@ impl SystemClientConfig {
 #[derive(Serialize)]
 pub struct Retries {
     #[serde(rename = "tryResolveUri")]
-    try_resolve_uri: u8,
+    pub try_resolve_uri: u8,
     #[serde(rename = "getFile")]
-    get_file: u8,
+    pub get_file: u8,
 }
 
 #[derive(Serialize)]
 pub struct IpfsEnv {
-    provider: String,
+    pub provider: String,
     #[serde(rename = "fallbackProviders")]
-    fallback_providers: Vec<String>,
-    retries: Retries,
+    pub fallback_providers: Vec<String>,
+    pub retries: Retries,
 }
 
 impl Default for SystemClientConfig {

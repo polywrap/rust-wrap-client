@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    sync::{Arc, Mutex},
+    sync::Arc,
 };
 
 use polywrap_core::{
@@ -26,7 +26,7 @@ impl Invoker for MockClient {
         _: &str,
         _: Option<&[u8]>,
         _: Option<&[u8]>,
-        _: Option<Arc<Mutex<UriResolutionContext>>>,
+        _: Option<&mut UriResolutionContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         Ok(vec![5])
     }
@@ -53,7 +53,7 @@ impl WrapLoader for MockClient {
     fn load_wrapper(
         &self,
         _: &Uri,
-        _: Option<Arc<Mutex<UriResolutionContext>>>,
+        _: Option<&mut UriResolutionContext>,
     ) -> Result<Arc<dyn Wrapper>, polywrap_core::error::Error> {
         Ok(get_mock_wrapper())
     }
@@ -77,7 +77,7 @@ impl UriResolverHandler for MockClient {
     fn try_resolve_uri(
         &self,
         _: &Uri,
-        _: Option<Arc<Mutex<UriResolutionContext>>>,
+        _: Option<&mut UriResolutionContext>,
     ) -> Result<UriPackageOrWrapper, polywrap_core::error::Error> {
         Ok(UriPackageOrWrapper::Uri(uri!("mock/b")))
     }

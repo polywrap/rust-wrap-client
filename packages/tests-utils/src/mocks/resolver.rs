@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use polywrap_core::{
     error::Error,
@@ -23,7 +23,7 @@ impl UriResolver for MockResolver {
         &self,
         uri: &Uri,
         _: Arc<dyn Invoker>,
-        _: Arc<Mutex<UriResolutionContext>>,
+        _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.to_string() == *"wrap://wrap/mock" {
             Ok(get_mock_uri_package_or_wrapper())
@@ -52,7 +52,7 @@ impl UriResolver for DifferentMockResolver {
         &self,
         uri: &Uri,
         _: Arc<dyn Invoker>,
-        _: Arc<Mutex<UriResolutionContext>>,
+        _: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         if uri.to_string() == *"wrap://wrap/mock" {
             Ok(get_mock_uri_package_or_wrapper())

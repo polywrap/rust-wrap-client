@@ -1,6 +1,6 @@
 use core::fmt;
 use polywrap_core::{error::Error, invoker::Invoker, uri::Uri};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use polywrap_core::resolution::{
     uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
@@ -34,10 +34,10 @@ impl UriResolver for UriResolverAggregator {
         &self,
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
         let resolver_result =
-            self.get_uri_resolvers(uri, invoker.as_ref(), resolution_context.clone());
+            self.get_uri_resolvers(uri, invoker.as_ref(), resolution_context);
 
         if let Ok(resolvers) = resolver_result {
             self.try_resolve_uri_with_resolvers(uri, invoker, resolvers, resolution_context)
@@ -67,7 +67,7 @@ impl UriResolverAggregatorBase for UriResolverAggregator {
         &self,
         _: &Uri,
         _: &dyn Invoker,
-        _: Arc<Mutex<UriResolutionContext>>,
+        _: &mut UriResolutionContext,
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error> {
         Ok(self.resolvers.clone())
     }

@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use polywrap_core::error::Error;
 
@@ -15,7 +15,7 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
         &self,
         uri: &Uri,
         client: &dyn Invoker,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<Vec<Arc<dyn UriResolver>>, Error>;
     fn get_step_description(
         &self,
@@ -27,15 +27,12 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
         resolvers: Vec<Arc<dyn UriResolver>>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
-        let sub_context = resolution_context
-            .lock()
-            .unwrap()
+        let mut sub_context = resolution_context
             .create_sub_history_context();
-        let sub_context = Arc::new(Mutex::new(sub_context));
         for resolver in resolvers.into_iter() {
-            let result = resolver.try_resolve_uri(uri, invoker.clone(), sub_context.clone());
+            let result = resolver.try_resolve_uri(uri, invoker.clone(), &mut sub_context);
             let track_and_return = if let Ok(UriPackageOrWrapper::Uri(result_uri)) = &result {
                 uri.to_string() != result_uri.to_string()
             } else {
@@ -44,12 +41,10 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
 
             if track_and_return {
                 resolution_context
-                    .lock()
-                    .unwrap()
                     .track_step(UriResolutionStep {
                         source_uri: uri.clone(),
                         result: result.clone(),
-                        sub_history: Some(sub_context.lock().unwrap().get_history().clone()),
+                        sub_history: Some(sub_context.get_history().clone()),
                         description: Some(self.get_step_description(uri, &result)),
                     });
 
@@ -60,12 +55,10 @@ pub trait UriResolverAggregatorBase: UriResolver + core::fmt::Debug {
         let result = Ok(UriPackageOrWrapper::Uri(uri.clone()));
 
         resolution_context
-            .lock()
-            .unwrap()
             .track_step(UriResolutionStep {
                 source_uri: uri.clone(),
                 result: result.clone(),
-                sub_history: Some(sub_context.lock().unwrap().get_history().clone()),
+                sub_history: Some(sub_context.get_history().clone()),
                 description: Some(self.get_step_description(uri, &result)),
             });
 

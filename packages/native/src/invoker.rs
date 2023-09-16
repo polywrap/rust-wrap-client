@@ -13,6 +13,7 @@ impl FFIInvoker {
         args: Option<Vec<u8>>,
         env: Option<Vec<u8>>,
         resolution_context: Option<Arc<FFIUriResolutionContext>>,
+        caller_resolution_context: Option<Arc<FFIUriResolutionContext>>,
     ) -> Result<Vec<u8>, FFIError> {
         Ok(self.0.invoke_raw(
             &uri.0,
@@ -20,6 +21,7 @@ impl FFIInvoker {
             args.as_deref(),
             env.as_deref(),
             resolution_context.map(|ctx| ctx.0.clone()),
+            caller_resolution_context.map(|ctx| ctx.0.lock().unwrap().clone()),
         )?)
     }
 

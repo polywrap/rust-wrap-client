@@ -18,7 +18,7 @@ pub struct FFIUriResolutionStep {
     pub sub_history: Option<Vec<FFIUriResolutionStep>>,
 }
 
-pub struct FFIUriResolutionContext(pub Arc<Mutex<UriResolutionContext>>);
+pub struct FFIUriResolutionContext(pub &mut UriResolutionContext);
 
 impl FFIUriResolutionContext {
     pub fn new() -> Self {

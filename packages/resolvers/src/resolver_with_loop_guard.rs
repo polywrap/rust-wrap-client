@@ -1,5 +1,5 @@
 use core::fmt;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use polywrap_core::{
     error::Error,
@@ -20,19 +20,19 @@ impl UriResolver for ResolverWithLoopGuard {
         &self,
         uri: &Uri,
         invoker: Arc<dyn Invoker>,
-        resolution_context: Arc<Mutex<UriResolutionContext>>,
+        resolution_context: &mut UriResolutionContext,
     ) -> Result<UriPackageOrWrapper, Error> {
-        if resolution_context.lock().unwrap().is_resolving(uri) {
+        if resolution_context.is_resolving(uri) {
             //TODO handle this error
             Err(Error::ResolverError("Infinite Loop".to_string()))
         } else {
-            resolution_context.lock().unwrap().start_resolving(uri);
+            resolution_context.start_resolving(uri);
 
             let result = self
                 .resolver
-                .try_resolve_uri(uri, invoker, resolution_context.clone());
+                .try_resolve_uri(uri, invoker, resolution_context);
 
-            resolution_context.lock().unwrap().stop_resolving(uri);
+            resolution_context.stop_resolving(uri);
 
             result
         }

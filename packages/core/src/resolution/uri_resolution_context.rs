@@ -20,7 +20,7 @@ impl UriPackageOrWrapper {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct UriResolutionStep {
     pub source_uri: Uri,
     pub result: Result<UriPackageOrWrapper, Error>,
@@ -28,7 +28,7 @@ pub struct UriResolutionStep {
     pub sub_history: Option<Vec<UriResolutionStep>>,
 }
 
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct UriResolutionContext {
     resolving_uri_map: HashMap<String, bool>,
     resolution_path: Vec<String>,
