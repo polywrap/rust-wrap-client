@@ -28,7 +28,6 @@ fn text_record_uri_resolver() {
             .unwrap(),
         ),
         None,
-        None,
     );
     assert_eq!(result.unwrap(), "20000000000000000000".to_string());
 }
@@ -51,7 +50,6 @@ fn content_hash_uri_resolver() {
             })
             .unwrap(),
         ),
-        None,
         None,
     );
     assert_eq!(result.unwrap(), "20000000000000000000".to_string());

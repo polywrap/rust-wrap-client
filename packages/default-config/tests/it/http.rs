@@ -30,7 +30,6 @@ fn sanity() {
                 .unwrap(),
             ),
             None,
-            None,
         )
         .unwrap();
 
@@ -49,7 +48,6 @@ fn sanity() {
                 })
                 .unwrap(),
             ),
-            None,
             None,
         )
         .unwrap();

@@ -14,6 +14,7 @@ use polywrap_core::{
     wrap_loader::WrapLoader,
     wrapper::Wrapper,
 };
+use polywrap_plugin::InvokerContext;
 
 use super::get_mock_wrapper;
 
@@ -25,8 +26,7 @@ impl Invoker for MockClient {
         _: &Uri,
         _: &str,
         _: Option<&[u8]>,
-        _: Option<&[u8]>,
-        _: Option<&mut UriResolutionContext>,
+        _: Option<InvokerContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         Ok(vec![5])
     }
@@ -66,8 +66,7 @@ impl WrapInvoker for MockClient {
         _: &Uri,
         _: &str,
         _: Option<&[u8]>,
-        _: Option<&[u8]>,
-        _: Option<&mut UriResolutionContext>,
+        _: Option<InvokerContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         Ok(vec![6])
     }

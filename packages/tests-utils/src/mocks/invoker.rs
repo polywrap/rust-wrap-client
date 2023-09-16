@@ -55,7 +55,6 @@ impl Invoker for MockInvoker {
         _: &polywrap_core::uri::Uri,
         method: &str,
         _: Option<&[u8]>,
-        _: Option<&[u8]>,
         _: Option<InvokerContext>,
     ) -> Result<Vec<u8>, polywrap_core::error::Error> {
         if method == "tryResolveUri" {

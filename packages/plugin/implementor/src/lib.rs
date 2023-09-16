@@ -28,7 +28,7 @@ pub fn plugin_impl(args: TokenStream, input: TokenStream) -> TokenStream {
 
     for item in item_impl.clone().items {
         match item {
-            syn::ImplItem::Method(method) => {
+            syn::ImplItem::Fn(method) => {
                 let function_ident = &method.sig.ident;
                 let env_is_option = if &method.sig.inputs.len() > &3 {
                     let env = &method.sig.inputs[3];

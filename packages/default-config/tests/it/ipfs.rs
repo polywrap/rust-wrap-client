@@ -19,7 +19,6 @@ fn sanity() {
             "add",
             Some(&to_vec(&ArgsAdd { a: 2, b: 40 }).unwrap()),
             None,
-            None,
         )
         .unwrap();
 
