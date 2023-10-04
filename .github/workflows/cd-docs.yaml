@@ -19,7 +19,7 @@ jobs:
           override: true
 
       - name: Generate reference
-        run: cargo doc
+        run: cargo doc --no-deps
 
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
