@@ -15,7 +15,7 @@ pub trait ClientConfigBuilder: CoreClientConfigBuilder {
     ///
     /// * `config` - A `ClientConfig` instance to be merged with the current state.
     fn add(&mut self, config: ClientConfig) -> &mut Self;
-
+    
     /// Adds an environment configuration entry.
     ///
     /// # Arguments

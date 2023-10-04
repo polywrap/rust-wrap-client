@@ -296,8 +296,8 @@ impl CoreClient for Client {}
 #[cfg(test)]
 mod client_tests {
     use polywrap_core::{
-        client::CoreClientConfig, resolution::uri_resolution_context::UriPackageOrWrapper,
-        uri::Uri, uri_resolver_handler::UriResolverHandler, wrap_loader::WrapLoader,
+        client::CoreClientConfig, resolution::uri_resolution_context::UriPackageOrWrapper, uri::Uri,
+        uri_resolver_handler::UriResolverHandler, wrap_loader::WrapLoader,
     };
     use polywrap_msgpack_serde::from_slice;
     use polywrap_tests_utils::mocks::{get_mock_resolver, MockWrapper};
