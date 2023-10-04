@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ReadEntryResult"],"externcrate":["buf_redux"],"mod":["hyper","iron","nickel","save","tiny_http"],"struct":["FieldHeaders","Multipart","MultipartData","MultipartField"],"trait":["HttpRequest","ReadEntry"]};

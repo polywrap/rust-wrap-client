@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"multipart":[["impl <a class=\"trait\" href=\"typemap/trait.Key.html\" title=\"trait typemap::Key\">Key</a> for <a class=\"struct\" href=\"multipart/server/save/struct.Entries.html\" title=\"struct multipart::server::save::Entries\">Entries</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

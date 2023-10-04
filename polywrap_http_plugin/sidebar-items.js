@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["HttpPluginError","RequestMethod"],"mod":["parse_request","parse_response","wrap"],"struct":["HttpPlugin"]};

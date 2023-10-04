@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Upgrading from previous releases"><title>snafu::guide::upgrading - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="snafu" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.1 (d5c2e9c34 2023-09-13)" data-channel="1.72.1" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../../snafu/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../../../snafu/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Module upgrading</a></h2><div class="sidebar-elems"></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../../index.html">snafu</a>::<wbr><a href="../index.html">guide</a>::<wbr><a class="mod" href="#">upgrading</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../../src/snafu/lib.rs.html#149-166">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="upgrading-from-previous-releases"><a href="#upgrading-from-previous-releases">Upgrading from previous releases</a></h2>
+<ul>
+<li><a href="#version-05--06">Version 0.5 → 0.6</a></li>
+<li><a href="#version-04--05">Version 0.4 → 0.5</a></li>
+<li><a href="#version-03--04">Version 0.3 → 0.4</a></li>
+<li><a href="#version-02--03">Version 0.2 → 0.3</a></li>
+<li><a href="#version-01--02">Version 0.1 → 0.2</a></li>
+</ul>
+<h3 id="version-05--06"><a href="#version-05--06">Version 0.5 → 0.6</a></h3><h4 id="minimum-supported-version-of-rust-is-now-131"><a href="#minimum-supported-version-of-rust-is-now-131">Minimum supported version of Rust is now 1.31</a></h4>
+<p>If you are writing a library, you will need to increase your minimum
+supported version of Rust to 1.31 or better. If you are writing an
+application, you should be able to upgrade your installed compiler by
+the same mechanism that you installed it.</p>
+<h4 id="backtraces"><a href="#backtraces">Backtraces</a></h4>
+<p>The <code>Backtrace</code> type is now always available, so it is encouraged to
+make liberal use of it in your errors. If you are writing an
+application that displays backtraces, make sure to enable the
+<a href="../feature_flags/index.html" title="mod snafu::guide::feature_flags"><code>backtrace</code> feature flag</a> so that
+backtraces are populated when they are created.</p>
+<p>Implementations of <code>Backtrace::default</code> and <code>Backtrace::new</code> have been
+removed and replaced with <code>GenerateBacktrace::generate</code>.</p>
+<p>The <code>backtrace-crate</code> feature flag has been renamed to
+<code>backtraces-impl-backtrace-crate</code>. The backtrace returned by
+<code>ErrorCompat::backtrace</code> is now the <code>backtrace::Backtrace</code> type when
+this flag is enabled, so the implementation of <code>AsRef</code> has been
+removed..</p>
+<h4 id="futures"><a href="#futures">Futures</a></h4>
+<p>Support for the standard library features has been stabilized, so the
+feature flag has been renamed from <code>unstable-futures</code> to <code>futures</code>.</p>
+<h3 id="version-04--05"><a href="#version-04--05">Version 0.4 → 0.5</a></h3><h4 id="backtracedelegate-replaced-with-backtrace"><a href="#backtracedelegate-replaced-with-backtrace"><code>backtrace(delegate)</code> replaced with <code>backtrace</code></a></h4>
+<p>Previously, if you wanted to delegate backtrace creation to
+another error, you would specify <code>#[snafu(backtrace(delegate))]</code>
+on the source field that references the other error.</p>
+<p>Now, you specify the simpler <code>#[snafu(backtrace)]</code>.  Since source
+fields must be error types, and backtrace fields must be
+<code>Backtrace</code> types, this is unambiguous and simplifies the API.</p>
+<h5 id="before"><a href="#before">Before</a></h5>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    MyVariant {
+        <span class="attr">#[snafu(backtrace(delegate))]
+        </span>source: OtherError,
+    },
+}</code></pre></div>
+<h5 id="after"><a href="#after">After</a></h5>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    MyVariant {
+        <span class="attr">#[snafu(backtrace)]
+        </span>source: OtherError,
+    },
+}</code></pre></div>
+<h4 id="sourcefrom-implies-source"><a href="#sourcefrom-implies-source"><code>source(from)</code> implies <code>source</code></a></h4>
+<p>Previously, if you had wanted to treat a field that wasn’t named
+“source” as a source field, <em>and</em> you wanted to transform the
+field from another type, you had to specify both
+<code>#[snafu(source)]</code> and <code>#[snafu(source(from(...)))]</code>.</p>
+<p>Now, <code>#[snafu(source(from(...)))]</code> implies <code>#[snafu(source)]</code> –
+it automatically treats the field as a source field regardless of
+its name, so you can remove the <code>#[snafu(source)]</code> attribute.</p>
+<h5 id="before-1"><a href="#before-1">Before</a></h5>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    CauseIsAnError {
+        <span class="attr">#[snafu(source)]
+        #[snafu(source(from(Error, Box::new)))]
+        </span>cause: Box&lt;Error&gt;,
+    },
+}</code></pre></div>
+<h5 id="after-1"><a href="#after-1">After</a></h5>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    CauseIsAnError {
+        <span class="attr">#[snafu(source(from(Error, Box::new)))]
+        </span>cause: Box&lt;Error&gt;,
+    },
+}</code></pre></div>
+<h4 id="new-errors-for-attribute-misuse-and-duplication"><a href="#new-errors-for-attribute-misuse-and-duplication">New errors for attribute misuse and duplication</a></h4>
+<p>Previously, SNAFU would ignore <code>#[snafu(...)]</code> attributes that
+were used in invalid locations.  If attributes were duplicated,
+either the first or last would apply (depending on the attribute)
+and the rest would be ignored.</p>
+<p>One example is specifying <code>#[snafu(source(from(...)))]</code> on an
+enum variant instead of the source field in that variant:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    <span class="comment">// This used to be ignored, and will now cause an error:
+    </span><span class="attr">#[snafu(source(from(Error, Box::new)))]
+    </span>MyVariant {
+        source: Box&lt;Error&gt;,
+    },
+}</code></pre></div>
+<p>Now, compiler errors will be emitted that point to any misused or
+duplicated attributes.</p>
+<h3 id="version-03--04"><a href="#version-03--04">Version 0.3 → 0.4</a></h3><h4 id="context-vs-intoerror"><a href="#context-vs-intoerror"><code>Context</code> vs. <code>IntoError</code></a></h4>
+<p>The <code>Context</code> type and related <code>From</code> implementations have been
+removed in favor of the <a href="../../trait.IntoError.html" title="trait snafu::IntoError"><code>IntoError</code></a> trait. If
+you were making use of this for custom conversions, you will need
+to update your trait bounds:</p>
+<h5 id="before-2"><a href="#before-2">Before</a></h5>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">fn </span>example&lt;C, E&gt;(context: C) -&gt; MyType&lt;E&gt;
+<span class="kw">where
+    </span>snafu::Context&lt;SomeError, C&gt;: Into&lt;E&gt;;</code></pre></div>
+<h5 id="after-2"><a href="#after-2">After</a></h5>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">fn </span>example&lt;C, E&gt;(context: C) -&gt; MyType&lt;E&gt;
+<span class="kw">where
+    </span>C: snafu::IntoError&lt;E, Source = SomeError&gt;,
+    E: std::error::Error + snafu::ErrorCompat;</code></pre></div>
+<h4 id="borrowstderrorerror"><a href="#borrowstderrorerror"><code>Borrow&lt;std::error::Error&gt;</code></a></h4>
+<p>SNAFU no longer generates <code>Borrow&lt;std::error::Error&gt;</code>
+implementations for SNAFU error types (sorry for the whiplash if
+you were affected by this when upgrading to 0.3).</p>
+<h3 id="version-02--03"><a href="#version-02--03">Version 0.2 → 0.3</a></h3>
+<p>Minimal changes should be required: if you previously implemented
+<code>Borrow&lt;std::error::Error&gt;</code> for a SNAFU error type, you should
+remove that implementation and allow SNAFU to implement it for
+you.</p>
+<h3 id="version-01--02"><a href="#version-01--02">Version 0.1 → 0.2</a></h3>
+<p>Support for the <code>snafu::display</code> attribute was removed as this
+type of attribute was <a href="https://github.com/rust-lang/rust/pull/58899">never intended to be
+supported</a>. Since this required a SemVer-incompatible
+version, the attribute format has also been updated and
+normalized.</p>
+<ol>
+<li>
+<p>Attributes have been renamed</p>
+<ul>
+<li><code>snafu_display</code> and <code>snafu::display</code> became <code>snafu(display)</code>.</li>
+<li><code>snafu_visibility</code> became <code>snafu(visibility)</code></li>
+<li><code>snafu_backtrace</code> became <code>snafu(backtrace)</code></li>
+</ul>
+</li>
+<li>
+<p>Support for <code>snafu_display</code> with individually-quoted format
+arguments was removed. Migrate to either the “clean” or “all
+one string” styles, depending on what version of Rust you are
+targeting.</p>
+</li>
+</ol>
+<h4 id="before-3"><a href="#before-3">Before</a></h4>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>DisplayUpdate {
+    <span class="attr">#[snafu::display(<span class="string">&quot;Format and {}&quot;</span>, argument)]
+    </span>CleanStyle { argument: i32 },
+
+    <span class="attr">#[snafu_display(<span class="string">&quot;Format and {}&quot;</span>, <span class="string">&quot;argument&quot;</span>)]
+    </span>QuotedArgumentStyle { argument: i32 },
+
+    <span class="attr">#[snafu_display = <span class="string">r#&quot;(&quot;Format and {}&quot;, argument)&quot;#</span>]
+    </span>AllOneStringStyle { argument: i32 },
+}</code></pre></div>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>VisibilityUpdate {
+    <span class="attr">#[snafu_visibility(<span class="kw">pub</span>(<span class="kw">crate</span>))]
+    </span>CleanStyle,
+
+    <span class="attr">#[snafu_visibility = <span class="string">&quot;pub(crate)&quot;</span>]
+    </span>AllOneStringStyle,
+}</code></pre></div>
+<h4 id="after-3"><a href="#after-3">After</a></h4>
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>DisplayUpdate {
+    <span class="attr">#[snafu(display(<span class="string">&quot;Format and {}&quot;</span>, argument))]
+    </span>CleanStyle { argument: i32 },
+
+    <span class="attr">#[snafu(display = <span class="string">r#&quot;(&quot;Format and {}&quot;, argument)&quot;#</span>)]
+    </span>QuotedArgumentStyle { argument: i32 },
+
+    <span class="attr">#[snafu(display = <span class="string">r#&quot;(&quot;Format and {}&quot;, argument)&quot;#</span>)]
+    </span>AllOneStringStyle { argument: i32 },
+}</code></pre></div>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>VisibilityUpdate {
+    <span class="attr">#[snafu(visibility(<span class="kw">pub</span>(<span class="kw">crate</span>)))]
+    </span>CleanStyle,
+
+    <span class="attr">#[snafu(visibility = <span class="string">&quot;pub(crate)&quot;</span>)]
+    </span>AllOneStringStyle,
+}</code></pre></div>
+</div></details></section></div></main></body></html>

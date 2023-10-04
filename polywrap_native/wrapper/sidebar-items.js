@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["FFIWrapper"],"trait":["IFFIWrapper"]};

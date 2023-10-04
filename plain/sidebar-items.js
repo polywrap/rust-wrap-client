@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error"],"fn":["as_bytes","as_mut_bytes","copy_from_bytes","from_bytes","from_mut_bytes","is_aligned","slice_from_bytes","slice_from_bytes_len","slice_from_mut_bytes","slice_from_mut_bytes_len"],"trait":["Plain"]};

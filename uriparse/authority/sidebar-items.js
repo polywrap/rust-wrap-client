@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AuthorityError","Host","HostError","PasswordError","PortError","UsernameError"],"fn":["parse_port"],"struct":["Authority","Password","RegisteredName","RegisteredNameError","Username"]};

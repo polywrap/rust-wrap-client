@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Host","Origin","ParseError","Position","SyntaxViolation"],"macro":["define_encode_set"],"mod":["form_urlencoded","idna","percent_encoding"],"struct":["HostAndPort","OpaqueOrigin","ParseOptions","PathSegmentsMut","SocketAddrs","Url","UrlQuery"]};

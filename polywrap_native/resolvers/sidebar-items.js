@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["_static","ffi_resolver","recursive","resolution_context","uri_package_or_wrapper"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EthCallParamaterTypes","FeeHistoryArgs","GetBlockByNumberParamaterTypes","SignTypedDataArgs"],"mod":["connection","connections"],"struct":["CallTransaction","EthereumWalletPlugin"]};

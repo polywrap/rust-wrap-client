@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ResponseType"],"struct":["FormDataEntry","Request","Response"],"type":["BigInt"]};

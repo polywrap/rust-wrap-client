@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_env_from_resolution_path","get_implementations"],"struct":["UriResolverExtensionFileReader"]};

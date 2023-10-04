@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["MAGIC","SIZEOF_HEADER","SIZEOF_MAGIC"],"enum":["IndexType"],"struct":["Archive","Header","Index","Member","MemberHeader"]};

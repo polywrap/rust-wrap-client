@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["ffidefault","foreignbytes","foreigncallbacks","foreignexecutor","rustbuffer","rustcalls","rustfuture"]};

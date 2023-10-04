@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["rust_call"],"struct":["RustCallStatus"]};

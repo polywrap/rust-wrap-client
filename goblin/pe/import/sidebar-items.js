@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["IMPORT_BY_ORDINAL_32","IMPORT_BY_ORDINAL_64","IMPORT_RVA_MASK_32","IMPORT_RVA_MASK_64","SIZEOF_IMPORT_DIRECTORY_ENTRY"],"enum":["SyntheticImportLookupTableEntry"],"struct":["HintNameTableEntry","Import","ImportData","ImportDirectoryEntry","SyntheticImportDirectoryEntry"],"trait":["Bitfield"],"type":["ImportAddressTable","ImportLookupTable"]};

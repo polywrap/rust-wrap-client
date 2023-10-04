@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["extendable_uri_resolver","uri_resolver_wrapper"]};

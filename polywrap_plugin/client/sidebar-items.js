@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["CoreClientConfig","UriRedirect"],"trait":["CoreClient","CoreClientConfigBuilder"]};

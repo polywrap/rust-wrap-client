@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_uri_resolution_path"]};

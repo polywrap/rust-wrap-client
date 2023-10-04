@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["VERSYM_HIDDEN","VERSYM_VERSION","VER_FLG_BASE","VER_FLG_INFO","VER_FLG_WEAK","VER_NDX_GLOBAL","VER_NDX_LOCAL"],"struct":["Verdaux","VerdauxIter","Verdef","VerdefIter","VerdefSection","Vernaux","VernauxIter","Verneed","VerneedIter","VerneedSection","Versym","VersymIter","VersymSection"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error"],"fn":["from_slice","get_error_message","to_vec"],"mod":["JSON","error","serde_bytes","wrappers"],"struct":["BigInt","BigIntWrapper","BigNumber","Deserializer","JSONString","Map","ParseBigIntError","Serializer"],"type":["Result"]};

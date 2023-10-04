@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["wrap"],"struct":["LoggerPlugin"],"trait":["LogFuncTrait"]};

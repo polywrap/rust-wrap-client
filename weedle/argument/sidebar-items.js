@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Argument"],"struct":["SingleArgument","VariadicArgument"],"type":["ArgumentList"]};

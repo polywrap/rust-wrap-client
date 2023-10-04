@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Method"],"struct":["HTTPVersion","Header","HeaderField","IncomingRequests","Request","Response","Server","ServerConfig","SslConfig","StatusCode"],"trait":["ReadWrite"],"type":["ResponseBox"]};

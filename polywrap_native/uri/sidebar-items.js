@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["ffi_uri_from_string"],"struct":["FFIUri"]};

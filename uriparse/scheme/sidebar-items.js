@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Scheme","SchemeError","SchemeStatus"],"struct":["UnregisteredScheme","UnregisteredSchemeError"]};

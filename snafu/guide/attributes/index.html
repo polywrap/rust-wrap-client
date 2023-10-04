@@ -1,0 +1,190 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Attributes understood by the `Snafu` macro"><title>snafu::guide::attributes - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-9bb858ba049f1f21.css" id="mainThemeStyle"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="snafu" data-themes="" data-resource-suffix="" data-rustdoc-version="1.72.1 (d5c2e9c34 2023-09-13)" data-channel="1.72.1" data-search-js="search-f6292fe389d70017.js" data-settings-js="settings-de11bff964e9d4e5.js" data-settings-css="settings-8c76f75bfb6bd192.css" data-theme-light-css="light-0f8c037637f9eb3e.css" data-theme-dark-css="dark-1097f8e92a01e3cf.css" data-theme-ayu-css="ayu-614652228113ac93.css" ><script src="../../../static.files/storage-59fd9b8ccb335783.js"></script><script defer src="../../../static.files/main-0795b7d26be81095.js"></script><noscript><link rel="stylesheet" media="(prefers-color-scheme:light)" href="../../../static.files/light-0f8c037637f9eb3e.css"><link rel="stylesheet" media="(prefers-color-scheme:dark)" href="../../../static.files/dark-1097f8e92a01e3cf.css"><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../../snafu/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../../../snafu/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Module attributes</a></h2><div class="sidebar-elems"></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Module <a href="../../index.html">snafu</a>::<wbr><a href="../index.html">guide</a>::<wbr><a class="mod" href="#">attributes</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../../src/snafu/lib.rs.html#149-166">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="attributes-understood-by-the-snafu-macro"><a href="#attributes-understood-by-the-snafu-macro">Attributes understood by the <code>Snafu</code> macro</a></h2><h3 id="controlling-display"><a href="#controlling-display">Controlling <code>Display</code></a></h3>
+<p>There are a number of ways you can specify how the <code>Display</code> trait
+will be implemented for each variant:</p>
+<ul>
+<li>
+<p><code>#[snafu(display(&quot;a format string with arguments: {}&quot;, info))]</code></p>
+<p>The argument is a format string and the arguments. Available in Rust 1.34.</p>
+</li>
+<li>
+<p><code>#[snafu(display = r#&quot;(&quot;a format string with arguments: {}&quot;, info)&quot;#)]</code></p>
+<p>The same argument as above, but wrapped in a raw string to
+support previous Rust versions.</p>
+</li>
+</ul>
+<p>Each choice has the same capabilities. All of the fields of the
+variant will be available and you can call methods on them, such
+as <code>filename.display()</code>.</p>
+<h4 id="the-default-display-implementation"><a href="#the-default-display-implementation">The default <code>Display</code> implementation</a></h4>
+<p>It is recommended that you provide a value for <code>snafu(display)</code>, but
+if it is omitted, the summary of the documentation comment will be
+used. If that is not present, the name of the variant will be used.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    <span class="doccomment">/// No user available.
+    /// You may need to specify one.
+    </span>MissingUser,
+    MissingPassword,
+}
+
+<span class="kw">fn </span>main() {
+    <span class="macro">assert_eq!</span>(
+        Error::MissingUser.to_string(),
+        <span class="string">&quot;No user available. You may need to specify one.&quot;</span>,
+    );
+    <span class="macro">assert_eq!</span>(
+        Error::MissingPassword.to_string(),
+        <span class="string">&quot;MissingPassword&quot;</span>,
+    );
+}</code></pre></div>
+<h3 id="controlling-context"><a href="#controlling-context">Controlling context</a></h3>
+<p>Sometimes, an underlying error can only occur in exactly one context
+and there’s no additional information that can be provided to the
+caller. In these cases, you can use <code>#[snafu(context(false))]</code> to
+indicate that no context selector should be created. This allows using
+the <code>?</code> operator directly on the underlying error.</p>
+<p>Please think about your end users before making liberal use of this
+feature. Adding context to an error is often what distinguishes an
+actionable error from a frustrating one.</p>
+<p><strong>Example</strong></p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    <span class="attr">#[snafu(context(<span class="bool-val">false</span>))]
+    </span>NeedsNoIntroduction { source: VeryUniqueError },
+}
+
+<span class="kw">fn </span>my_code() -&gt; <span class="prelude-ty">Result</span>&lt;i32, Error&gt; {
+    <span class="kw">let </span>val = do_something_unique()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(val + <span class="number">10</span>)
+}
+
+<span class="kw">fn </span>do_something_unique() -&gt; <span class="prelude-ty">Result</span>&lt;i32, VeryUniqueError&gt; {
+    <span class="comment">// ...
+</span>}</code></pre></div>
+<h3 id="controlling-visibility"><a href="#controlling-visibility">Controlling visibility</a></h3>
+<p>By default, each of the context selectors and their inherent
+methods will be private. It is our opinion that each module should
+have one or more error types that are scoped to that module,
+reducing the need to deal with unrelated errors when matching and
+increasing cohesiveness.</p>
+<p>If you need to access the context selectors from outside of their
+module, you can use the <code>#[snafu(visibility)]</code> attribute. This can
+be applied to the error type as a default visibility or to
+specific context selectors.</p>
+<p>There are a number of forms of the attribute:</p>
+<ul>
+<li>
+<p><code>#[snafu(visibility(X))]</code></p>
+<p><code>X</code> is a normal Rust visibility modifier (<code>pub</code>, <code>pub(crate)</code>,
+<code>pub(in some::path)</code>, etc.). Supported in Rust 1.34.</p>
+</li>
+<li>
+<p><code>#[snafu(visibility = &quot;X&quot;)]</code></p>
+<p>The same argument as above, but wrapped in a string to support
+previous Rust versions.</p>
+</li>
+<li>
+<p><code>#[snafu(visibility)]</code> will reset back to private visibility.</p>
+</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+#[snafu(visibility = <span class="string">&quot;pub(crate)&quot;</span>)] </span><span class="comment">// Sets the default visibility for these context selectors
+</span><span class="kw">enum </span>Error {
+    IsPubCrate, <span class="comment">// Uses the default
+    </span><span class="attr">#[snafu(visibility)]
+    </span>IsPrivate, <span class="comment">// Will be private
+</span>}</code></pre></div>
+<p>It should be noted that API stability of context selectors is not
+guaranteed. Therefore, exporting them in a crate’s public API
+could cause semver breakage for such crates, should SNAFU internals
+change.</p>
+<h3 id="controlling-error-sources"><a href="#controlling-error-sources">Controlling error sources</a></h3><h4 id="selecting-the-source-field"><a href="#selecting-the-source-field">Selecting the source field</a></h4>
+<p>If your error enum variant contains other errors but the field
+cannot be named <code>source</code>, or if it contains a field named <code>source</code>
+which is not actually an error, you can use <code>#[snafu(source)]</code> to
+indicate if a field is an underlying cause or not:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    SourceIsNotAnError {
+        <span class="attr">#[snafu(source(<span class="bool-val">false</span>))]
+        </span>source: String,
+    },
+
+    CauseIsAnError {
+        <span class="attr">#[snafu(source)]
+        </span>cause: another::Error,
+    },
+}</code></pre></div>
+<h4 id="transforming-the-source"><a href="#transforming-the-source">Transforming the source</a></h4>
+<p>If your error type contains an underlying cause that needs to be
+transformed, you can use <code>#[snafu(source(from(...)))]</code>. This takes
+two arguments: the real type and an expression to transform from
+that type to the type held by the error.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    SourceNeedsToBeBoxed {
+        <span class="attr">#[snafu(source(from(another::Error, Box::new)))]
+        </span>source: Box&lt;another::Error&gt;,
+    },
+}
+
+<span class="attr">#[derive(Debug, Snafu)]
+#[snafu(source(from(Error, Box::new)))]
+</span><span class="kw">struct </span>ApiError(Box&lt;Error&gt;);</code></pre></div>
+<p>Note: If you specify <code>#[snafu(source(from(...)))]</code> then the field
+will be treated as a source, even if it’s not named “source” - in
+other words, <code>#[snafu(source(from(...)))]</code> implies
+<code>#[snafu(source)]</code>.</p>
+<h3 id="controlling-backtraces"><a href="#controlling-backtraces">Controlling backtraces</a></h3>
+<p>If your error enum variant contains a backtrace but the field
+cannot be named <code>backtrace</code>, or if it contains a field named
+<code>backtrace</code> which is not actually a backtrace, you can use
+<code>#[snafu(backtrace)]</code> to indicate if a field is actually a
+backtrace or not:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    BacktraceIsNotABacktrace {
+        <span class="attr">#[snafu(backtrace(<span class="bool-val">false</span>))]
+        </span>backtrace: bool,
+    },
+
+    TraceIsABacktrace {
+        <span class="attr">#[snafu(backtrace)]
+        </span>trace: Backtrace,
+    },
+}</code></pre></div>
+<p>If your error contains other SNAFU errors which can report
+backtraces, you may wish to delegate returning a backtrace to
+those errors. To specify this, use <code>#[snafu(backtrace)]</code> on the
+source field representing the other error:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Snafu)]
+</span><span class="kw">enum </span>Error {
+    MyError {
+        <span class="attr">#[snafu(backtrace)]
+        </span>source: another::Error,
+    },
+}</code></pre></div>
+<h3 id="controlling-how-the-snafu-crate-is-resolved"><a href="#controlling-how-the-snafu-crate-is-resolved">Controlling how the <code>snafu</code> crate is resolved</a></h3>
+<p>If the <code>snafu</code> crate is not called <code>snafu</code> for some reason, you can
+use <code>#[snafu(crate_root)]</code> to instruct the macro how to find the crate
+root:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>my_custom_naming_of_snafu::Snafu;
+
+<span class="attr">#[derive(Debug, Snafu)]
+#[snafu(crate_root(my_custom_naming_of_snafu))]
+</span><span class="kw">enum </span>Error {
+    SomeFailureMode,
+}
+
+<span class="attr">#[derive(Debug, Snafu)]
+#[snafu(crate_root(my_custom_naming_of_snafu))]
+</span><span class="kw">struct </span>ApiError(Error);</code></pre></div>
+</div></details></section></div></main></body></html>

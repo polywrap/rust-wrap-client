@@ -1,0 +1,7 @@
+(function() {var implementors = {
+"bytes":[],
+"hyper":[],
+"shared_buffer":[["impl <a class=\"trait\" href=\"bytes/buf/buf_impl/trait.Buf.html\" title=\"trait bytes::buf::buf_impl::Buf\">Buf</a> for <a class=\"struct\" href=\"shared_buffer/struct.OwnedBuffer.html\" title=\"struct shared_buffer::OwnedBuffer\">OwnedBuffer</a>"]],
+"tungstenite":[["impl&lt;const CHUNK_SIZE: <a class=\"primitive\" href=\"https://doc.rust-lang.org/1.72.1/std/primitive.usize.html\">usize</a>&gt; <a class=\"trait\" href=\"bytes/buf/buf_impl/trait.Buf.html\" title=\"trait bytes::buf::buf_impl::Buf\">Buf</a> for <a class=\"struct\" href=\"tungstenite/buffer/struct.ReadBuffer.html\" title=\"struct tungstenite::buffer::ReadBuffer\">ReadBuffer</a>&lt;CHUNK_SIZE&gt;"]],
+"uniffi":[]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["percent_decode","percent_encode","percent_encode_byte","utf8_percent_encode"],"macro":["define_encode_set"],"struct":["DEFAULT_ENCODE_SET","PATH_SEGMENT_ENCODE_SET","PercentDecode","PercentEncode","QUERY_ENCODE_SET","SIMPLE_ENCODE_SET","USERINFO_ENCODE_SET"],"trait":["EncodeSet"]};
