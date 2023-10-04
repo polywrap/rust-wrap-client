@@ -3,10 +3,14 @@ use std::{fmt::Display, str::FromStr};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
+/// Represents a Wrap URI.
 #[derive(Clone, Serialize, Deserialize, Debug, Hash, Eq)]
 pub struct Uri {
+    /// The URI's authority.
     authority: String,
+    /// The URI's path.
     path: String,
+    /// A string representation of the full Wrap URI.
     uri: String,
 }
 
@@ -65,6 +69,11 @@ impl Uri {
         })
     }
 
+    /// Construct a Wrap URI from its parts.
+    /// 
+    /// # Safety
+    /// This blindly builds the URI from its parts without performing any checks.
+    /// You need to ensure that all parts represent the same, valid Wrap URI.
     pub unsafe fn from_parts(authority: String, path: String, uri: String) -> Uri {
         Uri {
             authority: authority,
@@ -73,14 +82,17 @@ impl Uri {
         }
     }
 
+    /// Return the URI's authority.
     pub fn authority(&self) -> &str {
         &self.authority
     }
 
+    /// Return the URI's path.
     pub fn path(&self) -> &str {
         &self.path
     }
 
+    /// Return the URI as a string.
     pub fn uri(&self) -> &str {
         &self.uri
     }

@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use polywrap_msgpack_serde::Error as MsgpackError;
 
+/// An enum that represents all possible errors the Polywrap Client can throw.
 #[derive(thiserror::Error, Debug, Clone)]
 pub enum Error {
     #[error("Error parsing URI: `{0}`")]
