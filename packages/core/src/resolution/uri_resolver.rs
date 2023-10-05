@@ -6,6 +6,7 @@ use crate::error::Error;
 use crate::invoker::Invoker;
 use crate::uri::Uri;
 
+/// Trait that defines a URI resolver
 pub trait UriResolver: Send + Sync + Debug {
     fn try_resolve_uri(
         &self,

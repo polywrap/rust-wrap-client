@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::{client::UriRedirect, error::Error, uri::Uri};
 
+/// Logic for applying URI redirects based on an URI and all configured redirects.
 pub fn apply_redirects(uri: &Uri, redirects: &[UriRedirect]) -> Result<Uri, Error> {
     let mut redirect_from_to_map = HashMap::new();
 

@@ -16,7 +16,7 @@ pub struct SerializeManifestOptions {
     pub no_validate: bool,
 }
 
-/// TODO
+/// Defines a wrap package (wrap + manifest)
 pub trait WrapPackage: Send + Sync + Debug + Any {
     /// Creates a `Wrapper` from the package.
     fn create_wrapper(&self) -> Result<Arc<dyn Wrapper>, Error>;

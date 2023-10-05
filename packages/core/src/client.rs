@@ -56,4 +56,5 @@ pub trait CoreClientConfigBuilder {
     fn build(self) -> CoreClientConfig;
 }
 
+/// Defines a type that represents a Polywrap Client.
 pub trait CoreClient: Invoker + WrapLoader + WrapInvoker + UriResolverHandler {}

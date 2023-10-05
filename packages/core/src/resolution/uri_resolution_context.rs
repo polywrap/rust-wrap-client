@@ -3,6 +3,7 @@ use std::{collections::HashMap, sync::Arc, vec};
 
 use crate::uri::Uri;
 
+/// Struct that defines a URI, a package or a wrap
 #[derive(Clone, Debug)]
 pub enum UriPackageOrWrapper {
     Uri(Uri),
@@ -20,6 +21,7 @@ impl UriPackageOrWrapper {
     }
 }
 
+/// A single step in the URI resolution process
 #[derive(Clone)]
 pub struct UriResolutionStep {
     pub source_uri: Uri,
@@ -28,6 +30,7 @@ pub struct UriResolutionStep {
     pub sub_history: Option<Vec<UriResolutionStep>>,
 }
 
+/// A URI resolution context, containing the full URI resolution history
 #[derive(Default, Clone)]
 pub struct UriResolutionContext {
     resolving_uri_map: HashMap<String, bool>,

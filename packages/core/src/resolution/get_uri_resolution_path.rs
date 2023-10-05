@@ -1,5 +1,6 @@
 use super::uri_resolution_context::{UriPackageOrWrapper, UriResolutionStep};
 
+/// Retrieve the final path used in URI resolution.
 pub fn get_uri_resolution_path(history: &[UriResolutionStep]) -> Vec<UriResolutionStep> {
     history
         .iter()
