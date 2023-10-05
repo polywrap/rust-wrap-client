@@ -14,6 +14,7 @@ pub struct Uri {
     uri: String,
 }
 
+/// Represents an error that occurs while parsing a wrap URI.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ParseError(pub String);
 
