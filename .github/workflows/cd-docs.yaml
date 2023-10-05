@@ -19,7 +19,7 @@ jobs:
           override: true
 
       - name: Generate reference
-        run: cargo doc --no-deps
+        run: cargo doc --no-deps --workspace --exclude wrap_manifest_schemas --exclude polywrap_tests_utils
 
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4

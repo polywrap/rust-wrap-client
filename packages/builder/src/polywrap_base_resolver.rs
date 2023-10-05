@@ -11,8 +11,10 @@ use polywrap_resolvers::{
     uri_resolver_aggregator::UriResolverAggregator,
 };
 
+/// Constructs a URI Resolver based on a set of default rules used by the `Client`.
 pub struct PolywrapBaseResolver {}
 
+/// Options for the construction of URI Resolver based on a set of default rules used by the `Client`.
 #[derive(Default)]
 pub struct PolywrapBaseResolverOptions {
     pub static_resolver: Option<StaticResolver>,

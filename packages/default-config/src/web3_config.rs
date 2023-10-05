@@ -6,6 +6,8 @@ use polywrap_ethereum_wallet_plugin::{
 use polywrap_plugin::package::PluginPackage;
 use std::{collections::HashMap, sync::Arc};
 
+/// The default Web3 config for the `Client`
+/// Includes plugins and support for Ethereum and ENS interaction
 pub struct Web3ClientConfig(ClientConfig);
 
 impl Web3ClientConfig {

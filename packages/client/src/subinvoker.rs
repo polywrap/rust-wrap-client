@@ -5,6 +5,7 @@ use polywrap_core::{
     resolution::uri_resolution_context::UriResolutionContext, uri::Uri,
 };
 
+/// `Subinvoker` implements wrap invocation capabilities, and is used by the `Client` to invoke wraps.
 pub struct Subinvoker {
     resolution_context: Arc<Mutex<UriResolutionContext>>,
     invoker: Arc<dyn Invoker>,

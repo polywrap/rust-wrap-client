@@ -25,7 +25,7 @@ use std::{
 
 use crate::subinvoker::Subinvoker;
 
-/// `PolywrapClient` is a client used for interacting, loading, resolving and invoking wraps.
+/// `Client` is a Polywrap client used for interacting, loading, resolving and invoking wraps.
 #[derive(Clone, Debug)]
 pub struct Client {
     pub resolver: Arc<dyn UriResolver>,
@@ -34,7 +34,7 @@ pub struct Client {
 }
 
 impl Client {
-    /// Creates a new `PolywrapClient` from a given `CoreClientConfig`.
+    /// Creates a new `Client` from a given `CoreClientConfig`.
     /// Instead of manually building the `CoreClientConfig` instance, the `ClientConfigBuilder` can be used.
     ///
     /// # Arguments

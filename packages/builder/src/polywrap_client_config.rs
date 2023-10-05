@@ -12,6 +12,7 @@ use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
 
 use crate::{PolywrapBaseResolver, PolywrapBaseResolverOptions, ClientConfigBuilder};
 
+/// Struct representing the configuration of a `Client`.
 #[derive(Default, Clone)]
 pub struct ClientConfig {
     pub interfaces: Option<InterfaceImplementations>,
