@@ -11,7 +11,7 @@ pub trait WrapLoader: Send + Sync {
     ///
     /// # Arguments
     /// - `uri`: The `Uri` from which to load the wrapper.
-    /// - `resolution_context`: An optional TODO.
+    /// - `resolution_context`: An optional resolution context of invocation.
     fn load_wrapper(
         &self,
         uri: &Uri,

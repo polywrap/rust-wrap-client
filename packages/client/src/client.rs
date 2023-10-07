@@ -60,7 +60,7 @@ impl Client {
     /// * `method`: A string slice representing the method to be invoked.
     /// * `args`: Optional msgpack buffer representing the arguments.
     /// * `env`: Optional msgpack buffer representing the environment.
-    /// * `resolution_context`: TODO.
+    /// * `resolution_context`: Optional resolution context of invocation.
     pub fn invoke<T: DeserializeOwned>(
         &self,
         uri: &Uri,
@@ -83,7 +83,7 @@ impl Client {
     /// * `method`: A string slice representing the method to be invoked.
     /// * `args`: Optional msgpack buffer representing the arguments.
     /// * `env`: Optional msgpack buffer representing the environment.
-    /// * `resolution_context`: TODO.
+    /// * `resolution_context`: Optional resolution context of invocation.
     pub fn invoke_wrapper<TResult: DeserializeOwned, TWrapper: Wrapper>(
         &self,
         wrapper: &TWrapper,

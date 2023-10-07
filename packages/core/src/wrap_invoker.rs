@@ -15,7 +15,7 @@ pub trait WrapInvoker: Send + Sync {
     /// * `method` - The name of the method to invoke.
     /// * `args` - Optional msgpack buffer representing the arguments to the method.
     /// * `env` - Optional msgpack buffer representing the environment for the method.
-    /// * `resolution_context` - Optional TODO.
+    /// * `resolution_context` - Optional resolution context of invocation.
     fn invoke_wrapper_raw(
         &self,
         wrapper: &dyn Wrapper,
