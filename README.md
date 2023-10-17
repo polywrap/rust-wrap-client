@@ -10,7 +10,7 @@ Add this to your Cargo.toml:
 
 ```toml
 [dependencies]
-polywrap = 0.1.6
+polywrap = 0.1.9
 ```
 
 ## Getting started
@@ -19,41 +19,33 @@ Create a new Polywrap Client Config Builder instance, add the bundles you want t
 
 ```rust
 use polywrap::*;
-use serde::*;
 
 #[derive(Serialize)]
-struct CatArgs {
-    cid: String,
-    #[serde(rename = "ipfsProvider")]
-    ipfs_provider: String,
+struct Sha3_256Args {
+    message: String,
 }
 
 fn main() {
-    let mut config = PolywrapClientConfig::new();
+    let mut config = ClientConfig::new();
     config.add(SystemClientConfig::default().into());
-    let client = PolywrapClient::new(config.build());
+    let client = Client::new(config.build());
 
-    let result = client.invoke::<ByteBuf>(
-        uri!("wrapscan.io/polywrap/ipfs-client@1.0"),
-        "cat",
+    let result = client.invoke::<String>(
+        &uri!("wrapscan.io/polywrap/sha3@1.0"),
+        "sha3_256",
         Some(&to_vec(
-            &CatArgs {
-                cid: "QmbWqxBEKC3P8tqsKc98xmWNzrzDtRLMiMPL8wBuTGsMnR".to_string(),
-                ipfs_provider: "https://ipfs.io".to_string(),
+            &Sha3_256Args {
+                message: "Hello Polywrap!".to_string(),
             }
         ).unwrap()),
         None,
         None
     );
 
-    if result.is_err() {
-        // Handle error
-    };
-
-    println!(
-        "Cat Result: {}",
-        String::from_utf8(result.unwrap().to_vec()).unwrap()
-    );
+    match result {
+        Ok(v) => println!("{}", v),
+        Err(e) => panic!("{}", e),
+    }
 }
 ```
 

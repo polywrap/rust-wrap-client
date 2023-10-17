@@ -5,7 +5,13 @@ use crate::{
     wrapper::Wrapper,
 };
 
+/// Capable of loading wrappers from URIs.
 pub trait WrapLoader: Send + Sync {
+    /// Loads a wrapper from a given URI. On success, returns a `Wrapper`. On failure, returns an `Error`
+    ///
+    /// # Arguments
+    /// - `uri`: The `Uri` from which to load the wrapper.
+    /// - `resolution_context`: An optional resolution context of invocation.
     fn load_wrapper(
         &self,
         uri: &Uri,

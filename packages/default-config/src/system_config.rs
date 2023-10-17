@@ -11,6 +11,9 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::embeds::{fs_resolver, http_resolver, ipfs_http_client, ipfs_resolver};
 
+/// The default system config for the `Client`.
+/// Includes plugins and support for Filesystem, HTTP and IPFS interaction
+/// Also includes a Logger plugin
 pub struct SystemClientConfig(ClientConfig);
 
 impl SystemClientConfig {

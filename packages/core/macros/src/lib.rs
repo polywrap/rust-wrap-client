@@ -3,6 +3,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, LitStr};
 
+/// Construct a URI from compatible types.
 #[proc_macro]
 pub fn uri(input: TokenStream) -> TokenStream {
     // Parse the input tokens into a syntax tree

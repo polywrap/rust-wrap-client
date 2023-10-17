@@ -1,0 +1,28 @@
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches:
+      main
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.72.0
+          override: true
+
+      - name: Generate reference
+        run: cargo doc --no-deps --workspace --exclude wrap_manifest_schemas --exclude polywrap_tests_utils
+
+      - name: Deploy documentation to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages-reference
+          folder: target/doc/

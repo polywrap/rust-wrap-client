@@ -6,6 +6,7 @@ use crate::{
     uri::Uri,
 };
 
+/// Trait that defines an object that can handle URI resolution.
 pub trait UriResolverHandler {
     fn try_resolve_uri(
         &self,
