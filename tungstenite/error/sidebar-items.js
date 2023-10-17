@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CapacityError","Error","ProtocolError","TlsError","UrlError"],"type":["Result"]};

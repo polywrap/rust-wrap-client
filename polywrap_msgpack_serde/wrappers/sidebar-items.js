@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["polywrap_bigint","polywrap_json"]};

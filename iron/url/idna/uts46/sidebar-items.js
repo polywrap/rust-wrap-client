@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["to_ascii","to_unicode"],"static":["PUNYCODE_PREFIX"],"struct":["Errors","Flags"]};

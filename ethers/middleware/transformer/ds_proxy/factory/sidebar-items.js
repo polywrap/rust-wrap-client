@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["DsProxyFactoryCalls"],"mod":["ds_proxy_factory"],"static":["ADDRESS_BOOK","DSPROXYFACTORY_ABI","DSPROXYFACTORY_BYTECODE"],"struct":["BuildCall","BuildReturn","BuildWithSenderCall","BuildWithSenderReturn","CacheCall","CacheReturn","CreatedFilter","DsProxyFactory","IsProxyCall","IsProxyReturn"]};

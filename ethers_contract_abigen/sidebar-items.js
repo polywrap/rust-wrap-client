@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Source"],"mod":["contract","filter","multi"],"struct":["Abigen","ContractBindings","InternalStructs"],"type":["Address"]};

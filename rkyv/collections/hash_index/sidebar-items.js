@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["validation"],"struct":["ArchivedHashIndex","HashBuilder","HashIndexResolver"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Draft"],"fn":["is_valid"],"mod":["error","output","paths","primitive_type"],"struct":["CompilationOptions","JSONSchema"],"trait":["SchemaResolver"],"type":["SchemaResolverError"]};

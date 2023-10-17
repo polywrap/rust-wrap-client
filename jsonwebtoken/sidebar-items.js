@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Algorithm"],"fn":["decode","decode_header","encode","get_current_timestamp"],"mod":["crypto","errors","jwk"],"struct":["DecodingKey","EncodingKey","Header","TokenData","Validation"]};

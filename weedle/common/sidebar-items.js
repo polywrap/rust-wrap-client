@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Braced","Bracketed","Default","Generics","Identifier","Parenthesized","Punctuated","PunctuatedNonEmpty"]};

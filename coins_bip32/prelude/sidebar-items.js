@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["fingerprint_of"],"struct":["RecoveryId"],"type":["Signature","SigningKey","VerifyingKey"]};

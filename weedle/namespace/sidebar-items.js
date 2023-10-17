@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["NamespaceMember"],"struct":["AttributeNamespaceMember","OperationNamespaceMember"],"type":["NamespaceMembers"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AsciiChar"],"fn":["caret_decode","caret_encode"],"struct":["AsAsciiStrError","AsciiStr","AsciiString","FromAsciiError","Lines","ToAsciiCharError"],"trait":["AsAsciiStr","AsMutAsciiStr","IntoAsciiString","ToAsciiChar"],"type":["Chars","CharsMut"]};

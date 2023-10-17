@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ParamType"],"struct":["Reader","Writer"]};

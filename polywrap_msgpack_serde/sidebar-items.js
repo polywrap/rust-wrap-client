@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["from_slice","to_vec"],"mod":["error","wrappers"],"struct":["BigInt","BigNumber","Deserializer","Map","ParseBigIntError","Serializer"]};

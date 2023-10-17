@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["content_type"]};

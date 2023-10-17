@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["RAW_ITALIAN"],"static":["PARSED"],"struct":["Italian"]};

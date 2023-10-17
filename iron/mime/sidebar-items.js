@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Attr","SubLevel","TopLevel","Value"],"macro":["mime"],"struct":["Mime"],"type":["Param"]};

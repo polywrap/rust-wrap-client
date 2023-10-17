@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Aarch64Architecture","Architecture","BinaryFormat","CallingConvention","CpuFeature","Endianness","Environment","OperatingSystem","PointerWidth","Vendor"],"struct":["Target","Triple"]};

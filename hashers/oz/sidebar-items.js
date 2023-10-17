@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["djb2","loselose","sdbm"],"struct":["DJB2Hasher","LoseLoseHasher","SDBMHasher"]};

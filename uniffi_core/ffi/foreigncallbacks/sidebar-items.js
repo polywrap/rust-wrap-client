@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["CALLBACK_ERROR","CALLBACK_SUCCESS","CALLBACK_UNEXPECTED_ERROR","IDX_CALLBACK_FREE"],"struct":["ForeignCallbackInternals","UnexpectedUniFFICallbackError"],"type":["ForeignCallback"]};

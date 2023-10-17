@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["WalletError"],"fn":["to_eip155_v"],"struct":["MnemonicBuilder","Wallet"],"trait":["Signer"],"type":["LocalWallet"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"externcrate":["nickel"],"struct":["HyperRequest","Maybe","NickelRequest"],"trait":["MultipartBody"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["parse"],"struct":["Cursor","Lookahead1","ParseBuffer","Parser"],"trait":["Parse","Peek"],"type":["Result"]};

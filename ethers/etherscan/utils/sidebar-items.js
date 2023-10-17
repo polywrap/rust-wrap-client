@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["deserialize_address_opt","deserialize_source_code","lookup_compiler_version"]};

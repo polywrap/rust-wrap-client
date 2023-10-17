@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Chain"],"trait":["AfterMiddleware","AroundMiddleware","BeforeMiddleware","Handler"]};

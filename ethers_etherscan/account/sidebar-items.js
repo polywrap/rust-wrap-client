@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["BlockType","GenesisOption","InternalTxQueryOption","Sort","Tag","TokenQueryOption"],"struct":["AccountBalance","ERC1155TokenTransferEvent","ERC20TokenTransferEvent","ERC721TokenTransferEvent","InternalTransaction","MinedBlock","NormalTransaction","TxListParams"]};

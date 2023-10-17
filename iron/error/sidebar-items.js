@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["HttpError"],"struct":["IronError"],"trait":["Error"],"type":["HttpResult"]};

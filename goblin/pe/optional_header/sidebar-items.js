@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["MAGIC_32","MAGIC_64","SIZEOF_STANDARD_FIELDS_32","SIZEOF_STANDARD_FIELDS_64","SIZEOF_WINDOWS_FIELDS_32","SIZEOF_WINDOWS_FIELDS_64"],"struct":["OptionalHeader","StandardFields","StandardFields32","StandardFields64","WindowsFields32","WindowsFields64"],"type":["WindowsFields"]};

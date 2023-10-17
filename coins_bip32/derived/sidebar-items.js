@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["DerivedPubkey","DerivedXPriv","DerivedXPub"],"trait":["DerivedKey"]};

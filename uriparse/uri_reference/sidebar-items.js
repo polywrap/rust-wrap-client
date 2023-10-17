@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["URIReferenceError"],"struct":["URIReference","URIReferenceBuilder"]};

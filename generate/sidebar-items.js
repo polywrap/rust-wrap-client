@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Error"],"fn":["generate_file","generate_schemas","main","register_helpers"],"struct":["Schema","VersionsData","vsuffix"]};

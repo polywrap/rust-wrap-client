@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["SourceCodeLanguage","SourceCodeMetadata"],"struct":["ContractMetadata","Metadata","SourceCodeEntry"]};

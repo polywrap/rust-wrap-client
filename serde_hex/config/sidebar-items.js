@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Compact","CompactCap","CompactCapPfx","CompactPfx","Strict","StrictCap","StrictCapPfx","StrictPfx"],"trait":["HexConf"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["btree_map","btree_set","hash_index","hash_map","hash_set","index_map","index_set","util"]};

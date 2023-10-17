@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["SIZEOF_SHDR"],"struct":["SectionHeader"]};

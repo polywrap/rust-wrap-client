@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["SimpleTypes"],"fn":["str_to_ident"],"mod":["generator"],"struct":["Expander","Schema"]};

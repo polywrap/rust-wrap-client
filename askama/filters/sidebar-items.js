@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["capitalize","center","escape","fmt","format","indent","join","linebreaks","linebreaksbr","lower","lowercase","paragraphbreaks","safe","trim","truncate","upper","uppercase","wordcount"]};

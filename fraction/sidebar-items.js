@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["GenericFraction","Sign"],"mod":["convert","display","division","error","generic","prelude"],"struct":["BigInt","BigUint","ParseRatioError","Ratio"],"trait":["Bounded","CheckedAdd","CheckedDiv","CheckedMul","CheckedSub","FromPrimitive","Integer","Num","One","Signed","ToPrimitive","Zero"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Float","FloatKind","LexError","SignToken","TokenKind"],"struct":["Integer","IntegerKind","Lexer","Token"]};

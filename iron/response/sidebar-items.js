@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["BodyReader","HttpResponse","Response"],"trait":["WriteBody"]};

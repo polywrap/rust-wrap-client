@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["uniffi_foreign_executor_callback_set"],"struct":["ForeignExecutor","ForeignExecutorHandle"],"type":["ForeignExecutorCallback","RustTaskCallback"]};

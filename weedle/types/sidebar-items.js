@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ConstType","FloatingPointType","IntegerType","NonAnyType","RecordKeyType","ReturnType","SingleType","Type","UnionMemberType"],"struct":["AttributedNonAnyType","AttributedType","DoubleType","FloatType","FrozenArrayType","LongLongType","LongType","MayBeNull","PromiseType","RecordType","SequenceType","ShortType"],"type":["UnionType"]};

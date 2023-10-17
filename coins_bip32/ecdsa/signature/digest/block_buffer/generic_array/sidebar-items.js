@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["arr"],"mod":["arr","functional","iter","sequence","typenum"],"struct":["GenericArray","GenericArrayIter"],"trait":["ArrayLength"]};

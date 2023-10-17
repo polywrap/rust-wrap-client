@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CompileError","DeserializeError","ImportError","MemoryError","ParseCpuFeatureError","PreInstantiationError","SerializeError","WasmError"],"struct":["MiddlewareError"],"type":["WasmResult"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ExtendedAttribute","IdentifierOrString"],"struct":["ExtendedAttributeArgList","ExtendedAttributeIdent","ExtendedAttributeIdentList","ExtendedAttributeNamedArgList","ExtendedAttributeNoArgs"],"type":["ExtendedAttributeList","IdentifierList"]};

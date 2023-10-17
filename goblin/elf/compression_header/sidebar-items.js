@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["ELFCOMPRESS_HIOS","ELFCOMPRESS_HIPROC","ELFCOMPRESS_LOOS","ELFCOMPRESS_LOPROC","ELFCOMPRESS_ZLIB"],"mod":["compression_header32","compression_header64"],"struct":["CompressionHeader"]};

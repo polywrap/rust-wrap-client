@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["entity_impl"],"mod":["packed_option"],"struct":["ArchivedPrimaryMap","BoxedSlice","Iter","IterMut","Keys","PrimaryMap","SecondaryMap"],"trait":["EntityRef"]};

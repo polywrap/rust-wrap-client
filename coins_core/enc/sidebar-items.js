@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["EncodingError"],"fn":["decode_base58","decode_bech32","encode_base58","encode_bech32"],"type":["EncodingResult"]};

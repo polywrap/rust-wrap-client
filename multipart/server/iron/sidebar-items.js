@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["DEFAULT_FILE_COUNT_LIMIT","DEFAULT_FILE_SIZE_LIMIT"],"enum":["LimitBehavior"],"struct":["FileCountLimitError","FileSizeLimitError","Intercept"]};

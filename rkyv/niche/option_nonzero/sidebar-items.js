@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["ArchivedOptionNonZeroI128","ArchivedOptionNonZeroI16","ArchivedOptionNonZeroI32","ArchivedOptionNonZeroI64","ArchivedOptionNonZeroI8","ArchivedOptionNonZeroU128","ArchivedOptionNonZeroU16","ArchivedOptionNonZeroU32","ArchivedOptionNonZeroU64","ArchivedOptionNonZeroU8"],"type":["Iter","IterMut"]};

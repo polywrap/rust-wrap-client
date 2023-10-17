@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CallBuilder"],"mod":["spoof"],"struct":["Caller","Map"],"trait":["RawCall"]};

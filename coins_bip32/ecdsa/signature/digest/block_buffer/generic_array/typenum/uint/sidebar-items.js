@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["UInt","UTerm"],"trait":["GetBit","PowerOfTwo","SetBit","Unsigned"],"type":["GetBitOut","SetBitOut"]};

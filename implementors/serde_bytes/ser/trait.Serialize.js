@@ -1,5 +1,4 @@
 (function() {var implementors = {
 "polywrap":[],
-"polywrap_plugin":[],
-"serde_bytes":[]
+"polywrap_plugin":[]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

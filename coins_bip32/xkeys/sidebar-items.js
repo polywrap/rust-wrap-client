@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["SEED"],"struct":["XPriv","XPub"],"trait":["Parent"]};

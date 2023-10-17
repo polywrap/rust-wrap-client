@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"attr":["constructor","export"],"derive":["Enum","Error","Object","Record"],"macro":["build_foreign_language_testcases","generate_and_include_scaffolding","include_scaffolding"]};

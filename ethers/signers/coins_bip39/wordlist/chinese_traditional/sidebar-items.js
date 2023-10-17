@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["RAW_CHINESE_TRADITIONAL"],"static":["PARSED"],"struct":["ChineseTraditional"]};

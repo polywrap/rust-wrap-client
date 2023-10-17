@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["TypeKind","ValidationErrorKind"],"struct":["ValidationError"],"type":["ErrorIterator"]};

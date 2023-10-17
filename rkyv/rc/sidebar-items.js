@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ArchivedRcWeak","RcWeakResolver"],"mod":["validation"],"struct":["ArchivedRc","RcResolver"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["TransformerError"],"mod":["ds_proxy"],"struct":["DsProxy","TransformerMiddleware"],"trait":["Transformer"]};

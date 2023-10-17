@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["deserialize_wrap_manifest"],"struct":["DeserializeManifestOptions"]};

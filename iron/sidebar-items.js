@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["headers","iexpect","itry"],"mod":["error","headers","method","middleware","mime","modifier","modifiers","prelude","request","response","status","typemap","url"],"struct":["Headers","Iron","Listening","Protocol","Timeouts","TypeMap"],"trait":["Error","Plugin","Set"],"type":["IronResult"]};

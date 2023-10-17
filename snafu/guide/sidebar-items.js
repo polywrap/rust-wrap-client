@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["attributes","comparison","compatibility","examples","feature_flags","generics","opaque","philosophy","structs","the_macro","upgrading"]};

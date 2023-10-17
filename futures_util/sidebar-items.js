@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["join","pending","pin_mut","poll","ready","select","select_biased","stream_select","try_join"],"mod":["future","lock","never","sink","stream","task"]};

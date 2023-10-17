@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ConstValue","DefaultValue","FloatLit","IntegerLit"],"struct":["BooleanLit","DecLit","EmptyArrayLit","EmptyDictionaryLit","FloatValueLit","HexLit","OctLit","StringLit"]};

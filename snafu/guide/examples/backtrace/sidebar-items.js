@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ConfigFileError","Error"],"struct":["SnafuErrorAsSource","SourceErrorDoesNotHaveBacktrace","UsedInTightLoop","UsualCase"]};
