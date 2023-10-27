@@ -1,5 +1,5 @@
 use polywrap_client::{
-    client::Client,
+    client::PolywrapClient,
     resolvers::static_resolver::{StaticResolver, StaticResolverLike},
 };
 use polywrap_fs_plugin::FileSystemPlugin;
@@ -39,7 +39,7 @@ fn clean_up_temp_files() -> std::io::Result<()> {
     Ok(())
 }
 
-fn get_client() -> Client {
+fn get_client() -> PolywrapClient {
     let fs_plugin = FileSystemPlugin {};
     let plugin_pkg: PluginPackage<FileSystemPlugin> = fs_plugin.into();
     let package = Arc::new(plugin_pkg);
@@ -49,7 +49,7 @@ fn get_client() -> Client {
         package,
     )]);
 
-    Client::new(CoreClientConfig {
+    PolywrapClient::new(ClientConfig {
         resolver: Arc::new(resolver),
         interfaces: None,
         envs: None,

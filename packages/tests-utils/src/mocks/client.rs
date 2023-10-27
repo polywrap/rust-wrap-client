@@ -4,7 +4,7 @@ use std::{
 };
 
 use polywrap_core::{
-    client::CoreClient,
+    client::Client,
     invoker::Invoker,
     macros::uri,
     resolution::uri_resolution_context::{UriPackageOrWrapper, UriResolutionContext},
@@ -83,8 +83,8 @@ impl UriResolverHandler for MockClient {
     }
 }
 
-impl CoreClient for MockClient {}
+impl Client for MockClient {}
 
-pub fn get_mock_client() -> Arc<dyn CoreClient> {
+pub fn get_mock_client() -> Arc<dyn Client> {
     Arc::new(MockClient {})
 }

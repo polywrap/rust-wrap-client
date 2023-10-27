@@ -34,12 +34,12 @@ fn main() {
     let ipfs_provider = "http://localhost:5001";
     let uri = uri!("wrapscan.io/polywrap/ipfs-http-client@1.0");
 
-    let mut config = ClientConfig::new();
+    let mut config = PolywrapClientConfig::new();
     config.add(SystemClientConfig::default().into());
 
     let config = config.build();
 
-    let client = Client::new(config);
+    let client = PolywrapClient::new(config);
 
     let file_name = "hello-world.txt";
     let file_data = "Hello World!!!";

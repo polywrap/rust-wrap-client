@@ -41,7 +41,7 @@ impl From<(&Uri, &Uri)> for UriRedirect {
 /// Configuration struct for implementors of `Client`.
 /// Can be built manually or through the `ClientConfigBuilder`
 #[derive(Debug)]
-pub struct CoreClientConfig {
+pub struct ClientConfig {
     pub resolver: Arc<dyn UriResolver>,
     /// Environment variables configuration.
     /// Should be a `HashMap` of `Uri` keys and msgpack buffer values
@@ -51,10 +51,10 @@ pub struct CoreClientConfig {
 }
 
 /// Defines a type that can build a `CoreClientConfig`.
-pub trait CoreClientConfigBuilder {
+pub trait ClientConfigBuilder {
     /// Builds a `CoreClientConfig` instance.
-    fn build(self) -> CoreClientConfig;
+    fn build(self) -> ClientConfig;
 }
 
 /// Defines a type that represents a Polywrap Client.
-pub trait CoreClient: Invoker + WrapLoader + WrapInvoker + UriResolverHandler {}
+pub trait Client: Invoker + WrapLoader + WrapInvoker + UriResolverHandler {}

@@ -1,5 +1,5 @@
-use polywrap_client_builder::ClientConfig;
-use polywrap_core::{client::CoreClientConfig, macros::uri, uri::Uri};
+use polywrap_client_builder::PolywrapClientConfig;
+use polywrap_core::{client::ClientConfig, macros::uri, uri::Uri};
 use polywrap_ethereum_wallet_plugin::{
     connection::Connection, connections::Connections, EthereumWalletPlugin,
 };
@@ -8,7 +8,7 @@ use std::{collections::HashMap, sync::Arc};
 
 /// The default Web3 config for the `Client`
 /// Includes plugins and support for Ethereum and ENS interaction
-pub struct Web3ClientConfig(ClientConfig);
+pub struct Web3ClientConfig(PolywrapClientConfig);
 
 impl Web3ClientConfig {
     fn get_ethereum_plugin() -> PluginPackage<EthereumWalletPlugin> {
@@ -37,7 +37,7 @@ impl Web3ClientConfig {
 
 impl Default for Web3ClientConfig {
     fn default() -> Self {
-        Self(ClientConfig {
+        Self(PolywrapClientConfig {
             interfaces: Some(HashMap::from([(
                 uri!("wrapscan.io/polywrap/uri-resolver@1.0"),
                 vec![
@@ -65,14 +65,14 @@ impl Default for Web3ClientConfig {
     }
 }
 
-impl Into<ClientConfig> for Web3ClientConfig {
-    fn into(self) -> ClientConfig {
+impl Into<PolywrapClientConfig> for Web3ClientConfig {
+    fn into(self) -> PolywrapClientConfig {
         self.0
     }
 }
 
-impl Into<CoreClientConfig> for Web3ClientConfig {
-    fn into(self) -> CoreClientConfig {
+impl Into<ClientConfig> for Web3ClientConfig {
+    fn into(self) -> ClientConfig {
         self.0.into()
     }
 }

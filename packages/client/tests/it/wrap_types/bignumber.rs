@@ -1,5 +1,5 @@
 use bigdecimal::BigDecimal as BigNumber;
-use polywrap_client::client::Client;
+use polywrap_client::client::PolywrapClient;
 use polywrap_client::core::uri::Uri;
 use polywrap_msgpack_serde::to_vec;
 use polywrap_tests_utils::helpers::get_tests_path;
@@ -20,7 +20,7 @@ struct ArgsObject {
     prop2: Option<String>,
 }
 
-fn get_client_and_uri() -> (Client, Uri) {
+fn get_client_and_uri() -> (PolywrapClient, Uri) {
     let test_path = get_tests_path().unwrap();
     let path = test_path.into_os_string().into_string().unwrap();
     let uri = format!("fs/{}/bignumber-type/implementations/rs", path)

@@ -1,7 +1,7 @@
-use polywrap_client::client::Client;
-use polywrap_client_builder::{ClientConfig, ClientConfigBuilder};
+use polywrap_client::client::PolywrapClient;
+use polywrap_client_builder::{PolywrapClientConfig, PolywrapClientConfigBuilder};
 use polywrap_core::{
-    client::CoreClientConfig, error::Error, macros::uri, package::WrapPackage, uri::Uri,
+    client::ClientConfig, error::Error, macros::uri, package::WrapPackage, uri::Uri,
 };
 use polywrap_msgpack_serde::to_vec;
 use polywrap_resolvers::static_resolver::{StaticResolver, StaticResolverLike};
@@ -35,7 +35,7 @@ fn invoke_with_env() {
     })
     .unwrap();
     let envs = HashMap::from([(uri!("plugin/env"), env_val)]);
-    let client = Client::new(CoreClientConfig {
+    let client = PolywrapClient::new(ClientConfig {
         envs: Some(envs),
         interfaces: None,
         resolver: Arc::new(static_resolver),
@@ -62,13 +62,13 @@ fn invoke_with_env() {
 fn invoke_methods() {
     let plugin_uri = uri!("mock/plugin");
 
-    let mut config = ClientConfig::new();
+    let mut config = PolywrapClientConfig::new();
     config.add_package(
         plugin_uri.clone(),
         Arc::new(PluginPackage::from(MemoryStoragePlugin { value: 1 })),
     );
 
-    let client = Client::new(config.into());
+    let client = PolywrapClient::new(config.into());
 
     let result = client
         .invoke::<i32>(&plugin_uri, "getData", Some(&to_vec(&ArgsGetData {}).unwrap()), None, None)
@@ -97,13 +97,13 @@ fn invoke_non_existent_method_should_err() {
     let plugin_uri = uri!("mock/plugin");
     let method = String::from("iDontExist");
 
-    let mut config = ClientConfig::new();
+    let mut config = PolywrapClientConfig::new();
     config.add_package(
         plugin_uri.clone(),
         Arc::new(PluginPackage::from(MemoryStoragePlugin { value: 1 })),
     );
 
-    let client = Client::new(config.into());
+    let client = PolywrapClient::new(config.into());
 
     let result = client.invoke::<i32>(&plugin_uri, &method, None, None, None);
 

@@ -28,7 +28,7 @@ struct ToEthArgs {
 fn main() {
     let ethers_core_uri = uri!("wrapscan.io/polywrap/ethers@1.0.0");
     let ethers_util_uri = uri!("wrapscan.io/polywrap/ethers-utils@1.0.0");
-    let mut config = ClientConfig::new();
+    let mut config = PolywrapClientConfig::new();
     config.add(SystemClientConfig::default().into());
 
     let mainnet_connection = Connection::new(
@@ -50,7 +50,7 @@ fn main() {
 
     config.add_package(uri!("wrapscan.io/polywrap/ethereum-wallet@1.0"), package);
 
-    let client = Client::new(config.build());
+    let client = PolywrapClient::new(config.build());
 
     let balance = client.invoke::<String>(
         &ethers_core_uri,

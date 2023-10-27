@@ -1,20 +1,20 @@
 use std::{collections::HashMap, sync::Arc};
 
 use polywrap_core::{
-    client::CoreClientConfigBuilder, package::WrapPackage, resolution::uri_resolver::UriResolver,
+    client::ClientConfigBuilder, package::WrapPackage, resolution::uri_resolver::UriResolver,
     uri::Uri, wrapper::Wrapper,
 };
 
-use crate::ClientConfig;
+use crate::PolywrapClientConfig;
 
 /// Defines a type that uses the builder pattern to build a `ClientConfig`.
-pub trait ClientConfigBuilder: CoreClientConfigBuilder {
+pub trait PolywrapClientConfigBuilder: ClientConfigBuilder {
     /// Merges a `ClientConfig` with the current instance's state.
     ///
     /// # Arguments
     ///
     /// * `config` - A `ClientConfig` instance to be merged with the current state.
-    fn add(&mut self, config: ClientConfig) -> &mut Self;
+    fn add(&mut self, config: PolywrapClientConfig) -> &mut Self;
     
     /// Adds an environment configuration entry.
     ///

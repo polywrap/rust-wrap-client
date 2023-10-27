@@ -4,8 +4,8 @@ use std::{
 };
 
 use polywrap_client::{
-    builder::{ClientConfig, ClientConfigBuilder},
-    client::Client,
+    builder::{PolywrapClientConfig, PolywrapClientConfigBuilder},
+    client::PolywrapClient,
     core::uri::Uri,
 };
 use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
@@ -21,11 +21,11 @@ use crate::{
     wrapper::FFIWrapper,
 };
 
-pub struct FFIBuilderConfig(Mutex<ClientConfig>);
+pub struct FFIBuilderConfig(Mutex<PolywrapClientConfig>);
 
 impl FFIBuilderConfig {
     pub fn new() -> FFIBuilderConfig {
-        FFIBuilderConfig(Mutex::new(ClientConfig::new()))
+        FFIBuilderConfig(Mutex::new(PolywrapClientConfig::new()))
     }
 
     pub fn get_interfaces(&self) -> Option<HashMap<String, Vec<Arc<FFIUri>>>> {
@@ -193,7 +193,7 @@ impl FFIBuilderConfig {
 
     pub fn build(&self) -> Arc<FFIClient> {
         let config = self.0.lock().unwrap().clone();
-        let client = Arc::new(Client::new(config.into()));
+        let client = Arc::new(PolywrapClient::new(config.into()));
         Arc::new(FFIClient::new(client))
     }
 }

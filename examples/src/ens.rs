@@ -22,12 +22,12 @@ fn main() {
     let domain = "vitalik.eth".to_string();
     let ens_uri = uri!("wrapscan.io/polywrap/ens@1.0.0");
 
-    let mut config = ClientConfig::new();
+    let mut config = PolywrapClientConfig::new();
     config
         .add(SystemClientConfig::default().into())
         .add(Web3ClientConfig::default().into());
 
-    let client = Client::new(config.build());
+    let client = PolywrapClient::new(config.build());
 
     let resolver_address = client.invoke::<String>(
         &ens_uri,

@@ -1,5 +1,5 @@
 use polywrap_client::{
-    client::Client,
+    client::PolywrapClient,
     resolvers::static_resolver::{StaticResolver, StaticResolverLike},
 };
 use polywrap_http_plugin::HttpPlugin;
@@ -9,7 +9,7 @@ use std::sync::Arc;
 mod get;
 mod post;
 
-pub fn get_client() -> Client {
+pub fn get_client() -> PolywrapClient {
     let http_plugin = HttpPlugin {};
     let package = Arc::new(PluginPackage::from(http_plugin));
 
@@ -18,7 +18,7 @@ pub fn get_client() -> Client {
         package,
     )]);
 
-    Client::new(CoreClientConfig {
+    PolywrapClient::new(ClientConfig {
         resolver: Arc::new(resolver),
         interfaces: None,
         envs: None,
