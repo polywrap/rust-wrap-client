@@ -10,3 +10,4 @@ pub use polywrap_wasm as wasm;
 pub use wrap_manifest_schemas as wrap_manifest;
 
 pub use client::*;
+pub use client::Client as PolywrapClient;
