@@ -14,8 +14,8 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
     let context = FunctionEnv::new(store, state);
 
     let invoke_args = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
-        let method_ptr = values[0].unwrap_i32() as u32;
-        let args_ptr = values[1].unwrap_i32() as u32;
+        let method_ptr = values[0].unwrap_i32() as u64;
+        let args_ptr = values[1].unwrap_i32() as u64;
 
         let mutable_context = context.as_mut();
         let mutable_state = mutable_context.data().lock().unwrap();
@@ -36,10 +36,10 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let memory_view = memory.view(&mutable_context);
 
         memory_view
-            .write(method_ptr as _, &mutable_state.method)
+            .write(method_ptr, &mutable_state.method)
             .unwrap();
         memory_view
-            .write(args_ptr as _, &mutable_state.args)
+            .write(args_ptr, &mutable_state.args)
             .unwrap();
         Ok(vec![])
     };
@@ -54,12 +54,12 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mut mutable_state = mutable_context.data().lock().unwrap();
         let memory = mutable_state.memory.as_ref().unwrap();
         let memory_view = memory.view(&mutable_context);
-        let offset = values[0].unwrap_i32() as u32;
-        let length = values[1].unwrap_i32() as u32;
+        let offset = values[0].unwrap_i32() as u64;
+        let length = values[1].unwrap_i32() as usize;
 
-        let mut buffer: Vec<u8> = vec![0; length as usize];
+        let mut buffer: Vec<u8> = Vec::with_capacity(length);
         memory_view
-            .read(offset as _, &mut buffer)
+            .read(offset, &mut buffer)
             .map_err(|e| RuntimeError::new(e.to_string()))?;
         mutable_state.invoke.result = Some(buffer);
         Ok(vec![])
@@ -77,12 +77,12 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mut mutable_state = mutable_context.data().lock().unwrap();
         let memory = mutable_state.memory.as_ref().unwrap();
         let memory_view = memory.view(&mutable_context);
-        let offset = values[0].unwrap_i32() as u32;
-        let length = values[1].unwrap_i32() as u32;
+        let offset = values[0].unwrap_i32() as u64;
+        let length = values[1].unwrap_i32() as usize;
 
-        let mut buffer: Vec<u8> = vec![0; length as usize];
+        let mut buffer: Vec<u8> = Vec::with_capacity(length);
         memory_view
-            .read(offset as _, &mut buffer)
+            .read(offset, &mut buffer)
             .map_err(|e| RuntimeError::new(e.to_string()))?;
 
         let invoke_error = String::from_utf8(buffer)
@@ -108,26 +108,26 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
     );
 
     let abort = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
-        let msg_offset = values[0].unwrap_i32() as u32;
-        let msg_length = values[1].unwrap_i32() as u32;
-        let file_offset = values[2].unwrap_i32() as u32;
-        let file_length = values[3].unwrap_i32() as u32;
-        let line = values[4].unwrap_i32() as u32;
-        let column = values[5].unwrap_i32() as u32;
+        let msg_offset = values[0].unwrap_i32() as u64;
+        let msg_length = values[1].unwrap_i32() as usize;
+        let file_offset = values[2].unwrap_i32() as u64;
+        let file_length = values[3].unwrap_i32() as usize;
+        let line = values[4].unwrap_i32() as u64;
+        let column = values[5].unwrap_i32() as usize;
 
         let mutable_context = context.as_mut();
         let state = mutable_context.data().lock().unwrap();
         let memory = state.memory.as_ref().unwrap();
         let memory_view = memory.view(&mutable_context);
 
-        let mut msg_buffer: Vec<u8> = vec![0; msg_length as usize];
-        let mut file_buffer: Vec<u8> = vec![0; file_length as usize];
+        let mut msg_buffer: Vec<u8> = Vec::with_capacity(msg_length);
+        let mut file_buffer: Vec<u8> = Vec::with_capacity(file_length);
 
         memory_view
-            .read(msg_offset as _, &mut msg_buffer)
+            .read(msg_offset, &mut msg_buffer)
             .unwrap();
         memory_view
-            .read(file_offset as _, &mut file_buffer)
+            .read(file_offset, &mut file_buffer)
             .unwrap();
 
         let msg = String::from_utf8(msg_buffer).unwrap();
@@ -153,12 +153,12 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
     );
 
     let subinvoke = move |context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
-        let uri_ptr = values[0].unwrap_i32() as u32;
-        let uri_len = values[1].unwrap_i32() as u32;
-        let method_ptr = values[2].unwrap_i32() as u32;
-        let method_len = values[3].unwrap_i32() as u32;
-        let args_ptr = values[4].unwrap_i32() as u32;
-        let args_len = values[5].unwrap_i32() as u32;
+        let uri_ptr = values[0].unwrap_i32() as u64;
+        let uri_len = values[1].unwrap_i32() as usize;
+        let method_ptr = values[2].unwrap_i32() as u64;
+        let method_len = values[3].unwrap_i32() as usize;
+        let args_ptr = values[4].unwrap_i32() as u64;
+        let args_len = values[5].unwrap_i32() as usize;
 
         let async_context = Arc::new(Mutex::new(context));
         let mut context = async_context.lock().unwrap();
@@ -166,21 +166,21 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mut state = mutable_context.data().lock().unwrap();
 
         let memory = state.memory.as_ref().unwrap();
-        let mut uri_buffer: Vec<u8> = vec![0; uri_len as usize];
-        let mut method_buffer: Vec<u8> = vec![0; method_len as usize];
-        let mut args_buffer: Vec<u8> = vec![0; args_len as usize];
+        let mut uri_buffer: Vec<u8> = Vec::with_capacity(uri_len);
+        let mut method_buffer: Vec<u8> = Vec::with_capacity(method_len);
+        let mut args_buffer: Vec<u8> = Vec::with_capacity(args_len);
 
         memory
             .view(&mutable_context)
-            .read(uri_ptr as _, &mut uri_buffer)
+            .read(uri_ptr, &mut uri_buffer)
             .unwrap();
         memory
             .view(&mutable_context)
-            .read(method_ptr as _, &mut method_buffer)
+            .read(method_ptr, &mut method_buffer)
             .unwrap();
         memory
             .view(&mutable_context)
-            .read(args_ptr as _, &mut args_buffer)
+            .read(args_ptr, &mut args_buffer)
             .unwrap();
 
         let uri = String::from_utf8(uri_buffer).unwrap();
@@ -240,7 +240,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mutable_state = mutable_context.data().lock().unwrap();
         let memory = mutable_state.memory.as_ref().unwrap();
 
-        let pointer = values[0].unwrap_i32() as u32;
+        let pointer = values[0].unwrap_i32() as u64;
 
         let result = mutable_state.subinvoke.result.as_ref()
             .ok_or(RuntimeError::new(
@@ -249,7 +249,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
 
         memory
             .view(&mutable_context)
-            .write(pointer as u64, result)
+            .write(pointer, result)
             .map(|_| vec![])
             .map_err(|e| RuntimeError::new(e.to_string()))
     };
@@ -290,7 +290,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mutable_state = mutable_context.data().lock().unwrap();
         let memory = mutable_state.memory.as_ref().unwrap();
 
-        let pointer = values[0].unwrap_i32() as u32;
+        let pointer = values[0].unwrap_i32() as u64;
         
         let subinvoke_error = mutable_state.subinvoke.error.as_ref()
             .ok_or(RuntimeError::new(
@@ -299,7 +299,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
 
         memory
             .view(&mutable_context)
-            .write(pointer as u64, subinvoke_error.as_bytes())
+            .write(pointer, subinvoke_error.as_bytes())
             .map(|_| vec![])
             .map_err(|e| RuntimeError::new(e.to_string()))
     };
@@ -324,23 +324,23 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
     let subinvoke_implementation = move |context: FunctionEnvMut<Arc<Mutex<State>>>,
                                          values: &[Value]| {
         let interface_ptr = values[0].unwrap_i32() as u64;
-        let interface_len = values[1].unwrap_i32() as u32;
+        let interface_len = values[1].unwrap_i32() as usize;
         let impl_uri_ptr = values[2].unwrap_i32() as u64;
-        let impl_uri_len = values[3].unwrap_i32() as u32;
+        let impl_uri_len = values[3].unwrap_i32() as usize;
         let method_ptr = values[4].unwrap_i32() as u64;
-        let method_len = values[5].unwrap_i32() as u32;
+        let method_len = values[5].unwrap_i32() as usize;
         let args_ptr = values[6].unwrap_i32() as u64;
-        let args_len = values[7].unwrap_i32() as u32;
+        let args_len = values[7].unwrap_i32() as usize;
 
         let async_context = Arc::new(Mutex::new(context));
         let mut context = async_context.lock().unwrap();
         let mutable_context = context.as_mut();
         let mut state = mutable_context.data().lock().unwrap();
 
-        let mut interface_buffer = vec![0; interface_len as _];
-        let mut impl_uri_buffer = vec![0; impl_uri_len as _];
-        let mut method_buffer = vec![0; method_len as _];
-        let mut args_buffer = vec![0; args_len as _];
+        let mut interface_buffer = Vec::with_capacity(interface_len);
+        let mut impl_uri_buffer = Vec::with_capacity(impl_uri_len);
+        let mut method_buffer = Vec::with_capacity(method_len);
+        let mut args_buffer = Vec::with_capacity(args_len);
 
         let memory = state.memory.as_ref().unwrap();
         memory
@@ -532,7 +532,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
     let get_implementations = move |context: FunctionEnvMut<Arc<Mutex<State>>>,
                                     values: &[Value]| {
         let pointer = values[0].unwrap_i32() as u64;
-        let length = values[1].unwrap_i32() as u32;
+        let length = values[1].unwrap_i32() as usize;
 
         let async_context = Arc::new(Mutex::new(context));
 
@@ -541,7 +541,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mut state = mutable_context.data().lock().unwrap();
 
         let memory = state.memory.as_ref().unwrap();
-        let mut uri_bytes = vec![0; length as usize];
+        let mut uri_bytes = Vec::with_capacity(length);
         memory
             .view(&mutable_context)
             .read(pointer, &mut uri_bytes)
@@ -655,7 +655,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
     let debug_log = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
         let msg_offset = values[0].unwrap_i32() as u64;
         let msg_length = values[1].unwrap_i32() as u32;
-        let mut msg_buffer: Vec<u8> = vec![0; msg_length as usize];
+        let mut msg_buffer: Vec<u8> = Vec::with_capacity(msg_length as usize);
 
         let mutable_context = context.as_mut();
         let state = mutable_context.data().lock().unwrap();
