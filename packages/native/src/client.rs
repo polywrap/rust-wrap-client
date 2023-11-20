@@ -39,7 +39,7 @@ impl FFIClient {
         let env = env.as_deref();
 
         self.inner_client.invoke_raw(
-            &uri.to_string().try_into().unwrap(),
+            &uri.to_string_uri(),
             method,
             args,
             env,

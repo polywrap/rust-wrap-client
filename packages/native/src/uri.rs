@@ -105,7 +105,7 @@ mod test {
     #[test]
     pub fn string_into_ffi_uri() {
         let string_uri = "mock/a";
-        let uri: FFIUri = string_uri.try_into().unwrap();
+        let uri: FFIUri = string_uri.into();
         assert_eq!(ffi_uri_from_string("wrap://mock/a").unwrap(), Arc::new(uri));
     }
 
