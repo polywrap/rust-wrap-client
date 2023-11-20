@@ -81,7 +81,7 @@ impl Wrapper for WasmWrapper {
         };
 
         let params = &[
-            Value::I32(method.to_string().len().try_into().unwrap()),
+            Value::I32(method.len().try_into().unwrap()),
             Value::I32(args.len().try_into().unwrap()),
             Value::I32(env.len().try_into().unwrap()),
         ];
