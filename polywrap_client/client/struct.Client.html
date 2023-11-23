@@ -9,7 +9,7 @@ Instead of manually building the <code>CoreClientConfig</code> instance, the <co
 <ul>
 <li><code>config</code>: A <code>CoreClientConfig</code> object containing the configuration for the client.</li>
 </ul>
-</div></details><details class="toggle method-toggle" open><summary><section id="method.invoke" class="method"><a class="srclink rightside" href="../../src/polywrap_client/client.rs.html#64-75">source</a><h4 class="code-header">pub fn <a href="#method.invoke" class="fn">invoke</a>&lt;T: <a class="trait" href="https://docs.rs/serde/1.0.189/serde/de/trait.DeserializeOwned.html" title="trait serde::de::DeserializeOwned">DeserializeOwned</a>&gt;(
+</div></details><details class="toggle method-toggle" open><summary><section id="method.invoke" class="method"><a class="srclink rightside" href="../../src/polywrap_client/client.rs.html#64-75">source</a><h4 class="code-header">pub fn <a href="#method.invoke" class="fn">invoke</a>&lt;T: <a class="trait" href="https://docs.rs/serde/1.0.193/serde/de/trait.DeserializeOwned.html" title="trait serde::de::DeserializeOwned">DeserializeOwned</a>&gt;(
     &amp;self,
     uri: &amp;Uri,
     method: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.72.0/std/primitive.str.html">str</a>,
@@ -26,7 +26,7 @@ If the result of the invocation cannot be cast into <code>T</code>, an error wil
 <li><code>env</code>: Optional msgpack buffer representing the environment.</li>
 <li><code>resolution_context</code>: Optional resolution context of invocation.</li>
 </ul>
-</div></details><details class="toggle method-toggle" open><summary><section id="method.invoke_wrapper" class="method"><a class="srclink rightside" href="../../src/polywrap_client/client.rs.html#87-100">source</a><h4 class="code-header">pub fn <a href="#method.invoke_wrapper" class="fn">invoke_wrapper</a>&lt;TResult: <a class="trait" href="https://docs.rs/serde/1.0.189/serde/de/trait.DeserializeOwned.html" title="trait serde::de::DeserializeOwned">DeserializeOwned</a>, TWrapper: Wrapper&gt;(
+</div></details><details class="toggle method-toggle" open><summary><section id="method.invoke_wrapper" class="method"><a class="srclink rightside" href="../../src/polywrap_client/client.rs.html#87-100">source</a><h4 class="code-header">pub fn <a href="#method.invoke_wrapper" class="fn">invoke_wrapper</a>&lt;TResult: <a class="trait" href="https://docs.rs/serde/1.0.193/serde/de/trait.DeserializeOwned.html" title="trait serde::de::DeserializeOwned">DeserializeOwned</a>, TWrapper: Wrapper&gt;(
     &amp;self,
     wrapper: <a class="primitive" href="https://doc.rust-lang.org/1.72.0/std/primitive.reference.html">&amp;TWrapper</a>,
     uri: &amp;Uri,

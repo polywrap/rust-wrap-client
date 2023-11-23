@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["polywrap_base_resolver","polywrap_client_config","polywrap_client_config_builder"],"struct":["ClientConfig","PolywrapBaseResolver","PolywrapBaseResolverOptions"],"trait":["ClientConfigBuilder"]};
+window.SIDEBAR_ITEMS = {"mod":["polywrap_base_resolver","polywrap_client_config","polywrap_client_config_builder"],"struct":["ClientConfig","PolywrapBaseResolver","PolywrapBaseResolverOptions","PolywrapClientConfig"],"trait":["ClientConfigBuilder","PolywrapClientConfigBuilder"]};
