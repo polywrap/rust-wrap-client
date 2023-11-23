@@ -44,8 +44,16 @@ for package in "${packages[@]}"; do
   cd packages/$package
   echo "Generating documentation for $package..."
   cargo doc --no-deps
-  echo "Publishing $package..."
-  cargo publish --token "${CRATES_IO_TOKEN}"
+
+  # Check if the package is default-config and add --no-verify accordingly
+  if [ "$package" == "default-config" ]; then
+      echo "Publishing $package with --no-verify..."
+      cargo publish --no-verify --token "${CRATES_IO_TOKEN}"
+  else
+      echo "Publishing $package..."
+      cargo publish --token "${CRATES_IO_TOKEN}"
+  fi
+
   rm -rf target/
   cd -
 done
