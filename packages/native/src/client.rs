@@ -1,13 +1,19 @@
-use std::{collections::HashMap, ops::{DerefMut, Deref}, sync::Arc};
+use std::{
+    collections::HashMap,
+    ops::{Deref, DerefMut},
+    sync::Arc,
+};
 
 use polywrap_client::core::{client::CoreClient, invoker::Invoker};
 
 use crate::{
     error::FFIError,
     invoker::FFIInvoker,
-    resolvers::{resolution_context::FFIUriResolutionContext, uri_package_or_wrapper::FFIUriPackageOrWrapper},
+    resolvers::{
+        resolution_context::FFIUriResolutionContext, uri_package_or_wrapper::FFIUriPackageOrWrapper,
+    },
     uri::FFIUri,
-    wrapper::FFIWrapper
+    wrapper::FFIWrapper,
 };
 
 #[derive(Clone)]
@@ -39,7 +45,7 @@ impl FFIClient {
         let env = env.as_deref();
 
         self.inner_client.invoke_raw(
-            &uri.to_string_uri(),
+            &uri.to_string().try_into().unwrap(),
             method,
             args,
             env,
@@ -126,16 +132,15 @@ impl FFIClient {
     }
 
     pub fn try_resolve_uri(
-      &self,
-      uri: Arc<FFIUri>,
-      resolution_context: Option<Arc<FFIUriResolutionContext>>,
+        &self,
+        uri: Arc<FFIUri>,
+        resolution_context: Option<Arc<FFIUriResolutionContext>>,
     ) -> Result<Arc<FFIUriPackageOrWrapper>, FFIError> {
-      let result = self.inner_client.try_resolve_uri(
-        &uri.0,
-        resolution_context.map(|r| r.0.clone())
-      )?;
+        let result = self
+            .inner_client
+            .try_resolve_uri(&uri.0, resolution_context.map(|r| r.0.clone()))?;
 
-      Ok(Arc::new(FFIUriPackageOrWrapper(result)))
+        Ok(Arc::new(FFIUriPackageOrWrapper(result)))
     }
 }
 
@@ -186,10 +191,14 @@ mod test {
 
     use polywrap_client_default_config::{SystemClientConfig, Web3ClientConfig};
     use polywrap_msgpack_serde::to_vec;
-    use polywrap_tests_utils::mocks::{get_mock_client, get_mock_invoker, get_mock_wrapper, MockWrapper};
+    use polywrap_tests_utils::mocks::{
+        get_mock_client, get_mock_invoker, get_mock_wrapper, MockWrapper,
+    };
     use serde::Serialize;
 
-    use crate::resolvers::uri_package_or_wrapper::{FFIUriPackageOrWrapperKind, FFIUriWrapPackage, FFIUriWrapper};
+    use crate::resolvers::uri_package_or_wrapper::{
+        FFIUriPackageOrWrapperKind, FFIUriWrapPackage, FFIUriWrapper,
+    };
     use crate::uri::ffi_uri_from_string;
     use crate::wrapper::FFIWrapper;
     use crate::{client::FFIClient, invoker::FFIInvoker};
@@ -299,18 +308,13 @@ mod test {
 
         let uri = ffi_uri_from_string(&from_uri.to_string()).unwrap();
 
-        let result = ffi_client
-            .try_resolve_uri(
-                uri.clone(),
-                None,
-            )
-            .unwrap();
+        let result = ffi_client.try_resolve_uri(uri.clone(), None).unwrap();
 
         match result.get_kind() {
             FFIUriPackageOrWrapperKind::URI => {
                 let resolved_uri = result.as_uri().unwrap();
                 assert_eq!(resolved_uri.to_string(), to_uri.to_string());
-            },
+            }
             x => {
                 panic!("Expected URI, got: {:?}", x);
             }
@@ -331,18 +335,19 @@ mod test {
             "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS";
         let uri = ffi_uri_from_string(SUBINVOKE_WRAP_URI).unwrap();
 
-        let result = ffi_client
-            .try_resolve_uri(
-                uri.clone(),
-                None,
-            )
-            .unwrap();
+        let result = ffi_client.try_resolve_uri(uri.clone(), None).unwrap();
 
         match result.get_kind() {
             FFIUriPackageOrWrapperKind::PACKAGE => {
-                let FFIUriWrapPackage { uri: resolved_uri, package} = result.as_package().unwrap();
+                let FFIUriWrapPackage {
+                    uri: resolved_uri,
+                    package,
+                } = result.as_package().unwrap();
 
-                assert_eq!(resolved_uri.to_string(), "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS");
+                assert_eq!(
+                    resolved_uri.to_string(),
+                    "wrap://ipfs/Qmf7jukQhTQekdSgKfdnFtB6ERTN6V7aT4oYpzesDyr2cS"
+                );
 
                 let wrapper = package.create_wrapper().unwrap();
                 let result = wrapper
@@ -353,9 +358,9 @@ mod test {
                         ffi_client.as_invoker(),
                     )
                     .unwrap();
-    
+
                 assert_eq!(result, to_vec(&42).unwrap());
-            },
+            }
             x => {
                 panic!("Expected package, got: {:?}", x);
             }
@@ -365,40 +370,31 @@ mod test {
     #[test]
     fn ffi_try_resolve_uri_to_wrapper() {
         let mut config = ClientConfig::new();
-        config
-            .add_wrapper("wrap://mock/uri".parse().unwrap(), Arc::new(MockWrapper));
+        config.add_wrapper("wrap://mock/uri".parse().unwrap(), Arc::new(MockWrapper));
 
         let client = Arc::from(Client::new(config.into()));
         let ffi_client = FFIClient::new(client.clone());
 
-        const SUBINVOKE_WRAP_URI: &str =
-            "wrap://mock/uri";
+        const SUBINVOKE_WRAP_URI: &str = "wrap://mock/uri";
         let uri = ffi_uri_from_string(SUBINVOKE_WRAP_URI).unwrap();
 
-        let result = ffi_client
-            .try_resolve_uri(
-                uri.clone(),
-                None,
-            )
-            .unwrap();
+        let result = ffi_client.try_resolve_uri(uri.clone(), None).unwrap();
 
         match result.get_kind() {
             FFIUriPackageOrWrapperKind::WRAPPER => {
-                let FFIUriWrapper { uri: resolved_uri, wrapper} = result.as_wrapper().unwrap();
+                let FFIUriWrapper {
+                    uri: resolved_uri,
+                    wrapper,
+                } = result.as_wrapper().unwrap();
 
                 assert_eq!(resolved_uri.to_string(), "wrap://mock/uri");
 
                 let result = wrapper
-                    .invoke(
-                        "foo",
-                        None,
-                        None,
-                        ffi_client.as_invoker(),
-                    )
+                    .invoke("foo", None, None, ffi_client.as_invoker())
                     .unwrap();
-    
+
                 assert_eq!(result, [195]);
-            },
+            }
             x => {
                 panic!("Expected wrapper, got: {:?}", x);
             }
