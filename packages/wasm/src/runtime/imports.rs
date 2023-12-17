@@ -57,7 +57,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let offset = values[0].unwrap_i32() as u64;
         let length = values[1].unwrap_i32() as usize;
 
-        let mut buffer: Vec<u8> = Vec::with_capacity(length);
+        let mut buffer: Vec<u8> = empty_buffer(length);
         memory_view
             .read(offset, &mut buffer)
             .map_err(|e| RuntimeError::new(e.to_string()))?;
@@ -80,7 +80,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let offset = values[0].unwrap_i32() as u64;
         let length = values[1].unwrap_i32() as usize;
 
-        let mut buffer: Vec<u8> = Vec::with_capacity(length);
+        let mut buffer: Vec<u8> = empty_buffer(length);
         memory_view
             .read(offset, &mut buffer)
             .map_err(|e| RuntimeError::new(e.to_string()))?;
@@ -120,8 +120,8 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let memory = state.memory.as_ref().unwrap();
         let memory_view = memory.view(&mutable_context);
 
-        let mut msg_buffer: Vec<u8> = Vec::with_capacity(msg_length);
-        let mut file_buffer: Vec<u8> = Vec::with_capacity(file_length);
+        let mut msg_buffer: Vec<u8> = empty_buffer(msg_length);
+        let mut file_buffer: Vec<u8> = empty_buffer(file_length);
 
         memory_view
             .read(msg_offset, &mut msg_buffer)
@@ -166,9 +166,9 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mut state = mutable_context.data().lock().unwrap();
 
         let memory = state.memory.as_ref().unwrap();
-        let mut uri_buffer: Vec<u8> = Vec::with_capacity(uri_len);
-        let mut method_buffer: Vec<u8> = Vec::with_capacity(method_len);
-        let mut args_buffer: Vec<u8> = Vec::with_capacity(args_len);
+        let mut uri_buffer: Vec<u8> = empty_buffer(uri_len);
+        let mut method_buffer: Vec<u8> = empty_buffer(method_len);
+        let mut args_buffer: Vec<u8> = empty_buffer(args_len);
 
         memory
             .view(&mutable_context)
@@ -337,10 +337,10 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mutable_context = context.as_mut();
         let mut state = mutable_context.data().lock().unwrap();
 
-        let mut interface_buffer = Vec::with_capacity(interface_len);
-        let mut impl_uri_buffer = Vec::with_capacity(impl_uri_len);
-        let mut method_buffer = Vec::with_capacity(method_len);
-        let mut args_buffer = Vec::with_capacity(args_len);
+        let mut interface_buffer = empty_buffer(interface_len);
+        let mut impl_uri_buffer = empty_buffer(impl_uri_len);
+        let mut method_buffer = empty_buffer(method_len);
+        let mut args_buffer = empty_buffer(args_len);
 
         let memory = state.memory.as_ref().unwrap();
         memory
@@ -541,7 +541,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
         let mut state = mutable_context.data().lock().unwrap();
 
         let memory = state.memory.as_ref().unwrap();
-        let mut uri_bytes = Vec::with_capacity(length);
+        let mut uri_bytes = empty_buffer(length);
         memory
             .view(&mutable_context)
             .read(pointer, &mut uri_bytes)
@@ -655,7 +655,7 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
     let debug_log = move |mut context: FunctionEnvMut<Arc<Mutex<State>>>, values: &[Value]| {
         let msg_offset = values[0].unwrap_i32() as u64;
         let msg_length = values[1].unwrap_i32() as u32;
-        let mut msg_buffer: Vec<u8> = Vec::with_capacity(msg_length as usize);
+        let mut msg_buffer: Vec<u8> = empty_buffer(msg_length as usize);
 
         let mutable_context = context.as_mut();
         let state = mutable_context.data().lock().unwrap();
@@ -698,4 +698,10 @@ pub fn create_imports(memory: Memory, store: &mut Store, state: Arc<Mutex<State>
             "memory" => memory,
         }
     }
+}
+
+fn empty_buffer(size: usize) -> Vec<u8> {
+    let mut empty: Vec<u8> = Vec::with_capacity(size);
+    unsafe { empty.set_len(size); }
+    empty
 }
