@@ -21,7 +21,7 @@ jobs:
           override: true
 
       - name: Generate test cases
-        run: cargo run --package polywrap_tests_utils --bin generate 
+        run: cargo run --package polywrap_tests_utils --bin generate
 
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
