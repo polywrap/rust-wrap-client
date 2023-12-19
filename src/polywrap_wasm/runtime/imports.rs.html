@@ -699,6 +699,12 @@
 <a href="#699" id="699">699</a>
 <a href="#700" id="700">700</a>
 <a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::{Arc, Mutex};
 
 <span class="kw">use </span>polywrap_msgpack_serde::to_vec;
@@ -715,8 +721,8 @@
     <span class="kw">let </span>context = FunctionEnv::new(store, state);
 
     <span class="kw">let </span>invoke_args = <span class="kw">move </span>|<span class="kw-2">mut </span>context: FunctionEnvMut&lt;Arc&lt;Mutex&lt;State&gt;&gt;&gt;, values: <span class="kw-2">&amp;</span>[Value]| {
-        <span class="kw">let </span>method_ptr = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>args_ptr = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>method_ptr = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>args_ptr = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>u64;
 
         <span class="kw">let </span>mutable_context = context.as_mut();
         <span class="kw">let </span>mutable_state = mutable_context.data().lock().unwrap();
@@ -737,10 +743,10 @@
         <span class="kw">let </span>memory_view = memory.view(<span class="kw-2">&amp;</span>mutable_context);
 
         memory_view
-            .write(method_ptr.try_into().unwrap(), <span class="kw-2">&amp;</span>mutable_state.method)
+            .write(method_ptr, <span class="kw-2">&amp;</span>mutable_state.method)
             .unwrap();
         memory_view
-            .write(args_ptr.try_into().unwrap(), <span class="kw-2">&amp;</span>mutable_state.args)
+            .write(args_ptr, <span class="kw-2">&amp;</span>mutable_state.args)
             .unwrap();
         <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[])
     };
@@ -755,12 +761,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>mutable_state = mutable_context.data().lock().unwrap();
         <span class="kw">let </span>memory = mutable_state.memory.as_ref().unwrap();
         <span class="kw">let </span>memory_view = memory.view(<span class="kw-2">&amp;</span>mutable_context);
-        <span class="kw">let </span>offset = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>length = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>offset = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>length = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>usize;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[<span class="number">0</span>; length <span class="kw">as </span>usize];
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = empty_buffer(length);
         memory_view
-            .read(offset.try_into().unwrap(), <span class="kw-2">&amp;mut </span>buffer)
+            .read(offset, <span class="kw-2">&amp;mut </span>buffer)
             .map_err(|e| RuntimeError::new(e.to_string()))<span class="question-mark">?</span>;
         mutable_state.invoke.result = <span class="prelude-val">Some</span>(buffer);
         <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[])
@@ -778,12 +784,12 @@
         <span class="kw">let </span><span class="kw-2">mut </span>mutable_state = mutable_context.data().lock().unwrap();
         <span class="kw">let </span>memory = mutable_state.memory.as_ref().unwrap();
         <span class="kw">let </span>memory_view = memory.view(<span class="kw-2">&amp;</span>mutable_context);
-        <span class="kw">let </span>offset = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>length = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>offset = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>length = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>usize;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[<span class="number">0</span>; length <span class="kw">as </span>usize];
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer: Vec&lt;u8&gt; = empty_buffer(length);
         memory_view
-            .read(offset.try_into().unwrap(), <span class="kw-2">&amp;mut </span>buffer)
+            .read(offset, <span class="kw-2">&amp;mut </span>buffer)
             .map_err(|e| RuntimeError::new(e.to_string()))<span class="question-mark">?</span>;
 
         <span class="kw">let </span>invoke_error = String::from_utf8(buffer)
@@ -809,26 +815,26 @@
     );
 
     <span class="kw">let </span>abort = <span class="kw">move </span>|<span class="kw-2">mut </span>context: FunctionEnvMut&lt;Arc&lt;Mutex&lt;State&gt;&gt;&gt;, values: <span class="kw-2">&amp;</span>[Value]| {
-        <span class="kw">let </span>msg_offset = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>msg_length = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>file_offset = values[<span class="number">2</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>file_length = values[<span class="number">3</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>line = values[<span class="number">4</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>column = values[<span class="number">5</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>msg_offset = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>msg_length = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>usize;
+        <span class="kw">let </span>file_offset = values[<span class="number">2</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>file_length = values[<span class="number">3</span>].unwrap_i32() <span class="kw">as </span>usize;
+        <span class="kw">let </span>line = values[<span class="number">4</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>column = values[<span class="number">5</span>].unwrap_i32() <span class="kw">as </span>usize;
 
         <span class="kw">let </span>mutable_context = context.as_mut();
         <span class="kw">let </span>state = mutable_context.data().lock().unwrap();
         <span class="kw">let </span>memory = state.memory.as_ref().unwrap();
         <span class="kw">let </span>memory_view = memory.view(<span class="kw-2">&amp;</span>mutable_context);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>msg_buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[<span class="number">0</span>; msg_length <span class="kw">as </span>usize];
-        <span class="kw">let </span><span class="kw-2">mut </span>file_buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[<span class="number">0</span>; file_length <span class="kw">as </span>usize];
+        <span class="kw">let </span><span class="kw-2">mut </span>msg_buffer: Vec&lt;u8&gt; = empty_buffer(msg_length);
+        <span class="kw">let </span><span class="kw-2">mut </span>file_buffer: Vec&lt;u8&gt; = empty_buffer(file_length);
 
         memory_view
-            .read(msg_offset.try_into().unwrap(), <span class="kw-2">&amp;mut </span>msg_buffer)
+            .read(msg_offset, <span class="kw-2">&amp;mut </span>msg_buffer)
             .unwrap();
         memory_view
-            .read(file_offset.try_into().unwrap(), <span class="kw-2">&amp;mut </span>file_buffer)
+            .read(file_offset, <span class="kw-2">&amp;mut </span>file_buffer)
             .unwrap();
 
         <span class="kw">let </span>msg = String::from_utf8(msg_buffer).unwrap();
@@ -854,12 +860,12 @@
     );
 
     <span class="kw">let </span>subinvoke = <span class="kw">move </span>|context: FunctionEnvMut&lt;Arc&lt;Mutex&lt;State&gt;&gt;&gt;, values: <span class="kw-2">&amp;</span>[Value]| {
-        <span class="kw">let </span>uri_ptr = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>uri_len = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>method_ptr = values[<span class="number">2</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>method_len = values[<span class="number">3</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>args_ptr = values[<span class="number">4</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>args_len = values[<span class="number">5</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>uri_ptr = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>uri_len = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>usize;
+        <span class="kw">let </span>method_ptr = values[<span class="number">2</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>method_len = values[<span class="number">3</span>].unwrap_i32() <span class="kw">as </span>usize;
+        <span class="kw">let </span>args_ptr = values[<span class="number">4</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>args_len = values[<span class="number">5</span>].unwrap_i32() <span class="kw">as </span>usize;
 
         <span class="kw">let </span>async_context = Arc::new(Mutex::new(context));
         <span class="kw">let </span><span class="kw-2">mut </span>context = async_context.lock().unwrap();
@@ -867,21 +873,21 @@
         <span class="kw">let </span><span class="kw-2">mut </span>state = mutable_context.data().lock().unwrap();
 
         <span class="kw">let </span>memory = state.memory.as_ref().unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>uri_buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[<span class="number">0</span>; uri_len <span class="kw">as </span>usize];
-        <span class="kw">let </span><span class="kw-2">mut </span>method_buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[<span class="number">0</span>; method_len <span class="kw">as </span>usize];
-        <span class="kw">let </span><span class="kw-2">mut </span>args_buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[<span class="number">0</span>; args_len <span class="kw">as </span>usize];
+        <span class="kw">let </span><span class="kw-2">mut </span>uri_buffer: Vec&lt;u8&gt; = empty_buffer(uri_len);
+        <span class="kw">let </span><span class="kw-2">mut </span>method_buffer: Vec&lt;u8&gt; = empty_buffer(method_len);
+        <span class="kw">let </span><span class="kw-2">mut </span>args_buffer: Vec&lt;u8&gt; = empty_buffer(args_len);
 
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .read(uri_ptr.try_into().unwrap(), <span class="kw-2">&amp;mut </span>uri_buffer)
+            .read(uri_ptr, <span class="kw-2">&amp;mut </span>uri_buffer)
             .unwrap();
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .read(method_ptr.try_into().unwrap(), <span class="kw-2">&amp;mut </span>method_buffer)
+            .read(method_ptr, <span class="kw-2">&amp;mut </span>method_buffer)
             .unwrap();
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .read(args_ptr.try_into().unwrap(), <span class="kw-2">&amp;mut </span>args_buffer)
+            .read(args_ptr, <span class="kw-2">&amp;mut </span>args_buffer)
             .unwrap();
 
         <span class="kw">let </span>uri = String::from_utf8(uri_buffer).unwrap();
@@ -941,7 +947,7 @@
         <span class="kw">let </span>mutable_state = mutable_context.data().lock().unwrap();
         <span class="kw">let </span>memory = mutable_state.memory.as_ref().unwrap();
 
-        <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
 
         <span class="kw">let </span>result = mutable_state.subinvoke.result.as_ref()
             .ok_or(RuntimeError::new(
@@ -950,7 +956,7 @@
 
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .write(pointer <span class="kw">as </span>u64, result)
+            .write(pointer, result)
             .map(|<span class="kw">_</span>| <span class="macro">vec!</span>[])
             .map_err(|e| RuntimeError::new(e.to_string()))
     };
@@ -991,7 +997,7 @@
         <span class="kw">let </span>mutable_state = mutable_context.data().lock().unwrap();
         <span class="kw">let </span>memory = mutable_state.memory.as_ref().unwrap();
 
-        <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
         
         <span class="kw">let </span>subinvoke_error = mutable_state.subinvoke.error.as_ref()
             .ok_or(RuntimeError::new(
@@ -1000,7 +1006,7 @@
 
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .write(pointer <span class="kw">as </span>u64, subinvoke_error.as_bytes())
+            .write(pointer, subinvoke_error.as_bytes())
             .map(|<span class="kw">_</span>| <span class="macro">vec!</span>[])
             .map_err(|e| RuntimeError::new(e.to_string()))
     };
@@ -1024,41 +1030,41 @@
 
     <span class="kw">let </span>subinvoke_implementation = <span class="kw">move </span>|context: FunctionEnvMut&lt;Arc&lt;Mutex&lt;State&gt;&gt;&gt;,
                                          values: <span class="kw-2">&amp;</span>[Value]| {
-        <span class="kw">let </span>interface_ptr = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>interface_len = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>impl_uri_ptr = values[<span class="number">2</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>impl_uri_len = values[<span class="number">3</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>method_ptr = values[<span class="number">4</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>method_len = values[<span class="number">5</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>args_ptr = values[<span class="number">6</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>args_len = values[<span class="number">7</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>interface_ptr = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>interface_len = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>usize;
+        <span class="kw">let </span>impl_uri_ptr = values[<span class="number">2</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>impl_uri_len = values[<span class="number">3</span>].unwrap_i32() <span class="kw">as </span>usize;
+        <span class="kw">let </span>method_ptr = values[<span class="number">4</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>method_len = values[<span class="number">5</span>].unwrap_i32() <span class="kw">as </span>usize;
+        <span class="kw">let </span>args_ptr = values[<span class="number">6</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>args_len = values[<span class="number">7</span>].unwrap_i32() <span class="kw">as </span>usize;
 
         <span class="kw">let </span>async_context = Arc::new(Mutex::new(context));
         <span class="kw">let </span><span class="kw-2">mut </span>context = async_context.lock().unwrap();
         <span class="kw">let </span>mutable_context = context.as_mut();
         <span class="kw">let </span><span class="kw-2">mut </span>state = mutable_context.data().lock().unwrap();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>interface_buffer = <span class="macro">vec!</span>[<span class="number">0</span>; interface_len.try_into().unwrap()];
-        <span class="kw">let </span><span class="kw-2">mut </span>impl_uri_buffer = <span class="macro">vec!</span>[<span class="number">0</span>; impl_uri_len.try_into().unwrap()];
-        <span class="kw">let </span><span class="kw-2">mut </span>method_buffer = <span class="macro">vec!</span>[<span class="number">0</span>; method_len.try_into().unwrap()];
-        <span class="kw">let </span><span class="kw-2">mut </span>args_buffer = <span class="macro">vec!</span>[<span class="number">0</span>; args_len.try_into().unwrap()];
+        <span class="kw">let </span><span class="kw-2">mut </span>interface_buffer = empty_buffer(interface_len);
+        <span class="kw">let </span><span class="kw-2">mut </span>impl_uri_buffer = empty_buffer(impl_uri_len);
+        <span class="kw">let </span><span class="kw-2">mut </span>method_buffer = empty_buffer(method_len);
+        <span class="kw">let </span><span class="kw-2">mut </span>args_buffer = empty_buffer(args_len);
 
         <span class="kw">let </span>memory = state.memory.as_ref().unwrap();
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .read(interface_ptr.try_into().unwrap(), <span class="kw-2">&amp;mut </span>interface_buffer)
+            .read(interface_ptr, <span class="kw-2">&amp;mut </span>interface_buffer)
             .unwrap();
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .read(impl_uri_ptr.try_into().unwrap(), <span class="kw-2">&amp;mut </span>impl_uri_buffer)
+            .read(impl_uri_ptr, <span class="kw-2">&amp;mut </span>impl_uri_buffer)
             .unwrap();
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .read(method_ptr.try_into().unwrap(), <span class="kw-2">&amp;mut </span>method_buffer)
+            .read(method_ptr, <span class="kw-2">&amp;mut </span>method_buffer)
             .unwrap();
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .read(args_ptr.try_into().unwrap(), <span class="kw-2">&amp;mut </span>args_buffer)
+            .read(args_ptr, <span class="kw-2">&amp;mut </span>args_buffer)
             .unwrap();
 
         <span class="kw">let </span>interface = String::from_utf8(interface_buffer).unwrap();
@@ -1141,7 +1147,7 @@
             <span class="kw">let </span>mutable_context = context.as_mut();
             <span class="kw">let </span>mutable_state = mutable_context.data().lock().unwrap();
             <span class="kw">let </span>memory = mutable_state.memory.as_ref().unwrap();
-            <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
+            <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
 
             <span class="kw">let </span>implementation = mutable_state.subinvoke_implementation.as_ref()
                 .ok_or(RuntimeError::new(
@@ -1155,7 +1161,7 @@
             
             memory
                 .view(<span class="kw-2">&amp;</span>mutable_context)
-                .write(pointer.try_into().unwrap(), implementation_result)
+                .write(pointer, implementation_result)
                 .map(|<span class="kw">_</span>| <span class="macro">vec!</span>[])
                 .map_err(|e| RuntimeError::new(e.to_string()))
         };
@@ -1201,7 +1207,7 @@
             <span class="kw">let </span>mutable_context = context.as_mut();
             <span class="kw">let </span>mutable_state = mutable_context.data().lock().unwrap();
             <span class="kw">let </span>memory = mutable_state.memory.as_ref().unwrap();
-            <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
+            <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
 
             <span class="kw">let </span>implementation = mutable_state.subinvoke_implementation.as_ref()
                 .ok_or(RuntimeError::new(
@@ -1215,7 +1221,7 @@
             
             memory
                 .view(<span class="kw-2">&amp;</span>mutable_context)
-                .write(pointer.try_into().unwrap(), implementation_error.as_bytes())
+                .write(pointer, implementation_error.as_bytes())
                 .map(|<span class="kw">_</span>| <span class="macro">vec!</span>[])
                 .map_err(|e| RuntimeError::new(e.to_string()))
         };
@@ -1232,8 +1238,8 @@
 
     <span class="kw">let </span>get_implementations = <span class="kw">move </span>|context: FunctionEnvMut&lt;Arc&lt;Mutex&lt;State&gt;&gt;&gt;,
                                     values: <span class="kw-2">&amp;</span>[Value]| {
-        <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span>length = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
+        <span class="kw">let </span>length = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>usize;
 
         <span class="kw">let </span>async_context = Arc::new(Mutex::new(context));
 
@@ -1242,10 +1248,10 @@
         <span class="kw">let </span><span class="kw-2">mut </span>state = mutable_context.data().lock().unwrap();
 
         <span class="kw">let </span>memory = state.memory.as_ref().unwrap();
-        <span class="kw">let </span><span class="kw-2">mut </span>uri_bytes = <span class="macro">vec!</span>[<span class="number">0</span>; length <span class="kw">as </span>usize];
+        <span class="kw">let </span><span class="kw-2">mut </span>uri_bytes = empty_buffer(length);
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .read(pointer.try_into().unwrap(), <span class="kw-2">&amp;mut </span>uri_bytes)
+            .read(pointer, <span class="kw-2">&amp;mut </span>uri_bytes)
             .unwrap();
         <span class="kw">let </span>uri = String::from_utf8(uri_bytes).unwrap();
         <span class="kw">let </span>result = state.invoker.get_implementations(<span class="kw-2">&amp;</span>uri.try_into().unwrap());
@@ -1303,7 +1309,7 @@
 
     <span class="kw">let </span>get_implementation_result = <span class="kw">move </span>|<span class="kw-2">mut </span>context: FunctionEnvMut&lt;Arc&lt;Mutex&lt;State&gt;&gt;&gt;,
                                           values: <span class="kw-2">&amp;</span>[Value]| {
-        <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
 
         <span class="kw">let </span>mutable_context = context.as_mut();
         <span class="kw">let </span>state = mutable_context.data().lock().unwrap();
@@ -1316,7 +1322,7 @@
 
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .write(pointer.try_into().unwrap(), result)
+            .write(pointer, result)
             .map(|<span class="kw">_</span>| <span class="macro">vec!</span>[])
             .map_err(|e| {
                 RuntimeError::new(<span class="macro">format!</span>(
@@ -1336,7 +1342,7 @@
     <span class="kw">let </span>load_env_signature = FunctionType::new(<span class="macro">vec!</span>[Type::I32], <span class="macro">vec!</span>[]);
 
     <span class="kw">let </span>load_env = <span class="kw">move </span>|<span class="kw-2">mut </span>context: FunctionEnvMut&lt;Arc&lt;Mutex&lt;State&gt;&gt;&gt;, values: <span class="kw-2">&amp;</span>[Value]| {
-        <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>pointer = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
 
         <span class="kw">let </span>mutable_context = context.as_mut();
         <span class="kw">let </span>state = mutable_context.data().lock().unwrap();
@@ -1344,7 +1350,7 @@
 
         memory
             .view(<span class="kw-2">&amp;</span>mutable_context)
-            .write(pointer.try_into().unwrap(), <span class="kw-2">&amp;</span>state.env.to_vec())
+            .write(pointer, <span class="kw-2">&amp;</span>state.env.to_vec())
             .map_err(|e| RuntimeError::new(<span class="macro">format!</span>(<span class="string">&quot;__wrap_load_env: failed to write to memory: {}&quot;</span>, e)))<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[])
@@ -1354,9 +1360,9 @@
 
     <span class="kw">let </span>debug_log_signature = FunctionType::new(<span class="macro">vec!</span>[Type::I32, Type::I32], <span class="macro">vec!</span>[]);
     <span class="kw">let </span>debug_log = <span class="kw">move </span>|<span class="kw-2">mut </span>context: FunctionEnvMut&lt;Arc&lt;Mutex&lt;State&gt;&gt;&gt;, values: <span class="kw-2">&amp;</span>[Value]| {
-        <span class="kw">let </span>msg_offset = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u32;
+        <span class="kw">let </span>msg_offset = values[<span class="number">0</span>].unwrap_i32() <span class="kw">as </span>u64;
         <span class="kw">let </span>msg_length = values[<span class="number">1</span>].unwrap_i32() <span class="kw">as </span>u32;
-        <span class="kw">let </span><span class="kw-2">mut </span>msg_buffer: Vec&lt;u8&gt; = <span class="macro">vec!</span>[<span class="number">0</span>; msg_length <span class="kw">as </span>usize];
+        <span class="kw">let </span><span class="kw-2">mut </span>msg_buffer: Vec&lt;u8&gt; = empty_buffer(msg_length <span class="kw">as </span>usize);
 
         <span class="kw">let </span>mutable_context = context.as_mut();
         <span class="kw">let </span>state = mutable_context.data().lock().unwrap();
@@ -1364,7 +1370,7 @@
         <span class="kw">let </span>memory_view = memory.view(<span class="kw-2">&amp;</span>mutable_context);
 
         memory_view
-            .read(msg_offset.try_into().unwrap(), <span class="kw-2">&amp;mut </span>msg_buffer)
+            .read(msg_offset, <span class="kw-2">&amp;mut </span>msg_buffer)
             .unwrap();
         <span class="kw">let </span>msg = String::from_utf8(msg_buffer).unwrap();
         <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;__wrap_debug_log: {msg}&quot;</span>));
@@ -1399,5 +1405,11 @@
             <span class="string">&quot;memory&quot; </span>=&gt; memory,
         }
     }
+}
+
+<span class="kw">fn </span>empty_buffer(size: usize) -&gt; Vec&lt;u8&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>empty: Vec&lt;u8&gt; = Vec::with_capacity(size);
+    <span class="kw">unsafe </span>{ empty.set_len(size); }
+    empty
 }
 </code></pre></div></section></main></body></html>

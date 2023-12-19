@@ -220,9 +220,9 @@
         };
 
         <span class="kw">let </span>params = <span class="kw-2">&amp;</span>[
-            Value::I32(method.to_string().len().try_into().unwrap()),
-            Value::I32(args.len().try_into().unwrap()),
-            Value::I32(env.len().try_into().unwrap()),
+            Value::I32(method.len() <span class="kw">as _</span>),
+            Value::I32(args.len() <span class="kw">as _</span>),
+            Value::I32(env.len() <span class="kw">as _</span>),
         ];
 
         <span class="kw">let </span>state = Arc::new(Mutex::new(State::new(
