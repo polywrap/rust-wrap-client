@@ -81,9 +81,9 @@ impl Wrapper for WasmWrapper {
         };
 
         let params = &[
-            Value::I32(method.to_string().len().try_into().unwrap()),
-            Value::I32(args.len().try_into().unwrap()),
-            Value::I32(env.len().try_into().unwrap()),
+            Value::I32(method.len() as _),
+            Value::I32(args.len() as _),
+            Value::I32(env.len() as _),
         ];
 
         let state = Arc::new(Mutex::new(State::new(
