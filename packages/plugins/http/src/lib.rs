@@ -12,6 +12,7 @@ use wrap::{
 pub mod parse_request;
 pub mod parse_response;
 pub mod wrap;
+use std::result::Result;
 
 pub enum RequestMethod {
     GET,

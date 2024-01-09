@@ -12,6 +12,7 @@ use wrap::{
 
 pub mod wrap;
 pub use env_logger;
+use std::result::Result;
 
 // 1. Define a new trait
 pub trait LogFuncTrait: Fn(LogLevel, &str) + Debug + Send + Sync {}

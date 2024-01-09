@@ -5,6 +5,7 @@ use std::sync::Arc;
 use polywrap_plugin::*;
 use serde::*;
 use super::types::*;
+use std::result::Result;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsGet {
