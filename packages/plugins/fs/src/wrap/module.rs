@@ -6,6 +6,7 @@ use polywrap_plugin::*;
 use std::collections::BTreeMap;
 use serde::{Serialize, Deserialize};
 use super::types::*;
+use std::result::Result;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ArgsReadFile {

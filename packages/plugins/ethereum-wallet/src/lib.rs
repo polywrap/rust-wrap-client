@@ -18,6 +18,7 @@ use wrap::module::{
     ArgsRequest, ArgsSignMessage, ArgsSignTransaction, ArgsSignerAddress, ArgsWaitForTransaction,
     Module,
 };
+use std::result::Result;
 
 pub mod connection;
 pub mod connections;

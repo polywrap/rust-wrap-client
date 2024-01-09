@@ -7,6 +7,7 @@ use wrap::module::{
     Module,
 };
 pub mod wrap;
+use std::result::Result;
 
 #[derive(Debug)]
 pub struct FileSystemPlugin;
